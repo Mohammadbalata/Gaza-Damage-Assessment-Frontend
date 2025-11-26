@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 interface ApplicationData {
-  nationalId: string
+  nationalId: number
   fullName: string
   motherName: string
   dateOfBirth: string
@@ -35,7 +35,7 @@ interface ApplicationData {
 
 interface ApplicationStore {
   data: Partial<ApplicationData>
-  setNationalId: (id: string) => void
+  setNationalId: (id: number) => void
   setPersonalInfo: (info: Partial<ApplicationData>) => void
   setFamilyInfo: (info: Partial<ApplicationData>) => void
   setDamageAssessment: (info: Partial<ApplicationData>) => void
