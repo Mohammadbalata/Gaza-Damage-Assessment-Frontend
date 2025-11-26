@@ -1,38 +1,48 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useLanguage } from '../contexts/LanguageContext'
-import { useApplicationStore } from '../store/applicationStore'
-import { Eye, EyeOff, Copy, CheckCircle } from 'lucide-react'
-import { generatePassword } from '../utils/helpers'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../contexts/LanguageContext";
+import { CheckCircle } from "lucide-react";
+import { generatePassword } from "../utils/helpers";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { useForm } from "react-hook-form";
+import FormInput from "../components/FormInput";
+import { validatePassword } from "../utils/validatePassword";
+import { signUp } from "../redux/slices/authSlice";
+import Button from "../components/Shared/Button/Button";
+import { FormDataCustom } from "./SignInPage";
 
 const PasswordDisplayPage = () => {
-  const navigate = useNavigate()
-  const { t } = useLanguage()
-  const { data, setPassword } = useApplicationStore()
-  const [showPassword, setShowPassword] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [password, setPasswordState] = useState('')
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const dispatch = useAppDispatch();
+  const { nationalId } = useAppSelector((state) => state.auth);
 
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+  } = useForm<FormDataCustom>();
+
+  const [password, setPassword] = useState(generatePassword());
+
+  // Sync initial generated password to form
   useEffect(() => {
-    // Generate password if not already generated
-    if (!data.password) {
-      const newPassword = generatePassword()
-      setPassword(newPassword)
-      setPasswordState(newPassword)
-    } else {
-      setPasswordState(data.password)
-    }
-  }, [data.password, setPassword])
+    setValue("password", password);
+    console.log('parent',password)
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(password)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  }, [password, setValue]);
 
-  const handleContinue = () => {
-    navigate('/damage-assessment-dialog')
-  }
+  const onSubmit = (data: FormDataCustom) => {
+    dispatch(signUp({ nationalId, password: data.password }));
+    navigate("/damage-assessment-dialog");
+  };
+
+  const handleGeneratePassword = () => {
+    const newPass = generatePassword();
+    setPassword(newPass);
+    setValue("password", newPass, { shouldValidate: true });
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -48,41 +58,53 @@ const PasswordDisplayPage = () => {
           Your identity has been verified. Please save your password securely.
         </p>
 
-        <div className="bg-gray-50 rounded-lg p-6 mb-6">
+        <div className="bg-gray-50 rounded-lg p-6 mb-3">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('success.password')}
+            {t("success.password")}
           </label>
+
           <div className="flex items-center justify-center gap-2">
-            <p className="text-2xl font-mono font-bold text-primary">
-              {showPassword ? password : '••••••••••••'}
-            </p>
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-gray-600 hover:text-primary"
-            >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-            </button>
-            <button
-              onClick={handleCopy}
-              className="text-gray-600 hover:text-primary"
-              title="Copy"
-            >
-              <Copy className="w-5 h-5" />
-            </button>
+            <FormInput
+              id="password"
+              type="password"
+              label={t("auth.password")}
+              classNameParent="w-4/5"
+              placeholder={t("auth.passwordPlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{ validate: validatePassword(t) }}
+              defaultValue={password}
+              isrequierd={false}
+              isEye={true}
+              isCopyIcon={true}
+              {...{setPassword}}
+              isShowPassword={true}
+            />
           </div>
-          {copied && (
-            <p className="text-sm text-green-600 mt-2">Copied to clipboard!</p>
-          )}
-          <p className="text-sm text-red-600 mt-4">{t('success.savePassword')}</p>
+
+          <p className="text-sm text-red-600 mt-4 mb-7">
+            {t("success.savePassword")}
+          </p>
+
+          <div className="flex justify-end">
+            <Button
+              className="underline !text-blue-700 flex-4 text-md"
+              label={t("auth.generatePassword")}
+              onClick={handleGeneratePassword}
+            />
+          </div>
         </div>
 
-        <button onClick={handleContinue} className="btn-primary w-full">
+        <button
+          type="submit"
+          onClick={handleSubmit(onSubmit)}
+          className="btn-primary w-full"
+        >
           Continue to Damage Assessment
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PasswordDisplayPage
-
+export default PasswordDisplayPage;
