@@ -8,10 +8,10 @@ export interface IFormInputProps {
   validation?: any;
   maxLength?: number;
   defaultValue?: any;
-  isrequierd?: boolean;
+  isRequired?: boolean;
   isEye?: boolean;
   isCopyIcon?: boolean;
   classNameParent?:string;
   setPassword?:any;
-  isShowPassword?:boolean
+  setIsTouchInput?:any
 }

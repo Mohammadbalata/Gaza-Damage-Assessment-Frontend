@@ -15,14 +15,14 @@ export default function FormInput({
   validation,
   maxLength,
   defaultValue,
-  isrequierd = true,
+  isRequired,
   isEye = true,
   isCopyIcon = false,
   classNameParent,
   setPassword,
-  isShowPassword = false
+  setIsTouchInput,
 }: IFormInputProps) {
-  const [showPassword, setShowPassword] = useState(isShowPassword);
+  const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const { language } = useLanguage();
   const inputType =
@@ -35,26 +35,27 @@ export default function FormInput({
   };
   const setClassName = () => {
     if (language === "ar") {
-      if (isEye) {
+      if (isCopyIcon) {
         return "left-8";
       } else {
-        return "left-8";
+        return "left-4";
       }
     } else {
-      if (isEye) {
+      if (isCopyIcon) {
         return "right-8";
       } else {
-        return "right-8";
+        return "right-4";
       }
     }
   };
   const handleChangeInput = (e: any) => {
     setPassword(e.target.value);
+    setIsTouchInput(true)
   };
 
   return (
     <div className={classNames("relative", classNameParent)}>
-      {isrequierd && (
+      {isRequired && (
         <label
           htmlFor={id}
           className="block text-sm font-medium text-gray-700 mb-2"
@@ -71,6 +72,7 @@ export default function FormInput({
         maxLength={maxLength}
         {...{ defaultValue }}
         onChange={handleChangeInput}
+        required={isRequired}
       />
       <div
         className={classNames(

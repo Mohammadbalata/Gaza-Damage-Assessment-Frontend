@@ -34,14 +34,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.password": "Password",
     "auth.passwordPlaceholder": "Enter Your Password",
     "auth.passwordError": "Password is Not Vaild ",
-    "auth.passwordTooShort": "Password must be at least 8 characters",
+    "auth.passwordTooShort": "Your Password must be at least 8 characters",
     "auth.passwordMissingUpper":
-      "Password must contain at least one uppercase letter",
+      "Your Password must include at least one uppercase letter (A-Z).",
     "auth.passwordMissingLower":
-      "Password must contain at least one lowercase letter",
-    "auth.passwordMissingNumber": "Password must contain at least one number",
+      "Your Password must include at least one uppercase letter (a-z).",
+    "auth.passwordMissingNumber": "Your Password must include at least one number (0-9).",
     "auth.passwordMissingSymbol":
-      "Password must contain at least one special symbol",
+      "Your Password must include at least one special symbol.",
     "auth.verify": "Verify",
     "auth.trackStatus": "Track Application Status",
     "auth.generatePassword": "Generate Password",

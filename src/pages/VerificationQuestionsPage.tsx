@@ -44,18 +44,22 @@ const VerificationQuestionsPage = () => {
         setLoading(false);
       } else {
         // If not in mock data, still allow but with minimal info
-        dispatch(syncRegistryPersonalInfo({
-          fullName: "mohanned",
-          motherName: "",
-          dateOfBirth: "",
-          wifeName: "",
-          phoneNumber: "",
-          addressBeforeWar: "",
-        }));
+        dispatch(
+          syncRegistryPersonalInfo({
+            fullName: "mohanned",
+            motherName: "",
+            dateOfBirth: "",
+            wifeName: "",
+            phoneNumber: "",
+            addressBeforeWar: "",
+          })
+        );
         setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-  }, [nationalId, navigate, ]);
+  }, [nationalId, navigate]);
 
   const onSubmit = (formData: FormData) => {
     if (!nationalId) return;
@@ -64,7 +68,7 @@ const VerificationQuestionsPage = () => {
 
     if (isValid) {
       // Verification successful - proceed to previous location map
-      navigate("/previous-location");
+      navigate(`${ROUTES.PASSWORD_DISPLAY}`);
     } else {
       setError("Verification failed. Please check your answers and try again.");
     }
@@ -89,7 +93,7 @@ const VerificationQuestionsPage = () => {
             National ID not found in civil registry
           </p>
           <button
-            onClick={() => navigate("/national-id")}
+            onClick={() => navigate(`/${ROUTES.SIGNIN}`)}
             className="btn-primary mt-4"
           >
             {t("common.back")}

@@ -7,3 +7,11 @@ export const validatePassword = (t: any) => (value: any) => {
   if (!/[\W_]/.test(value)) return t("auth.passwordMissingSymbol");
   return true; // passes all checks
 };
+
+export const checkPasswordRules = (password: string) => ({
+  tooShort: password.length < 8,
+  missingUpper: !/[A-Z]/.test(password),
+  missingLower: !/[a-z]/.test(password),
+  missingNumber: !/\d/.test(password),
+  missingSymbol: !/[\W_]/.test(password),
+});

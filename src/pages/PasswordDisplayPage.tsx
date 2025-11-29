@@ -6,10 +6,15 @@ import { generatePassword } from "../utils/helpers";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
-import { validatePassword } from "../utils/validatePassword";
+import {
+  checkPasswordRules,
+  validatePassword,
+} from "../utils/validatePassword";
 import { signUp } from "../redux/slices/authSlice";
 import Button from "../components/Shared/Button/Button";
 import { FormDataCustom } from "./SignInPage";
+import { ROUTES } from "../routes/Routes";
+import classNames from "classnames";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -25,17 +30,17 @@ const PasswordDisplayPage = () => {
   } = useForm<FormDataCustom>();
 
   const [password, setPassword] = useState(generatePassword());
+  const [isTouchInput, setIsTouchInput] = useState(false);
+  const rules = checkPasswordRules(password);
 
   // Sync initial generated password to form
   useEffect(() => {
     setValue("password", password);
-    console.log('parent',password)
-
+    console.log("parent", password);
   }, [password, setValue]);
-
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signUp({ nationalId, password: data.password }));
-    navigate("/damage-assessment-dialog");
+    navigate(`${ROUTES.PREVIOUS_LOCATION}`);
   };
 
   const handleGeneratePassword = () => {
@@ -63,7 +68,7 @@ const PasswordDisplayPage = () => {
             {t("success.password")}
           </label>
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center gap-2">
             <FormInput
               id="password"
               type="password"
@@ -74,12 +79,55 @@ const PasswordDisplayPage = () => {
               errors={errors}
               validation={{ validate: validatePassword(t) }}
               defaultValue={password}
-              isrequierd={false}
+              isRequired={false}
               isEye={true}
               isCopyIcon={true}
-              {...{setPassword}}
-              isShowPassword={true}
+              {...{ setPassword }}
+              {...{ setIsTouchInput }}
             />
+
+            <div
+              className={classNames(
+                "justify-start w-4/5 text-red-500 text-left text-sm",
+                isTouchInput ? "flex" : "hidden"
+              )}
+            >
+              <ul className="list-disc">
+                <li
+                  className={rules.tooShort ? "text-red-500" : "text-green-700"}
+                >
+                  {t("auth.passwordTooShort")}
+                </li>
+                <li
+                  className={
+                    rules.missingUpper ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingUpper")}
+                </li>
+                <li
+                  className={
+                    rules.missingLower ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingLower")}
+                </li>
+                <li
+                  className={
+                    rules.missingNumber ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingNumber")}
+                </li>
+                <li
+                  className={
+                    rules.missingSymbol ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingSymbol")}
+                </li>
+              </ul>
+            </div>
           </div>
 
           <p className="text-sm text-red-600 mt-4 mb-7">
@@ -100,7 +148,7 @@ const PasswordDisplayPage = () => {
           onClick={handleSubmit(onSubmit)}
           className="btn-primary w-full"
         >
-          Continue to Damage Assessment
+          Continue
         </button>
       </div>
     </div>

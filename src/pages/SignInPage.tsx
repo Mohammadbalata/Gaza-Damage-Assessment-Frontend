@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useAppDispatch } from "../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { signIn } from "../redux/slices/authSlice";
 import NationalIdPage from "./NationalIdPage";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
 import classNames from "classnames";
-import { validatePassword } from "../utils/validatePassword";
+// import { validatePassword } from "../utils/validatePassword";
 import Button from "../components/Shared/Button/Button";
+import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 
 export interface FormDataCustom {
   nationalId: number;
@@ -24,12 +26,27 @@ const LoginPage = () => {
     formState: { errors },
     handleSubmit,
   } = useForm<FormDataCustom>();
+  const { password } = useAppSelector((state) => state.auth);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState<string>();
 
   const onSubmit = (data: FormDataCustom) => {
-    dispatch(signIn({ nationalId: data.nationalId, password: data.password }));
+    if (password !== data.password) {
+      setPasswordErrorMessage("Incorrect username or password.");
+    } else {
+      dispatch(
+        signIn({ nationalId: data.nationalId, password: data.password })
+      );
+      navigate(`/${ROUTES.SIGNUP}`);
+    }
   };
   return (
     <NationalIdPage title="login">
+      {passwordErrorMessage && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
+          <AlertCircle className="w-5 h-5" />
+          <p>{passwordErrorMessage}</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
           id="nationalId"
@@ -52,10 +69,10 @@ const LoginPage = () => {
           label={t("auth.password")}
           placeholder={t("auth.passwordPlaceholder")}
           register={register}
-          errors={errors}
           validation={{
-            validate: validatePassword(t),
+            required: t("common.required"),
           }}
+          errors={errors}
         />
         <div className="flex gap-4">
           <Button
@@ -85,7 +102,7 @@ const LoginPage = () => {
           <Button
             type="button"
             label={t("common.signUp")}
-            className="text-green-500"
+            className="text-blue-500 underline"
             onClick={() => navigate(`/${ROUTES.SIGNUP}`)}
           />
         </div>

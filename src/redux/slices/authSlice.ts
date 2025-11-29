@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "../../interfaces/store/IAuthState";
 
 const initialState: IAuthState = {
-  nationalId: null,
-  password: null,
+  nationalId: 123456789,
+  password: '11223344',
   user: null,
   isAuthenticated: false,
   loading: false,
