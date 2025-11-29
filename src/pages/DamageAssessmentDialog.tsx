@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useApplicationStore } from '../store/applicationStore'
 import { X } from 'lucide-react'
+import { ROUTES } from '../routes/Routes'
 
 interface FormData {
   damageLevel: string
@@ -34,7 +35,7 @@ const DamageAssessmentDialog = () => {
       ...formData,
       isInhabitable: formData.isInhabitable === 'yes'
     })
-    navigate('/current-location')
+    navigate(`${ROUTES.CURRENT_LOCATION}`)
   }
 
   return (

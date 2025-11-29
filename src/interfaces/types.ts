@@ -1,0 +1,29 @@
+export interface ApplicationData {
+  nationalId: string
+  fullName: string
+  motherName: string
+  dateOfBirth: string
+  addressBeforeWar: string
+  numberOfChildren: number
+  wifeName: string
+  wifeNationalId: string
+  phoneNumber: string
+  damageLevel: string
+  propertyType: string
+  propertySize: number
+  numberOfRooms: number
+  isInhabitable: boolean
+  additionalNotes: string
+  documents: File[]
+  previousLatitude: number
+  previousLongitude: number
+  previousLocationAddress: string
+  currentLatitude: number
+  currentLongitude: number
+  currentLocationAddress: string
+  latitude?: number
+  longitude?: number
+  locationAddress?: string
+  trackingNumber?: string
+  password?: string
+}

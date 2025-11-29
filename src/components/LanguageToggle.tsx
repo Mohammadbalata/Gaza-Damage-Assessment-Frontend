@@ -1,8 +1,8 @@
-import { useLanguage } from '../contexts/LanguageContext'
-import { Languages } from 'lucide-react'
+import { useLanguage } from "../contexts/LanguageContext";
+import { Languages } from "lucide-react";
 
 const LanguageToggle = () => {
-  const { language, toggleLanguage } = useLanguage()
+  const { language, toggleLanguage } = useLanguage();
 
   return (
     <button
@@ -11,10 +11,11 @@ const LanguageToggle = () => {
       aria-label="Toggle language"
     >
       <Languages className="w-6 h-6" />
-      <span className="sr-only">{language === 'en' ? 'العربية' : 'English'}</span>
+      <span className="sr-only">
+        {language === "en" ? "العربية" : "English"}
+      </span>
     </button>
-  )
-}
+  );
+};
 
-export default LanguageToggle
-
+export default LanguageToggle;
