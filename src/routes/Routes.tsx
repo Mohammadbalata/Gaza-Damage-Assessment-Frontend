@@ -19,6 +19,30 @@ import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminDashboard from "../pages/AdminDashboard";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
+import { useAuth } from "../contexts/AdminAuthContext";
+import { Navigate } from "react-router-dom";
+import SupervisorDashboard from "../pages/SupervisorDashboard";
+import NotFoundPage from "../pages/NotFoundPage";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.ADMIN_LOGIN} />;
+}
+
+function RoleBasedRoute() {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to={ROUTES.ADMIN_LOGIN} />;
+
+  switch (user.role) {
+    case "supervisor":
+      return <SupervisorDashboard />;
+    case "admin":
+      return <AdminDashboard />;
+    default:
+      return <Navigate to={ROUTES.ADMIN_LOGIN} />;
+  }
+}
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -68,5 +92,13 @@ export const routes = [
   { path: ROUTES.SUCCESS, element: <SuccessPage /> },
   { path: ROUTES.TRACK_STATUS, element: <TrackStatusPage /> },
   { path: ROUTES.ADMIN_LOGIN, element: <AdminLoginPage /> },
-  { path: ROUTES.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+  {
+    path: ROUTES.ADMIN_DASHBOARD,
+    element: (
+      <ProtectedRoute>
+        <RoleBasedRoute />
+      </ProtectedRoute>
+    ),
+  },
+  { path: "*", element: <NotFoundPage /> },
 ];
