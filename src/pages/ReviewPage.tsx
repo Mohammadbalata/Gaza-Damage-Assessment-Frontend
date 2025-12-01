@@ -9,8 +9,8 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { data, setTrackingNumber } = useApplicationStore();
-  // m1#J1&#rJ1Wg
-  const { nationalId, fullName, motherName, dateOfBirth } = useAppSelector(
+  const { nationalId } = useAppSelector((state) => state.auth);
+  const { fullName, motherName, dateOfBirth } = useAppSelector(
     (state) => state.personal
   );
   const {
