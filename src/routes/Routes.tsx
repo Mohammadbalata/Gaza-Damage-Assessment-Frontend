@@ -15,13 +15,18 @@ import MapPage from "../pages/MapPage";
 import ReviewPage from "../pages/ReviewPage";
 import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
-import AdminLoginPage from "../pages/AdminLoginPage";
-import AdminDashboard from "../pages/AdminDashboard";
+import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
+import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
+import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
+import AdminApplicationsPage from "../pages/AdminDashboard/AdminApplicationsPage";
+import AdminCitizensPage from "../pages/AdminDashboard/AdminCitizensPage";
+import AdminLocationsPage from "../pages/AdminDashboard/AdminLocationsPage";
+import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
 import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
-import SupervisorDashboard from "../pages/SupervisorDashboard";
+import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -64,6 +69,11 @@ export const ROUTES: IRoutes = {
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
   ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_APPLICATIONS: "/admin/applications",
+  ADMIN_CITIZENS: "/admin/citizens",
+  ADMIN_LOCATIONS: "/admin/locations",
+  ADMIN_LOCATION_MAP: "/admin/locations/map",
 };
 
 export const routes = [
@@ -97,6 +107,46 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <RoleBasedRoute />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_USERS,
+    element: (
+      <ProtectedRoute>
+        <AdminUsersPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_APPLICATIONS,
+    element: (
+      <ProtectedRoute>
+        <AdminApplicationsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_CITIZENS,
+    element: (
+      <ProtectedRoute>
+        <AdminCitizensPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_LOCATIONS,
+    element: (
+      <ProtectedRoute>
+        <AdminLocationsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_LOCATION_MAP,
+    element: (
+      <ProtectedRoute>
+        <AdminLocationMapPage />
       </ProtectedRoute>
     ),
   },

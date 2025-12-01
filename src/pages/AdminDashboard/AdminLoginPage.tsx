@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { Shield } from "lucide-react";
-import { useAuth } from "../contexts/AdminAuthContext";
+import { useAuth } from "../../contexts/AdminAuthContext";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../routes/Routes";
+import { ROUTES } from "../../routes/Routes";
 
 interface FormData {
   email: string;

@@ -118,6 +118,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.reject": "Reject",
     "admin.rejectionReason": "Rejection Reason",
     "admin.notes": "Admin Notes",
+    "admin.role": "Role",
+    "admin.welcomeBack": "Welcome back",
+    "admin.manage": "Manage your applications and users",
+    "admin.supervisorDashboard": "Supervisor Dashboard",
 
     // Verification
     "verification.title": "Identity Verification",
@@ -252,6 +256,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.reject": "رفض",
     "admin.rejectionReason": "سبب الرفض",
     "admin.notes": "ملاحظات المسؤول",
+    "admin.role": "الدور",
+    "admin.welcomeBack": "مرحبا بك",
+    "admin.manage": "إدارة الطلبات والمستخدمين",
+    "admin.supervisorDashboard": "لوحة التحكم المشرف",
 
     // Verification
     "verification.title": "التحقق من الهوية",
