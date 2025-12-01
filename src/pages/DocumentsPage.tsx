@@ -1,18 +1,19 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useApplicationStore } from "../store/applicationStore";
 import { Upload, X, File } from "lucide-react";
-import { useAppDispatch } from "../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { setDocuments as setDocumentsRedux } from "../redux/slices/documentsSlice";
 
 const DocumentsPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { data, setDocuments } = useApplicationStore();
-  const [files, setFiles] = useState<File[]>(data.documents || []);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
+  const documents = useAppSelector((state) => state.documents.documents);
+  const [files, setFiles] = useState<File[]>(documents || []);
+
   const handleFiles = (newFiles: FileList | null) => {
     if (!newFiles) return;
 
@@ -68,8 +69,7 @@ const DocumentsPage = () => {
   };
 
   const handleNext = () => {
-    setDocuments(files);
-    dispatch(setDocuments(files));
+    dispatch(setDocumentsRedux(files));
     navigate("/map");
   };
 
@@ -104,6 +104,7 @@ const DocumentsPage = () => {
             {t("common.select") || "Select Files"}
           </button>
           <input
+            title="File"
             ref={fileInputRef}
             type="file"
             multiple
@@ -133,6 +134,7 @@ const DocumentsPage = () => {
                   </div>
                 </div>
                 <button
+                  title="delete"
                   type="button"
                   onClick={() => removeFile(index)}
                   className="text-red-600 hover:text-red-800"
