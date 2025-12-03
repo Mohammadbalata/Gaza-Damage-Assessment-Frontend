@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "../../interfaces/store/IAuthState";
+import axios from "axios";
 
 const initialState: IAuthState = {
   nationalId: 123456789,
-  password: '11223344',
+  password: "11223344",
   user: null,
   isAuthenticated: false,
   loading: false,
@@ -40,7 +41,7 @@ export const authSlice = createSlice({
     builder.addCase(signUp.fulfilled, (state, action) => {
       state.loading = false;
       state.nationalId = action.payload.nationalId;
-      state.password = action.payload.password
+      state.password = action.payload.password;
     });
     builder.addCase(signUp.rejected, (state, action) => {
       state.loading = false;
@@ -57,8 +58,14 @@ export const signIn = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // TODO: replace with API call
-      // Simulate checking credentials
+      const res = await axios.post(
+        "https://backend-5549.onrender.com/auth/citizen-login",
+        {
+          national_id: payload.nationalId,
+          password: payload.password,
+        }
+      );
+      if (res) localStorage.setItem("token", res.data.data.token);
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
@@ -67,8 +74,8 @@ export const signIn = createAsyncThunk(
         password: payload.password,
         name: "User Name Example",
       };
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Login failed");
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
@@ -76,19 +83,19 @@ export const signIn = createAsyncThunk(
 //---sign up dispatch ---//
 
 export const signUp = createAsyncThunk(
-  'auth/signUp',
+  "auth/signUp",
   async (
-    payload: { nationalId: number; password:string },
+    payload: { nationalId: number; password: string },
     { rejectWithValue }
   ) => {
     try {
       // TODO: replace with API call
-      return payload // mock success
+      return payload; // mock success
     } catch (err: any) {
-      return rejectWithValue(err.message || 'Sign up failed')
+      return rejectWithValue(err.message || "Sign up failed");
     }
   }
-)
+);
 
 export const {} = authSlice.actions;
 export default authSlice.reducer;
@@ -101,6 +108,3 @@ export default authSlice.reducer;
 //       state.loading = false
 //       state.error = null
 //     },
-
-
-

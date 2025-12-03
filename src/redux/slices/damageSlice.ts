@@ -1,5 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
+import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
   damageLevel: "",
@@ -16,54 +17,36 @@ export const damageAssessmentSlice = createSlice({
   name: "damageAssessment",
   initialState,
   reducers: {
-    resetDamageAssessment: () => initialState,
-  },
-
-  extraReducers: (builder) => {
-    builder.addCase(saveDamageAssessment.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(saveDamageAssessment.fulfilled, (state, action) => {
-      state.loading = false;
-      state.error = null;
+    resetDamageAssessment: (state, action) => {
       state.damageLevel = action.payload.damageLevel;
       state.propertyType = action.payload.propertyType;
       state.propertySize = action.payload.propertySize;
       state.numberOfRooms = action.payload.numberOfRooms;
       state.isInhabitable = action.payload.isInhabitable;
       state.additionalNotes = action.payload.additionalNotes;
-    });
-    builder.addCase(saveDamageAssessment.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    },
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
   },
 });
 
-export const { resetDamageAssessment } = damageAssessmentSlice.actions;
+export const { resetDamageAssessment, setLoading, setError } =
+  damageAssessmentSlice.actions;
 
-export const saveDamageAssessment = createAsyncThunk(
-  "damage/save",
-  async (
-    payload: {
-      damageLevel: string;
-      propertyType: string;
-      propertySize: number;
-      numberOfRooms: number;
-      isInhabitable: boolean;
-      additionalNotes: string;
-    },
-    { rejectWithValue }
-  ) => {
+export const saveDamageAssessment =
+  (body: IDamageAssessmentState) => (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
     try {
-      // TODO: Replace with API call later
-      // simulate success
-      return payload;
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Failed to save damage assessment");
+      dispatch(resetDamageAssessment(body));
+    } catch (error) {
+      dispatch(setError("Failed to save damage assessment"));
+    } finally {
+      dispatch(setLoading(false));
     }
-  }
-);
+  };
 
 export default damageAssessmentSlice.reducer;

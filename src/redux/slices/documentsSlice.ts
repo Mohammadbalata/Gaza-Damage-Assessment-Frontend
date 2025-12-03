@@ -1,19 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { ApplicationData } from '../../interfaces/types'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ApplicationData } from "../../interfaces/types";
 
 const initialState: Partial<ApplicationData> = {
   documents: [],
-}
+};
 
 export const documentsSlice = createSlice({
-  name: 'documents',
+  name: "documents",
   initialState,
   reducers: {
     setDocuments: (state, action: PayloadAction<File[]>) => {
-      state.documents = action.payload
+      state.documents = action.payload;
     },
   },
-})
+});
 
-export const { setDocuments } = documentsSlice.actions
-export default documentsSlice.reducer
+export const { setDocuments } = documentsSlice.actions;
+export default documentsSlice.reducer;
