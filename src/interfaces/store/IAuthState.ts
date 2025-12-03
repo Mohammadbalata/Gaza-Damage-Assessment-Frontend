@@ -8,4 +8,5 @@ export interface IAuthState {
   setPersonalInfo?: any;
   messageSuccess ?: string
 verificationQuestion : any[]
+setError?: any
 }

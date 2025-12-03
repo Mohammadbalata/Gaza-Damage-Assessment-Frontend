@@ -31,6 +31,8 @@ const VerificationQuestionsPage = () => {
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(loadingStore);
   const [loadingInput, setLoadingInput] = useState(false);
+  // const [value, setValue] = React.useState(null);
+
   const [error, setError] = useState("");
   const {
     register,
@@ -53,30 +55,60 @@ const VerificationQuestionsPage = () => {
     }
   }, [verificationQuestion]);
 
+  // const onSubmit = async (formData: FormData) => {
+  //   setLoadingInput(true);
+  //   let answers: { [key: string]: string } = {};
+  //   for (let key in formData) {
+  //     if (formData[key] !== "") {
+  //       answers[key] = formData[key];
+  //       console.log(answers);
+  //     }
+  //   }
+  //   await axiosClient
+  //     .post("/auth/verify-questions", {
+  //       nationalId: nationalId,
+  //       answers: answers,
+  //     })
+  //     .then(() => {
+  //       setLoadingInput(false);
+  //       navigate(`${ROUTES.PASSWORD_DISPLAY}`);
+  //       console.log("success");
+  //     })
+  //     .catch((error: any) => {
+  //       console.log(error.response.data.message);
+  //       setLoadingInput(false);
+  //       setError(error.response.data.message);
+  //     });
+  // };
   const onSubmit = async (formData: FormData) => {
-    setLoadingInput(true);
-    let answers: { [key: string]: string } = {};
-    for (let key in formData) {
-      if (formData[key] !== "") {
-        answers[key] = formData[key];
+  setLoadingInput(true);
+  let answers: { [key: string]: string } = {};
+
+  for (let key in formData) {
+    let value = formData[key];
+    if (value !== "") {
+      if (key.toString().split("_").pop() === "bd") {
+        const [year, month, day] = value.split("-");
+        value = `${day}/${month}/${year}`;
       }
+
+      answers[key] = value;
     }
-    await axiosClient
-      .post("/auth/verify-questions", {
-        nationalId: nationalId,
-        answers: answers,
-      })
-      .then(() => {
-        setLoadingInput(false);
-        navigate(`${ROUTES.PASSWORD_DISPLAY}`);
-        console.log("success");
-      })
-      .catch((error: any) => {
-        console.log(error.response.data.message);
-        setLoadingInput(false);
-        setError(error.response.data.message);
-      });
-  };
+  }
+
+  try {
+    await axiosClient.post("/auth/verify-questions", {
+      nationalId: nationalId,
+      answers: answers,
+    });
+    setLoadingInput(false);
+    navigate(`${ROUTES.PASSWORD_DISPLAY}`);
+  } catch (error: any) {
+    setLoadingInput(false);
+    setError(error.response?.data?.message || "Something went wrong");
+  }
+};
+
 
   if (loading) {
     return (
@@ -128,13 +160,15 @@ const VerificationQuestionsPage = () => {
           {questions.map((question, index) => (
             <div key={question.key}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {index + 1}.{" "}
-                {/* {language === "ar" ? question.questionAr : question.question} */}
-                {question.question}
+                {index + 1}. {question.question}
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <input
-                type="text"
+                type={
+                  question.key.toString().split("_").pop() === "bd"
+                    ? "date"
+                    : "text"
+                }
                 {...register(question.key, {
                   required: t("common.required"),
                 })}

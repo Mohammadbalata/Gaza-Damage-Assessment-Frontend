@@ -16,7 +16,11 @@ const initialState: IAuthState = {
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setError : (state,action) => {
+      state.error = action.payload
+    }
+  },
   extraReducers: (builder) => {
     //---- sign in ----//
     builder.addCase(signIn.pending, (state) => {
@@ -105,5 +109,5 @@ export const signUp = createAsyncThunk(
   }
 );
 
-export const {} = authSlice.actions;
+export const {setError} = authSlice.actions;
 export default authSlice.reducer;
