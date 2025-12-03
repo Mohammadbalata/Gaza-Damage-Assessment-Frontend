@@ -206,20 +206,20 @@ const AdminLocationsPage = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t('admin.citizen')}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t('admin.type')}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t('admin.address')}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t('admin.coordinates')}
               </th>
               {canManage && (
-                <th className="text-left py-3 px-2 font-semibold">
+                <th className="text-center py-3 px-2 font-semibold">
                   {t('admin.actions')}
                 </th>
               )}
@@ -228,7 +228,7 @@ const AdminLocationsPage = () => {
           <tbody>
             {locations.map((location) => (
               <tr key={location.id} className="border-b border-gray-100">
-                <td className="py-3 px-2">
+                <td className="text-center py-3 px-2">
                   <p className="font-medium">
                     {location.citizen?.full_name || `Citizen #${location.citizenId}`}
                   </p>
@@ -236,15 +236,15 @@ const AdminLocationsPage = () => {
                     {location.citizen?.national_id}
                   </p>
                 </td>
-                <td className="py-3 px-2 capitalize">
+                <td className="text-center py-3 px-2 capitalize">
                   {location.type.replace('_', ' ')}
                 </td>
-                <td className="py-3 px-2 text-gray-700">
+                <td className="text-center py-3 px-2 text-gray-700">
                   {[location.governorate, location.town, location.street]
                     .filter(Boolean)
                     .join(' • ') || '-'}
                 </td>
-                <td className="py-3 px-2 text-gray-600">
+                <td className="text-center py-3 px-2 text-gray-600">
                   {location.latitude != null && location.longitude != null ? (
                     <div className="space-y-1">
                       <p>
@@ -259,7 +259,7 @@ const AdminLocationsPage = () => {
                         }
                         className="text-blue-600 hover:text-blue-800 text-xs font-medium"
                       >
-                        View on map
+                        {t('map.showonmap')}
                       </Link>
                     </div>
                   ) : (
@@ -267,8 +267,8 @@ const AdminLocationsPage = () => {
                   )}
                 </td>
                 {canManage && (
-                  <td className="py-3 px-2">
-                    <div className="flex gap-2">
+                  <td className="flex justify-center py-3 px-2">
+                    <div className="flex  gap-2">
                       <button
                         type="button"
                         className="text-blue-600 hover:text-blue-800 text-xs font-medium"

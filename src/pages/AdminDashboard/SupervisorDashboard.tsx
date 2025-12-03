@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useAuth } from '../../contexts/AdminAuthContext'
 import { adminApi } from '../../services/api'
-import { FileText, IdCard, MapPinned, ShieldAlert } from 'lucide-react'
+import { FileText, IdCard, MapPinned } from 'lucide-react'
 
 const SupervisorDashboard = () => {
   const { t } = useLanguage()
@@ -22,17 +22,19 @@ const SupervisorDashboard = () => {
       setLoading(true)
       setError(null)
       try {
-        const [appsRes, citizensRes, locationsRes] = await Promise.all([
-          adminApi.listApplications({ page: 1, pageSize: 1 }),
-          adminApi.listCitizens({ page: 1, pageSize: 1 }),
-          adminApi.listLocations({ page: 1, pageSize: 1 }),
-        ])
+
+         const [ appsRes, citizensRes, locationsRes] =
+          await Promise.all([
+            adminApi.listApplications({ page: 1, pageSize: 1 }),
+            adminApi.listCitizens({ page: 1, pageSize: 1 }),
+            adminApi.listLocations({ page: 1, pageSize: 1 }),
+          ]);
 
         setTotals({
           applications: appsRes.length,
           citizens: citizensRes.length,
           locations: locationsRes.length,
-        })
+        });
       } catch (e: any) {
         setError(e?.message || 'Failed to load dashboard data')
       } finally {
@@ -56,7 +58,7 @@ const SupervisorDashboard = () => {
         </div>
         <div className="text-sm text-gray-600">
           {t('admin.role')}:{' '}
-          <span className="font-semibold capitalize">{user?.role ?? 'guest'}</span>
+          <span className="font-semibold capitalize">{t("common.supervisor")}</span>
         </div>
       </div>
 
@@ -69,12 +71,12 @@ const SupervisorDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="card space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                <FileText className="w-5 h-5" />
+            <div onClick={() => navigate('/admin/applications')} className="flex items-center gap-3">
+              <div className=" w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
+                <FileText className="hover:cursor-pointer w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">{t('admin.applications')}</h2>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">{t('admin.applications')}</h2>
                 <p className="text-sm text-gray-500">
                   {t('admin.supervisorApplicationsDescription') ||
                     'View applications with limited permissions.'}
@@ -89,24 +91,19 @@ const SupervisorDashboard = () => {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => navigate('/admin/applications')}
-            disabled={loading}
-          >
-            {t('admin.manageApplications')}
-          </button>
+         
         </div>
 
         <div className="card space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div 
+            onClick={() => navigate('/admin/citizens')}
+             className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                <IdCard className="w-5 h-5" />
+                <IdCard className="hover:cursor-pointer w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">{t('admin.citizens')}</h2>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">{t('admin.citizens')}</h2>
                 <p className="text-sm text-gray-500">
                   {t('admin.supervisorCitizensDescription') ||
                     'View-only access to citizen records.'}
@@ -121,24 +118,16 @@ const SupervisorDashboard = () => {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="btn-outline"
-            onClick={() => navigate('/admin/citizens')}
-            disabled={loading}
-          >
-            {t('admin.citizens')}
-          </button>
         </div>
 
         <div className="card space-y-4">
-          <div className="flex items-center justify-between">
+          <div onClick={() => navigate('/admin/locations')} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                <MapPinned className="w-5 h-5" />
+                <MapPinned className="hover:cursor-pointer w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">{t('admin.locations')}</h2>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">{t('admin.locations')}</h2>
                 <p className="text-sm text-gray-500">
                   {t('admin.supervisorLocationsDescription') ||
                     'View-only access to citizen locations.'}
@@ -152,18 +141,9 @@ const SupervisorDashboard = () => {
               </span>
             </p>
           </div>
-
-          <button
-            type="button"
-            className="btn-outline"
-            onClick={() => navigate('/admin/locations')}
-            disabled={loading}
-          >
-            {t('admin.locations')}
-          </button>
         </div>
 
-        <div className="card space-y-4">
+        {/* <div className="card space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-red-500">
@@ -185,7 +165,7 @@ const SupervisorDashboard = () => {
           >
             {t('admin.noAccess')}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   )

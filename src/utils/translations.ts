@@ -24,6 +24,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.signUp": "Create Account",
     "common.signUp-qesution": "Don't have an account?",
     "common.or": "OR",
+    "common.admin": "Admin",
+    "common.supervisor": "Supervisor",
 
     // Auth
     "auth.nationalId": "National ID",
@@ -81,6 +83,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.address": "Address",
     "map.reset": "Reset Location",
     "map.confirm": "Confirm Location",
+    "map.showonmap": "View on Map",
 
     // Review
     "review.title": "Review Your Application",
@@ -164,6 +167,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.selectOnMap": "Select coordinates on map",
     "admin.selectOnMapHelp":
       "Click anywhere on the map to set latitude and longitude for this location.",
+    "common.created": "Created",
+    "admin.applications.deleteConfirm":
+      "Are you sure you want to delete this application?",
+    "admin.locations.deleteConfirm":
+      "Are you sure you want to delete this location?",
+    "admin.citizens.deleteConfirm":
+      "Are you sure you want to delete this citizen?",
+    "admin.noApplicationsPermission":
+      "You do not have permission to view applications.",
 
     // Admin - forms / labels
     "admin.users.title": "Admin Users",
@@ -230,28 +242,32 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Search by Citizen Name or ID",
     "admin.applications.notesPlaceholder":
       "Add internal notes for this application",
-
-    // Errors (admin)
-    "error.loadDashboard": "Failed to load dashboard data.",
+    // ENGLISH
+    "admin.welcomeBack": "Welcome back",
+    "admin.supervisorApplicationsDescription":
+      "View applications with limited permissions.",
+    "admin.supervisorCitizensDescription":
+      "View-only access to citizen records.",
+    "admin.supervisorLocationsDescription":
+      "View-only access to citizen locations.",
+    "admin.manage": "Manage the system",
     "error.loadUsers": "Failed to load users.",
     "error.saveUser": "Failed to save user.",
     "error.deleteUser": "Failed to delete user.",
     "error.loadCitizens": "Failed to load citizens.",
     "error.saveCitizen": "Failed to save citizen.",
     "error.deleteCitizen": "Failed to delete citizen.",
-    "error.loadApplications": "Failed to load applications.",
-    "error.saveApplication": "Failed to save application.",
-    "error.deleteApplication": "Failed to delete application.",
     "error.loadLocations": "Failed to load locations.",
     "error.saveLocation": "Failed to save location.",
     "error.deleteLocation": "Failed to delete location.",
-    "error.invalidCitizenId": "Citizen ID must be a valid number.",
-    "error.invalidLatitude": "Latitude must be a valid number.",
-    "error.invalidLongitude": "Longitude must be a valid number.",
-
-    "admin.welcomeBack": "Welcome back",
-    "admin.manage": "Manage your applications and users",
-
+    "error.invalidCitizenId": "Invalid citizen ID.",
+    "error.invalidLatitude": "Invalid latitude.",
+    "error.invalidLongitude": "Invalid longitude.",
+    "error.loadApplications": "Failed to load applications.",
+    "error.saveApplication": "Failed to save application.",
+    "error.deleteApplication": "Failed to delete application.",
+    // Errors (admin)
+    "error.loadDashboard": "Failed to load dashboard data.",
     // Verification
     "verification.title": "Identity Verification",
     "verification.description":
@@ -290,6 +306,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.signUp": "انشاء حساب",
     "common.signUp-qesution": "ليس لديك حساب؟",
     "common.or": "أو",
+    "common.admin": "مدير",
+    "common.supervisor": "مشرف",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",
@@ -347,6 +365,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.address": "العنوان",
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
+    "map.showonmap": "عرض على الخريطة",
 
     // Review
     "review.title": "مراجعة طلبك",
@@ -453,6 +472,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.statusDead": "متوفى",
     "admin.citizens.create": "إنشاء مواطن",
     "admin.citizens.update": "تحديث",
+    "common.created": "تاريخ الإنشاء",
+    "admin.applications.deleteConfirm": "هل أنت متأكد من حذف هذا الطلب؟",
+    "admin.locations.deleteConfirm": "هل أنت متأكد من حذف هذا الموقع؟",
+    "admin.citizens.deleteConfirm": "هل أنت متأكد من حذف هذا المواطن؟",
+    "admin.noApplicationsPermission": "لا تملك صلاحية عرض الطلبات.",
 
     "admin.locations.title": "المواقع",
     "admin.locations.subtitle":
@@ -488,26 +512,29 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.applications.notes": "ملاحظات",
     "admin.applications.notesPlaceholder": "أضف ملاحظات داخلية لهذا الطلب",
     "admin.applications.searchCitizenPlaceholder": "ابحث باسم المواطن أو رقمه",
-
+    // ARABIC
+    "admin.welcomeBack": "مرحباً بعودتك",
+    "admin.supervisorApplicationsDescription": "عرض الطلبات بصلاحيات محدودة.",
+    "admin.supervisorCitizensDescription": "عرض سجلات المواطنين فقط.",
+    "admin.supervisorLocationsDescription": "عرض مواقع المواطنين فقط.",
+    "admin.manage": "إدارة النظام",
+    "error.loadUsers": "فشل في تحميل المستخدمين.",
+    "error.saveUser": "فشل في حفظ المستخدم.",
+    "error.deleteUser": "فشل في حذف المستخدم.",
+    "error.loadCitizens": "فشل في تحميل المواطنين.",
+    "error.saveCitizen": "فشل في حفظ المواطن.",
+    "error.deleteCitizen": "فشل في حذف المواطن.",
+    "error.loadLocations": "فشل في تحميل المواقع.",
+    "error.saveLocation": "فشل في حفظ الموقع.",
+    "error.deleteLocation": "فشل في حذف الموقع.",
+    "error.invalidCitizenId": "رقم هوية المواطن غير صحيح.",
+    "error.invalidLatitude": "خط العرض غير صحيح.",
+    "error.invalidLongitude": "خط الطول غير صحيح.",
+    "error.loadApplications": "فشل في تحميل الطلبات.",
+    "error.saveApplication": "فشل في حفظ الطلب.",
+    "error.deleteApplication": "فشل في حذف الطلب.",
     // Errors (admin)
     "error.loadDashboard": "فشل تحميل بيانات لوحة التحكم.",
-    "error.loadUsers": "فشل تحميل المستخدمين.",
-    "error.saveUser": "فشل حفظ بيانات المستخدم.",
-    "error.deleteUser": "فشل حذف المستخدم.",
-    "error.loadCitizens": "فشل تحميل المواطنين.",
-    "error.saveCitizen": "فشل حفظ بيانات المواطن.",
-    "error.deleteCitizen": "فشل حذف المواطن.",
-    "error.loadApplications": "فشل تحميل الطلبات.",
-    "error.saveApplication": "فشل حفظ الطلب.",
-    "error.deleteApplication": "فشل حذف الطلب.",
-    "error.loadLocations": "فشل تحميل المواقع.",
-    "error.saveLocation": "فشل حفظ الموقع.",
-    "error.deleteLocation": "فشل حذف الموقع.",
-    "error.invalidCitizenId": "يجب أن يكون رقم المواطن رقماً صحيحاً.",
-    "error.invalidLatitude": "يجب أن يكون خط العرض رقماً صحيحاً.",
-    "error.invalidLongitude": "يجب أن يكون خط الطول رقماً صحيحاً.",
-    "admin.welcomeBack": "مرحبا بك",
-    "admin.manage": "إدارة الطلبات والمستخدمين",
 
     // Verification
     "verification.title": "التحقق من الهوية",

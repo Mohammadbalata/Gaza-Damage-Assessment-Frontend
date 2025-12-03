@@ -194,15 +194,17 @@ const AdminApplicationsPage = () => {
             {t("admin.applications.subtitle")}
           </p>
         </div>
-        <button
-          type="button"
-          className="btn-primary flex items-center gap-2"
-          onClick={openCreateDialog}
-          disabled={!canManage}
-        >
-          <Plus className="w-4 h-4" />
-          {t("admin.applications.create")}
-        </button>
+
+        {canManage && (
+          <button
+            type="button"
+            className="btn-primary flex items-center gap-2"
+            onClick={openCreateDialog}
+          >
+            <Plus className="w-4 h-4" />
+            {t("admin.applications.create")}
+          </button>
+        )}
       </div>
 
       {error && (
@@ -215,57 +217,65 @@ const AdminApplicationsPage = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.applications.id")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.applications.citizen")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.applications.status")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.applications.updated")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
-                {t("admin.actions")}
-              </th>
+              {canManage && (
+                <th className="text-center py-3 px-2 font-semibold">
+                  {t("admin.actions")}
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
-            {applications.map((application) => (
-              <tr key={application.id} className="border-b border-gray-100">
-                <td className="py-3 px-2 font-medium">#{application.id}</td>
-                <td className="py-3 px-2 text-gray-700">
-                  {application.citizen?.first_name || application.citizenId}
-                </td>
-                <td className="py-3 px-2 capitalize">{application.status}</td>
-                <td className="py-3 px-2 text-gray-500">
-                  {new Date(application.updatedAt).toLocaleString()}
-                </td>
-                <td className="py-3 px-2">
+            {applications
+              .sort((a, b) => a.id - b.id)
+              .map((application) => (
+                <tr key={application.id} className="border-b border-gray-100">
+                  <td className="text-center py-3 px-2 font-medium">
+                    #{application.id}
+                  </td>
+                  <td className="text-center py-3 px-2 text-gray-700">
+                    {application.citizen?.first_name || "----"}
+                  </td>
+                  <td className="text-center py-3 px-2 capitalize">
+                    {application.status}
+                  </td>
+                  <td className="text-center py-3 px-2 text-gray-500">
+                    {new Date(application.updatedAt).toLocaleString()}
+                  </td>
                   {canManage && (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                        onClick={() => openEditDialog(application)}
-                      >
-                        {t("common.edit")}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-red-600 hover:text-red-800 text-xs font-medium flex items-center gap-1"
-                        onClick={() => handleDelete(application.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        {t("common.delete")}
-                      </button>
-                    </div>
+                    <td className="flex justify-center py-3 px-2">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                          onClick={() => openEditDialog(application)}
+                        >
+                          {t("common.edit")}
+                        </button>
+                        <button
+                          type="button"
+                          className="text-red-600 hover:text-red-800 text-xs font-medium flex items-center gap-1"
+                          onClick={() => handleDelete(application.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          {t("common.delete")}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </td>
-              </tr>
-            ))}
+                </tr>
+              ))}
             {!applications.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">

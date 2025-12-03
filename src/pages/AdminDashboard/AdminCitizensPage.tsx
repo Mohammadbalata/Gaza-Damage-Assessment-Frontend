@@ -167,20 +167,20 @@ const AdminCitizensPage = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.citizens.nationalId")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.citizens.fullName")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.citizens.gender")}
               </th>
-              <th className="text-left py-3 px-2 font-semibold">
+              <th className="text-center py-3 px-2 font-semibold">
                 {t("admin.citizens.status")}
               </th>
               {canManage && (
-                <th className="text-left py-3 px-2 font-semibold">
+                <th className="text-center py-3 px-2 font-semibold">
                   {t("admin.actions")}
                 </th>
               )}
@@ -189,26 +189,26 @@ const AdminCitizensPage = () => {
           <tbody>
             {citizens.map((citizen) => (
               <tr key={citizen.id} className="border-b border-gray-100">
-                <td className="py-3 px-2 font-mono text-sm">
+                <td className="text-center py-3 px-2 font-mono text-sm">
                   {citizen.national_id}
                 </td>
-                <td className="py-3 px-2 text-gray-700">
-                  {citizen.first_name || "-"}
+                <td className="text-center py-3 px-2 text-gray-700">
+                  {citizen.first_name || "----"}
                 </td>
-                <td className="py-3 px-2 capitalize">
+                <td className="text-center py-3 px-2 capitalize">
                   {citizen.gender
                     ? citizen.gender === "male"
                       ? t("admin.citizens.genderMale")
                       : t("admin.citizens.genderFemale")
                     : t("admin.citizens.genderNotSet")}
                 </td>
-                <td className="py-3 px-2 capitalize">
+                <td className="text-center py-3 px-2 capitalize">
                   {citizen.status === "alive"
                     ? t("admin.citizens.statusAlive")
                     : t("admin.citizens.statusDead")}
                 </td>
                 {canManage && (
-                  <td className="py-3 px-2">
+                  <td className="flex justify-center py-3 px-2">
                     <div className="flex gap-2">
                       <button
                         type="button"
