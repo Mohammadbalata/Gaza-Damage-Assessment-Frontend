@@ -1,7 +1,7 @@
 import { IRoutes } from "../interfaces/IRoutes";
 import Layout from "../components/Layout";
 import HomePage from "../pages/HomePage";
-import NationalIdPage from "../pages/NationalIdPage";
+import NationalIdPage from "../pages/AuthComp";
 import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
@@ -19,6 +19,7 @@ import AdminLoginPage from "../pages/AdminLoginPage";
 import AdminDashboard from "../pages/AdminDashboard";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
+import { Navigate } from "react-router-dom";
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -69,4 +70,5 @@ export const routes = [
   { path: ROUTES.TRACK_STATUS, element: <TrackStatusPage /> },
   { path: ROUTES.ADMIN_LOGIN, element: <AdminLoginPage /> },
   { path: ROUTES.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+  { path: "*", element: <Navigate to="/auth/signIn" replace /> },
 ];

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { signIn } from "../redux/slices/authSlice";
-import NationalIdPage from "./NationalIdPage";
+// import NationalIdPage from "./NationalIdPage";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
@@ -11,10 +11,11 @@ import classNames from "classnames";
 import Button from "../components/Shared/Button/Button";
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
+import AuthComp from "./AuthComp";
 
 export interface FormDataCustom {
-  nationalId: number;
-  password: string;
+  nationalId: string;
+  password: string | any;
 }
 
 const LoginPage = () => {
@@ -30,7 +31,7 @@ const LoginPage = () => {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState<string>();
 
   const onSubmit = (data: FormDataCustom) => {
-    if (password !== data.password) {
+    if (password == data.password) {
       setPasswordErrorMessage("Incorrect username or password.");
     } else {
       dispatch(
@@ -39,8 +40,9 @@ const LoginPage = () => {
       navigate(`/${ROUTES.SIGNUP}`);
     }
   };
+
   return (
-    <NationalIdPage title="login">
+    <AuthComp title = 'Sign in'>
       {passwordErrorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
           <AlertCircle className="w-5 h-5" />
@@ -107,7 +109,7 @@ const LoginPage = () => {
           />
         </div>
       </form>
-    </NationalIdPage>
+    </AuthComp>
   );
 };
 

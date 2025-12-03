@@ -1,6 +1,6 @@
 import { useLanguage } from "../contexts/LanguageContext";
 
-const NationalIdPage = ({ title, children }: any) => {
+const AuthComp = ({ title, children }: any) => {
   const { t } = useLanguage();
 
   return (
@@ -15,4 +15,4 @@ const NationalIdPage = ({ title, children }: any) => {
   );
 };
 
-export default NationalIdPage;
+export default AuthComp;
