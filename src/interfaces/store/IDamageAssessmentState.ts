@@ -3,7 +3,7 @@ export interface IDamageAssessmentState {
   propertyType: string;
   propertySize: number;
   numberOfRooms: number;
-  isInhabitable: boolean;
+  isInhabitable: boolean ;
   additionalNotes: string;
   loading: boolean;
   error: string | null;

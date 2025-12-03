@@ -2,53 +2,51 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { signIn } from "../redux/slices/authSlice";
-import NationalIdPage from "./NationalIdPage";
+// import NationalIdPage from "./NationalIdPage";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
 import classNames from "classnames";
-// import { validatePassword } from "../utils/validatePassword";
 import Button from "../components/Shared/Button/Button";
-import { useState } from "react";
 import { AlertCircle } from "lucide-react";
+import AuthComp from "./AuthComp";
 
 export interface FormDataCustom {
-  nationalId: number;
-  password: string;
+  nationalId: string;
+  password: string | any;
 }
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
+
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm<FormDataCustom>();
-  const { password } = useAppSelector((state) => state.auth);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState<string>();
-
+  const { error, loading, isAuthenticated } = useAppSelector(
+    (state) => state.auth
+  );
   const onSubmit = (data: FormDataCustom) => {
-    if (password !== data.password) {
-      setPasswordErrorMessage("Incorrect username or password.");
-    } else {
-      dispatch(
-        signIn({ nationalId: data.nationalId, password: data.password })
-      );
+    dispatch(signIn({ nationalId: data.nationalId, password: data.password }));
+    if (isAuthenticated) {
       navigate(`/${ROUTES.SIGNUP}`);
     }
   };
+
   return (
-    <NationalIdPage title="login">
-      {passwordErrorMessage && (
+    <AuthComp title="Sign in">
+      {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
           <AlertCircle className="w-5 h-5" />
-          <p>{passwordErrorMessage}</p>
+          <p>{error}</p>
         </div>
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
+          defaultValue={"410031934"}
           id="nationalId"
           label={t("auth.nationalId")}
           placeholder={t("auth.nationalIdPlaceholder")}
@@ -64,6 +62,7 @@ const LoginPage = () => {
           }}
         />
         <FormInput
+          defaultValue={"user123456"}
           id="password"
           type="password"
           label={t("auth.password")}
@@ -81,10 +80,20 @@ const LoginPage = () => {
             label={t("common.cancel")}
             onClick={() => navigate("/")}
           />
+
           <Button
             type="submit"
             className="btn-primary flex-1"
-            label={t("common.signIn")}
+            label={
+              loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  {t("common.loading")}
+                </div>
+              ) : (
+                t("common.signIn")
+              )
+            }
           />
         </div>
         <div className="flex justify-center">
@@ -107,7 +116,7 @@ const LoginPage = () => {
           />
         </div>
       </form>
-    </NationalIdPage>
+    </AuthComp>
   );
 };
 

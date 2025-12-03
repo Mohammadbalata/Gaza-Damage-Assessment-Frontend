@@ -1,9 +1,11 @@
 export interface IAuthState {
-  nationalId: number | null | any;
+  nationalId: string | null | any;
   password: string | null | any
   user: any | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
   setPersonalInfo?: any;
+  messageSuccess ?: string
+verificationQuestion : any[]
 }

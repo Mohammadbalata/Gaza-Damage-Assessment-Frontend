@@ -19,9 +19,11 @@ export const personalSlice = createSlice({
   name: "personal",
   initialState,
   reducers: {
-    // setNationalId: (state, action: PayloadAction<number>) => {
-    //   state.nationalId = action.payload;
-    // },
+    setPersonalInfo: (state, action: { payload: IRegistryData }) => {
+      state.fullName = action.payload.fullName;
+      state.motherName = action.payload.motherName;
+      state.dateOfBirth = action.payload.dateOfBirth;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -69,5 +71,5 @@ export const syncRegistryPersonalInfo = createAsyncThunk<
   }
 );
 
-export const {} = personalSlice.actions;
+export const { setPersonalInfo } = personalSlice.actions;
 export default personalSlice.reducer;

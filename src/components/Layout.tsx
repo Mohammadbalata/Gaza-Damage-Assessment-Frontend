@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import LanguageToggle from "./LanguageToggle";
 import Header from "./Header";
 
-const Layout = ({ children }:any) => {
+const Layout = ({ children }: any) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

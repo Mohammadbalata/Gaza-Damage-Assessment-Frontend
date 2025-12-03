@@ -1,20 +1,27 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { ApplicationData } from '../../interfaces/types'
-
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ApplicationData } from "../../interfaces/types";
 
 const initialState: Partial<ApplicationData> = {
+  addressBeforeWar: "",
   numberOfChildren: 0,
-}
+  wifeName: "",
+  wifeNationalId: "",
+  phoneNumber: "",
+};
 
 export const familySlice = createSlice({
-  name: 'family',
+  name: "family",
   initialState,
   reducers: {
     setFamilyInfo: (state, action: PayloadAction<Partial<ApplicationData>>) => {
-      Object.assign(state, action.payload)
+      state.addressBeforeWar = action.payload.addressBeforeWar;
+      state.numberOfChildren = action.payload.numberOfChildren;
+      state.wifeName = action.payload.wifeName;
+      state.wifeNationalId = action.payload.wifeNationalId;
+      state.phoneNumber = action.payload.phoneNumber;
     },
   },
-})
+});
 
-export const { setFamilyInfo } = familySlice.actions
-export default familySlice.reducer
+export const { setFamilyInfo } = familySlice.actions;
+export default familySlice.reducer;
