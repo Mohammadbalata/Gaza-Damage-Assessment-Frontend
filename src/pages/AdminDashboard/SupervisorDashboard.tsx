@@ -29,9 +29,9 @@ const SupervisorDashboard = () => {
         ])
 
         setTotals({
-          applications: appsRes.total,
-          citizens: citizensRes.total,
-          locations: locationsRes.total,
+          applications: appsRes.length,
+          citizens: citizensRes.length,
+          locations: locationsRes.length,
         })
       } catch (e: any) {
         setError(e?.message || 'Failed to load dashboard data')
@@ -51,9 +51,7 @@ const SupervisorDashboard = () => {
             {t('admin.supervisorDashboard') || 'Supervisor Dashboard'}
           </h1>
           <p className="text-sm text-gray-500">
-            {user
-              ? `${t('admin.welcomeBack') || 'Welcome back'}, ${user.name}`
-              : ''}
+            {user ? `${t('admin.welcomeBack') || 'Welcome back'}, ${user.name}` : ''}
           </p>
         </div>
         <div className="text-sm text-gray-600">
@@ -76,9 +74,10 @@ const SupervisorDashboard = () => {
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Applications</h2>
+                <h2 className="text-xl font-semibold">{t('admin.applications')}</h2>
                 <p className="text-sm text-gray-500">
-                  Full create, edit, and delete access to applications.
+                  {t('admin.supervisorApplicationsDescription') ||
+                    'View applications with limited permissions.'}
                 </p>
               </div>
             </div>
@@ -96,7 +95,7 @@ const SupervisorDashboard = () => {
             onClick={() => navigate('/admin/applications')}
             disabled={loading}
           >
-            Manage Applications
+            {t('admin.manageApplications')}
           </button>
         </div>
 
@@ -107,9 +106,10 @@ const SupervisorDashboard = () => {
                 <IdCard className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Citizens</h2>
+                <h2 className="text-xl font-semibold">{t('admin.citizens')}</h2>
                 <p className="text-sm text-gray-500">
-                  View-only access to citizen records.
+                  {t('admin.supervisorCitizensDescription') ||
+                    'View-only access to citizen records.'}
                 </p>
               </div>
             </div>
@@ -127,7 +127,7 @@ const SupervisorDashboard = () => {
             onClick={() => navigate('/admin/citizens')}
             disabled={loading}
           >
-            View Citizens
+            {t('admin.citizens')}
           </button>
         </div>
 
@@ -138,9 +138,10 @@ const SupervisorDashboard = () => {
                 <MapPinned className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Locations</h2>
+                <h2 className="text-xl font-semibold">{t('admin.locations')}</h2>
                 <p className="text-sm text-gray-500">
-                  View-only access to citizen locations.
+                  {t('admin.supervisorLocationsDescription') ||
+                    'View-only access to citizen locations.'}
                 </p>
               </div>
             </div>
@@ -158,7 +159,7 @@ const SupervisorDashboard = () => {
             onClick={() => navigate('/admin/locations')}
             disabled={loading}
           >
-            View Locations
+            {t('admin.locations')}
           </button>
         </div>
 
@@ -169,9 +170,9 @@ const SupervisorDashboard = () => {
                 <ShieldAlert className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Users</h2>
+                <h2 className="text-xl font-semibold">{t('admin.users')}</h2>
                 <p className="text-sm text-gray-500">
-                  User management is restricted to admins only.
+                  {t('admin.noUsersAccess')}
                 </p>
               </div>
             </div>
@@ -182,7 +183,7 @@ const SupervisorDashboard = () => {
             className="btn-outline cursor-not-allowed opacity-60"
             disabled
           >
-            No Access
+            {t('admin.noAccess')}
           </button>
         </div>
       </div>

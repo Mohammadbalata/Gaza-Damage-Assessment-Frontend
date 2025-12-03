@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import axios from "axios";
+import type { AxiosError } from "axios";
 import { api, AdminUser } from "../services/api";
 
 type Role = "admin" | "supervisor";
@@ -54,30 +54,45 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   }): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    let success = true;
-    await axios
-      .post(`${import.meta.env.VITE_API_URL}/auth/signin`, credentials)
-      .then((response) => {
-        const data = response.data?.data;
-        if (data?.user && data?.access_token) {
-          persistAuth({
-            user: data.user,
-            access_token: data.access_token,
-          });
-        } else {
-          throw new Error("Malformed authentication response");
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        setError(e.response?.data?.message || "Login failed");
-        success = false;
-      })
-      .finally(() => {
-        setLoading(false);
-      });
 
-    return success;
+    try {
+      // Use shared API client so baseURL and interceptors are applied correctly
+      const response = await api.post("/auth/signin", credentials);
+      const data = response.data?.data ?? response.data;
+
+      if (data?.user && data?.access_token) {
+        persistAuth({
+          user: data.user,
+          access_token: data.access_token,
+        });
+        return true;
+      }
+
+      throw new Error("Malformed authentication response");
+    } catch (err) {
+      const error = err as AxiosError<any>;
+      console.error("Admin login failed", error);
+
+      // Prefer backend-provided message if available
+      const backendMessage =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error;
+
+      if (error.response?.status === 401) {
+        setError(backendMessage || "Invalid email or password");
+      } else if (error.response?.status === 404) {
+        setError(
+          backendMessage ||
+            "Authentication service is not available. Please try again later."
+        );
+      } else {
+        setError(backendMessage || "Login failed");
+      }
+
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const refreshProfile = useCallback(async () => {

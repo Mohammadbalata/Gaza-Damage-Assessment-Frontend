@@ -58,13 +58,15 @@ const AdminLocationsPage = () => {
   const canView = hasRole('admin', 'supervisor')
 
   const loadLocations = async () => {
+    if (!canView) return
     setLoading(true)
     setError(null)
     try {
       const res = await adminApi.listLocations({ page: 1, pageSize: 100 })
-      setLocations(res.data)
+      setLocations(res)
     } catch (e: any) {
-      setError(e?.message || 'Failed to load locations')
+      console.error(e)
+      setError(t('error.loadLocations'))
     } finally {
       setLoading(false)
     }
@@ -102,18 +104,18 @@ const AdminLocationsPage = () => {
     if (!canManage) return
     const citizenId = Number(form.citizenId)
     if (Number.isNaN(citizenId)) {
-      setError('Citizen ID must be a valid number')
+      setError(t('error.invalidCitizenId'))
       return
     }
     const latitude = form.latitude ? Number(form.latitude) : undefined
     const longitude = form.longitude ? Number(form.longitude) : undefined
 
     if (form.latitude && Number.isNaN(latitude)) {
-      setError('Latitude must be a valid number')
+      setError(t('error.invalidLatitude'))
       return
     }
     if (form.longitude && Number.isNaN(longitude)) {
-      setError('Longitude must be a valid number')
+      setError(t('error.invalidLongitude'))
       return
     }
 
@@ -143,7 +145,8 @@ const AdminLocationsPage = () => {
       setForm(emptyLocation)
       loadLocations()
     } catch (e: any) {
-      setError(e?.message || 'Failed to save location')
+      console.error(e)
+      setError(t('error.saveLocation'))
     } finally {
       setLoading(false)
     }
@@ -151,14 +154,15 @@ const AdminLocationsPage = () => {
 
   const handleDelete = async (id: number) => {
     if (!canManage) return
-    if (!window.confirm('Delete location?')) return
+    if (!window.confirm(t('admin.locations.deleteConfirm') || 'Delete location?')) return
     setLoading(true)
     setError(null)
     try {
       await adminApi.deleteLocation(id)
       loadLocations()
     } catch (e: any) {
-      setError(e?.message || 'Failed to delete location')
+      console.error(e)
+      setError(t('error.deleteLocation'))
     } finally {
       setLoading(false)
     }
@@ -167,10 +171,8 @@ const AdminLocationsPage = () => {
   if (!canView) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Locations</h1>
-        <p className="text-sm text-gray-500">
-          You do not have permission to view locations.
-        </p>
+        <h1 className="text-3xl font-bold">{t('admin.locations.title')}</h1>
+        <p className="text-sm text-gray-500">{t('admin.locations.permissionMessage')}</p>
       </div>
     )
   }
@@ -179,10 +181,8 @@ const AdminLocationsPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Locations</h1>
-          <p className="text-sm text-gray-500">
-            Manage citizen locations before/after war and temporary housing.
-          </p>
+          <h1 className="text-3xl font-bold">{t('admin.locations.title')}</h1>
+          <p className="text-sm text-gray-500">{t('admin.locations.subtitle')}</p>
         </div>
         {canManage && (
           <button
@@ -191,7 +191,7 @@ const AdminLocationsPage = () => {
             onClick={openCreateDialog}
           >
             <Plus className="w-4 h-4" />
-            Create Location
+          {t('admin.locations.create')}
           </button>
         )}
       </div>
@@ -206,12 +206,22 @@ const AdminLocationsPage = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-semibold">Citizen</th>
-              <th className="text-left py-3 px-2 font-semibold">Type</th>
-              <th className="text-left py-3 px-2 font-semibold">Address</th>
-              <th className="text-left py-3 px-2 font-semibold">Coordinates</th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.citizen')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.type')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.address')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.coordinates')}
+              </th>
               {canManage && (
-                <th className="text-left py-3 px-2 font-semibold">Actions</th>
+                <th className="text-left py-3 px-2 font-semibold">
+                  {t('admin.actions')}
+                </th>
               )}
             </tr>
           </thead>
@@ -264,7 +274,7 @@ const AdminLocationsPage = () => {
                         className="text-blue-600 hover:text-blue-800 text-xs font-medium"
                         onClick={() => openEditDialog(location)}
                       >
-                        Edit
+                        {t('common.edit')}
                       </button>
                       <button
                         type="button"
@@ -272,7 +282,7 @@ const AdminLocationsPage = () => {
                         onClick={() => handleDelete(location.id)}
                       >
                         <Trash2 className="w-3 h-3" />
-                        Delete
+                        {t('common.delete')}
                       </button>
                     </div>
                   </td>
@@ -282,7 +292,7 @@ const AdminLocationsPage = () => {
             {!locations.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
-                  No locations found.
+                  {t('admin.noLocationsFound')}
                 </td>
               </tr>
             )}
@@ -301,7 +311,7 @@ const AdminLocationsPage = () => {
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">
-                {editing ? 'Edit Location' : 'Create Location'}
+                {editing ? t('admin.locations.update') : t('admin.locations.create')}
               </h2>
               <button
                 type="button"
@@ -315,7 +325,7 @@ const AdminLocationsPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Citizen ID
+                    {t('admin.locations.citizenId')}
                   </label>
                   <input
                     type="number"
@@ -329,7 +339,7 @@ const AdminLocationsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
+                    {t('admin.locations.formType')}
                   </label>
                   <select
                     className="input-field capitalize"
@@ -341,15 +351,15 @@ const AdminLocationsPage = () => {
                       }))
                     }
                   >
-                    <option value="before_war">Before war</option>
-                    <option value="after_war">After war</option>
-                    <option value="temporary">Temporary</option>
-                    <option value="current">Current</option>
+                    <option value="before_war">{t('admin.locations.beforeWar')}</option>
+                    <option value="after_war">{t('admin.locations.afterWar')}</option>
+                    <option value="temporary">{t('admin.locations.temporary')}</option>
+                    <option value="current">{t('admin.locations.current')}</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Governorate
+                    {t('admin.locations.governorate')}
                   </label>
                   <input
                     type="text"
@@ -362,7 +372,7 @@ const AdminLocationsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Town
+                    {t('admin.locations.town')}
                   </label>
                   <input
                     type="text"
@@ -375,7 +385,7 @@ const AdminLocationsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Street
+                    {t('admin.locations.street')}
                   </label>
                   <input
                     type="text"
@@ -389,7 +399,7 @@ const AdminLocationsPage = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Block
+                      {t('admin.locations.block')}
                     </label>
                     <input
                       type="text"
@@ -405,7 +415,7 @@ const AdminLocationsPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      House
+                      {t('admin.locations.house')}
                     </label>
                     <input
                       type="text"
@@ -422,7 +432,7 @@ const AdminLocationsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Latitude
+                    {t('admin.locations.latitude')}
                   </label>
                   <input
                     type="number"
@@ -436,7 +446,7 @@ const AdminLocationsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Longitude
+                    {t('admin.locations.longitude')}
                   </label>
                   <input
                     type="number"
@@ -452,7 +462,7 @@ const AdminLocationsPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes
+                  {t('admin.locations.notes')}
                 </label>
                 <textarea
                   className="input-field"
@@ -466,10 +476,10 @@ const AdminLocationsPage = () => {
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-700">
-                  Select coordinates on map
+                  {t('admin.selectOnMap')}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Click anywhere on the map to set latitude and longitude for this location.
+                  {t('admin.selectOnMapHelp')}
                 </p>
                 <div className="h-64 rounded-lg overflow-hidden border border-gray-300">
                   <MapContainer
@@ -497,7 +507,7 @@ const AdminLocationsPage = () => {
                 </div>
                 {form.latitude && form.longitude && (
                   <p className="text-xs text-gray-600">
-                    Selected: {form.latitude}, {form.longitude}
+                    {t('admin.coordinates')}: {form.latitude}, {form.longitude}
                   </p>
                 )}
               </div>
@@ -508,10 +518,10 @@ const AdminLocationsPage = () => {
                   className="btn-outline"
                   onClick={() => setIsDialogOpen(false)}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {editing ? 'Update' : 'Create'}
+                  {editing ? t('admin.locations.update') : t('common.submit')}
                 </button>
               </div>
             </form>

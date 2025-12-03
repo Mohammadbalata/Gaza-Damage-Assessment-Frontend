@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -16,6 +17,7 @@ L.Icon.Default.mergeOptions({
 const AdminLocationMapPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const params = new URLSearchParams(location.search)
   const lat = Number(params.get('lat'))
@@ -32,9 +34,9 @@ const AdminLocationMapPage = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Location Map</h1>
+          <h1 className="text-3xl font-bold">{t('admin.locationMapTitle')}</h1>
           <p className="text-sm text-gray-500">
-            Visualize the selected citizen location on the map.
+            {t('admin.locationMapDescription')}
           </p>
         </div>
         <button
@@ -42,14 +44,13 @@ const AdminLocationMapPage = () => {
           className="btn-outline"
           onClick={() => navigate('/admin/locations')}
         >
-          Back to Locations
+          {t('admin.backToLocations')}
         </button>
       </div>
 
       {!isValidCoords && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
-          Coordinates are missing or invalid. Please ensure the location has latitude and
-          longitude values set.
+          {t('admin.invalidCoordinates')}
         </div>
       )}
 
@@ -68,7 +69,7 @@ const AdminLocationMapPage = () => {
               <Marker position={center}>
                 <Popup>
                   <div className="text-sm space-y-1">
-                    <p className="font-semibold">Citizen Location</p>
+                    <p className="font-semibold">{t('admin.citizen')}</p>
                     <p className="text-xs text-gray-600">
                       {governorate && <span>{governorate}</span>}
                       {town && <span>{governorate ? ' • ' : ''}{town}</span>}

@@ -22,26 +22,18 @@ const AdminUsersPage = () => {
   const [form, setForm] = useState(emptyForm)
 
   const canManage = hasRole('admin')
-
-  if (!canManage) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Admin Users</h1>
-        <p className="text-sm text-gray-500">
-          You do not have permission to view or manage users.
-        </p>
-      </div>
-    )
-  }
+  const canView = hasRole('admin')
 
   const loadUsers = async () => {
+    if (!canView) return
     setLoading(true)
     setError(null)
     try {
       const res = await adminApi.listUsers({ page: 1, pageSize: 100 })
-      setUsers(res.data)
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load users')
+      setUsers(res)
+    } catch (e) {
+      console.error(e)
+      setError(t('error.loadUsers'))
     } finally {
       setLoading(false)
     }
@@ -49,7 +41,7 @@ const AdminUsersPage = () => {
 
   useEffect(() => {
     loadUsers()
-  }, [])
+  }, [canView, t])
 
   const openCreateDialog = () => {
     setEditing(null)
@@ -93,8 +85,9 @@ const AdminUsersPage = () => {
       setForm(emptyForm)
       setEditing(null)
       loadUsers()
-    } catch (e: any) {
-      setError(e?.message || 'Failed to save user')
+    } catch (e) {
+      console.error(e)
+      setError(t('error.saveUser'))
     } finally {
       setLoading(false)
     }
@@ -102,26 +95,39 @@ const AdminUsersPage = () => {
 
   const handleDelete = async (id: number) => {
     if (!canManage) return
-    if (!window.confirm('Are you sure you want to delete this user?')) return
+    if (
+      !window.confirm(t('admin.users.deleteConfirm') || 'Are you sure you want to delete this user?')
+    )
+      return
     setLoading(true)
     setError(null)
     try {
       await adminApi.deleteUser(id)
       loadUsers()
-    } catch (e: any) {
-      setError(e?.message || 'Failed to delete user')
+    } catch (e) {
+      console.error(e)
+      setError(t('error.deleteUser'))
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!canView) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">{t('admin.users.title')}</h1>
+        <p className="text-sm text-gray-500">{t('admin.noUsersPermission')}</p>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Admin Users</h1>
+          <h1 className="text-3xl font-bold">{t('admin.users.title')}</h1>
           <p className="text-sm text-gray-500">
-            Manage administrator and supervisor accounts.
+            {t('admin.users.subtitle')}
           </p>
         </div>
         <button
@@ -131,7 +137,7 @@ const AdminUsersPage = () => {
           disabled={!canManage}
         >
           <Plus className="w-4 h-4" />
-          Create User
+          {t('admin.users.create')}
         </button>
       </div>
 
@@ -145,11 +151,21 @@ const AdminUsersPage = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-2 font-semibold">Name</th>
-              <th className="text-left py-3 px-2 font-semibold">Email</th>
-              <th className="text-left py-3 px-2 font-semibold">Role</th>
-              <th className="text-left py-3 px-2 font-semibold">Created</th>
-              <th className="text-left py-3 px-2 font-semibold">Actions</th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.users.name')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.users.email')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.users.role')}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('common.created') || 'Created'}
+              </th>
+              <th className="text-left py-3 px-2 font-semibold">
+                {t('admin.actions')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -168,7 +184,7 @@ const AdminUsersPage = () => {
                       className="text-blue-600 hover:text-blue-800 text-xs font-medium"
                       onClick={() => openEditDialog(user)}
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
@@ -176,7 +192,7 @@ const AdminUsersPage = () => {
                       onClick={() => handleDelete(user.id)}
                     >
                       <Trash2 className="w-3 h-3" />
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </td>
@@ -185,7 +201,7 @@ const AdminUsersPage = () => {
             {!users.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
-                  No users found.
+                  {t('admin.noUsersFound')}
                 </td>
               </tr>
             )}
@@ -204,7 +220,7 @@ const AdminUsersPage = () => {
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">
-                {editing ? 'Edit User' : 'Create User'}
+                {editing ? t('admin.users.update') : t('admin.users.create')}
               </h2>
               <button
                 type="button"
@@ -218,7 +234,7 @@ const AdminUsersPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Name
+                    {t('admin.users.name')}
                   </label>
                   <input
                     type="text"
@@ -232,7 +248,7 @@ const AdminUsersPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
+                    {t('admin.users.email')}
                   </label>
                   <input
                     type="email"
@@ -246,7 +262,7 @@ const AdminUsersPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role
+                    {t('admin.users.role')}
                   </label>
                   <select
                     className="input-field"
@@ -258,13 +274,13 @@ const AdminUsersPage = () => {
                       }))
                     }
                   >
-                    <option value="admin">Admin</option>
-                    <option value="supervisor">Supervisor</option>
+                    <option value="admin">{t('admin.users')}</option>
+                    <option value="supervisor">{t('admin.supervisorDashboard')}</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {editing ? 'Password (optional)' : 'Password'}
+                    {editing ? t('admin.users.passwordOptional') : t('admin.users.password')}
                   </label>
                   <input
                     type="password"
@@ -284,10 +300,10 @@ const AdminUsersPage = () => {
                   className="btn-outline"
                   onClick={() => setIsDialogOpen(false)}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                  {editing ? 'Update' : 'Create'}
+                  {editing ? t('admin.users.update') : t('common.submit')}
                 </button>
               </div>
             </form>

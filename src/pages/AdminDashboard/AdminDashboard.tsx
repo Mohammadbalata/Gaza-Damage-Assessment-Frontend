@@ -32,10 +32,10 @@ const AdminDashboard = () => {
         ])
 
         setTotals({
-          users: usersRes.total,
-          applications: appsRes.total,
-          citizens: citizensRes.total,
-          locations: locationsRes.total,
+          users: usersRes.length,
+          applications: appsRes.length,
+          citizens: citizensRes.length,
+          locations: locationsRes.length,
         })
       } catch (e: any) {
         setError(e?.message || 'Failed to load dashboard data')
@@ -79,9 +79,9 @@ const AdminDashboard = () => {
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Manage Users</h2>
+                <h2 className="text-xl font-semibold">{t('admin.manageUsers')}</h2>
                 <p className="text-sm text-gray-500">
-                  Administrator & supervisor accounts overview.
+                  {t('admin.usersDescription')}
                 </p>
               </div>
             </div>
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
             onClick={() => navigate('/admin/users')}
             disabled={loading}
           >
-            Manage Users
+            {t('admin.manageUsers')}
           </button>
         </div>
 
@@ -107,9 +107,9 @@ const AdminDashboard = () => {
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Manage Applications</h2>
+                <h2 className="text-xl font-semibold">{t('admin.manageApplications')}</h2>
                 <p className="text-sm text-gray-500">
-                  Damage assessment applications from citizens.
+                  {t('admin.applicationsDescription')}
                 </p>
               </div>
             </div>
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
             onClick={() => navigate('/admin/applications')}
             disabled={loading}
           >
-            Manage Applications
+            {t('admin.manageApplications')}
           </button>
         </div>
 
@@ -138,9 +138,9 @@ const AdminDashboard = () => {
                 <IdCard className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Manage Citizens</h2>
+                <h2 className="text-xl font-semibold">{t('admin.manageCitizens')}</h2>
                 <p className="text-sm text-gray-500">
-                  Registered citizens and verification status.
+                  {t('admin.citizensDescription')}
                 </p>
               </div>
             </div>
@@ -158,7 +158,7 @@ const AdminDashboard = () => {
             onClick={() => navigate('/admin/citizens')}
             disabled={loading}
           >
-            Manage Citizens
+            {t('admin.manageCitizens')}
           </button>
         </div>
 
@@ -169,9 +169,9 @@ const AdminDashboard = () => {
                 <MapPinned className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">Manage Locations</h2>
+                <h2 className="text-xl font-semibold">{t('admin.manageLocations')}</h2>
                 <p className="text-sm text-gray-500">
-                  Citizen locations before/after war and temporary housing.
+                  {t('admin.locationsDescription')}
                 </p>
               </div>
             </div>
@@ -189,7 +189,7 @@ const AdminDashboard = () => {
             onClick={() => navigate('/admin/locations')}
             disabled={loading}
           >
-            Manage Locations
+            {t('admin.manageLocations')}
           </button>
         </div>
       </div>
