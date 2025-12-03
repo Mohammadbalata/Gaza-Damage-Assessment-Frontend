@@ -64,8 +64,11 @@ export const signIn = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // TODO: replace with API call
-      // Simulate checking credentials
+      const res = await axiosClient.post("/auth/citizen-login", {
+        nationalId: payload.nationalId,
+        password: payload.password,
+      });
+      if (res) localStorage.setItem("token", res.data.data.token);
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
@@ -74,8 +77,8 @@ export const signIn = createAsyncThunk(
         password: payload.password,
         name: "User Name Example",
       };
-    } catch (err: any) {
-      return rejectWithValue(err.message || "Login failed");
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
@@ -104,12 +107,3 @@ export const signUp = createAsyncThunk(
 
 export const {} = authSlice.actions;
 export default authSlice.reducer;
-
-//  logout: (state) => {
-//       state.nationalId = null
-//       state.password = null
-//       state.user = null
-//       state.isAuthenticated = false
-//       state.loading = false
-//       state.error = null
-//     },
