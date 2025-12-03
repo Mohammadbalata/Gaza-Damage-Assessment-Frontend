@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { Eye, CheckCircle, XCircle } from 'lucide-react'
 import ApplicationDetailsModal from './ApplicationDetailsModal'
+import type { Application } from '../../services/api'
 
 interface Filters {
   search: string
@@ -12,51 +13,14 @@ interface Filters {
   dateTo: string
 }
 
-interface Application {
-  id: string
-  trackingNumber: string
-  nationalId: string
-  fullName: string
-  location: string
-  damageLevel: string
-  propertyType: string
-  status: string
-  submittedAt: string
-}
-
 interface Props {
   filters: Filters
+  applications: Application[]
 }
 
-const AdminApplicationsTable = ({ filters }: Props) => {
+const AdminApplicationsTable = ({ filters, applications }: Props) => {
   const { t } = useLanguage()
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-
-  // Mock data - in production, fetch from API
-  const applications: Application[] = [
-    {
-      id: '1',
-      trackingNumber: 'GZA-2024-123456',
-      nationalId: '123456789',
-      fullName: 'Ahmad Hassan Mohammad',
-      location: 'Al-Rimal District, Gaza City',
-      damageLevel: 'severe',
-      propertyType: 'apartment',
-      status: 'underReview',
-      submittedAt: '2024-11-23T10:30:00Z',
-    },
-    {
-      id: '2',
-      trackingNumber: 'GZA-2024-123457',
-      nationalId: '987654321',
-      fullName: 'Mohammed Ali Salem',
-      location: 'Al-Shati Camp, Gaza',
-      damageLevel: 'destroyed',
-      propertyType: 'house',
-      status: 'approved',
-      submittedAt: '2024-11-22T14:20:00Z',
-    },
-  ]
 
   const getStatusBadge = (status: string) => {
     const statusClass = `badge badge-${status.replace(/([A-Z])/g, '-$1').toLowerCase()}`
@@ -82,7 +46,8 @@ const AdminApplicationsTable = ({ filters }: Props) => {
       <div className="card overflow-x-auto">
         <div className="mb-4">
           <p className="text-sm text-gray-600">
-            Showing {applications.length} results
+            {t('common.resultsCount') || 'Showing'} {applications.length}{' '}
+            {t('common.results') || 'results'}
           </p>
         </div>
         <table className="w-full">

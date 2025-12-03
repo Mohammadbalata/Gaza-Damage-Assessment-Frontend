@@ -1,17 +1,38 @@
+import { useEffect, useState } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
-import { FileText, Clock, CheckCircle, XCircle, Users } from 'lucide-react'
+import { adminApi, Application } from '../../services/api'
+import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 
 const AdminStats = () => {
   const { t } = useLanguage()
+  const [stats, setStats] = useState({
+    total: 0,
+    pendingReview: 0,
+    approved: 0,
+    rejected: 0,
+  })
 
-  // Mock data - in production, fetch from API
-  const stats = {
-    total: 1250,
-    submitted: 85,
-    pendingReview: 120,
-    approved: 920,
-    rejected: 80,
-  }
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const apps = await adminApi.listApplications({ page: 1, pageSize: 500 })
+        const pending = apps.filter((a: Application) => a.status === 'pending').length
+        const approved = apps.filter((a: Application) => a.status === 'approved').length
+        const rejected = apps.filter((a: Application) => a.status === 'rejected').length
+
+        setStats({
+          total: apps.length,
+          pendingReview: pending,
+          approved,
+          rejected,
+        })
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    load()
+  }, [])
 
   const statCards = [
     {
