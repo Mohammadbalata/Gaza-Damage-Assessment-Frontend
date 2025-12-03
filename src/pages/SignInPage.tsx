@@ -38,12 +38,6 @@ const LoginPage = () => {
 
   return (
     <AuthComp title="Sign in">
-      {loading && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2 text-blue-800">
-          <AlertCircle className="w-5 h-5" />
-          <p>{t("common.loading")}</p>
-        </div>
-      )}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
           <AlertCircle className="w-5 h-5" />
@@ -86,10 +80,20 @@ const LoginPage = () => {
             label={t("common.cancel")}
             onClick={() => navigate("/")}
           />
+
           <Button
             type="submit"
             className="btn-primary flex-1"
-            label={t("common.signIn")}
+            label={
+              loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  {t("common.loading")}
+                </div>
+              ) : (
+                t("common.signIn")
+              )
+            }
           />
         </div>
         <div className="flex justify-center">
