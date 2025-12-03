@@ -22,6 +22,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.signIn": "Sign in",
     "common.signUp": "Create Account",
     "common.signUp-qesution": "Don't have an account?",
+    "common.signIn-qesution": "Do you have an account?",
     "common.or": "OR",
 
     // Auth
@@ -39,12 +40,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Your Password must include at least one uppercase letter (A-Z).",
     "auth.passwordMissingLower":
       "Your Password must include at least one uppercase letter (a-z).",
-    "auth.passwordMissingNumber": "Your Password must include at least one number (0-9).",
+    "auth.passwordMissingNumber":
+      "Your Password must include at least one number (0-9).",
     "auth.passwordMissingSymbol":
       "Your Password must include at least one special symbol.",
     "auth.verify": "Verify",
     "auth.trackStatus": "Track Application Status",
     "auth.generatePassword": "Generate Password",
+    "auth.verifyQuesTitle": "Identity Verification",
+    "auth.verifyQuesBody":
+      "Please answer the following questions to verify your identity. These questions are based on your civil registry information.",
 
     // Personal Info
     "form.fullName": "Full Name",
@@ -154,6 +159,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.signIn": "تسجيل الدخول",
     "common.signUp": "انشاء حساب",
     "common.signUp-qesution": "ليس لديك حساب؟",
+    "common.signIn-qesution": "هل لديك حساب بالفعل؟",
     "common.or": "أو",
 
     // Auth
@@ -178,7 +184,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verify": "التحقق",
     "auth.trackStatus": "تتبع حالة الطلب",
     "auth.generatePassword": "إنشاء كلمة مرور",
-
+    "auth.verifyQuesTitle": "التحقق من الهوية",
+    "auth.verifyQuesBody":'يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.',
+    "auth.verifySuccess" : '',
     // Personal Info
     "form.fullName": "الاسم الكامل",
     "form.motherName": "اسم الأم",
