@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IAuthState } from "../../interfaces/store/IAuthState";
+import { IAuthState, SignUpPayload } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
 
 const initialState: IAuthState = {
@@ -16,7 +16,11 @@ const initialState: IAuthState = {
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     //---- sign in ----//
     builder.addCase(signIn.pending, (state) => {
@@ -91,23 +95,21 @@ export const signIn = createAsyncThunk(
 
 export const signUp = createAsyncThunk(
   "auth/signUp",
-  async (
-    payload: { nationalId: string | null; password: string },
-    { rejectWithValue }
-  ) => {
+  async (payload: SignUpPayload, { rejectWithValue }) => {
     try {
-      const res = await axiosClient.post("/auth/verify-id", {
+      const res = await axiosClient.post(`/auth/${payload.pathSignUp}`, {
         nationalId: payload.nationalId,
+        password: payload.password, // include if backend expects it
       });
 
       console.log(res.data);
-      return { payload, data: res.data }; // mock success
+      return { payload, data: res.data };
     } catch (err: any) {
       console.log(err);
-      return rejectWithValue(err.response.data.message || "Sign up failed");
+      return rejectWithValue(err.response?.data?.message || "Sign up failed");
     }
   }
 );
 
-export const {} = authSlice.actions;
+export const { setError } = authSlice.actions;
 export default authSlice.reducer;

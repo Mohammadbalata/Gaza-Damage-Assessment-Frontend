@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { signIn } from "../redux/slices/authSlice";
+import { setError, signIn } from "../redux/slices/authSlice";
 // import NationalIdPage from "./NationalIdPage";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
@@ -26,14 +26,16 @@ const LoginPage = () => {
     formState: { errors },
     handleSubmit,
   } = useForm<FormDataCustom>();
-  const { error, loading, isAuthenticated } = useAppSelector(
-    (state) => state.auth
-  );
+  const { error, loading } = useAppSelector((state) => state.auth);
   const onSubmit = (data: FormDataCustom) => {
-    dispatch(signIn({ nationalId: data.nationalId, password: data.password }));
-    if (isAuthenticated) {
-      navigate(`/${ROUTES.SIGNUP}`);
-    }
+    dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
+      .unwrap()
+      .then(() => {
+        navigate(`${ROUTES.PERSONAL_INFO}`);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
 
   return (
@@ -46,7 +48,7 @@ const LoginPage = () => {
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
-          defaultValue={"410031934"}
+          defaultValue={"410519946"}
           id="nationalId"
           label={t("auth.nationalId")}
           placeholder={t("auth.nationalIdPlaceholder")}
@@ -62,7 +64,7 @@ const LoginPage = () => {
           }}
         />
         <FormInput
-          defaultValue={"user123456"}
+          defaultValue={"Test123456*"}
           id="password"
           type="password"
           label={t("auth.password")}
@@ -72,13 +74,17 @@ const LoginPage = () => {
             required: t("common.required"),
           }}
           errors={errors}
+          setPassword={null}
         />
         <div className="flex gap-4">
           <Button
             type="button"
             className="btn-outline flex-1"
             label={t("common.cancel")}
-            onClick={() => navigate("/")}
+            onClick={() => {
+              dispatch(setError(""));
+              navigate("/");
+            }}
           />
 
           <Button
@@ -112,7 +118,10 @@ const LoginPage = () => {
             type="button"
             label={t("common.signUp")}
             className="text-blue-500 underline"
-            onClick={() => navigate(`/${ROUTES.SIGNUP}`)}
+            onClick={() => {
+              dispatch(setError(""));
+              navigate(`/${ROUTES.SIGNUP}`);
+            }}
           />
         </div>
       </form>
