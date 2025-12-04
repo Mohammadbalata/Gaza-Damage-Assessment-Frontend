@@ -2,7 +2,6 @@ export interface IRoutes {
   LAYOUT: string;
   SIGNIN: string;
   SIGNUP: string;
-  NATIONAL_ID: string;
   VERIFICATION_QUESTIONS: string;
   PREVIOUS_LOCATION: string;
   PASSWORD_DISPLAY: string;
