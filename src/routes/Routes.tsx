@@ -1,7 +1,6 @@
 import { IRoutes } from "../interfaces/IRoutes";
 import Layout from "../components/Layout";
 import HomePage from "../pages/HomePage";
-import NationalIdPage from "../pages/NationalIdPage";
 import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
@@ -31,7 +30,11 @@ import NotFoundPage from "../pages/NotFoundPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.ADMIN_LOGIN} />;
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to={ROUTES.ADMIN_LOGIN} />
+  );
 }
 
 function RoleBasedRoute() {
@@ -53,7 +56,6 @@ export const ROUTES: IRoutes = {
   LAYOUT: "/",
   SIGNIN: "auth/signIn",
   SIGNUP: "auth/signUp",
-  NATIONAL_ID: "/national-id",
   VERIFICATION_QUESTIONS: "/verification-questions",
   PREVIOUS_LOCATION: "/previous-location",
   PASSWORD_DISPLAY: "/password-display",
@@ -81,7 +83,6 @@ export const routes = [
   { index: true, path: ROUTES.LAYOUT, element: <HomePage /> },
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
-  { path: ROUTES.NATIONAL_ID, element: <NationalIdPage /> },
   {
     path: ROUTES.VERIFICATION_QUESTIONS,
     element: <VerificationQuestionsPage />,
