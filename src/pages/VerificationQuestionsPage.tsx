@@ -43,9 +43,8 @@ const VerificationQuestionsPage = () => {
   useEffect(() => {
     if (verificationQuestion.length === 0) {
       setLoading(true);
-      dispatch(signUp({ nationalId: id, password: "" }))
+      dispatch(signUp({ nationalId: id, password: "" ,pathSignUp : 'verify-questions'}))
         .unwrap()
-        .then(() => {})
         .catch(() => {
           navigate(`/${ROUTES.SIGNUP}`);
         });
@@ -55,31 +54,7 @@ const VerificationQuestionsPage = () => {
     }
   }, [verificationQuestion]);
 
-  // const onSubmit = async (formData: FormData) => {
-  //   setLoadingInput(true);
-  //   let answers: { [key: string]: string } = {};
-  //   for (let key in formData) {
-  //     if (formData[key] !== "") {
-  //       answers[key] = formData[key];
-  //       console.log(answers);
-  //     }
-  //   }
-  //   await axiosClient
-  //     .post("/auth/verify-questions", {
-  //       nationalId: nationalId,
-  //       answers: answers,
-  //     })
-  //     .then(() => {
-  //       setLoadingInput(false);
-  //       navigate(`${ROUTES.PASSWORD_DISPLAY}`);
-  //       console.log("success");
-  //     })
-  //     .catch((error: any) => {
-  //       console.log(error.response.data.message);
-  //       setLoadingInput(false);
-  //       setError(error.response.data.message);
-  //     });
-  // };
+
   const onSubmit = async (formData: FormData) => {
   setLoadingInput(true);
   let answers: { [key: string]: string } = {};
@@ -98,11 +73,11 @@ const VerificationQuestionsPage = () => {
 
   try {
     await axiosClient.post("/auth/verify-questions", {
-      nationalId: nationalId,
+      nationalId: id,
       answers: answers,
     });
     setLoadingInput(false);
-    navigate(`${ROUTES.PASSWORD_DISPLAY}`);
+    navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
   } catch (error: any) {
     setLoadingInput(false);
     setError(error.response?.data?.message || "Something went wrong");

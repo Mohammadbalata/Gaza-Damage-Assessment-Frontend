@@ -31,7 +31,7 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then(() => {
-        navigate(`/${ROUTES.SIGNUP}`);
+        navigate(`${ROUTES.PERSONAL_INFO}`);
       })
       .catch((error) => {
         console.log(error.message);
@@ -48,7 +48,7 @@ const LoginPage = () => {
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
-          defaultValue={"410031934"}
+          defaultValue={"410519946"}
           id="nationalId"
           label={t("auth.nationalId")}
           placeholder={t("auth.nationalIdPlaceholder")}
@@ -64,7 +64,7 @@ const LoginPage = () => {
           }}
         />
         <FormInput
-          defaultValue={"user123456"}
+          defaultValue={"Test123456*"}
           id="password"
           type="password"
           label={t("auth.password")}
@@ -74,6 +74,7 @@ const LoginPage = () => {
             required: t("common.required"),
           }}
           errors={errors}
+          setPassword={null}
         />
         <div className="flex gap-4">
           <Button

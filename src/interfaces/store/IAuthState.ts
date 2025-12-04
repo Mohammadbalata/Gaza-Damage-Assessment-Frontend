@@ -10,3 +10,9 @@ export interface IAuthState {
 verificationQuestion : any[]
 setError?: any
 }
+
+export interface SignUpPayload {
+  nationalId?: string | null;
+  password?: string;
+  pathSignUp: string; // e.g., "verify-id" or "register"
+}

@@ -26,14 +26,21 @@ const SignUpPage = () => {
   } = useForm<FormDataCustom>();
 
   const onSubmit = async (data: FormDataCustom) => {
-    await dispatch(signUp({ nationalId: data.nationalId, password: "" }))
+    await dispatch(
+      signUp({
+        nationalId: data.nationalId,
+        password: "",
+        pathSignUp: "verify-id",
+      })
+    )
       .unwrap()
       .then(() => {
         navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.nationalId}`);
-        console.log('success')
-      }).catch((error) => {
-        console.log(error)
+        console.log("success");
       })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
