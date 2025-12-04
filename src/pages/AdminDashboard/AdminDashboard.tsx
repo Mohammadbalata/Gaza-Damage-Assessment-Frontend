@@ -1,0 +1,190 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../contexts/LanguageContext";
+import AdminStats from "../../components/admin/AdminStats";
+import { adminApi } from "../../services/api";
+import { useAuth } from "../../contexts/AdminAuthContext";
+import { Users, FileText, IdCard, MapPinned } from "lucide-react";
+
+const AdminDashboard = () => {
+  const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totals, setTotals] = useState({
+    users: 0,
+    applications: 0,
+    citizens: 0,
+    locations: 0,
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [usersRes, appsRes, citizensRes, locationsRes] =
+          await Promise.all([
+            adminApi.listUsers({ page: 1, pageSize: 1 }),
+            adminApi.listApplications({ page: 1, pageSize: 1 }),
+            adminApi.listCitizens({ page: 1, pageSize: 1 }),
+            adminApi.listLocations({ page: 1, pageSize: 1 }),
+          ]);
+
+        setTotals({
+          users: usersRes.length,
+          applications: appsRes.length,
+          citizens: citizensRes.length,
+          locations: locationsRes.length,
+        });
+      } catch (e: any) {
+        setError(e?.message || "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">{t("admin.dashboard")}</h1>
+          <p className="text-sm text-gray-500">
+            {user
+              ? `${t("admin.welcomeBack") || "Welcome back"}, ${user.name}`
+              : t("admin.manage")}
+          </p>
+        </div>
+        <div className="text-sm text-gray-600">
+          {t("admin.role")}:{" "}
+          <span className="font-semibold capitalize">
+            {t("common.admin")}
+          </span>
+        </div>
+      </div>
+
+      <AdminStats />
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <div
+              onClick={() => navigate("/admin/users")}
+              className=" flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
+                <Users className="hover:cursor-pointer w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
+                  {t("admin.manageUsers")}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {t("admin.usersDescription")}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Total:{" "}
+              <span className="font-semibold">
+                {totals.users.toLocaleString()}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <div
+              onClick={() => navigate("/admin/applications")}
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
+                <FileText className="hover:cursor-pointer w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
+                  {t("admin.manageApplications")}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {t("admin.applicationsDescription")}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Total:{" "}
+              <span className="font-semibold">
+                {totals.applications.toLocaleString()}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <div
+              onClick={() => navigate("/admin/citizens")}
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
+                <IdCard className="hover:cursor-pointer w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
+                  {t("admin.manageCitizens")}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {t("admin.citizensDescription")}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Total:{" "}
+              <span className="font-semibold">
+                {totals.citizens.toLocaleString()}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="card space-y-4">
+          <div className="flex items-center justify-between">
+            <div
+              onClick={() => navigate("/admin/locations")}
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
+                <MapPinned className="hover:cursor-pointer w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
+                  {t("admin.manageLocations")}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {t("admin.locationsDescription")}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Total:{" "}
+              <span className="font-semibold">
+                {totals.locations.toLocaleString()}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
