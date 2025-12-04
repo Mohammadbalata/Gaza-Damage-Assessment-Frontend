@@ -1,22 +1,20 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ROUTES } from "../routes/Routes";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { saveDamageAssessment } from "../redux/slices/damageSlice";
-import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
-
-interface FormData {
-  damageLevel: string;
-  propertyType: string;
-  propertySize: number;
-  numberOfRooms: number;
-  isInhabitable: string;
-  additionalNotes: string;
-}
+import {
+  saveDamageAssessment,
+  setBuildingType,
+} from "../redux/slices/damageSlice";
+import {
+  IDamageAssessmentState,
+  IFormData,
+} from "../interfaces/store/IDamageAssessmentState";
+import { buildingOptions } from "../utils/DamageAssessment";
 
 const DamageAssessmentDialog = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -24,8 +22,9 @@ const DamageAssessmentDialog = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<IFormData>({
     defaultValues: {
+      buildingType: damageAssessmentInfo.buildingType || "",
       damageLevel: damageAssessmentInfo.damageLevel || "",
       propertyType: damageAssessmentInfo.propertyType || "",
       propertySize: damageAssessmentInfo.propertySize || 0,
@@ -35,9 +34,19 @@ const DamageAssessmentDialog = () => {
     },
   });
 
-  const onSubmit = (formData: IDamageAssessmentState) => {
-    dispatch(saveDamageAssessment(formData));
-    navigate(`${ROUTES.CURRENT_LOCATION}`);
+  const onSubmit = (formData: IFormData) => {
+    // dispatch(saveDamageAssessment(formData));
+    // navigate(`${ROUTES.CURRENT_LOCATION}`);
+    console.log("success submitted");
+    console.log(formData);
+  };
+
+  const BuildingTypeView = () => {
+    if (!damageAssessmentInfo.buildingType) return null;
+    const selected = buildingOptions.find(
+      (b) => b.value === damageAssessmentInfo.buildingType
+    );
+    return <div className="mt-2 text-blue-600">{selected?.label}</div>;
   };
 
   return (
@@ -50,30 +59,38 @@ const DamageAssessmentDialog = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label
-              htmlFor="damageLevel"
+              htmlFor="buildingType"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              {t("form.damageLevel")} <span className="text-red-500">*</span>
+              نوع المبنى <span className="text-red-500">*</span>
             </label>
+
             <select
-              id="damageLevel"
-              {...register("damageLevel", { required: t("common.required") })}
+              id="buildingType"
+              {...register("buildingType", { required: t("common.required") })}
               className="input-field"
+              onChange={(e) => dispatch(setBuildingType(e.target.value))}
             >
               <option value="">{t("common.required")}</option>
-              <option value="destroyed">Completely Destroyed</option>
-              <option value="severe">Severe Damage</option>
-              <option value="moderate">Moderate Damage</option>
-              <option value="minor">Minor Damage</option>
+
+              {buildingOptions.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                >
+                  {option.label}
+                </option>
+              ))}
             </select>
-            {errors.damageLevel && (
+
+            {errors.buildingType && (
               <p className="mt-1 text-sm text-red-600">
-                {errors.damageLevel.message}
+                {errors.buildingType.message}
               </p>
             )}
           </div>
-
-          <div>
+          <BuildingTypeView />
+          {/* <div>
             <label
               htmlFor="propertyType"
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -200,7 +217,7 @@ const DamageAssessmentDialog = () => {
               className="input-field min-h-[96px] resize-none"
               rows={4}
             />
-          </div>
+          </div> */}
 
           <div className="flex gap-4">
             <button type="submit" className="btn-primary flex-1">

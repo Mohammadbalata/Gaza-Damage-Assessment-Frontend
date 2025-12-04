@@ -3,11 +3,12 @@ import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessment
 import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
+  buildingType:"",
   damageLevel: "",
   propertyType: "",
   propertySize: 0,
   numberOfRooms: 0,
-  isInhabitable: false,
+  isInhabitable: "false",
   additionalNotes: "",
   loading: false,
   error: null,
@@ -31,10 +32,13 @@ export const damageAssessmentSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    setBuildingType : (state , action) => {
+      state.buildingType = action.payload
+    }
   },
 });
 
-export const { resetDamageAssessment, setLoading, setError } =
+export const { resetDamageAssessment, setLoading, setError , setBuildingType } =
   damageAssessmentSlice.actions;
 
 export const saveDamageAssessment =
