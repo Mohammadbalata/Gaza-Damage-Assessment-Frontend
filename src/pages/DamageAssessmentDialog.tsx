@@ -8,6 +8,8 @@ import {
   saveTower,
   saveResidentialBuilding,
   setBuildingType,
+  saveCompHouse,
+  saveAdditionalBuildings,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
@@ -19,6 +21,8 @@ import Tower from "../components/Form Applications/Tower";
 import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
 
 import ResidentialBuilding from "../components/ResidentialBuilding";
+import CampHousing from "../components/Form Applications/CampHousing";
+import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
 
 const DamageAssessmentDialog = () => {
   // const navigate = useNavigate();
@@ -49,12 +53,16 @@ const DamageAssessmentDialog = () => {
       dispatch(saveApartmentInsideBuilding(formData));
     if (type === "residentialBuilding")
       dispatch(saveResidentialBuilding(formData));
-    if (type === "Tower") {
-      dispatch(saveTower(formData));
+    if (type === "Tower") dispatch(saveTower(formData));
+    if (type === "Camp") {
+      dispatch(saveCompHouse(formData));
     }
+    if (type === "additionalBuildings")
+      dispatch(saveAdditionalBuildings(formData));
+
     // navigate(`${ROUTES.CURRENT_LOCATION}`);
     console.log("success submitted");
-    console.log(formData);
+    // console.log(formData);
 
     // navigate(`${ROUTES.CURRENT_LOCATION}`);
   };
@@ -71,9 +79,9 @@ const DamageAssessmentDialog = () => {
       case "Tower":
         return <Tower {...{ register }} {...{ errors }} />;
       case "Camp":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <CampHousing {...{ register }} {...{ errors }} />;
       case "additionalBuildings":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <AdditionalBuildings {...{ register }} {...{ errors }} />;
     }
   };
 

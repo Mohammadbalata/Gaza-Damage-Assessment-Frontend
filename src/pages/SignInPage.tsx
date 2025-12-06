@@ -34,8 +34,10 @@ const LoginPage = () => {
         navigate(`${ROUTES.PERSONAL_INFO}`);
       })
       .catch((error) => {
-        console.log(error.message);
+        console.log(error);
       });
+      console.log(data.nationalId)
+      console.log(data.password)
   };
 
   return (

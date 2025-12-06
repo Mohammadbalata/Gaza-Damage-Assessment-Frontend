@@ -3,6 +3,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import AppRoutes from "./routes/AppRoutes";
 import { useEffect } from "react";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { UserAuthProvider } from "./contexts/UserAuthContext";
 
 function App() {
   useEffect(() => {
@@ -14,9 +15,11 @@ function App() {
   return (
     <LanguageProvider>
       <AdminAuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <UserAuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </UserAuthProvider>
       </AdminAuthProvider>
     </LanguageProvider>
   );

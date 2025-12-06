@@ -18,7 +18,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.towerInfo.totalFloors", {
+            {...register("tower.totalFloors", {
               required: t("common.required"),
               min: { value: 1, message: "الحد الأدنى طابق واحد" },
             })}
@@ -38,7 +38,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.towerInfo.serviceFloors", { valueAsNumber: true })}
+            {...register("tower.serviceFloors", { valueAsNumber: true })}
             className="input-field"
           />
         </div>
@@ -50,7 +50,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.towerInfo.unitsCount", {
+            {...register("tower.unitsCount", {
               valueAsNumber: true,
               min: { value: 0, message: "لا يمكن أن يكون أقل من 0" },
             })}
@@ -67,7 +67,7 @@ const Tower = ({ register, errors }: any) => {
         <div>
           <label className="block text-sm font-medium mb-1">نوع الاستخدام</label>
           <select
-            {...register("tower.towerInfo.usageType", { required: t("common.required") })}
+            {...register("tower.usageType", { required: t("common.required") })}
             className="input-field"
           >
             <option value="">اختر النوع</option>
@@ -88,7 +88,7 @@ const Tower = ({ register, errors }: any) => {
             النظام الإنشائي
           </label>
           <select
-            {...register("tower.towerInfo.structuralSystem", {
+            {...register("tower.structuralSystem", {
               required: t("common.required"),
             })}
             className="input-field"
@@ -113,7 +113,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.structuralDamage.collapsedFloors", {
+            {...register("tower.collapsedFloors", {
               valueAsNumber: true,
             })}
             className="input-field"
@@ -127,7 +127,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.structuralDamage.partialCollapses", {
+            {...register("tower.partialCollapses", {
               valueAsNumber: true,
             })}
             className="input-field"
@@ -143,7 +143,7 @@ const Tower = ({ register, errors }: any) => {
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              {...register("tower.structuralDamage.criticalColumnDamage")}
+              {...register("tower.criticalColumnDamage")}
             />
             <span>أعمدة حرجة</span>
           </div>
@@ -151,7 +151,7 @@ const Tower = ({ register, errors }: any) => {
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              {...register("tower.structuralDamage.criticalShearWallDamage")}
+              {...register("tower.criticalShearWallDamage")}
             />
             <span>جدران قص حرجة</span>
           </div>
@@ -164,7 +164,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.structuralDamage.projectilePenetrations", {
+            {...register("tower.projectilePenetrations", {
               valueAsNumber: true,
             })}
             className="input-field"
@@ -179,14 +179,14 @@ const Tower = ({ register, errors }: any) => {
         <h3 className="text-lg font-semibold">أضرار الخدمات</h3>
 
         <div className="flex items-center gap-3">
-          <input type="checkbox" {...register("tower.servicesDamage.elevatorsDown")} />
+          <input type="checkbox" {...register("tower.elevatorsDown")} />
           <span>تعطل المصاعد</span>
         </div>
 
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
-            {...register("tower.servicesDamage.fireSystemDamaged")}
+            {...register("tower.fireSystemDamaged")}
           />
           <span>تضرر نظام الإطفاء</span>
         </div>
@@ -194,7 +194,7 @@ const Tower = ({ register, errors }: any) => {
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
-            {...register("tower.servicesDamage.mainElectricRoom")}
+            {...register("tower.mainElectricRoom")}
           />
           <span>تضرر غرفة الكهرباء</span>
         </div>
@@ -202,7 +202,7 @@ const Tower = ({ register, errors }: any) => {
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
-            {...register("tower.servicesDamage.roofTanksDamaged")}
+            {...register("tower.roofTanksDamaged")}
           />
           <span>تضرر خزانات السطح</span>
         </div>
@@ -221,7 +221,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.finalAssessment.unusableFloors", {
+            {...register("tower.unusableFloors", {
               valueAsNumber: true,
             })}
             className="input-field"
@@ -235,7 +235,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.finalAssessment.structuralDamagePercent", {
+            {...register("tower.structuralDamagePercent", {
               min: 0,
               max: 100,
               valueAsNumber: true,
@@ -250,7 +250,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.finalAssessment.architecturalDamagePercent", {
+            {...register("tower.architecturalDamagePercent", {
               min: 0,
               max: 100,
               valueAsNumber: true,
@@ -265,7 +265,7 @@ const Tower = ({ register, errors }: any) => {
           </label>
           <input
             type="number"
-            {...register("tower.finalAssessment.servicesDamagePercent", {
+            {...register("tower.servicesDamagePercent", {
               min: 0,
               max: 100,
               valueAsNumber: true,
@@ -280,7 +280,7 @@ const Tower = ({ register, errors }: any) => {
             توصية المهندس <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("tower.finalAssessment.engineerRecommendation", {
+            {...register("tower.engineerRecommendation", {
               required: t("common.required"),
             })}
             className="input-field"

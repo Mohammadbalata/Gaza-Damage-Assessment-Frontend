@@ -24,6 +24,7 @@ import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
+import { useUserAuth } from "../contexts/UserAuthContext";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -49,6 +50,14 @@ function RoleBasedRoute() {
   }
 }
 
+export function UserProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useUserAuth();
+
+  if (!isAuthenticated) return <Navigate to={ROUTES.SIGNIN} />;
+
+  return <>{children}</>;
+}
+
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
   SIGNIN: "auth/signIn",
@@ -60,9 +69,6 @@ export const ROUTES: IRoutes = {
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
   FAMILY_INFO: "/family-info",
-  // DAMAGE_ASSESSMENT: "/damage-assessment",
-  // DOCUMENTS: "/documents",
-  // MAP: "/map",
   REVIEW: "/review",
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
@@ -93,9 +99,7 @@ export const routes = [
   { path: ROUTES.CURRENT_LOCATION, element: <CurrentLocationMapPage /> },
   { path: ROUTES.PERSONAL_INFO, element: <PersonalInfoPage /> },
   { path: ROUTES.FAMILY_INFO, element: <FamilyInfoPage /> },
-  // { path: ROUTES.DAMAGE_ASSESSMENT, element: <DamageAssessmentPage /> },
-  // { path: ROUTES.DOCUMENTS, element: <DocumentsPage /> },
-  // { path: ROUTES.MAP, element: <MapPage /> },
+
   { path: ROUTES.REVIEW, element: <ReviewPage /> },
   { path: ROUTES.SUCCESS, element: <SuccessPage /> },
   { path: ROUTES.TRACK_STATUS, element: <TrackStatusPage /> },

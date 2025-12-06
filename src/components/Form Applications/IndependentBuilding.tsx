@@ -11,7 +11,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
         </label>
         <input
           type="number"
-          {...register("independentBuilding.numberOfFloors", {
+          {...register("IndependentBuilding.numberOfFloors", {
             required: t("common.required"),
             min: { value: 1, message: "الحد الأدنى طابق واحد" },
             max: { value: 200, message: "الحد الأقصى 200 طابق" },
@@ -33,7 +33,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
         </label>
         <input
           type="number"
-          {...register("independentBuilding.floorArea", {
+          {...register("IndependentBuilding.floorArea", {
             required: t("common.required"),
             min: { value: 10, message: "الحد الأدنى 10 متر مربع" },
             max: { value: 10000, message: "الحد الأقصى 10000 متر مربع" },
@@ -52,7 +52,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
           نوع السقف <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("independentBuilding.roofType", { required: t("common.required") })}
+          {...register("IndependentBuilding.roofType", { required: t("common.required") })}
           className="input-field"
         >
           <option value="">اختر النوع</option>
@@ -72,7 +72,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
           نوع الجدران <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("independentBuilding.wallType", { required: t("common.required") })}
+          {...register("IndependentBuilding.wallType", { required: t("common.required") })}
           className="input-field"
         >
           <option value="">اختر النوع</option>
@@ -92,7 +92,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
         </label>
         <input
           type="number"
-          {...register("independentBuilding.buildingAge", {
+          {...register("IndependentBuilding.buildingAge", {
             required: t("common.required"),
             min: { value: 1, message: "الحد الأدنى سنة واحدة" },
             max: { value: 200, message: "الحد الأقصى 200 سنة" },
@@ -111,7 +111,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
           تفاصيل الضرر <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("independentBuilding.damageType", { required: t("common.required") })}
+          {...register("IndependentBuilding.damageType", { required: t("common.required") })}
           className="input-field"
         >
           <option value="">اختر نوع الضرر</option>
@@ -138,7 +138,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
         </label>
         <input
           type="number"
-          {...register("independentBuilding.damagePercentage", {
+          {...register("IndependentBuilding.damagePercentage", {
             required: t("common.required"),
             min: { value: 0, message: "لا يمكن أن تكون أقل من 0" },
             max: { value: 100, message: "لا يمكن أن تتجاوز 100%" },
@@ -159,7 +159,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
           قابلية السكن <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("independentBuilding.habitability", { required: t("common.required") })}
+          {...register("IndependentBuilding.habitability", { required: t("common.required") })}
           className="input-field"
         >
           <option value="">اختر الحالة</option>
@@ -178,7 +178,7 @@ const IndependentBuilding = ({ register, errors }: any) => {
           ملاحظات إضافية
         </label>
         <textarea
-          {...register("independentBuilding.additionalNotes")}
+          {...register("IndependentBuilding.additionalNotes")}
           className="input-field min-h-[100px] resize-none"
         ></textarea>
       </div>
