@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
+  resetAllBuildings,
   saveApartmentInsideBuilding,
   saveIndependentBuilding,
   saveResidentialBuilding,
@@ -10,13 +11,13 @@ import {
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
 import IndependentBuilding from "../components/IndependentBuilding";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
-import { ROUTES } from "../routes/Routes";
+// import { ROUTES } from "../routes/Routes";
 import ResidentialBuilding from "../components/ResidentialBuilding";
 
 const DamageAssessmentDialog = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -85,7 +86,10 @@ const DamageAssessmentDialog = () => {
               id="buildingType"
               {...register("buildingType", { required: t("common.required") })}
               className="input-field"
-              onChange={(e) => dispatch(setBuildingType(e.target.value))}
+              onChange={(e) => {
+                dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
+                dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
+              }}
             >
               <option value="">{t("common.required")}</option>
               {buildingOptions.map((option) => (
