@@ -1,14 +1,14 @@
 import { useLanguage } from "../contexts/LanguageContext";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
-interface ApartmentInsideBuildingProps {
+interface IndependentBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
   errors: FieldErrors<IDamageAssessmentState>;
 }
 const IndependentBuilding = ({
   register,
   errors,
-}: ApartmentInsideBuildingProps) => {
+}: IndependentBuildingProps) => {
   const { t } = useLanguage();
 
   return (

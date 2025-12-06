@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   saveApartmentInsideBuilding,
   saveIndependentBuilding,
+  saveResidentialBuilding,
   setBuildingType,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
@@ -12,6 +13,7 @@ import IndependentBuilding from "../components/IndependentBuilding";
 import { useNavigate } from "react-router-dom";
 import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
 import { ROUTES } from "../routes/Routes";
+import ResidentialBuilding from "../components/ResidentialBuilding";
 
 const DamageAssessmentDialog = () => {
   const navigate = useNavigate();
@@ -27,6 +29,9 @@ const DamageAssessmentDialog = () => {
       buildingType: damageAssessmentInfo.buildingType,
       IndependentBuilding: damageAssessmentInfo.IndependentBuilding,
       ApartmentInsideBuilding: damageAssessmentInfo.ApartmentInsideBuilding,
+      ResidentialBuilding: damageAssessmentInfo.ResidentialBuilding,
+      loading: damageAssessmentInfo.loading,
+      error: damageAssessmentInfo.error,
     },
   });
 
@@ -34,8 +39,10 @@ const DamageAssessmentDialog = () => {
     const type = formData.buildingType;
     if (type === "independentBuilding")
       dispatch(saveIndependentBuilding(formData));
-    if (type === "ApartmentInsideBuilding")
+    if (type === "apartmentInsideBuilding")
       dispatch(saveApartmentInsideBuilding(formData));
+    if (type === "residentialBuilding")
+      dispatch(saveResidentialBuilding(formData));
 
     // navigate(`${ROUTES.CURRENT_LOCATION}`);
     console.log("success submitted");
@@ -47,10 +54,10 @@ const DamageAssessmentDialog = () => {
     switch (selected) {
       case "independentBuilding":
         return <IndependentBuilding {...{ register }} {...{ errors }} />;
-      case "ApartmentInsideBuilding":
+      case "apartmentInsideBuilding":
         return <ApartmentInsideBuilding {...{ register }} {...{ errors }} />;
       case "residentialBuilding":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <ResidentialBuilding {...{ register }} {...{ errors }} />;
       case "Tower":
         return <div className="mt-2 text-blue-600">{selected}</div>;
       case "Camp":

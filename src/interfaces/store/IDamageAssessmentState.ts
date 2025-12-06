@@ -27,11 +27,32 @@ interface ApartmentInsideBuilding {
   habitability?: string;
   additionalNotes?: string;
 }
-
+interface ResidentialBuilding {
+  floorsCount?: number;
+  apartmentsPerFloor?: number;
+  usageType?: string;
+  structureType?: string;
+  columnsCondition?: string;
+  beamsCondition?: string;
+  externalWalls?: string;
+  ceilingDamage?: string;
+  buildingFacade?: string;
+  entrancesStairs?: string;
+  elevators?: string;
+  electricalNetwork?: string;
+  waterTanks?: string;
+  sewageNetwork?: string;
+  fireSystems?: string;
+  mostDamagedFloors?: string;
+  damagePercentage?: number;
+  usageFeasibility?: string;
+  additionalNotes?: string;
+}
 export interface IDamageAssessmentState {
   buildingType: string;
   IndependentBuilding: IndependentBuilding;
   ApartmentInsideBuilding: ApartmentInsideBuilding;
+  ResidentialBuilding: ResidentialBuilding;
   loading: boolean;
   error: string | null;
 }

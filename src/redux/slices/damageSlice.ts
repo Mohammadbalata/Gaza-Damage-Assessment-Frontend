@@ -33,6 +33,27 @@ const initialState: IDamageAssessmentState = {
     habitability: "",
     additionalNotes: "",
   },
+  ResidentialBuilding: {
+    floorsCount: 0,
+    apartmentsPerFloor: 0,
+    usageType: "",
+    structureType: "",
+    columnsCondition: "",
+    beamsCondition: "",
+    externalWalls: "",
+    ceilingDamage: "",
+    buildingFacade: "",
+    entrancesStairs: "",
+    elevators: "",
+    electricalNetwork: "",
+    waterTanks: "",
+    sewageNetwork: "",
+    fireSystems: "",
+    mostDamagedFloors: "",
+    damagePercentage: 0,
+    usageFeasibility: "",
+    additionalNotes: "",
+  },
   loading: false,
   error: null,
 };
@@ -46,6 +67,9 @@ export const damageAssessmentSlice = createSlice({
     },
     resetApartmentInsideBuilding: (state, action) => {
       state.ApartmentInsideBuilding = action.payload;
+    },
+    resetResidentialBuilding: (state, action) => {
+      state.ResidentialBuilding = action.payload;
     },
 
     setLoading: (state, action) => {
@@ -63,6 +87,7 @@ export const damageAssessmentSlice = createSlice({
 export const {
   resetIndependentBuilding,
   resetApartmentInsideBuilding,
+  resetResidentialBuilding,
   setLoading,
   setError,
   setBuildingType,
@@ -86,6 +111,17 @@ export const saveApartmentInsideBuilding =
       dispatch(resetApartmentInsideBuilding(data.ApartmentInsideBuilding));
     } catch (err) {
       dispatch(setError("Failed to saveApartmentInsideBuilding damage"));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+export const saveResidentialBuilding =
+  (data: IDamageAssessmentState) => (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    try {
+      dispatch(resetResidentialBuilding(data.ResidentialBuilding));
+    } catch (err) {
+      dispatch(setError("Failed to saveResidentialBuilding damage"));
     } finally {
       dispatch(setLoading(false));
     }
