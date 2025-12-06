@@ -3,16 +3,18 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   saveIndependentBuilding,
+  saveTower,
   setBuildingType,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
-import IndependentBuilding from "../components/IndependentBuilding";
-import { ROUTES } from "../routes/Routes";
-import { useNavigate } from "react-router-dom";
+import IndependentBuilding from "../components/Form Applications/IndependentBuilding";
+import Tower from "../components/Form Applications/Tower";
+// import { ROUTES } from "../routes/Routes";
+// import { useNavigate } from "react-router-dom";
 
 const DamageAssessmentDialog = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -23,14 +25,44 @@ const DamageAssessmentDialog = () => {
   } = useForm<IDamageAssessmentState>({
     defaultValues: {
       buildingType: damageAssessmentInfo.buildingType || "",
+      independentBuilding: damageAssessmentInfo.independentBuilding || "",
+      tower: damageAssessmentInfo.tower || "",
     },
   });
 
   const onSubmit = (formData: IDamageAssessmentState) => {
-    dispatch(saveIndependentBuilding(formData));
-    navigate(`${ROUTES.CURRENT_LOCATION}`);
-    console.log("success submitted");
+    if (formData.buildingType === "independentBuilding") {
+      dispatch(saveIndependentBuilding(formData));
+      console.log("indep into if");
+      // reset({
+      //   buildingType: damageAssessmentInfo.buildingType,
+      //   independentBuilding: {},
+      // });
+    } if (formData.buildingType === "Tower") {
+      console.log("tower into if");
+      // reset({
+      //   buildingType: damageAssessmentInfo.buildingType,
+      //   independentBuilding: {
+      //     numberOfFloors: 0,
+      //     floorArea: 0,
+      //     roofType: "",
+      //     wallType: "",
+      //     buildingAge: 0,
+      //     damagePercentage: 0,
+      //     habitability: "",
+      //     damageType: "",
+      //     additionalNotes: "",
+      //   },
+      // });
+      dispatch(saveTower(formData));
+    }
     console.log(formData);
+    // if (damageAssessmentInfo.buildingType === "Tower") {
+    //   dispatch(saveTower(formData));
+    //   console.log(formData.tower)
+    //   console.log("success submitted");
+    // }
+    // navigate(`${ROUTES.CURRENT_LOCATION}`);
   };
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
@@ -43,7 +75,7 @@ const DamageAssessmentDialog = () => {
       case "residentialBuilding":
         return <div className="mt-2 text-blue-600">{selected}</div>;
       case "Tower":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <Tower {...{ register }} {...{ errors }} />;
       case "Camp":
         return <div className="mt-2 text-blue-600">{selected}</div>;
       case "additionalBuildings":
@@ -69,7 +101,11 @@ const DamageAssessmentDialog = () => {
               id="buildingType"
               {...register("buildingType", { required: t("common.required") })}
               className="input-field"
-              onChange={(e) => dispatch(setBuildingType(e.target.value))}
+              onChange={(e) => {
+                // console.log('changed')
+                // dispatch(setDamageEmpty());
+                dispatch(setBuildingType(e.target.value));
+              }}
             >
               <option value="">{t("common.required")}</option>
               {buildingOptions.map((option) => (
@@ -97,4 +133,3 @@ const DamageAssessmentDialog = () => {
 };
 
 export default DamageAssessmentDialog;
-

@@ -4,7 +4,7 @@ import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
   buildingType: "",
-  IndependentBuilding: {
+  independentBuilding: {
     numberOfFloors: 0,
     floorArea: 0,
     roofType: "",
@@ -15,6 +15,42 @@ const initialState: IDamageAssessmentState = {
     damageType: "",
     additionalNotes: "",
   },
+  tower: {
+    towerInfo: {
+      totalFloors: 0,
+      serviceFloors: 0,
+      unitsCount: 0,
+      usageType: "", // residential - commercial - mixed
+      structuralSystem: "", // columns/shear walls
+    },
+
+    structuralDamage: {
+      collapsedFloors: 0,
+      partialCollapses: 0,
+      criticalColumnDamage: false,
+      criticalShearWallDamage: false,
+      projectilePenetrations: 0,
+    },
+
+    floorsDamage: [
+      // { floorNumber, status, damagedUnits }
+    ],
+
+    servicesDamage: {
+      elevatorsDown: false,
+      fireSystemDamaged: false,
+      mainElectricRoom: false,
+      roofTanksDamaged: false,
+    },
+
+    finalAssessment: {
+      unusableFloors: 0,
+      structuralDamagePercent: 0,
+      architecturalDamagePercent: 0,
+      servicesDamagePercent: 0,
+      engineerRecommendation: "",
+    },
+  },
   loading: false,
   error: null,
 };
@@ -24,19 +60,11 @@ export const damageAssessmentSlice = createSlice({
   initialState,
   reducers: {
     resetIndependentBuilding: (state, action) => {
-      state.IndependentBuilding.floorArea = action.payload.floorArea;
-      state.IndependentBuilding.numberOfFloors = action.payload.numberOfFloors;
-      state.IndependentBuilding.roofType = action.payload.roofType;
-      state.IndependentBuilding.wallType = action.payload.wallType;
-      state.IndependentBuilding.buildingAge = action.payload.buildingAge;
-      state.IndependentBuilding.damageType = action.payload.damageType;
-      state.IndependentBuilding.damagePercentage =
-        action.payload.damagePercentage;
-      state.IndependentBuilding.habitability = action.payload.habitability;
-      state.IndependentBuilding.additionalNotes =
-        action.payload.additionalNotes;
+      state.independentBuilding = action.payload;
     },
-
+    saveTowerData: (state, action) => {
+      state.tower = action.payload;
+    },
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -51,6 +79,7 @@ export const damageAssessmentSlice = createSlice({
 
 export const {
   resetIndependentBuilding,
+  saveTowerData,
   setLoading,
   setError,
   setBuildingType,
@@ -60,13 +89,25 @@ export const saveIndependentBuilding =
   (data: IDamageAssessmentState) => (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
-      dispatch(resetIndependentBuilding(data));
+      dispatch(resetIndependentBuilding(data.independentBuilding));
+      console.log(data);
     } catch (err) {
       dispatch(setError("Failed to saveIndependentBuilding damage"));
     } finally {
       dispatch(setLoading(false));
     }
-    console.log(data, dispatch);
   };
 
+export const saveTower =
+  (data: IDamageAssessmentState) => (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    try {
+      dispatch(saveTowerData(data.tower));
+      console.log("Tower Saved:", data);
+    } catch (err) {
+      dispatch(setError("Failed to save tower data"));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 export default damageAssessmentSlice.reducer;
