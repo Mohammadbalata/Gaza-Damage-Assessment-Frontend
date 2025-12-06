@@ -2,14 +2,16 @@ import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
+  saveApartmentInsideBuilding,
   saveIndependentBuilding,
   setBuildingType,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
 import IndependentBuilding from "../components/IndependentBuilding";
-import { ROUTES } from "../routes/Routes";
 import { useNavigate } from "react-router-dom";
+import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
+import { ROUTES } from "../routes/Routes";
 
 const DamageAssessmentDialog = () => {
   const navigate = useNavigate();
@@ -22,13 +24,20 @@ const DamageAssessmentDialog = () => {
     formState: { errors },
   } = useForm<IDamageAssessmentState>({
     defaultValues: {
-      buildingType: damageAssessmentInfo.buildingType || "",
+      buildingType: damageAssessmentInfo.buildingType,
+      IndependentBuilding: damageAssessmentInfo.IndependentBuilding,
+      ApartmentInsideBuilding: damageAssessmentInfo.ApartmentInsideBuilding,
     },
   });
 
   const onSubmit = (formData: IDamageAssessmentState) => {
-    dispatch(saveIndependentBuilding(formData));
-    navigate(`${ROUTES.CURRENT_LOCATION}`);
+    const type = formData.buildingType;
+    if (type === "independentBuilding")
+      dispatch(saveIndependentBuilding(formData));
+    if (type === "ApartmentInsideBuilding")
+      dispatch(saveApartmentInsideBuilding(formData));
+
+    // navigate(`${ROUTES.CURRENT_LOCATION}`);
     console.log("success submitted");
     console.log(formData);
   };
@@ -38,8 +47,8 @@ const DamageAssessmentDialog = () => {
     switch (selected) {
       case "independentBuilding":
         return <IndependentBuilding {...{ register }} {...{ errors }} />;
-      case "Apartment":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+      case "ApartmentInsideBuilding":
+        return <ApartmentInsideBuilding {...{ register }} {...{ errors }} />;
       case "residentialBuilding":
         return <div className="mt-2 text-blue-600">{selected}</div>;
       case "Tower":
@@ -97,4 +106,3 @@ const DamageAssessmentDialog = () => {
 };
 
 export default DamageAssessmentDialog;
-
