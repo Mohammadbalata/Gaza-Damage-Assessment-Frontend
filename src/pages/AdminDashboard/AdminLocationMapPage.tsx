@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { useLanguage } from '../../contexts/LanguageContext'
+import MapContainer from '../../components/MapContainer'
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -29,6 +30,7 @@ const AdminLocationMapPage = () => {
   const isValidCoords = !Number.isNaN(lat) && !Number.isNaN(lng)
 
   const center: [number, number] = isValidCoords ? [lat, lng] : [31.5, 34.3]
+  const position: [number, number] = isValidCoords ? [lat, lng] : [31.5, 34.3]
 
   return (
     <div className="space-y-4">
@@ -58,13 +60,12 @@ const AdminLocationMapPage = () => {
         <div className="h-[500px] rounded-lg overflow-hidden border border-gray-300">
           <MapContainer
             center={center}
-            zoom={isValidCoords ? 16 : 11}
-            style={{ height: '100%', width: '100%' }}
+            zoom={15}
+            markerPosition={position}
+            setMarkerPosition={() => {}}
+            height="100%"
+            width="100%"
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
             {isValidCoords && (
               <Marker position={center}>
                 <Popup>

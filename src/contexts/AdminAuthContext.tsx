@@ -36,7 +36,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     return stored ? JSON.parse(stored) : null;
   });
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("access_token");
+    return localStorage.getItem("token");
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     setUser(payload.user);
     setToken(payload.access_token);
     localStorage.setItem("user", JSON.stringify(payload.user));
-    localStorage.setItem("access_token", payload.access_token);
+    localStorage.setItem("token", payload.access_token);
   };
 
   const login = async (credentials: {
@@ -111,7 +111,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const logout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
     setUser(null);
     setToken(null);
   };
