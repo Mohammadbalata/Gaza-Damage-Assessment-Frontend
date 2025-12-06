@@ -181,11 +181,6 @@ const IndependentBuilding = ({ register, errors }: any) => {
           className="input-field min-h-[100px] resize-none"
         ></textarea>
       </div>
-
-      {/* زر الإكمال */}
-      <button type="submit" className="btn-primary w-full">
-        التالي: الموقع الحالي
-      </button>
     </div>
   );
 };

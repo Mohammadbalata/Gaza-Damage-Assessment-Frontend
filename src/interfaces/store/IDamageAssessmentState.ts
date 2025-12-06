@@ -11,6 +11,7 @@ interface IndependentBuilding {
 }
 
 export interface IDamageAssessmentState {
+  buildingType: string;
   IndependentBuilding: IndependentBuilding;
   loading: boolean;
   error: string | null;
