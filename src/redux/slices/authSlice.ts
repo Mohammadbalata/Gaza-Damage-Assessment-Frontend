@@ -68,10 +68,14 @@ export const signIn = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await axiosClient.post("/auth/citizen-login", {
-        nationalId: payload.nationalId,
-        password: payload.password,
-      });
+      const res = await axiosClient
+        .post("/auth/citizen-login", {
+          nationalId: payload.nationalId,
+          password: payload.password,
+        })
+        .then(() => {
+          console.log(res);
+        });
       if (res) localStorage.setItem("token", res.data.data.token);
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");

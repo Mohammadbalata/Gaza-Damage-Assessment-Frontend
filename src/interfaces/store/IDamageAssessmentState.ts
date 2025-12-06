@@ -1,14 +1,18 @@
-export interface IDamageAssessmentState extends IFormData {
-  loading?: boolean;
-  error?: string | null;
+interface IndependentBuilding {
+  numberOfFloors: number;
+  floorArea: number;
+  roofType: string;
+  wallType: string;
+  buildingAge: number;
+  damageType: string;
+  damagePercentage: number;
+  habitability: string;
+  additionalNotes: string;
 }
 
-export interface IFormData {
-  buildingType:string;
-  damageLevel: string;
-  propertyType: string;
-  propertySize: number;
-  numberOfRooms: number;
-  isInhabitable: string;
-  additionalNotes: string;
+export interface IDamageAssessmentState {
+  buildingType: string;
+  IndependentBuilding: IndependentBuilding;
+  loading: boolean;
+  error: string | null;
 }

@@ -27,7 +27,11 @@ import NotFoundPage from "../pages/NotFoundPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.ADMIN_LOGIN} />;
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to={ROUTES.ADMIN_LOGIN} />
+  );
 }
 
 function RoleBasedRoute() {
