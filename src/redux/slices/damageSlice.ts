@@ -3,12 +3,17 @@ import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessment
 import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
-  damageLevel: "",
-  propertyType: "",
-  propertySize: 0,
-  numberOfRooms: 0,
-  isInhabitable: false,
-  additionalNotes: "",
+  IndependentBuilding: {
+    numberOfFloors: 0,
+    floorArea: 0,
+    roofType: "",
+    wallType: "",
+    buildingAge: 0,
+    damagePercentage: 0,
+    habitability: "",
+    damageType: "",
+    additionalNotes: "",
+  },
   loading: false,
   error: null,
 };
@@ -17,14 +22,20 @@ export const damageAssessmentSlice = createSlice({
   name: "damageAssessment",
   initialState,
   reducers: {
-    resetDamageAssessment: (state, action) => {
-      state.damageLevel = action.payload.damageLevel;
-      state.propertyType = action.payload.propertyType;
-      state.propertySize = action.payload.propertySize;
-      state.numberOfRooms = action.payload.numberOfRooms;
-      state.isInhabitable = action.payload.isInhabitable;
-      state.additionalNotes = action.payload.additionalNotes;
+    resetIndependentBuilding: (state, action) => {
+      state.IndependentBuilding.floorArea = action.payload.floorArea;
+      state.IndependentBuilding.numberOfFloors = action.payload.numberOfFloors;
+      state.IndependentBuilding.roofType = action.payload.roofType;
+      state.IndependentBuilding.wallType = action.payload.wallType;
+      state.IndependentBuilding.buildingAge = action.payload.buildingAge;
+      state.IndependentBuilding.damageType = action.payload.damageType;
+      state.IndependentBuilding.damagePercentage =
+        action.payload.damagePercentage;
+      state.IndependentBuilding.habitability = action.payload.habitability;
+      state.IndependentBuilding.additionalNotes =
+        action.payload.additionalNotes;
     },
+
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
@@ -34,19 +45,20 @@ export const damageAssessmentSlice = createSlice({
   },
 });
 
-export const { resetDamageAssessment, setLoading, setError } =
+export const { resetIndependentBuilding, setLoading, setError } =
   damageAssessmentSlice.actions;
 
-export const saveDamageAssessment =
-  (body: IDamageAssessmentState) => (dispatch: AppDispatch) => {
+export const saveIndependentBuilding =
+  (data: IDamageAssessmentState) => (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
     try {
-      dispatch(resetDamageAssessment(body));
-    } catch (error) {
-      dispatch(setError("Failed to save damage assessment"));
+      dispatch(resetIndependentBuilding(data));
+    } catch (err) {
+      dispatch(setError("Failed to saveIndependentBuilding damage"));
     } finally {
       dispatch(setLoading(false));
     }
+    console.log(data, dispatch);
   };
 
 export default damageAssessmentSlice.reducer;

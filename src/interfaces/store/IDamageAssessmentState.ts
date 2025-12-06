@@ -1,19 +1,17 @@
-export interface IDamageAssessmentState {
-  damageLevel: string;
-  propertyType: string;
-  propertySize: number;
-  numberOfRooms: number;
-  isInhabitable: boolean ;
+interface IndependentBuilding {
+  numberOfFloors: number;
+  floorArea: number;
+  roofType: string;
+  wallType: string;
+  buildingAge: number;
+  damageType: string;
+  damagePercentage: number;
+  habitability: string;
   additionalNotes: string;
-  loading: boolean;
-  error: string | null;
 }
 
-export interface FormData {
-  damageLevel: string;
-  propertyType: string;
-  propertySize: number;
-  numberOfRooms: number;
-  isInhabitable: string;
-  additionalNotes: string;
+export interface IDamageAssessmentState {
+  IndependentBuilding: IndependentBuilding;
+  loading: boolean;
+  error: string | null;
 }
