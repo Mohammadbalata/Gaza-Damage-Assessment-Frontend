@@ -20,6 +20,7 @@ const AdminCitizensPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Citizen | null>(null);
   const [form, setForm] = useState(emptyCitizen);
+  const [search, setSearch] = useState("");
 
   const canManage = hasRole("admin");
   const canView = hasRole("admin", "supervisor");
@@ -41,7 +42,6 @@ const AdminCitizensPage = () => {
     };
     load();
   }, [canView, t]);
-  console.log(citizens);
 
   const openCreateDialog = () => {
     setEditing(null);
@@ -125,6 +125,14 @@ const AdminCitizensPage = () => {
     }
   };
 
+  // Filter citizens by search input (national_id or first_name)
+  const filteredCitizens = citizens.filter(
+    (citizen) =>
+      citizen.national_id.includes(search) ||
+      (citizen.first_name &&
+        citizen.first_name.toLowerCase().includes(search.toLowerCase()))
+  );
+
   if (!canView) {
     return (
       <div className="space-y-4">
@@ -144,6 +152,15 @@ const AdminCitizensPage = () => {
           <p className="text-sm text-gray-500">
             {t("admin.citizens.subtitle")}
           </p>
+        </div>
+        <div>
+          <input
+            id="search"
+            className="input-field w-[500px]"
+            placeholder={t("common.searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
         {canManage && (
           <button
@@ -187,7 +204,7 @@ const AdminCitizensPage = () => {
             </tr>
           </thead>
           <tbody>
-            {citizens.map((citizen) => (
+            {filteredCitizens.map((citizen) => (
               <tr key={citizen.id} className="border-b border-gray-100">
                 <td className="text-center py-3 px-2 font-mono text-sm">
                   {citizen.national_id}
@@ -230,7 +247,7 @@ const AdminCitizensPage = () => {
                 )}
               </tr>
             ))}
-            {!citizens.length && !loading && (
+            {!filteredCitizens.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
                   {t("admin.noCitizensFound")}

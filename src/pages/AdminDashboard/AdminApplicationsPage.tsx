@@ -22,6 +22,7 @@ const AdminApplicationsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState("");
 
   const canView = hasRole("admin", "supervisor");
   const canManage = hasRole("admin");
@@ -171,6 +172,14 @@ const AdminApplicationsPage = () => {
     }
   };
 
+  // Filter applications by citizen name or national ID
+  const filteredApplications = applications.filter(
+    (application) =>
+      application.citizen?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+      application.citizen?.national_id?.includes(search) ||
+      application.id.toString().includes(search)
+  );
+
   if (!canView) {
     return (
       <div className="space-y-4">
@@ -194,7 +203,12 @@ const AdminApplicationsPage = () => {
             {t("admin.applications.subtitle")}
           </p>
         </div>
-
+        <input
+          className="input-field w-[500px]"
+          placeholder={t("common.searchPlaceholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         {canManage && (
           <button
             type="button"
@@ -237,12 +251,12 @@ const AdminApplicationsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {applications
+            {filteredApplications
               .sort((a, b) => a.id - b.id)
               .map((application) => (
                 <tr key={application.id} className="border-b border-gray-100">
                   <td className="text-center py-3 px-2 font-medium">
-                    #{application.id}
+                    {application.id}
                   </td>
                   <td className="text-center py-3 px-2 text-gray-700">
                     {application.citizen?.first_name || "----"}
@@ -276,7 +290,7 @@ const AdminApplicationsPage = () => {
                   )}
                 </tr>
               ))}
-            {!applications.length && !loading && (
+            {!filteredApplications.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
                   {t("admin.noApplicationsFound")}

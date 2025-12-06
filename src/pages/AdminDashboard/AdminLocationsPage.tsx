@@ -53,6 +53,7 @@ const AdminLocationsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Location | null>(null)
   const [form, setForm] = useState(emptyLocation)
+  const [search, setSearch] = useState("")
 
   const canManage = hasRole('admin')
   const canView = hasRole('admin', 'supervisor')
@@ -167,6 +168,17 @@ const AdminLocationsPage = () => {
       setLoading(false)
     }
   }
+  console.log(locations);
+  
+  // Filter locations by citizen name, national ID, governorate, town, or street
+  const filteredLocations = locations.filter(
+    (location) =>
+      location.citizen?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+      location.citizen?.national_id?.includes(search) ||
+      location.governorate?.toLowerCase().includes(search.toLowerCase()) ||
+      location.town?.toLowerCase().includes(search.toLowerCase()) ||
+      location.street?.toLowerCase().includes(search.toLowerCase())
+  )
 
   if (!canView) {
     return (
@@ -184,6 +196,12 @@ const AdminLocationsPage = () => {
           <h1 className="text-3xl font-bold">{t('admin.locations.title')}</h1>
           <p className="text-sm text-gray-500">{t('admin.locations.subtitle')}</p>
         </div>
+        <input
+          className="input-field w-[500px]"
+          placeholder={t("common.searchPlaceholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         {canManage && (
           <button
             type="button"
@@ -226,11 +244,11 @@ const AdminLocationsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {locations.map((location) => (
+            {filteredLocations.map((location) => (
               <tr key={location.id} className="border-b border-gray-100">
                 <td className="text-center py-3 px-2">
                   <p className="font-medium">
-                    {location.citizen?.full_name || `Citizen #${location.citizenId}`}
+                    {location.citizen?.first_name || `Citizen #${location.citizenId}`}
                   </p>
                   <p className="text-xs text-gray-500">
                     {location.citizen?.national_id}
@@ -289,7 +307,7 @@ const AdminLocationsPage = () => {
                 )}
               </tr>
             ))}
-            {!locations.length && !loading && (
+            {!filteredLocations.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
                   {t('admin.noLocationsFound')}
