@@ -5,7 +5,7 @@ import { FormDataCustom } from "./SignInPage";
 import FormInput from "../components/FormInput";
 import Button from "../components/Shared/Button/Button";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { signUp } from "../redux/slices/authSlice";
+import { setError, signUp } from "../redux/slices/authSlice";
 import AuthComp from "./AuthComp";
 import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -108,7 +108,10 @@ const SignUpPage = () => {
             type="button"
             label={t("common.signIn")}
             className="text-blue-500 underline"
-            onClick={() => navigate(`/${ROUTES.SIGNIN}`)}
+            onClick={() => {
+              dispatch(setError(""));
+              navigate(`/${ROUTES.SIGNIN}`);
+            }}
           />
         </div>
       </form>
