@@ -30,8 +30,12 @@ const LoginPage = () => {
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
-      .then(() => {
-        navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`);
+      .then((res) => {
+        if (res.extraData) {
+          navigate(ROUTES.REVIEW);
+        } else {
+          navigate(ROUTES.DAMAGE_ASSESSMENT_DIALOG);
+        }
       })
       .catch((error) => {
         console.log(error);

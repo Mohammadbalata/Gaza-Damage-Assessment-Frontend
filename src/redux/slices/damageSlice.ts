@@ -238,7 +238,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import { axiosClient } from "../../api/baseUrl";
 
 const initialState: IDamageAssessmentState = {
   buildingType: "",
@@ -351,10 +351,10 @@ const handleSave = async (
   dispatch(setLoading(true));
   try {
     dispatch(actionCreator(data));
-    const res = await axios.post(
+    const res = await axiosClient.post(
       "https://backend-5549.onrender.com/applications/add-extra-data",
       {
-        extraData: JSON.stringify({ data: data, buildingType: buildingType }),
+        extraData: JSON.stringify({ buildingType: buildingType, data: data }),
       },
       {
         headers: {
@@ -363,7 +363,7 @@ const handleSave = async (
         },
       }
     );
-    console.log(res.data.data.extraData);
+    console.log(JSON.parse(res.data.data.extraData));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : errorMessage;
     console.log(msg);

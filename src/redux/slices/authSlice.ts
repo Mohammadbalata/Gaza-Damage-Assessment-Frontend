@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState, SignUpPayload } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../routes/Routes";
 
 const initialState: IAuthState = {
   nationalId: "",
@@ -73,7 +75,10 @@ export const signIn = createAsyncThunk(
         nationalId: payload.nationalId,
         password: payload.password,
       });
-      console.log("API Response:", res.data);
+
+      console.log("API Response:", res.data.data.user.application.extraData);
+      const extraData = res.data?.data?.user?.application?.extraData;
+
       const token = res.data?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
@@ -85,6 +90,7 @@ export const signIn = createAsyncThunk(
         nationalId: payload.nationalId,
         password: payload.password,
         name: res.data?.data?.name || "User",
+        extraData,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");

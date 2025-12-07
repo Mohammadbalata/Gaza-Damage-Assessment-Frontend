@@ -103,7 +103,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackingNumber": "Tracking Number",
     "success.password": "Your Password",
     "success.savePassword": "Please save this password securely",
-    "success.downloadReceipt": "Download PDF Receipt",
+    "success.downloadReceipt": "Download PDF ",
     "success.trackStatus": "Track Application Status",
 
     // Status
@@ -337,8 +337,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.trackStatus": "تتبع حالة الطلب",
     "auth.generatePassword": "إنشاء كلمة مرور",
     "auth.verifyQuesTitle": "التحقق من الهوية",
-    "auth.verifyQuesBody":'يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.',
-    "auth.verifySuccess" : '',
+    "auth.verifyQuesBody":
+      "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
+    "auth.verifySuccess": "",
     // Personal Info
     "form.fullName": "الاسم الكامل",
     "form.motherName": "اسم الأم",
@@ -388,7 +389,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackingNumber": "رقم التتبع",
     "success.password": "كلمة المرور الخاصة بك",
     "success.savePassword": "يرجى حفظ كلمة المرور هذه بشكل آمن",
-    "success.downloadReceipt": "تحميل إيصال PDF",
+    "success.downloadReceipt": "تحميل PDF",
     "success.trackStatus": "تتبع حالة الطلب",
 
     // Status
