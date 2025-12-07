@@ -6,7 +6,6 @@ import { useApplicationStore } from "../store/applicationStore";
 import { RotateCcw, Check } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useAppSelector } from "../hooks/redux";
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -89,9 +88,10 @@ const MapPage = () => {
             zoom={15}
             style={{ height: "100%", width: "100%" }}
           >
+            {/* Satellite imagery from ESRI */}
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution="&copy; Esri"
             />
             <LocationMarker position={position} setPosition={setPosition} />
           </MapContainer>

@@ -1,40 +1,18 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useLanguage } from "../contexts/LanguageContext";
+import {  useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
-import { ILocationMarkerProps } from "../interfaces/props/ILocationMarkerProps";
-
-// Fix for default marker icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
-
-
-function LocationMarker({ position, setPosition }: ILocationMarkerProps) {
-  useMapEvents({
-    click(e) {
-      setPosition([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-
-  return position === null ? null : <Marker position={position} />;
-}
+import MapContainer from "../components/MapContainer";
+import { usePost } from "../hooks/useApi";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+
+  
   const { previousLatitude, previousLongitude, previousLocationAddress } =
     useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
@@ -48,6 +26,20 @@ const PreviousLocationMapPage = () => {
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const center = position || defaultCenter;
+
+  const { loading, execute } = usePost(
+    `applications/add-previous-location`,
+    {
+      onSuccess: () => {
+        navigate(
+          `${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`
+        );
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    }
+  );
 
   useEffect(() => {
     if (position) {
@@ -77,8 +69,12 @@ const PreviousLocationMapPage = () => {
       dispatch(
         updatePreviousLocation({ lat: position[0], lng: position[1], address })
       );
-      console.log('success')
-      navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`);
+
+      execute({
+        latitude: position[0].toString(),
+        longitude: position[1].toString(),
+        governorate: address,
+      });
     }
   };
 
@@ -96,14 +92,11 @@ const PreviousLocationMapPage = () => {
           <MapContainer
             center={center}
             zoom={15}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarker position={position} setPosition={setPosition} />
-          </MapContainer>
+            markerPosition={position}
+            setMarkerPosition={setPosition}
+            height="100%"
+            width="100%"
+          />
         </div>
         {position && (
           <div className="space-y-4 mb-6">
@@ -145,7 +138,7 @@ const PreviousLocationMapPage = () => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary flex-1"
-            disabled={!position}
+            disabled={!position || loading}
           >
             <Check className="w-4 h-4 inline mr-2" />
             {t("map.confirm")}
