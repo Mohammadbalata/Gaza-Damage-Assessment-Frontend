@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
@@ -25,16 +25,14 @@ const CurrentLocationMapPage = () => {
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const center = position || defaultCenter;
 
-  const { loading, execute } = usePost(
-      `applications/add-current-location`,{
-        onSuccess: () => {
-          navigate(`${ROUTES.REVIEW}`);
-        },
-        onError: (err) => {
-          console.log(err);
-        }
-      }
-    );
+  const { loading, execute } = usePost(`applications/add-current-location`, {
+    onSuccess: () => {
+      navigate(`${ROUTES.REVIEW}`);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   useEffect(() => {
     if (position) {
@@ -70,8 +68,6 @@ const CurrentLocationMapPage = () => {
         longitude: position[1].toString(),
         governorate: address,
       });
-
-      
     }
   };
 

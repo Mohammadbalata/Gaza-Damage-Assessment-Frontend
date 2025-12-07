@@ -1,7 +1,16 @@
+import { FieldErrors, UseFormRegister } from "react-hook-form";
+import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { useLanguage } from "../../contexts/LanguageContext";
-
-const IndependentBuilding = ({ register, errors }: any) => {
+interface IndependentBuildingProps {
+  register: UseFormRegister<IDamageAssessmentState>;
+  errors: FieldErrors<IDamageAssessmentState>;
+}
+const IndependentBuilding = ({
+  register,
+  errors,
+}: IndependentBuildingProps) => {
   const { t } = useLanguage();
+
   return (
     <div className="space-y-6">
       {/* عدد الطوابق */}
@@ -19,9 +28,9 @@ const IndependentBuilding = ({ register, errors }: any) => {
           })}
           className="input-field"
         />
-        {errors.numberOfFloors && (
+        {errors?.IndependentBuilding?.numberOfFloors && (
           <p className="text-red-600 text-sm">
-            {errors.numberOfFloors.message}
+            {errors.IndependentBuilding.numberOfFloors.message}
           </p>
         )}
       </div>
@@ -41,8 +50,11 @@ const IndependentBuilding = ({ register, errors }: any) => {
           })}
           className="input-field"
         />
-        {errors.floorArea && (
-          <p className="text-red-600 text-sm">{errors.floorArea.message}</p>
+
+        {errors?.IndependentBuilding?.floorArea && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.floorArea.message}
+          </p>
         )}
       </div>
 
@@ -52,7 +64,9 @@ const IndependentBuilding = ({ register, errors }: any) => {
           نوع السقف <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("IndependentBuilding.roofType", { required: t("common.required") })}
+          {...register("IndependentBuilding.roofType", {
+            required: t("common.required"),
+          })}
           className="input-field"
         >
           <option value="">اختر النوع</option>
@@ -61,8 +75,11 @@ const IndependentBuilding = ({ register, errors }: any) => {
           <option value="zinc">زينكو</option>
           <option value="turbo">تيربو</option>
         </select>
-        {errors.roofType && (
-          <p className="text-red-600 text-sm">{errors.roofType.message}</p>
+
+        {errors?.IndependentBuilding?.roofType && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.roofType.message}
+          </p>
         )}
       </div>
 
@@ -72,7 +89,9 @@ const IndependentBuilding = ({ register, errors }: any) => {
           نوع الجدران <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("IndependentBuilding.wallType", { required: t("common.required") })}
+          {...register("IndependentBuilding.wallType", {
+            required: t("common.required"),
+          })}
           className="input-field"
         >
           <option value="">اختر النوع</option>
@@ -80,15 +99,18 @@ const IndependentBuilding = ({ register, errors }: any) => {
           <option value="stone">حجر</option>
           <option value="brick">طوب</option>
         </select>
-        {errors.wallType && (
-          <p className="text-red-600 text-sm">{errors.wallType.message}</p>
+
+        {errors?.IndependentBuilding?.wallType && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.wallType.message}
+          </p>
         )}
       </div>
 
       {/* عمر المبنى */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          عمر المبنى (بالسنوات) <span className="text-red-500">*</span>
+          عمر المبنى <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -100,8 +122,11 @@ const IndependentBuilding = ({ register, errors }: any) => {
           })}
           className="input-field"
         />
-        {errors.buildingAge && (
-          <p className="text-red-600 text-sm">{errors.buildingAge.message}</p>
+
+        {errors?.IndependentBuilding?.buildingAge && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.buildingAge.message}
+          </p>
         )}
       </div>
 
@@ -111,7 +136,9 @@ const IndependentBuilding = ({ register, errors }: any) => {
           تفاصيل الضرر <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("IndependentBuilding.damageType", { required: t("common.required") })}
+          {...register("IndependentBuilding.damageType", {
+            required: t("common.required"),
+          })}
           className="input-field"
         >
           <option value="">اختر نوع الضرر</option>
@@ -126,8 +153,10 @@ const IndependentBuilding = ({ register, errors }: any) => {
           <option value="waterNetworkDamage">تضرر شبكة المياه والصرف</option>
         </select>
 
-        {errors.damageType && (
-          <p className="text-red-600 text-sm">{errors.damageType.message}</p>
+        {errors?.IndependentBuilding?.damageType && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.damageType.message}
+          </p>
         )}
       </div>
 
@@ -146,9 +175,10 @@ const IndependentBuilding = ({ register, errors }: any) => {
           })}
           className="input-field"
         />
-        {errors.damagePercentage && (
+
+        {errors?.IndependentBuilding?.damagePercentage && (
           <p className="text-red-600 text-sm">
-            {errors.damagePercentage.message}
+            {errors.IndependentBuilding.damagePercentage.message}
           </p>
         )}
       </div>
@@ -159,7 +189,9 @@ const IndependentBuilding = ({ register, errors }: any) => {
           قابلية السكن <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("IndependentBuilding.habitability", { required: t("common.required") })}
+          {...register("IndependentBuilding.habitability", {
+            required: t("common.required"),
+          })}
           className="input-field"
         >
           <option value="">اختر الحالة</option>
@@ -167,8 +199,11 @@ const IndependentBuilding = ({ register, errors }: any) => {
           <option value="needs-reinforcement">يحتاج تدعيم</option>
           <option value="uninhabitable">غير صالح</option>
         </select>
-        {errors.habitability && (
-          <p className="text-red-600 text-sm">{errors.habitability.message}</p>
+
+        {errors?.IndependentBuilding?.habitability && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.habitability.message}
+          </p>
         )}
       </div>
 

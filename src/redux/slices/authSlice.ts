@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState, SignUpPayload } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../routes/Routes";
 
 const initialState: IAuthState = {
   nationalId: "",
@@ -61,6 +63,7 @@ export const authSlice = createSlice({
 });
 
 //--- sign in dispatch ---//
+
 export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
@@ -68,22 +71,26 @@ export const signIn = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await axiosClient
-        .post("/auth/citizen-login", {
-          nationalId: payload.nationalId,
-          password: payload.password,
-        })
-        .then(() => {
-          console.log(res);
-        });
-      if (res) localStorage.setItem("token", res.data.data.token);
+      const res = await axiosClient.post("/auth/citizen-login", {
+        nationalId: payload.nationalId,
+        password: payload.password,
+      });
+
+      console.log("API Response:", res.data.data.user.application.extraData);
+      const extraData = res.data?.data?.user?.application?.extraData;
+
+      const token = res.data?.data?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
       return {
         nationalId: payload.nationalId,
         password: payload.password,
-        name: "User Name Example",
+        name: res.data?.data?.name || "User",
+        extraData,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -110,6 +117,6 @@ export const signUp = createAsyncThunk(
     }
   }
 );
-
+// 410031934
 export const { setError } = authSlice.actions;
 export default authSlice.reducer;

@@ -15,14 +15,12 @@ import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
 import IndependentBuilding from "../components/Form Applications/IndependentBuilding";
 import Tower from "../components/Form Applications/Tower";
-// import { ROUTES } from "../routes/Routes";
 
-// import { useNavigate } from "react-router-dom";
-import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
-
-import ResidentialBuilding from "../components/ResidentialBuilding";
+import ApartmentInsideBuilding from "../components/Form Applications/ApartmentInsideBuilding";
 import CampHousing from "../components/Form Applications/CampHousing";
 import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
+import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
+import { AlertCircle } from "lucide-react";
 
 const DamageAssessmentDialog = () => {
   // const navigate = useNavigate();
@@ -87,6 +85,13 @@ const DamageAssessmentDialog = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
+      {damageAssessmentInfo.error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
+          <AlertCircle className="w-5 h-5" />
+          <p>{damageAssessmentInfo.error}</p>
+        </div>
+      )}
+
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Damage Assessment</h2>
