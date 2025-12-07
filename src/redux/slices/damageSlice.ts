@@ -238,6 +238,7 @@ import {
 } from "@reduxjs/toolkit";
 import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { AppDispatch } from "../store";
+import axios from "axios";
 
 const initialState: IDamageAssessmentState = {
   buildingType: "",
@@ -339,19 +340,33 @@ const initialState: IDamageAssessmentState = {
   error: null,
 };
 
-const handleSave = (
+const handleSave = async (
   dispatch: AppDispatch,
   actionCreator: ActionCreatorWithPayload<any, string>,
-  buildingType:string,
+  buildingType: string,
   data: any,
   errorMessage: string
 ) => {
+  const token = localStorage.getItem("token") || "";
   dispatch(setLoading(true));
   try {
     dispatch(actionCreator(data));
-    console.log({extraData:data , BuildingType:buildingType}) // الآن dispatch يعمل بشكل صحيح
+    const res = await axios.post(
+      "https://backend-5549.onrender.com/applications/add-extra-data",
+      {
+        extraData: JSON.stringify({ data: data, buildingType: buildingType }),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(res.data.data.extraData);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : errorMessage;
+    console.log(msg);
     dispatch(setError(msg));
   } finally {
     dispatch(setLoading(false));
@@ -415,8 +430,8 @@ export const {
 
 // Export save actions using handleSave
 export const saveIndependentBuilding =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) =>
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) =>
+    await handleSave(
       dispatch,
       resetIndependentBuilding,
       data.buildingType,
@@ -425,8 +440,8 @@ export const saveIndependentBuilding =
     );
 
 export const saveApartmentInsideBuilding =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) =>
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) =>
+    await handleSave(
       dispatch,
       resetApartmentInsideBuilding,
       data.buildingType,
@@ -435,8 +450,8 @@ export const saveApartmentInsideBuilding =
     );
 
 export const saveResidentialBuilding =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) =>
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) =>
+    await handleSave(
       dispatch,
       resetResidentialBuilding,
       data.buildingType,
@@ -445,8 +460,8 @@ export const saveResidentialBuilding =
     );
 
 export const saveTower =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) =>
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) =>
+    await handleSave(
       dispatch,
       saveTowerData,
       data.buildingType,
@@ -455,8 +470,8 @@ export const saveTower =
     );
 
 export const saveCompHouse =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) => {
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) => {
+    await handleSave(
       dispatch,
       resetCompHouse,
       data.buildingType,
@@ -466,8 +481,8 @@ export const saveCompHouse =
   };
 
 export const saveAdditionalBuildings =
-  (data: IDamageAssessmentState) => (dispatch: AppDispatch) =>
-    handleSave(
+  (data: IDamageAssessmentState) => async (dispatch: AppDispatch) =>
+    await handleSave(
       dispatch,
       resetAdditionalBuildings,
       data.buildingType,

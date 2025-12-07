@@ -31,13 +31,13 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then(() => {
-        navigate(`${ROUTES.PERSONAL_INFO}`);
+        navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`);
       })
       .catch((error) => {
         console.log(error);
       });
-      console.log(data.nationalId)
-      console.log(data.password)
+    console.log(data.nationalId);
+    console.log(data.password);
   };
 
   return (
@@ -50,7 +50,7 @@ const LoginPage = () => {
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
-          defaultValue={"410519946"}
+          defaultValue={"410031934"}
           id="nationalId"
           label={t("auth.nationalId")}
           placeholder={t("auth.nationalIdPlaceholder")}
@@ -66,7 +66,7 @@ const LoginPage = () => {
           }}
         />
         <FormInput
-          defaultValue={"Test123456*"}
+          defaultValue={"123456"}
           id="password"
           type="password"
           label={t("auth.password")}
