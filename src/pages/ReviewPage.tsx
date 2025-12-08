@@ -2,12 +2,12 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useApplicationStore } from '../store/applicationStore'
 import { FileText, MapPin, Home, Users } from 'lucide-react'
-import { generateTrackingNumber, generatePassword } from '../utils/helpers'
+import { generateTrackingNumber } from '../utils/helpers'
 
 const ReviewPage = () => {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const { data, setTrackingNumber, setPassword } = useApplicationStore()
+  const { data, setTrackingNumber } = useApplicationStore()
 
   const handleSubmit = () => {
     // Generate tracking number (password already generated)

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useApplicationStore } from '../store/applicationStore'
 import { getRandomQuestions, verifyAnswers, mockCivilRegistry } from '../utils/civilRegistry'
-import { AlertCircle, CheckCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 
 interface FormData {
   [key: string]: string

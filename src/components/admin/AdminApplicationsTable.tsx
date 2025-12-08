@@ -29,6 +29,8 @@ interface Props {
 }
 
 const AdminApplicationsTable = ({ filters }: Props) => {
+  console.log(filters);
+  
   const { t } = useLanguage()
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
 

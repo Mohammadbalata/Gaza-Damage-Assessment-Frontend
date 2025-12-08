@@ -1,9 +1,7 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useApplicationStore } from '../store/applicationStore'
-import { X } from 'lucide-react'
 
 interface FormData {
   damageLevel: string

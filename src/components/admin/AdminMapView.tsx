@@ -25,6 +25,8 @@ interface Props {
 }
 
 const AdminMapView = ({ filters }: Props) => {
+  console.log(filters);
+  
   const { t } = useLanguage()
 
   // Mock data - in production, fetch from API

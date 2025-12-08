@@ -1,5 +1,5 @@
 import { useLanguage } from '../../contexts/LanguageContext'
-import { FileText, Clock, CheckCircle, XCircle, Users } from 'lucide-react'
+import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 
 const AdminStats = () => {
   const { t } = useLanguage()
