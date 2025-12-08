@@ -4,25 +4,23 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { FileText, MapPin, Home } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { axiosClient } from "../api/baseUrl";
 import { getReviewData } from "../utils/getReviewData";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-
   const { nationalId } = useAppSelector((state) => state.auth);
-  const {
-    previousLocationAddress,
-    currentLocationAddress,
-    loading,
-  } = useAppSelector((state) => state.location);
+  const { previousLocationAddress, currentLocationAddress, loading } =
+    useAppSelector((state) => state.location);
 
   const [loadingPage, setLoadingPage] = useState(loading);
   const dispatch = useAppDispatch();
-  const pageRef = useRef<HTMLDivElement>(null);
+  // const pageRef = useRef<HTMLDivElement>(null);
 
+  // const pageRef = useRef<HTMLDivElement>(null);
+  // const reviewRef = useRef<HTMLDivElement>(null);
   // const downloadPDF = () => {
   //   generatePDF(pageRef, { filename: "review-page.pdf" });
   // };
@@ -80,7 +78,7 @@ const ReviewPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="card mb-6" ref={pageRef}>
+      <div className="card mb-6">
         <h2 className="text-2xl font-bold mb-6">{t("review.title")}</h2>
 
         {/* Identity Information */}
