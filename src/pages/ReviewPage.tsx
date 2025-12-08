@@ -4,15 +4,21 @@ import { useApplicationStore } from "../store/applicationStore";
 import { FileText, MapPin, Home, Users } from "lucide-react";
 import { generateTrackingNumber } from "../utils/helpers";
 import { useAppSelector } from "../hooks/redux";
+import { useEffect, useState, useRef } from "react";
+import { axiosClient } from "../api/baseUrl";
+import generatePDF from "react-to-pdf";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { data, setTrackingNumber } = useApplicationStore();
+  const [applicationData, setApplicationData] = useState<any>({});
+
   const { nationalId } = useAppSelector((state) => state.auth);
   const { fullName, motherName, dateOfBirth } = useAppSelector(
     (state) => state.personal
   );
+
   const {
     addressBeforeWar,
     numberOfChildren,
@@ -29,15 +35,43 @@ const ReviewPage = () => {
     numberOfRooms,
   } = useAppSelector((state) => state.damage);
 
+  const pageRef = useRef<HTMLDivElement>(null);
+
+  const downloadPDF = () => {
+    generatePDF(pageRef, { filename: "review-page.pdf" });
+  };
+
   const handleSubmit = () => {
     const trackingNum = generateTrackingNumber();
     setTrackingNumber(trackingNum);
     navigate("/success");
   };
 
+  useEffect(() => {
+    const fetchApplication = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axiosClient.get("/applications/my-application", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.data.data) setApplicationData(res.data.data);
+      } catch (err) {
+        console.error("API Error:", err);
+      }
+    };
+
+    fetchApplication();
+  }, []);
+
+  console.log(applicationData);
+
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="card mb-6">
+      <div className="card mb-6" ref={pageRef}>
         <h2 className="text-2xl font-bold mb-6">{t("review.title")}</h2>
 
         {/* Identity Information */}
@@ -81,22 +115,26 @@ const ReviewPage = () => {
               </p>
               <p className="font-medium">{addressBeforeWar}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">
                 {t("form.numberOfChildren")}
               </p>
               <p className="font-medium">{numberOfChildren}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">{t("form.wifeName")}</p>
               <p className="font-medium">{wifeName}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">
                 {t("form.wifeNationalId")}
               </p>
               <p className="font-medium">{wifeNationalId}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">{t("form.phoneNumber")}</p>
               <p className="font-medium">{phoneNumber}</p>
@@ -190,6 +228,13 @@ const ReviewPage = () => {
 
       <div className="flex gap-4">
         <button
+          onClick={downloadPDF}
+          className="btn-primary px-6 py-3 rounded-lg font-medium w-full"
+        >
+          {t("success.downloadReceipt")}
+        </button>
+
+        {/* <button
           type="button"
           onClick={() => navigate("/current-location")}
           className="btn-outline flex-1"
@@ -202,7 +247,7 @@ const ReviewPage = () => {
           className="btn-primary flex-1"
         >
           {t("review.submit")}
-        </button>
+        </button> */}
       </div>
     </div>
   );

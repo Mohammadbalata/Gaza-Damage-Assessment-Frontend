@@ -5,16 +5,22 @@ import {
   resetAllBuildings,
   saveApartmentInsideBuilding,
   saveIndependentBuilding,
+  saveTower,
   saveResidentialBuilding,
   setBuildingType,
+  saveCompHouse,
+  saveAdditionalBuildings,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
-import IndependentBuilding from "../components/IndependentBuilding";
-// import { useNavigate } from "react-router-dom";
-import ApartmentInsideBuilding from "../components/ApartmentInsideBuilding";
-// import { ROUTES } from "../routes/Routes";
-import ResidentialBuilding from "../components/ResidentialBuilding";
+import IndependentBuilding from "../components/Form Applications/IndependentBuilding";
+import Tower from "../components/Form Applications/Tower";
+
+import ApartmentInsideBuilding from "../components/Form Applications/ApartmentInsideBuilding";
+import CampHousing from "../components/Form Applications/CampHousing";
+import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
+import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
+import { AlertCircle } from "lucide-react";
 
 const DamageAssessmentDialog = () => {
   // const navigate = useNavigate();
@@ -27,10 +33,11 @@ const DamageAssessmentDialog = () => {
     formState: { errors },
   } = useForm<IDamageAssessmentState>({
     defaultValues: {
-      buildingType: damageAssessmentInfo.buildingType,
-      IndependentBuilding: damageAssessmentInfo.IndependentBuilding,
+      buildingType: damageAssessmentInfo.buildingType || "",
+      IndependentBuilding: damageAssessmentInfo.IndependentBuilding || "",
       ApartmentInsideBuilding: damageAssessmentInfo.ApartmentInsideBuilding,
       ResidentialBuilding: damageAssessmentInfo.ResidentialBuilding,
+      tower: damageAssessmentInfo.tower || "",
       loading: damageAssessmentInfo.loading,
       error: damageAssessmentInfo.error,
     },
@@ -44,10 +51,18 @@ const DamageAssessmentDialog = () => {
       dispatch(saveApartmentInsideBuilding(formData));
     if (type === "residentialBuilding")
       dispatch(saveResidentialBuilding(formData));
+    if (type === "Tower") dispatch(saveTower(formData));
+    if (type === "Camp") {
+      dispatch(saveCompHouse(formData));
+    }
+    if (type === "additionalBuildings")
+      dispatch(saveAdditionalBuildings(formData));
 
     // navigate(`${ROUTES.CURRENT_LOCATION}`);
     console.log("success submitted");
-    console.log(formData);
+    // console.log(formData);
+
+    // navigate(`${ROUTES.CURRENT_LOCATION}`);
   };
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
@@ -60,16 +75,23 @@ const DamageAssessmentDialog = () => {
       case "residentialBuilding":
         return <ResidentialBuilding {...{ register }} {...{ errors }} />;
       case "Tower":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <Tower {...{ register }} {...{ errors }} />;
       case "Camp":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <CampHousing {...{ register }} {...{ errors }} />;
       case "additionalBuildings":
-        return <div className="mt-2 text-blue-600">{selected}</div>;
+        return <AdditionalBuildings {...{ register }} {...{ errors }} />;
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto">
+      {damageAssessmentInfo.error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
+          <AlertCircle className="w-5 h-5" />
+          <p>{damageAssessmentInfo.error}</p>
+        </div>
+      )}
+
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Damage Assessment</h2>

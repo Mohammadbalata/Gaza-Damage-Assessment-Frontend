@@ -1,6 +1,6 @@
-import { useLanguage } from "../contexts/LanguageContext";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
+import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
+import { useLanguage } from "../../contexts/LanguageContext";
 interface IndependentBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
   errors: FieldErrors<IDamageAssessmentState>;
