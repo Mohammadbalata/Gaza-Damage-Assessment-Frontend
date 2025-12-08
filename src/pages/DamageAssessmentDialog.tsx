@@ -3,13 +3,13 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   resetAllBuildings,
-  saveApartmentInsideBuilding,
-  saveIndependentBuilding,
-  saveTower,
-  saveResidentialBuilding,
-  setBuildingType,
-  saveCompHouse,
   saveAdditionalBuildings,
+  saveApartmentInsideBuilding,
+  saveCompHouse,
+  saveIndependentBuilding,
+  saveResidentialBuilding,
+  saveTower,
+  setBuildingType,
 } from "../redux/slices/damageSlice";
 import { buildingOptions } from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
@@ -46,15 +46,17 @@ const DamageAssessmentDialog = () => {
   });
 
   const onSubmit = (formData: IDamageAssessmentState) => {
+    // dispatchBuildingType(dispatch, formData);
+    console.log(formData)
     const type = formData.buildingType;
-    if (type === "independentBuilding")
+    if (type === "IndependentBuilding")
       dispatch(saveIndependentBuilding(formData));
-    if (type === "apartmentInsideBuilding")
+    if (type === "ApartmentInsideBuilding")
       dispatch(saveApartmentInsideBuilding(formData));
-    if (type === "residentialBuilding")
+    if (type === "ResidentialBuilding")
       dispatch(saveResidentialBuilding(formData));
-    if (type === "Tower") dispatch(saveTower(formData));
-    if (type === "Camp") {
+    if (type === "tower") dispatch(saveTower(formData));
+    if (type === "compHouse") {
       dispatch(saveCompHouse(formData));
     }
     if (type === "additionalBuildings")
@@ -67,15 +69,15 @@ const DamageAssessmentDialog = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected = damageAssessmentInfo.buildingType;
     switch (selected) {
-      case "independentBuilding":
+      case "IndependentBuilding":
         return <IndependentBuilding {...{ register }} {...{ errors }} />;
-      case "apartmentInsideBuilding":
+      case "ApartmentInsideBuilding":
         return <ApartmentInsideBuilding {...{ register }} {...{ errors }} />;
-      case "residentialBuilding":
+      case "ResidentialBuilding":
         return <ResidentialBuilding {...{ register }} {...{ errors }} />;
-      case "Tower":
+      case "tower":
         return <Tower {...{ register }} {...{ errors }} />;
-      case "Camp":
+      case "compHouse":
         return <CampHousing {...{ register }} {...{ errors }} />;
       case "additionalBuildings":
         return <AdditionalBuildings {...{ register }} {...{ errors }} />;

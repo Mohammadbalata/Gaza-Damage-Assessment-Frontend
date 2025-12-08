@@ -36,7 +36,42 @@ const ResidentialBuilding = ({
           </p>
         )}
       </div>
-
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          مساحة البناية السكنية (م²) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          {...register("ResidentialBuilding.propertyArea", {
+            required: t("common.required"),
+            min: { value: 20, message: "الحد الأدنى 20 م²" },
+            max: { value: 2000, message: "الحد الأقصى 2000 م²" },
+            valueAsNumber: true,
+          })}
+          className="input-field"
+        />
+        {errors?.ResidentialBuilding?.propertyArea && (
+          <p className="text-red-600 text-sm">
+            {errors.ResidentialBuilding.propertyArea.message}
+          </p>
+        )}
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">نوع العقار</label>
+        <select
+          {...register("ResidentialBuilding.habitability")}
+          className="input-field"
+        >
+          <option value="">لا يوجد</option>
+          <option value="ملك">ملك</option>
+            <option value="ايجار">ايجار </option>
+        </select>
+        {errors?.ResidentialBuilding?.habitability && (
+          <p className="text-red-600 text-sm">
+            {errors.ResidentialBuilding.habitability.message}
+          </p>
+        )}
+      </div>
       {/* عدد الشقق في كل طابق */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -367,7 +402,36 @@ const ResidentialBuilding = ({
           placeholder="مثال: الطابق 3 و 4"
         />
       </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          تفاصيل الضرر <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register("ResidentialBuilding.damageType", {
+            required: t("common.required"),
+          })}
+          className="input-field"
+        >
+          <option value="">اختر نوع الضرر</option>
+          <option value="انهيار كامل">انهيار كامل</option>
+          <option value="انهيار جزئي">انهيار جزئي</option>
+          <option value="تشققات إنشائية">تشققات إنشائية</option>
+          <option value="تضرر الواجهات">تضرر الواجهات</option>
+          <option value="تضرر السقف">تضرر السقف</option>
+          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
+          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
+          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
+          <option value="تضرر شبكة المياه والصرف">
+            تضرر شبكة المياه والصرف
+          </option>
+        </select>
 
+        {errors?.ResidentialBuilding?.damageType && (
+          <p className="text-red-600 text-sm">
+            {errors.ResidentialBuilding.damageType.message}
+          </p>
+        )}
+      </div>
       {/* نسبة الضرر */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -413,6 +477,24 @@ const ResidentialBuilding = ({
         )}
       </div>
 
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          هل هو قابل للسكن حالياً؟
+        </label>
+        <select
+          {...register("ResidentialBuilding.isHabitable")}
+          className="input-field"
+        >
+          <option value="">لا يوجد</option>
+          <option value="true">نعم</option>
+          <option value="false">لا </option>
+        </select>
+        {errors?.ResidentialBuilding?.isHabitable && (
+          <p className="text-red-600 text-sm">
+            {errors.ResidentialBuilding.isHabitable.message}
+          </p>
+        )}
+      </div>
       {/* ملاحظات */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
