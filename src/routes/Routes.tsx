@@ -24,7 +24,7 @@ import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
-import { useUserAuth } from "../contexts/UserAuthContext";
+import UserProtectedRoute from "./UserProtectedRoute";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -48,14 +48,6 @@ function RoleBasedRoute() {
     default:
       return <Navigate to={ROUTES.ADMIN_LOGIN} />;
   }
-}
-
-export function UserProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useUserAuth();
-
-  if (!isAuthenticated) return <Navigate to={ROUTES.SIGNIN} />;
-
-  return <>{children}</>;
 }
 
 export const ROUTES: IRoutes = {
@@ -88,7 +80,11 @@ export const routes = [
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
     path: ROUTES.VERIFICATION_QUESTIONS,
-    element: <VerificationQuestionsPage />,
+    element: (
+      <UserProtectedRoute>
+        <VerificationQuestionsPage />
+      </UserProtectedRoute>
+    ),
   },
   { path: ROUTES.PREVIOUS_LOCATION, element: <PreviousLocationMapPage /> },
   { path: ROUTES.PASSWORD_DISPLAY, element: <PasswordDisplayPage /> },
@@ -100,7 +96,10 @@ export const routes = [
   { path: ROUTES.PERSONAL_INFO, element: <PersonalInfoPage /> },
   { path: ROUTES.FAMILY_INFO, element: <FamilyInfoPage /> },
 
-  { path: ROUTES.REVIEW, element: <ReviewPage /> },
+  {
+    path: ROUTES.REVIEW,
+    element: <ReviewPage />,
+  },
   { path: ROUTES.SUCCESS, element: <SuccessPage /> },
   { path: ROUTES.TRACK_STATUS, element: <TrackStatusPage /> },
   { path: ROUTES.ADMIN_LOGIN, element: <AdminLoginPage /> },
