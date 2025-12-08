@@ -13,15 +13,15 @@ function App() {
     }
   });
   return (
-    <LanguageProvider>
-      <AdminAuthProvider>
-        <UserAuthProvider>
-          <BrowserRouter>
+    <BrowserRouter>
+      <LanguageProvider>
+        <AdminAuthProvider>
+          <UserAuthProvider>
             <AppRoutes />
-          </BrowserRouter>
-        </UserAuthProvider>
-      </AdminAuthProvider>
-    </LanguageProvider>
+          </UserAuthProvider>
+        </AdminAuthProvider>
+      </LanguageProvider>
+    </BrowserRouter>
   );
 }
 

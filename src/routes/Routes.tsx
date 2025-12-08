@@ -11,7 +11,6 @@ import FamilyInfoPage from "../pages/FamilyInfoPage";
 import ReviewPage from "../pages/ReviewPage";
 import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
-import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
 import AdminApplicationsPage from "../pages/AdminDashboard/AdminApplicationsPage";
@@ -24,7 +23,7 @@ import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
-import UserProtectedRoute from "./UserProtectedRoute";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -80,29 +79,86 @@ export const routes = [
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
     path: ROUTES.VERIFICATION_QUESTIONS,
+    element: <VerificationQuestionsPage />,
+  },
+  {
+    path: ROUTES.PREVIOUS_LOCATION,
     element: (
-      <UserProtectedRoute>
-        <VerificationQuestionsPage />
-      </UserProtectedRoute>
+      <ProtectedRoutes>
+        <PreviousLocationMapPage />
+      </ProtectedRoutes>
     ),
   },
-  { path: ROUTES.PREVIOUS_LOCATION, element: <PreviousLocationMapPage /> },
-  { path: ROUTES.PASSWORD_DISPLAY, element: <PasswordDisplayPage /> },
+  {
+    path: ROUTES.PASSWORD_DISPLAY,
+    element: <PasswordDisplayPage />,
+  },
   {
     path: ROUTES.DAMAGE_ASSESSMENT_DIALOG,
-    element: <DamageAssessmentDialog />,
+
+    element: (
+      <ProtectedRoutes>
+        <DamageAssessmentDialog />
+      </ProtectedRoutes>
+    ),
   },
-  { path: ROUTES.CURRENT_LOCATION, element: <CurrentLocationMapPage /> },
-  { path: ROUTES.PERSONAL_INFO, element: <PersonalInfoPage /> },
-  { path: ROUTES.FAMILY_INFO, element: <FamilyInfoPage /> },
+  {
+    path: ROUTES.CURRENT_LOCATION,
+    element: (
+      <ProtectedRoutes>
+        <CurrentLocationMapPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.PERSONAL_INFO,
+    element: (
+      <ProtectedRoutes>
+        <PersonalInfoPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.FAMILY_INFO,
+    element: (
+      <ProtectedRoutes>
+        <FamilyInfoPage />
+      </ProtectedRoutes>
+    ),
+  },
 
   {
     path: ROUTES.REVIEW,
-    element: <ReviewPage />,
+    element: (
+      <ProtectedRoutes>
+        <ReviewPage />
+      </ProtectedRoutes>
+    ),
   },
-  { path: ROUTES.SUCCESS, element: <SuccessPage /> },
-  { path: ROUTES.TRACK_STATUS, element: <TrackStatusPage /> },
-  { path: ROUTES.ADMIN_LOGIN, element: <AdminLoginPage /> },
+  {
+    path: ROUTES.SUCCESS,
+    element: (
+      <ProtectedRoutes>
+        <SuccessPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.TRACK_STATUS,
+    element: (
+      <ProtectedRoutes>
+        <TrackStatusPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_LOGIN,
+    element: (
+      <ProtectedRoutes>
+        <DamageAssessmentDialog />
+      </ProtectedRoutes>
+    ),
+  },
   {
     path: ROUTES.ADMIN_DASHBOARD,
     element: (

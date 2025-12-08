@@ -21,9 +21,11 @@ import CampHousing from "../components/Form Applications/CampHousing";
 import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../routes/Routes";
 
 const DamageAssessmentDialog = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -57,12 +59,9 @@ const DamageAssessmentDialog = () => {
     }
     if (type === "additionalBuildings")
       dispatch(saveAdditionalBuildings(formData));
-
-    // navigate(`${ROUTES.CURRENT_LOCATION}`);
+    navigate(`${ROUTES.CURRENT_LOCATION}`);
     console.log("success submitted");
-    // console.log(formData);
-
-    // navigate(`${ROUTES.CURRENT_LOCATION}`);
+    
   };
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;

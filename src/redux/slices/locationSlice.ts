@@ -53,9 +53,6 @@ const initialState: ILocationState = {
   currentLatitude: 0,
   currentLongitude: 0,
   currentLocationAddress: "",
-  latitude: 0,
-  longitude: 0,
-  locationAddress: "",
   loading: false,
   error: null,
 };
@@ -73,9 +70,9 @@ export const locationSlice = createSlice({
       })
       .addCase(updatePreviousLocation.fulfilled, (state, action) => {
         state.loading = false;
-        state.previousLatitude = action.payload.lat;
-        state.previousLongitude = action.payload.lng;
-        state.previousLocationAddress = action.payload.address;
+        state.previousLatitude = action.payload.previousLatitude;
+        state.previousLongitude = action.payload.previousLongitude;
+        state.previousLocationAddress = action.payload.previousLocationAddress;
       })
       .addCase(updatePreviousLocation.rejected, (state, action) => {
         state.loading = false;
@@ -89,30 +86,14 @@ export const locationSlice = createSlice({
       })
       .addCase(updateCurrentLocation.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentLatitude = action.payload.lat;
-        state.currentLongitude = action.payload.lng;
-        state.currentLocationAddress = action.payload.address;
+        state.currentLatitude = action.payload.currentLatitude;
+        state.currentLongitude = action.payload.currentLongitude;
+        state.currentLocationAddress = action.payload.currentLocationAddress;
       })
       .addCase(updateCurrentLocation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
-
-    // // ===== Legacy Location =====
-    // builder
-    //   .addCase(updateLocation.pending, (state) => {
-    //     state.loading = true;
-    //   })
-    //   .addCase(updateLocation.fulfilled, (state, action) => {
-    //     state.loading = false;
-    //     state.latitude = action.payload.lat;
-    //     state.longitude = action.payload.lng;
-    //     state.locationAddress = action.payload.address;
-    //   })
-    //   .addCase(updateLocation.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.payload as string;
-    //   });
   },
 });
 
@@ -137,17 +118,5 @@ export const updateCurrentLocation = createAsyncThunk<
     return rejectWithValue("Failed to update current location");
   }
 });
-
-// // Legacy
-// export const updateLocation = createAsyncThunk<
-//   ILocationPayload,
-//   ILocationPayload
-// >("location/updateLocation", async (data, { rejectWithValue }) => {
-//   try {
-//     return data;
-//   } catch {
-//     return rejectWithValue("Failed to update location");
-//   }
-// });
 
 export default locationSlice.reducer;

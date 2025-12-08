@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import type { AxiosError } from "axios";
 import { api, AdminUser } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../routes/Routes";
 
 type Role = "admin" | "supervisor";
 
@@ -38,6 +40,8 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem("token");
   });
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,6 +118,10 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.removeItem("token");
     setUser(null);
     setToken(null);
+    if (user?.role !== "admin" || "supervisor") {
+      navigate(`${ROUTES.SIGNIN}`);
+      console.log("into if logout");
+    }
   };
 
   const hasRole = useCallback(

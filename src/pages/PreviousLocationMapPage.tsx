@@ -67,7 +67,7 @@ const PreviousLocationMapPage = () => {
   const handleConfirm = () => {
     if (position) {
       dispatch(
-        updatePreviousLocation({ lat: position[0], lng: position[1], address })
+        updatePreviousLocation({ previousLatitude: position[0], previousLongitude: position[1], previousLocationAddress })
       );
 
       execute({

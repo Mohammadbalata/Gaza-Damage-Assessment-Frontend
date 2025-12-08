@@ -60,7 +60,7 @@ const CurrentLocationMapPage = () => {
   const handleConfirm = () => {
     if (position) {
       dispatch(
-        updateCurrentLocation({ lat: position[0], lng: position[1], address })
+        updateCurrentLocation({ currentLatitude: position[0], currentLongitude: position[1], currentLocationAddress })
       );
 
       execute({
