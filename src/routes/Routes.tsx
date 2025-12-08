@@ -6,7 +6,6 @@ import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-// import PersonalInfoPage from "../pages/PersonalInfoPage";
 import FamilyInfoPage from "../pages/FamilyInfoPage";
 import ReviewPage from "../pages/ReviewPage";
 import SuccessPage from "../pages/SuccessPage";
@@ -24,6 +23,7 @@ import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
+import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -110,14 +110,6 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  // {
-  //   path: ROUTES.PERSONAL_INFO,
-  //   element: (
-  //     <ProtectedRoutes>
-  //       <PersonalInfoPage />
-  //     </ProtectedRoutes>
-  //   ),
-  // },
   {
     path: ROUTES.FAMILY_INFO,
     element: (
@@ -145,19 +137,11 @@ export const routes = [
   },
   {
     path: ROUTES.TRACK_STATUS,
-    element: (
-      <ProtectedRoutes>
-        <TrackStatusPage />
-      </ProtectedRoutes>
-    ),
+    element: <TrackStatusPage />,
   },
   {
     path: ROUTES.ADMIN_LOGIN,
-    element: (
-      <ProtectedRoutes>
-        <DamageAssessmentDialog />
-      </ProtectedRoutes>
-    ),
+    element: <AdminLoginPage />,
   },
   {
     path: ROUTES.ADMIN_DASHBOARD,
