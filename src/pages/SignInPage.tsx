@@ -65,7 +65,6 @@ const LoginPage = () => {
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <FormInput
-          defaultValue={"410031934"}
           id="nationalId"
           label={t("auth.nationalId")}
           placeholder={t("auth.nationalIdPlaceholder")}
@@ -81,7 +80,6 @@ const LoginPage = () => {
           }}
         />
         <FormInput
-          defaultValue={"123456"}
           id="password"
           type="password"
           label={t("auth.password")}
