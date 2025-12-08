@@ -8,6 +8,9 @@ export interface IDamageAssessmentState {
   additionalBuildings: IAdditionalBuildings;
   loading: boolean;
   error: string | null;
+  // isHabitable?: boolean; //done
+  // propertyArea?: number; // done
+  // damageType?: string; // done:
 }
 export interface IndependentBuilding {
   numberOfFloors: number;
@@ -15,16 +18,18 @@ export interface IndependentBuilding {
   roofType: string;
   wallType: string;
   buildingAge: number;
-  damageType: string;
+  damageType: string; //done
   damagePercentage: number;
-  habitability: string;
+  habitability: string; // done
   additionalNotes: string;
+  isHabitable?: boolean; //done
+  propertyArea?: number; // done
 }
 
 interface ApartmentInsideBuilding {
   floorNumber?: number;
   apartmentNumber?: string;
-  apartmentArea?: number;
+  propertyArea?: number; // done
   roomsCount?: number;
   wallCracks?: string;
   doorsDamage?: string;
@@ -36,8 +41,10 @@ interface ApartmentInsideBuilding {
   electricalDamage?: string;
   mainBuildingDamage?: string;
   damagePercentage?: number;
-  habitability?: string;
+  habitability?: string; // done
   additionalNotes?: string;
+  isHabitable?: boolean; //done
+  damageType?: string; //done
 }
 interface ResidentialBuilding {
   floorsCount?: number;
@@ -59,6 +66,10 @@ interface ResidentialBuilding {
   damagePercentage?: number;
   usageFeasibility?: string;
   additionalNotes?: string;
+  damageType?: string; //done
+  habitability?: string; // done
+  isHabitable?: boolean; //done
+  propertyArea?: number; // done
 }
 export interface ITower {
   totalFloors?: number;
@@ -82,7 +93,10 @@ export interface ITower {
   structuralDamagePercent?: number;
   architecturalDamagePercent?: number;
   servicesDamagePercent?: number;
-  engineerRecommendation?: string;
+  engineerRecommendation?: string; //done
+  isHabitable?: boolean; //done
+  propertyArea?: number; // done
+  damageType?: string; // done:
 }
 
 export interface ICompHouse {
@@ -93,9 +107,12 @@ export interface ICompHouse {
   doorsWindowsDamage: boolean;
   electricalDamage: boolean;
   waterLeak: boolean;
-  habitability: string; // "habitable" | "needs-reinforcement" | "uninhabitable"
+  habitability: string; //done
   damagePercentage: number;
   additionalNotes: string;
+  isHabitable?: boolean; //done
+  propertyArea?: number; // done
+  damageType?: string; // done:
 }
 
 export interface IAdditionalBuildings {
@@ -107,4 +124,8 @@ export interface IAdditionalBuildings {
   waterNetworkDamage: boolean;
   damagePercentage: number;
   additionalNotes: string;
+  damageType?: string; //done
+  habitability?: string; // done
+  isHabitable?: boolean; //done
+  propertyArea?: number; // done
 }

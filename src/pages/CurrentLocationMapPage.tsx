@@ -8,6 +8,9 @@ import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/useApi";
 
+// import { getReviewData } from "../utils/getReviewData";
+// import { axiosClient } from "../api/baseUrl";
+
 const CurrentLocationMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -58,9 +61,13 @@ const CurrentLocationMapPage = () => {
   };
 
   const handleConfirm = () => {
-    if (position) {
+    if (position && address) {
       dispatch(
-        updateCurrentLocation({ currentLatitude: position[0], currentLongitude: position[1], currentLocationAddress })
+        updateCurrentLocation({
+          currentLatitude: position[0],
+          currentLongitude: position[1],
+          currentLocationAddress,
+        })
       );
 
       execute({
@@ -135,10 +142,19 @@ const CurrentLocationMapPage = () => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary flex-1"
-            disabled={!position}
+            disabled={!position || loading}
           >
-            <Check className="w-4 h-4 inline mr-2" />
-            {t("map.confirm")}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                {t("common.loading")}
+              </div>
+            ) : (
+              <>
+                <Check className="w-4 h-4 inline mr-2" />
+                {t("map.confirm")}
+              </>
+            )}
           </button>
         </div>
       </div>

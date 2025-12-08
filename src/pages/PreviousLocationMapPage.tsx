@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
@@ -12,7 +12,6 @@ const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  
   const { previousLatitude, previousLongitude, previousLocationAddress } =
     useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
@@ -27,19 +26,14 @@ const PreviousLocationMapPage = () => {
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const center = position || defaultCenter;
 
-  const { loading, execute } = usePost(
-    `applications/add-previous-location`,
-    {
-      onSuccess: () => {
-        navigate(
-          `${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`
-        );
-      },
-      onError: (err) => {
-        console.log(err);
-      },
-    }
-  );
+  const { loading, execute } = usePost(`applications/add-previous-location`, {
+    onSuccess: () => {
+      navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`);
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
 
   useEffect(() => {
     if (position) {
@@ -65,11 +59,14 @@ const PreviousLocationMapPage = () => {
   };
 
   const handleConfirm = () => {
-    if (position) {
+    if (position && address) {
       dispatch(
-        updatePreviousLocation({ previousLatitude: position[0], previousLongitude: position[1], previousLocationAddress })
+        updatePreviousLocation({
+          previousLatitude: position[0],
+          previousLongitude: position[1],
+          previousLocationAddress,
+        })
       );
-
       execute({
         latitude: position[0].toString(),
         longitude: position[1].toString(),
@@ -140,8 +137,17 @@ const PreviousLocationMapPage = () => {
             className="btn-primary flex-1"
             disabled={!position || loading}
           >
-            <Check className="w-4 h-4 inline mr-2" />
-            {t("map.confirm")}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                {t("common.loading")}
+              </div>
+            ) : (
+              <>
+                <Check className="w-4 h-4 inline mr-2" />
+                {t("map.confirm")}
+              </>
+            )}
           </button>
         </div>
       </div>

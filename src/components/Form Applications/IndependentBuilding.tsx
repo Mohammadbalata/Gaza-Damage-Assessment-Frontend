@@ -34,6 +34,42 @@ const IndependentBuilding = ({
           </p>
         )}
       </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          مساحة المبنى (م²) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          {...register("IndependentBuilding.propertyArea", {
+            required: t("common.required"),
+            min: { value: 20, message: "الحد الأدنى 20 م²" },
+            max: { value: 2000, message: "الحد الأقصى 2000 م²" },
+            valueAsNumber: true,
+          })}
+          className="input-field"
+        />
+        {errors?.IndependentBuilding?.propertyArea && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.propertyArea.message}
+          </p>
+        )}
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">نوع العقار</label>
+        <select
+          {...register("IndependentBuilding.habitability")}
+          className="input-field"
+        >
+          <option value="">لا يوجد</option>
+          <option value="ملك">ملك</option>
+            <option value="ايجار">ايجار </option>
+        </select>
+        {errors?.IndependentBuilding?.habitability && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.habitability.message}
+          </p>
+        )}
+      </div>
 
       {/* مساحة كل طابق */}
       <div>
@@ -142,15 +178,17 @@ const IndependentBuilding = ({
           className="input-field"
         >
           <option value="">اختر نوع الضرر</option>
-          <option value="fullCollapse">انهيار كامل</option>
-          <option value="partialCollapse">انهيار جزئي</option>
-          <option value="structuralCracks">تشققات إنشائية</option>
-          <option value="facadeDamage">تضرر الواجهات</option>
-          <option value="roofDamage">تضرر السقف</option>
-          <option value="doorWindowDamage">تضرر الأبواب والنوافذ</option>
-          <option value="interiorFinishesDamage">تضرر التشطيبات</option>
-          <option value="electricityDamage">تضرر الكهرباء</option>
-          <option value="waterNetworkDamage">تضرر شبكة المياه والصرف</option>
+          <option value="انهيار كامل">انهيار كامل</option>
+          <option value="انهيار جزئي">انهيار جزئي</option>
+          <option value="تشققات إنشائية">تشققات إنشائية</option>
+          <option value="تضرر الواجهات">تضرر الواجهات</option>
+          <option value="تضرر السقف">تضرر السقف</option>
+          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
+          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
+          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
+          <option value="تضرر شبكة المياه والصرف">
+            تضرر شبكة المياه والصرف
+          </option>
         </select>
 
         {errors?.IndependentBuilding?.damageType && (
@@ -203,6 +241,24 @@ const IndependentBuilding = ({
         {errors?.IndependentBuilding?.habitability && (
           <p className="text-red-600 text-sm">
             {errors.IndependentBuilding.habitability.message}
+          </p>
+        )}
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          هل هو قابل للسكن حالياً؟
+        </label>
+        <select
+          {...register("IndependentBuilding.isHabitable")}
+          className="input-field"
+        >
+          <option value="">لا يوجد</option>
+          <option value="true">نعم</option>
+          <option value="false">لا </option>
+        </select>
+        {errors?.IndependentBuilding?.isHabitable && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.isHabitable.message}
           </p>
         )}
       </div>

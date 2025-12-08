@@ -8,7 +8,6 @@ import { axiosClient } from "../api/baseUrl";
 const SuccessPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  // const { data } = useApplicationStore();
   const [copied, setCopied] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);

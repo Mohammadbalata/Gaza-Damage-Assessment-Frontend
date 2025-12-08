@@ -16,7 +16,9 @@ const AdditionalBuildings = ({ register, errors }: any) => {
             نوع الغرفة / المبنى <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("additionalBuildings.type", { required: t("common.required") })}
+            {...register("additionalBuildings.type", {
+              required: t("common.required"),
+            })}
             className="input-field"
           >
             <option value="">اختر النوع</option>
@@ -28,6 +30,44 @@ const AdditionalBuildings = ({ register, errors }: any) => {
           {errors?.additional?.type && (
             <p className="text-red-600 text-sm">
               {errors.additionalBuildings.type.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            مساحة الغرفة / المبنى (م²) <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            {...register("additionalBuildings.propertyArea", {
+              required: t("common.required"),
+              min: { value: 20, message: "الحد الأدنى 20 م²" },
+              max: { value: 2000, message: "الحد الأقصى 2000 م²" },
+              valueAsNumber: true,
+            })}
+            className="input-field"
+          />
+          {errors?.additionalBuildings?.propertyArea && (
+            <p className="text-red-600 text-sm">
+              {errors.additionalBuildings.propertyArea.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            نوع العقار
+          </label>
+          <select
+            {...register("additionalBuildings.habitability")}
+            className="input-field"
+          >
+            <option value="">لا يوجد</option>
+            <option value="ملك">ملك</option>
+            <option value="ايجار">ايجار </option>
+          </select>
+          {errors?.additionalBuildings.habitability && (
+            <p className="text-red-600 text-sm">
+              {errors.additionalBuildings.habitability.message}
             </p>
           )}
         </div>
@@ -68,7 +108,10 @@ const AdditionalBuildings = ({ register, errors }: any) => {
 
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <input type="checkbox" {...register("additionalBuildings.roofCollapse")} />
+            <input
+              type="checkbox"
+              {...register("additionalBuildings.roofCollapse")}
+            />
             <span>سقوط السقف</span>
           </div>
 
@@ -87,13 +130,51 @@ const AdditionalBuildings = ({ register, errors }: any) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <input type="checkbox" {...register("additionalBuildings.doorDamage")} />
+            <input
+              type="checkbox"
+              {...register("additionalBuildings.doorDamage")}
+            />
             <span>تضرر الأبواب</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <input type="checkbox" {...register("additionalBuildings.waterNetwork")} />
+            <input
+              type="checkbox"
+              {...register("additionalBuildings.waterNetwork")}
+            />
             <span>تلف شبكة المياه</span>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              تفاصيل الضرر <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("additionalBuildings.damageType", {
+                required: t("common.required"),
+              })}
+              className="input-field"
+            >
+              <option value="">اختر نوع الضرر</option>
+          <option value="انهيار كامل">انهيار كامل</option>
+          <option value="انهيار جزئي">انهيار جزئي</option>
+          <option value="تشققات إنشائية">تشققات إنشائية</option>
+          <option value="تضرر الواجهات">تضرر الواجهات</option>
+          <option value="تضرر السقف">تضرر السقف</option>
+          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
+          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
+          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
+          <option value="تضرر شبكة المياه والصرف">تضرر شبكة المياه والصرف</option>
+              <option value="waterNetworkDamage">
+                تضرر شبكة المياه والصرف
+              </option>
+            </select>
+
+            {errors?.additionalBuildings?.damageType && (
+              <p className="text-red-600 text-sm">
+                {errors.additionalBuildings.damageType.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -112,6 +193,24 @@ const AdditionalBuildings = ({ register, errors }: any) => {
             {errors?.additional?.damagePercent && (
               <p className="text-red-600 text-sm">
                 {errors.additionalBuildings.damagePercent.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              هل هو قابل للسكن حالياً؟
+            </label>
+            <select
+              {...register("additionalBuildings.isHabitable")}
+              className="input-field"
+            >
+              <option value="">لا يوجد</option>
+              <option value="true">نعم</option>
+              <option value="false">لا </option>
+            </select>
+            {errors?.additionalBuildings?.isHabitable && (
+              <p className="text-red-600 text-sm">
+                {errors.additionalBuildings.isHabitable.message}
               </p>
             )}
           </div>

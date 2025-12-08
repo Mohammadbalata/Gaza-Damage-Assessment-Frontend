@@ -1,34 +1,50 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 
-import { FileText, MapPin, Home } from "lucide-react";
+import { FileText, MapPin, Home, AlertTriangle } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { useEffect, useState } from "react";
 import { axiosClient } from "../api/baseUrl";
 import { getReviewData } from "../utils/getReviewData";
+import { ROUTES } from "../routes/Routes";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { nationalId } = useAppSelector((state) => state.auth);
-  const { previousLocationAddress, currentLocationAddress, loading } =
+  const { previousLocationAddress, currentLocationAddress, loading, error } =
     useAppSelector((state) => state.location);
 
+  const damageState = useAppSelector((state) => state.damage);
+
+  const buildingMap: any = {
+    IndependentBuilding: damageState.IndependentBuilding,
+    ApartmentInsideBuilding: damageState.ApartmentInsideBuilding,
+    ResidentialBuilding: damageState.ResidentialBuilding,
+    tower: damageState.tower,
+    compHouse: damageState.compHouse,
+    additionalBuildings: damageState.additionalBuildings,
+  };
+  // const selected = buildingOptions.filter((element: any) => {
+  //   if (element.value === 'compHouse') {
+  //     // console.log(buildingMap[element.value])
+  //     return buildingMap[element.value]
+  //   }
+  // });
+  // console.log(selected);
+    const selected = buildingMap[damageState.buildingType] || {};
+  // console.log(selected)
+  const { damageType, isHabitable, habitability, propertyArea } = selected;
   const [loadingPage, setLoadingPage] = useState(loading);
+  const [errorPage, setErrorPage] = useState(error);
   const dispatch = useAppDispatch();
   // const pageRef = useRef<HTMLDivElement>(null);
 
-  // const pageRef = useRef<HTMLDivElement>(null);
-  // const reviewRef = useRef<HTMLDivElement>(null);
-  // const downloadPDF = () => {
-  //   generatePDF(pageRef, { filename: "review-page.pdf" });
-  // };
+
 
   const handleSubmit = () => {
-    // const trackingNum = generateTrackingNumber();
-    // setTrackingNumber(trackingNum);
-    navigate("/success");
+    navigate(`${ROUTES.SUCCESS}`);
   };
 
   useEffect(() => {
@@ -45,26 +61,11 @@ const ReviewPage = () => {
         setLoadingPage(false);
       })
       .catch((error: any) => {
+        setLoadingPage(false);
+        setErrorPage(error);
         console.log(error);
       });
-
-    // const fetchApplication = async () => {
-    //   try {
-    //     const token = localStorage.getItem("token");
-
-    //     const res = await axiosClient.get("/applications/my-application", {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     });
-
-    //     if (res.data.data) setApplicationData(res.data.data);
-    //   } catch (err) {
-    //     console.error("API Error:", err);
-    //   }
-    // };
-
-    // fetchApplication();
+   
   }, []);
   if (loadingPage) {
     return (
@@ -72,6 +73,14 @@ const ReviewPage = () => {
         <div className="card text-center">
           <p>{t("common.loading")}</p>
         </div>
+      </div>
+    );
+  }
+  if (errorPage) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh]">
+        <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
+        <p className="text-lg text-gray-700 mb-2">{errorPage.message}</p>
       </div>
     );
   }
@@ -155,27 +164,27 @@ const ReviewPage = () => {
             <Home className="w-5 h-5 text-primary" />
             <h3 className="text-xl font-semibold">{t("review.damageInfo")}</h3>
           </div>
+
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">{t("form.damageLevel")}</p>
-              <p className="font-medium capitalize">{}</p>
+              <p className="font-medium capitalize">{damageType || "-"}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">{t("form.propertyType")}</p>
-              <p className="font-medium capitalize">{}</p>
+              <p className="font-medium capitalize">{habitability || "-"}</p>
             </div>
+
             <div>
               <p className="text-sm text-gray-600">{t("form.propertySize")}</p>
-              <p className="font-medium">{} sq meters</p>
+              <p className="font-medium">{propertyArea ?? 0} متر مربع</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">{t("form.numberOfRooms")}</p>
-              <p className="font-medium">{}</p>
-            </div>
+
             <div>
               <p className="text-sm text-gray-600">{t("form.isInhabitable")}</p>
               <p className="font-medium">
-                {/* { ? t("form.yes") : t("form.no")} */}
+                {isHabitable ? t("form.yes") : t("form.no")}
               </p>
             </div>
           </div>
