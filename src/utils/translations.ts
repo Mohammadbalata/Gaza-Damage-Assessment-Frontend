@@ -27,7 +27,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "OR",
     "common.admin": "Admin",
     "common.supervisor": "Supervisor",
-
+    "common.searchPlaceholder":"Search ....",
     // Auth
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
@@ -313,6 +313,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "أو",
     "common.admin": "مدير",
     "common.supervisor": "مشرف",
+    "common.searchPlaceholder":"ابحث ....",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",

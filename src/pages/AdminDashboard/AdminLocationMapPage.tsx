@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { TileLayer, Marker, Popup } from 'react-leaflet'
+import { Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { useLanguage } from '../../contexts/LanguageContext'

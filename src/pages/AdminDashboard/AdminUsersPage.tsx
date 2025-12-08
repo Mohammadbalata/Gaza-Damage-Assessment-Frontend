@@ -20,6 +20,7 @@ const AdminUsersPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState("");
 
   const canManage = hasRole("admin");
   const canView = hasRole("admin");
@@ -115,6 +116,13 @@ const AdminUsersPage = () => {
     }
   };
 
+  // Filter users by name or email
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase())
+  );
+
   if (!canView) {
     return (
       <div className="space-y-4">
@@ -131,6 +139,12 @@ const AdminUsersPage = () => {
           <h1 className="text-3xl font-bold">{t("admin.users.title")}</h1>
           <p className="text-sm text-gray-500">{t("admin.users.subtitle")}</p>
         </div>
+        <input
+          className="input-field w-[500px]"
+          placeholder={t("common.searchPlaceholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         {canManage && (
           <button
             type="button"
@@ -173,7 +187,7 @@ const AdminUsersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {users
+            {filteredUsers
               .sort((a, b) => a.id - b.id)
               .map((user) => (
                 <tr key={user.id} className="border-b border-gray-100">
@@ -212,7 +226,7 @@ const AdminUsersPage = () => {
                   )}
                 </tr>
               ))}
-            {!users.length && !loading && (
+            {!filteredUsers.length && !loading && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-gray-500">
                   {t("admin.noUsersFound")}
