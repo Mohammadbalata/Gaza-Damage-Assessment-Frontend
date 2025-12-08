@@ -1,13 +1,11 @@
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ROUTES } from "./Routes";
-import { useEffect } from "react";
 
 const ProtectedRoutes = ({ children }: any) => {
-    const token = localStorage.getItem("token");
-    useEffect(() => {
-        
-    },[token])
-  return token ? <>{children}</> : <Navigate to={`/${ROUTES.SIGNIN}`} />;
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  // const user = localStorage.getItem('user')
+  return token ? <>{children}</> : <>{navigate(`${ROUTES.SIGNIN}`)}</>;
 };
 
 export default ProtectedRoutes;
