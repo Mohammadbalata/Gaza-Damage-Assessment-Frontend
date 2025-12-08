@@ -35,7 +35,7 @@ const ReviewPage = () => {
   } = useAppSelector((state) => state.damage);
 
   // const pageRef = useRef<HTMLDivElement>(null);
-
+  // const reviewRef = useRef<HTMLDivElement>(null);
   // const downloadPDF = () => {
   //   generatePDF(pageRef, { filename: "review-page.pdf" });
   // };
