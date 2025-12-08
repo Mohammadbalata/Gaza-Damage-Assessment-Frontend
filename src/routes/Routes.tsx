@@ -6,10 +6,10 @@ import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-import PersonalInfoPage from "../pages/PersonalInfoPage";
+// import PersonalInfoPage from "../pages/PersonalInfoPage";
 import FamilyInfoPage from "../pages/FamilyInfoPage";
 import ReviewPage from "../pages/ReviewPage";
-import SuccessPage from "../pages/SuccessPage";
+// import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
@@ -110,14 +110,14 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  {
-    path: ROUTES.PERSONAL_INFO,
-    element: (
-      <ProtectedRoutes>
-        <PersonalInfoPage />
-      </ProtectedRoutes>
-    ),
-  },
+  // {
+  //   path: ROUTES.PERSONAL_INFO,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <PersonalInfoPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
   {
     path: ROUTES.FAMILY_INFO,
     element: (
@@ -135,14 +135,14 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  {
-    path: ROUTES.SUCCESS,
-    element: (
-      <ProtectedRoutes>
-        <SuccessPage />
-      </ProtectedRoutes>
-    ),
-  },
+  // {
+  //   path: ROUTES.SUCCESS,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <SuccessPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
   {
     path: ROUTES.TRACK_STATUS,
     element: (

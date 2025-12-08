@@ -23,7 +23,6 @@ const VerificationQuestionsPage = () => {
   const id = query.get("id");
 
   const {
-    nationalId,
     verificationQuestion,
     loading: loadingStore,
   } = useAppSelector((state) => state.auth);

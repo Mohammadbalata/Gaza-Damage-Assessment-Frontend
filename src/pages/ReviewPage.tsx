@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 
-import { FileText, MapPin, Home, Users } from "lucide-react";
+import { FileText, MapPin, Home } from "lucide-react";
 
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { useEffect, useState, useRef } from "react";
 import { axiosClient } from "../api/baseUrl";
-import generatePDF from "react-to-pdf";
 import { getReviewData } from "../utils/getReviewData";
 
 const ReviewPage = () => {
@@ -18,7 +17,6 @@ const ReviewPage = () => {
     previousLocationAddress,
     currentLocationAddress,
     loading,
-    error,
   } = useAppSelector((state) => state.location);
 
   const [loadingPage, setLoadingPage] = useState(loading);
