@@ -50,8 +50,10 @@ export default function FormInput({
   };
   const handleChangeInput = (e: any) => {
     if (type === "password") {
-      setPassword(e.target.value);
-      setIsTouchInput(true);
+      if (setPassword !== null) {
+        setPassword(e.target.value);
+        setIsTouchInput(true);
+      }
     }
   };
 

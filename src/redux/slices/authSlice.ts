@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState, SignUpPayload } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../../routes/Routes";
+
 
 const initialState: IAuthState = {
   nationalId: "",
@@ -22,6 +21,9 @@ export const authSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    setNationalId : (state , action) => {
+      state.nationalId = action.payload
+    }
   },
   extraReducers: (builder) => {
     //---- sign in ----//
@@ -75,10 +77,10 @@ export const signIn = createAsyncThunk(
         nationalId: payload.nationalId,
         password: payload.password,
       });
-
-      console.log("API Response:", res.data.data.user.application.extraData);
+      console.log(res);
+      // console.log("API Response:", res.data.data.user.application.extraData);
       const extraData = res.data?.data?.user?.application?.extraData;
-
+      const locations = res.data.data.user.application.locations;
       const token = res.data?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
@@ -91,6 +93,7 @@ export const signIn = createAsyncThunk(
         password: payload.password,
         name: res.data?.data?.name || "User",
         extraData,
+        locations,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -108,9 +111,9 @@ export const signUp = createAsyncThunk(
         nationalId: payload.nationalId,
         password: payload.password, // include if backend expects it
       });
-
+      const token = res.data?.data?.token;
       console.log(res.data);
-      return { payload, data: res.data };
+      return { payload, data: res.data, token };
     } catch (err: any) {
       console.log(err);
       return rejectWithValue(err.response?.data?.message || "Sign up failed");
@@ -118,5 +121,5 @@ export const signUp = createAsyncThunk(
   }
 );
 // 410031934
-export const { setError } = authSlice.actions;
+export const { setError , setNationalId } = authSlice.actions;
 export default authSlice.reducer;

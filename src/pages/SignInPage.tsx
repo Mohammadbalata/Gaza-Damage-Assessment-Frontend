@@ -31,17 +31,27 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then((res) => {
-        if (res.extraData) {
-          navigate(ROUTES.REVIEW);
-        } else {
+        const isPrevLocation = res.locations.filter(
+          (location: any) => location.type === "before_war"
+        );
+        const isCurrentLocation = res.locations.filter(
+          (location: any) => location.type === "current"
+        );
+        if (isPrevLocation.length === 0) {
+          navigate(ROUTES.PREVIOUS_LOCATION);
+        } else if (res.extraData === null) {
           navigate(ROUTES.DAMAGE_ASSESSMENT_DIALOG);
+        } else if (isCurrentLocation.length === 0) {
+          navigate(ROUTES.CURRENT_LOCATION);
+        } else {
+          navigate(ROUTES.REVIEW);
         }
       })
       .catch((error) => {
         console.log(error);
       });
-    console.log(data.nationalId);
-    console.log(data.password);
+    // console.log(data.nationalId);
+    // console.log(data.password);
   };
 
   return (

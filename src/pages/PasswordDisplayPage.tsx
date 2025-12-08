@@ -64,9 +64,9 @@ const PasswordDisplayPage = () => {
         })
       )
         .unwrap()
-        .then(() => {
+        .then((res) => {
+          localStorage.setItem('token', res.token)
           navigate(`${ROUTES.PREVIOUS_LOCATION}`);
-          console.log("success");
         })
         .catch((error) => {
           console.log(error);
