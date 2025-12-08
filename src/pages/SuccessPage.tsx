@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useApplicationStore } from "../store/applicationStore";
 import { CheckCircle, Download, Eye, EyeOff, Copy } from "lucide-react";
 import { generatePDFReceipt } from "../utils/pdfGenerator";
+import { axiosClient } from "../api/baseUrl";
 
 const SuccessPage = () => {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ const SuccessPage = () => {
   const { data } = useApplicationStore();
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -23,7 +26,31 @@ const SuccessPage = () => {
       generatePDFReceipt(data);
     }
   };
+  useEffect(() => {
+    const fetchApplication = async () => {
+      setIsLoading(true);
+      try {
+        const token = localStorage.getItem("token");
 
+        const res = await axiosClient.get("/applications/my-application", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(res.data.data.id);
+        if (res.data.data) {
+          setTrackingNumber(res.data.data.id);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error("API Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchApplication();
+  }, []);
   return (
     <div className="max-w-2xl mx-auto">
       <div className="card text-center">
@@ -43,18 +70,25 @@ const SuccessPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("success.trackingNumber")}
             </label>
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-2xl font-bold text-primary">
-                {data.trackingNumber}
-              </p>
-              <button
-                onClick={() => handleCopy(data.trackingNumber || "")}
-                className="text-gray-600 hover:text-primary"
-                title="Copy"
-              >
-                <Copy className="w-5 h-5" />
-              </button>
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                {t("common.loading")}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-2xl font-bold text-primary">
+                  {trackingNumber}
+                </p>
+                <button
+                  onClick={() => handleCopy(trackingNumber || "")}
+                  className="text-gray-600 hover:text-primary"
+                  title="Copy"
+                >
+                  <Copy className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Password */}

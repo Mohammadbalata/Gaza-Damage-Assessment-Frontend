@@ -2,18 +2,17 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useApplicationStore } from "../store/applicationStore";
 import { FileText, MapPin, Home, Users } from "lucide-react";
-import { generateTrackingNumber } from "../utils/helpers";
+// import { generateTrackingNumber } from "../utils/helpers";
 import { useAppSelector } from "../hooks/redux";
 import { useEffect, useState, useRef } from "react";
 import { axiosClient } from "../api/baseUrl";
-import generatePDF from "react-to-pdf";
+// import generatePDF from "react-to-pdf";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { data, setTrackingNumber } = useApplicationStore();
   const [applicationData, setApplicationData] = useState<any>({});
-
   const { nationalId } = useAppSelector((state) => state.auth);
   const { fullName, motherName, dateOfBirth } = useAppSelector(
     (state) => state.personal
@@ -35,15 +34,15 @@ const ReviewPage = () => {
     numberOfRooms,
   } = useAppSelector((state) => state.damage);
 
-  const pageRef = useRef<HTMLDivElement>(null);
+  // const pageRef = useRef<HTMLDivElement>(null);
 
-  const downloadPDF = () => {
-    generatePDF(pageRef, { filename: "review-page.pdf" });
-  };
+  // const downloadPDF = () => {
+  //   generatePDF(pageRef, { filename: "review-page.pdf" });
+  // };
 
   const handleSubmit = () => {
-    const trackingNum = generateTrackingNumber();
-    setTrackingNumber(trackingNum);
+    // const trackingNum = generateTrackingNumber();
+    // setTrackingNumber(trackingNum);
     navigate("/success");
   };
 
@@ -71,7 +70,7 @@ const ReviewPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="card mb-6" ref={pageRef}>
+      <div className="card mb-6">
         <h2 className="text-2xl font-bold mb-6">{t("review.title")}</h2>
 
         {/* Identity Information */}
@@ -227,14 +226,14 @@ const ReviewPage = () => {
       </div>
 
       <div className="flex gap-4">
-        <button
+        {/* <button
           onClick={downloadPDF}
           className="btn-primary px-6 py-3 rounded-lg font-medium w-full"
         >
           {t("success.downloadReceipt")}
-        </button>
+        </button> */}
 
-        {/* <button
+        <button
           type="button"
           onClick={() => navigate("/current-location")}
           className="btn-outline flex-1"
@@ -247,7 +246,7 @@ const ReviewPage = () => {
           className="btn-primary flex-1"
         >
           {t("review.submit")}
-        </button> */}
+        </button>
       </div>
     </div>
   );
