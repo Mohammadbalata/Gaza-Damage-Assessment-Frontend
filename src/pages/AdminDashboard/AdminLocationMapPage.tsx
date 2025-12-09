@@ -65,6 +65,7 @@ const AdminLocationMapPage = () => {
             setMarkerPosition={() => {}}
             height="100%"
             width="100%"
+            setAddress={null}
           >
             {isValidCoords && (
               <Marker position={center}>
