@@ -46,9 +46,10 @@ const PreviousLocationMapPage = () => {
           setAddress(data.display_name || "Location selected");
         })
         .catch(() => {
-          setAddress(
-            `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
-          );
+          // setAddress(
+          //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
+          // );
+          setAddress('')
         });
     }
   }, [position]);
@@ -93,6 +94,7 @@ const PreviousLocationMapPage = () => {
             setMarkerPosition={setPosition}
             height="100%"
             width="100%"
+            {...{setAddress}}
           />
         </div>
         {position && (
@@ -135,7 +137,7 @@ const PreviousLocationMapPage = () => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary flex-1"
-            disabled={!position || loading}
+            disabled={(!position || loading || !address)}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">

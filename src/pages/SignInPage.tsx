@@ -10,10 +10,10 @@ import classNames from "classnames";
 import Button from "../components/Shared/Button/Button";
 import { AlertCircle } from "lucide-react";
 import AuthComp from "./AuthComp";
+import { IAuthState } from "../interfaces/store/IAuthState";
 
-export interface FormDataCustom {
-  nationalId: string;
-  password: string | any;
+export interface FormDataCustom extends IAuthState {
+  
 }
 
 const LoginPage = () => {
@@ -78,6 +78,7 @@ const LoginPage = () => {
               message: t("auth.nationalIdError"),
             },
           }}
+          isNationalId={true}
         />
         <FormInput
           id="password"

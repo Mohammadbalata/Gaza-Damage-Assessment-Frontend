@@ -12,7 +12,7 @@ const Header = () => {
         <div className="flex items-center gap-3">
           <Building2 className="w-10 h-10 text-white drop-shadow" />
           <div>
-            <h1 className="text-2xl font-bold tracking-wide">
+            <h1 className="text-xl font-bold tracking-wide">
               {t("app.title")}
             </h1>
             <p className="text-sm text-primary-light">{t("app.subtitle")}</p>

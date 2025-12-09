@@ -20,13 +20,7 @@
 //     register,
 //     handleSubmit,
 //     formState: { errors },
-//   } = useForm<FormData>({
-//     defaultValues: {
-//       fullName: personalInfo.fullName || "",
-//       motherName: personalInfo.motherName || "",
-//       dateOfBirth: personalInfo.dateOfBirth || "",
-//     },
-//   });
+//   } = useForm<FormData>({});
 
 //   const onSubmit = (formData: FormData) => {
 //     dispatch(setPersonalInfo(formData));
