@@ -1,8 +1,8 @@
 export const translations: Record<"en" | "ar", Record<string, string>> = {
   en: {
     // Common
-    "app.title": "Gaza Damage Assessment System",
-    "app.subtitle": "Ministry of Public Works and Housing",
+    "app.title": "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
+    "app.subtitle": "Khan Younis Municipality",
     "common.submit": "Submit",
     "common.logout": "Logout",
     "common.cancel": "Cancel",
@@ -287,8 +287,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
   },
   ar: {
     // Common
-    "app.title": "نظام تقييم الأضرار في غزة",
-    "app.subtitle": "وزارة الأشغال العامة والإسكان",
+    "app.title": "النظام المركزي لحصر وتقييم أضرار المباني – بلدية خانيونس",
+    "app.subtitle": "بلدية خانيونس",
     "common.submit": "إرسال",
     "common.logout": "تسجيل الخروج",
     "common.cancel": "إلغاء",

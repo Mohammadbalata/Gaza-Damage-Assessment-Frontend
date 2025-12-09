@@ -6,7 +6,6 @@ import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-import FamilyInfoPage from "../pages/FamilyInfoPage";
 import ReviewPage from "../pages/ReviewPage";
 import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
@@ -24,6 +23,7 @@ import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
+// import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -102,19 +102,12 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
+
   {
     path: ROUTES.CURRENT_LOCATION,
     element: (
       <ProtectedRoutes>
         <CurrentLocationMapPage />
-      </ProtectedRoutes>
-    ),
-  },
-  {
-    path: ROUTES.FAMILY_INFO,
-    element: (
-      <ProtectedRoutes>
-        <FamilyInfoPage />
       </ProtectedRoutes>
     ),
   },
