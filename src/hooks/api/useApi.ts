@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { AxiosError } from "axios";
-import { api } from "../services/api";
+// import { AxiosError } from "axios";
+import ApiErrorHandler from "../../services/errorHandler";
 
 export interface ApiResponse<T> {
   data: T;
@@ -42,16 +42,18 @@ export function useApi<T = any>(
 
       try {
         const response = await apiCall(...args);
-        const result = response.data.data;
+        const result = response.data.data ?? response.data;
         setData(result);
 
         if (onSuccess) onSuccess(result);
         return result;
       } catch (err) {
-        const errorMessage =
-          err instanceof AxiosError
-            ? err.response?.data?.message || err.message
-            : "An unexpected error occurred";
+        const errorMessage = ApiErrorHandler.handle(err);
+        setError(errorMessage);
+        // const errorMessage =
+        //   err instanceof AxiosError
+        //     ? err.response?.data?.message || err.message
+        //     : "An unexpected error occurred";
 
         if (onError) onError(errorMessage);
         return undefined;

@@ -5,6 +5,7 @@ import AdminStats from "../../components/admin/AdminStats";
 import { adminApi } from "../../services/api";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { Users, FileText, IdCard, MapPinned } from "lucide-react";
+import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 
 const AdminDashboard = () => {
   const { t } = useLanguage();
@@ -51,7 +52,9 @@ const AdminDashboard = () => {
     <>
       {loading ? (
         <div className="flex items-center justify-center h-full">
-          <div className="loader">Loading...</div>
+          <div className="loader">
+            <LoadingSpinner />
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
@@ -196,3 +199,194 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+// import { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   Box,
+//   Container,
+//   Card,
+//   Typography,
+//   Skeleton,
+//   CardActionArea,
+//   Grid,
+// } from "@mui/material";
+// import { Users, FileText, IdCard, MapPin } from "lucide-react";
+// import { useLanguage } from "../../contexts/LanguageContext";
+// import { useAuth } from "../../contexts/AdminAuthContext";
+// import { adminApi } from "../../services/api";
+// import AdminStats from "../../components/admin/AdminStats";
+// import ErrorAlert from "../../components/Shared/ErrorAlert";
+
+// const ADMIN_CARDS = [
+//   {
+//     icon: Users,
+//     title: "admin.manageUsers",
+//     description: "admin.usersDescription",
+//     route: "/admin/users",
+//     color: "#3b82f6",
+//   },
+//   {
+//     icon: FileText,
+//     title: "admin.manageApplications",
+//     description: "admin.applicationsDescription",
+//     route: "/admin/applications",
+//     color: "#10b981",
+//   },
+//   {
+//     icon: IdCard,
+//     title: "admin.manageCitizens",
+//     description: "admin.citizensDescription",
+//     route: "/admin/citizens",
+//     color: "#f59e0b",
+//   },
+//   {
+//     icon: MapPin,
+//     title: "admin.manageLocations",
+//     description: "admin.locationsDescription",
+//     route: "/admin/locations",
+//     color: "#8b5cf6",
+//   },
+// ];
+
+// export function AdminDashboard() {
+//   const { t } = useLanguage();
+//   const { user } = useAuth();
+//   const navigate = useNavigate();
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+//   const [totals, setTotals] = useState({
+//     users: 0,
+//     applications: 0,
+//     citizens: 0,
+//     locations: 0,
+//   });
+
+//   useEffect(() => {
+//     const loadStats = async () => {
+//       try {
+//         setLoading(true);
+//         const [usersRes, appsRes, citizensRes, locationsRes] =
+//           await Promise.all([
+//             adminApi.listUsers({ page: 1, pageSize: 1 }),
+//             adminApi.listApplications({ page: 1, pageSize: 1 }),
+//             adminApi.listCitizens({ page: 1, pageSize: 1 }),
+//             adminApi.listLocations({ page: 1, pageSize: 1 }),
+//           ]);
+
+//         setTotals({
+//           users: usersRes.length,
+//           applications: appsRes.length,
+//           citizens: citizensRes.length,
+//           locations: locationsRes.length,
+//         });
+//       } catch (err: any) {
+//         setError(err.message || t("error.loadDashboard"));
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     loadStats();
+//   }, [t]);
+
+//   const handleCardClick = (route: string) => {
+//     navigate(route);
+//   };
+
+//   return (
+//     <Container maxWidth="lg" sx={{ py: 4 }}>
+//       {/* Header */}
+//       <Box sx={{ mb: 4 }}>
+//         <Typography variant="h4" component="h1" fontWeight="bold">
+//           {t("admin.dashboard")}
+//         </Typography>
+//         <Typography color="textSecondary" sx={{ mt: 1 }}>
+//           {user ? `${t("admin.welcomeBack")}, ${user.name}` : t("admin.manage")}
+//         </Typography>
+//       </Box>
+
+//       {/* Error Alert */}
+//       {error && <ErrorAlert message={error} severity="error" sx={{ mb: 3 }} />}
+
+//       {/* Stats Section */}
+//       {loading ? (
+//         <Grid container spacing={3} sx={{ mb: 4 }}>
+//           {[1, 2, 3, 4].map((i) => (
+//             <Grid item xs={12} sm={6} md={3} key={i}>
+//               <Skeleton variant="rectangular" height={120} />
+//             </Grid>
+//           ))}
+//         </Grid>
+//       ) : (
+//         <AdminStats />
+//       )}
+
+//       {/* Quick Access Cards */}
+//       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, mt: 4 }}>
+//         {t("admin.quickAccess")}
+//       </Typography>
+
+//       <Grid container spacing={2}>
+//         {ADMIN_CARDS.map((card) => {
+//           const Icon = card.icon;
+//           const cardTotal =
+//             totals[card.route.split("/")[2] as keyof typeof totals];
+
+//           return (
+//             <Grid item xs={12} sm={6} md={3} key={card.route}>
+//               <CardActionArea
+//                 onClick={() => handleCardClick(card.route)}
+//                 component={Card}
+//                 sx={{
+//                   height: "100%",
+//                   display: "flex",
+//                   flexDirection: "column",
+//                   transition: "all 0.3s",
+//                   "&:hover": {
+//                     boxShadow: 3,
+//                     transform: "translateY(-2px)",
+//                   },
+//                 }}
+//               >
+//                 <Box sx={{ p: 3, flex: 1 }}>
+//                   <Box
+//                     sx={{
+//                       display: "flex",
+//                       alignItems: "center",
+//                       mb: 2,
+//                       gap: 2,
+//                     }}
+//                   >
+//                     <Box
+//                       sx={{
+//                         p: 1.5,
+//                         borderRadius: 1.5,
+//                         bgcolor: `${card.color}20`,
+//                       }}
+//                     >
+//                       <Icon color={card.color} size={24} />
+//                     </Box>
+//                     <Box>
+//                       <Typography variant="subtitle1" fontWeight="600">
+//                         {t(card.title)}
+//                       </Typography>
+//                       <Typography variant="caption" color="textSecondary">
+//                         {t(card.description)}
+//                       </Typography>
+//                     </Box>
+//                   </Box>
+//                   <Typography variant="h5" fontWeight="bold" color="primary">
+//                     {cardTotal?.toLocaleString()}
+//                   </Typography>
+//                 </Box>
+//               </CardActionArea>
+//             </Grid>
+//           );
+//         })}
+//       </Grid>
+//     </Container>
+//   );
+// }
+
+// export default AdminDashboard;

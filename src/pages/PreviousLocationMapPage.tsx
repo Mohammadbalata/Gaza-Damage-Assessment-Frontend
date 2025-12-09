@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-import { usePost } from "../hooks/useApi";
+import { usePost } from "../hooks/api/useApi";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();

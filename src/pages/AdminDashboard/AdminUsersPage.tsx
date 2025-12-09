@@ -302,9 +302,7 @@ const AdminUsersPage = () => {
                       }))
                     }
                   >
-                    <option value="supervisor">
-                      {t("common.supervisor")}
-                    </option>
+                    <option value="supervisor">{t("common.supervisor")}</option>
                     <option value="admin">{t("common.admin")}</option>
                   </select>
                 </div>

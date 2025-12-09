@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-import { usePost } from "../hooks/useApi";
+import { usePost } from "../hooks/api/useApi";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
