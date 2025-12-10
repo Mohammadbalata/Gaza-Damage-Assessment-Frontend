@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,7 +8,6 @@ import {
   CardContent,
   Typography,
   Stack,
-  Alert,
   Chip,
   Button,
   Paper,
@@ -18,14 +17,14 @@ import {
   Description as ApplicationsIcon,
   PersonOutline as CitizensIcon,
   LocationOn as LocationsIcon,
-  TrendingUp as TrendingIcon,
-  ArrowForward as ArrowIcon,
+  ArrowBack,
 } from "@mui/icons-material";
-import { adminService } from "../../services/adminService";
-import { useApi } from "../../hooks/api/useApi";
+import { useGet } from "../../hooks/api/useApi";
 import { useNotification } from "../../hooks/useNotifications";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useAuth } from "../../contexts/AdminAuthContext";
 
 /**
  * Admin Dashboard Page
@@ -33,6 +32,8 @@ import { formatNumber } from "../../utils/formatters";
  */
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+  const { user } = useAuth();
   const { showError } = useNotification();
   const [totals, setTotals] = useState({
     users: 0,
@@ -41,44 +42,21 @@ const AdminDashboard: React.FC = () => {
     locations: 0,
   });
 
-  /**
-   * Fetch all dashboard data
-   */
-  const {
-    loading,
-    error,
-    execute: fetchDashboardData,
-  } = useApi(async () => {
-    const [usersRes, applicationsRes, citizensRes, locationsRes] =
-      await Promise.all([
-        adminService.listUsers({ pageSize: 1000 }),
-        adminService.listApplications({ pageSize: 1000 }),
-        adminService.listCitizens({ pageSize: 1000 }),
-        adminService.listLocations({ pageSize: 1000 }),
-      ]);
-
-    return {
-      users: usersRes?.length || 0,
-      applications: applicationsRes?.length || 0,
-      citizens: citizensRes?.length || 0,
-      locations: locationsRes?.length || 0,
-    };
+  const { loading, error } = useGet("admin-dashboard", {
+    immediate: true,
+    onSuccess: (data) => {
+      setTotals({
+        users: data.users?.length || 0,
+        applications: data.applications?.length || 0,
+        citizens: data.citizens?.length || 0,
+        locations: data.locations?.length || 0,
+      });
+    },
   });
 
-  // Load data on mount
-  useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchDashboardData();
-      if (data) {
-        setTotals(data);
-      } else {
-        showError("فشل في تحميل بيانات لوحة التحكم");
-      }
-    };
-
-    loadData();
-  }, []);
-
+  if (error) {
+    showError(error);
+  }
   /**
    * Dashboard card configuration
    */
@@ -95,8 +73,8 @@ const AdminDashboard: React.FC = () => {
   const dashboardCards: DashboardCardConfig[] = [
     {
       key: "users",
-      title: "إدارة المستخدمين",
-      description: "إدارة حسابات المسؤولين والمشرفين",
+      title: t("admin.manageUsers"),
+      description: t("admin.usersDescription"),
       icon: <UsersIcon sx={{ fontSize: 40 }} />,
       color: "primary",
       value: totals.users,
@@ -104,8 +82,8 @@ const AdminDashboard: React.FC = () => {
     },
     {
       key: "applications",
-      title: "إدارة الطلبات",
-      description: "مراجعة والموافقة على طلبات المواطنين",
+      title: t("admin.manageApplications"),
+      description: t("admin.applicationsDescription"),
       icon: <ApplicationsIcon sx={{ fontSize: 40 }} />,
       color: "info",
       value: totals.applications,
@@ -113,8 +91,8 @@ const AdminDashboard: React.FC = () => {
     },
     {
       key: "citizens",
-      title: "إدارة المواطنين",
-      description: "إدارة بيانات المواطنين والتحقق منها",
+      title: t("admin.manageCitizens"),
+      description: t("admin.citizensDescription"),
       icon: <CitizensIcon sx={{ fontSize: 40 }} />,
       color: "success",
       value: totals.citizens,
@@ -122,8 +100,8 @@ const AdminDashboard: React.FC = () => {
     },
     {
       key: "locations",
-      title: "إدارة المواقع",
-      description: "إدارة المواقع الجغرافية والمناطق",
+      title: t("admin.manageLocations"),
+      description: t("admin.locationsDescription"),
       icon: <LocationsIcon sx={{ fontSize: 40 }} />,
       color: "warning",
       value: totals.locations,
@@ -143,28 +121,20 @@ const AdminDashboard: React.FC = () => {
         >
           <Box>
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
-              لوحة التحكم
+              {t("admin.dashboard")}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              مرحباً بك في نظام إدارة الأضرار والمستفيدين
+              {t("admin.welcomeBack")}, {user?.name}
             </Typography>
           </Box>
           <Chip
-            icon={<TrendingIcon />}
-            label="مسؤول النظام"
+            label={t("common.admin")}
             color="primary"
             variant="outlined"
             size="small"
           />
         </Stack>
       </Box>
-
-      {/* Error Alert */}
-      {error && (
-        <Alert severity="error" onClose={() => {}} sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
 
       {/* Loading State */}
       {loading && (
@@ -179,7 +149,7 @@ const AdminDashboard: React.FC = () => {
           {/* Dashboard Cards Grid */}
           <Grid container spacing={3} sx={{ mb: 5 }}>
             {dashboardCards.map((card) => (
-              <Grid item xs={12} sm={6} lg={3} key={card.key}>
+              <Grid  key={card.key}>
                 <DashboardCard card={card} onNavigate={navigate} />
               </Grid>
             ))}
@@ -199,13 +169,13 @@ const AdminDashboard: React.FC = () => {
             <Stack spacing={2}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  🎯 أهم المهام
+                  {t("admin.mostImportantTasks")}
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  الوصول السريع للمهام الأساسية في النظام
+                  {t("admin.mostImportantTasksDescription")}
                 </Typography>
               </Box>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+              <Box className="flex justify-start items-center gap-4">
                 <Button
                   variant="contained"
                   color="inherit"
@@ -218,69 +188,73 @@ const AdminDashboard: React.FC = () => {
                     "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
                   }}
                 >
-                  مراجعة الطلبات
+                 {t("admin.reviewApplications")}
                 </Button>
-                <Button
-                  variant="contained"
-                  color="inherit"
-                  size="small"
-                  startIcon={<UsersIcon />}
-                  onClick={() => navigate("/admin/users")}
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: 600,
-                    "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-                  }}
-                >
-                  إضافة مستخدم
-                </Button>
-                <Button
-                  variant="contained"
-                  color="inherit"
-                  size="small"
-                  startIcon={<CitizensIcon />}
-                  onClick={() => navigate("/admin/citizens")}
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: 600,
-                    "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-                  }}
-                >
-                  إضافة مواطن
-                </Button>
-              </Stack>
+                {user?.role === "admin" && (
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    size="small"
+                    startIcon={<UsersIcon />}
+                    onClick={() => navigate("/admin/users")}
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: 600,
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
+                    }}
+                  >
+                   {t("admin.addUser")}
+                  </Button>
+                )}
+                {user?.role === "admin" && (
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    size="small"
+                    startIcon={<CitizensIcon />}
+                    onClick={() => navigate("/admin/citizens")}
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: 600,
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
+                    }}
+                  >
+                    {t("admin.addCitizen")}
+                  </Button>
+                )}
+              </Box>
             </Stack>
           </Paper>
 
           {/* Statistics Summary */}
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid  >
               <StatisticCard
-                label="إجمالي المستخدمين"
+                label={t("admin.totalUsers")}
                 value={totals.users}
                 icon={<UsersIcon />}
                 color="primary"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid>
               <StatisticCard
-                label="إجمالي الطلبات"
+                label={t("admin.totalApplications")}
                 value={totals.applications}
                 icon={<ApplicationsIcon />}
                 color="info"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid>
               <StatisticCard
-                label="إجمالي المواطنين"
+                label={t("admin.totalCitizens")}
                 value={totals.citizens}
                 icon={<CitizensIcon />}
                 color="success"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid>
               <StatisticCard
-                label="إجمالي المواقع"
+                label={t("admin.totalLocations")}
                 value={totals.locations}
                 icon={<LocationsIcon />}
                 color="warning"
@@ -311,6 +285,9 @@ interface DashboardCardProps {
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
+
+  const {t,language} = useLanguage();
+  
   const colorMap = {
     primary: { bg: "primary.light", text: "primary.main", hover: "#e3f2fd" },
     info: { bg: "info.light", text: "info.main", hover: "#e0f2f1" },
@@ -406,9 +383,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              الذهاب إلى الصفحة
+             {t("common.goToPage")}
             </Typography>
-            <ArrowIcon sx={{ fontSize: 16, transition: "margin 0.2s" }} />
+            <ArrowBack className={`${language =='en' ? "rotate-180":""} `} sx={{ fontSize: 20, transition: "margin 0.2s" }} />
           </Stack>
         </Stack>
       </CardContent>
@@ -471,205 +448,3 @@ const StatisticCard: React.FC<StatisticCardProps> = ({
 };
 
 export default AdminDashboard;
-
-// import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { useLanguage } from "../../contexts/LanguageContext";
-// import AdminStats from "../../components/admin/AdminStats";
-// import { adminApi } from "../../services/api";
-// import { useAuth } from "../../contexts/AdminAuthContext";
-// import { Users, FileText, IdCard, MapPinned } from "lucide-react";
-// import LoadingSpinner from "../../components/Shared/LoadingSpinner";
-
-// const AdminDashboard = () => {
-//   const { t } = useLanguage();
-//   const { user } = useAuth();
-//   const navigate = useNavigate();
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const [totals, setTotals] = useState({
-//     users: 0,
-//     applications: 0,
-//     citizens: 0,
-//     locations: 0,
-//   });
-
-//   useEffect(() => {
-//     const load = async () => {
-//       setLoading(true);
-//       setError(null);
-//       try {
-//         const [usersRes, appsRes, citizensRes, locationsRes] =
-//           await Promise.all([
-//             adminApi.listUsers({ page: 1, pageSize: 1 }),
-//             adminApi.listApplications({ page: 1, pageSize: 1 }),
-//             adminApi.listCitizens({ page: 1, pageSize: 1 }),
-//             adminApi.listLocations({ page: 1, pageSize: 1 }),
-//           ]);
-
-//         setTotals({
-//           users: usersRes.length,
-//           applications: appsRes.length,
-//           citizens: citizensRes.length,
-//           locations: locationsRes.length,
-//         });
-//       } catch (e: any) {
-//         setError(e?.message || "Failed to load dashboard data");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     load();
-//   }, []);
-
-//   return (
-//     <>
-//       {loading ? (
-//         <div className="flex items-center justify-center h-full">
-//           <div className="loader">
-//             <LoadingSpinner />
-//           </div>
-//         </div>
-//       ) : (
-//         <div className="space-y-6">
-//           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-//             <div>
-//               <h1 className="text-3xl font-bold">{t("admin.dashboard")}</h1>
-//               <p className="text-sm text-gray-500">
-//                 {user
-//                   ? `${t("admin.welcomeBack") || "Welcome back"}, ${user.name}`
-//                   : t("admin.manage")}
-//               </p>
-//             </div>
-//             <div className="text-sm text-gray-600">
-//               {t("admin.role")}:{" "}
-//               <span className="font-semibold capitalize">
-//                 {t("common.admin")}
-//               </span>
-//             </div>
-//           </div>
-
-//           <AdminStats />
-
-//           {error && (
-//             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-//               {error}
-//             </div>
-//           )}
-
-//           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-//             <div className="card space-y-4">
-//               <div className="flex items-center justify-between">
-//                 <div
-//                   onClick={() => navigate("/admin/users")}
-//                   className=" flex items-center gap-3"
-//                 >
-//                   <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-//                     <Users className="hover:cursor-pointer w-5 h-5" />
-//                   </div>
-//                   <div>
-//                     <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-//                       {t("admin.manageUsers")}
-//                     </h2>
-//                     <p className="text-sm text-gray-500">
-//                       {t("admin.usersDescription")}
-//                     </p>
-//                   </div>
-//                 </div>
-//                 <p className="text-sm text-gray-500">
-//                   Total:{" "}
-//                   <span className="font-semibold">
-//                     {totals.users.toLocaleString()}
-//                   </span>
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="card space-y-4">
-//               <div className="flex items-center justify-between">
-//                 <div
-//                   onClick={() => navigate("/admin/applications")}
-//                   className="flex items-center gap-3"
-//                 >
-//                   <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-//                     <FileText className="hover:cursor-pointer w-5 h-5" />
-//                   </div>
-//                   <div>
-//                     <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-//                       {t("admin.manageApplications")}
-//                     </h2>
-//                     <p className="text-sm text-gray-500">
-//                       {t("admin.applicationsDescription")}
-//                     </p>
-//                   </div>
-//                 </div>
-//                 <p className="text-sm text-gray-500">
-//                   Total:{" "}
-//                   <span className="font-semibold">
-//                     {totals.applications.toLocaleString()}
-//                   </span>
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="card space-y-4">
-//               <div className="flex items-center justify-between">
-//                 <div
-//                   onClick={() => navigate("/admin/citizens")}
-//                   className="flex items-center gap-3"
-//                 >
-//                   <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-//                     <IdCard className="hover:cursor-pointer w-5 h-5" />
-//                   </div>
-//                   <div>
-//                     <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-//                       {t("admin.manageCitizens")}
-//                     </h2>
-//                     <p className="text-sm text-gray-500">
-//                       {t("admin.citizensDescription")}
-//                     </p>
-//                   </div>
-//                 </div>
-//                 <p className="text-sm text-gray-500">
-//                   Total:{" "}
-//                   <span className="font-semibold">
-//                     {totals.citizens.toLocaleString()}
-//                   </span>
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="card space-y-4">
-//               <div className="flex items-center justify-between">
-//                 <div
-//                   onClick={() => navigate("/admin/locations")}
-//                   className="flex items-center gap-3"
-//                 >
-//                   <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-//                     <MapPinned className="hover:cursor-pointer w-5 h-5" />
-//                   </div>
-//                   <div>
-//                     <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-//                       {t("admin.manageLocations")}
-//                     </h2>
-//                     <p className="text-sm text-gray-500">
-//                       {t("admin.locationsDescription")}
-//                     </p>
-//                   </div>
-//                 </div>
-//                 <p className="text-sm text-gray-500">
-//                   Total:{" "}
-//                   <span className="font-semibold">
-//                     {totals.locations.toLocaleString()}
-//                   </span>
-//                 </p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default AdminDashboard;

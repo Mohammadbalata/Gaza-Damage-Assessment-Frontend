@@ -1,482 +1,595 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  Box,
+  Container,
+  Button,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  CircularProgress,
+  Stack,
+  MenuItem,
+  Autocomplete,
+} from "@mui/material";
+import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { adminApi, Application, Citizen, Location } from "../../services/api";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Plus, Trash2, X } from "lucide-react";
+import { adminApi, Application, Citizen, Location } from "../../services/api";
+import { applicationSchema } from "../../services/validation";
+import FormTextField from "../../components/Shared/FormTextField";
+import ErrorAlert from "../../components/Shared/ErrorAlert";
+import ConfirmDialog from "../../components/Shared/ConfirmDialog";
+import { useNotification } from "../../hooks/useNotifications";
+import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
 
-const emptyForm = {
-  citizenId: "",
-  locationId: "",
-  status: "pending" as Application["status"],
-  notes: "",
-};
+interface ApplicationFormData {
+  citizenId: number;
+  locationId?: number;
+  status: Application["status"];
+  notes: string;
+}
 
-const AdminApplicationsPage = () => {
-  const { t } = useLanguage();
+export function AdminApplicationsPage() {
+  const { t, language } = useLanguage();
   const { hasRole } = useAuth();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [citizenResults, setCitizenResults] = useState<Citizen[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
+
+  const canManage = hasRole("admin");
+  const canView = hasRole("admin", "supervisor");
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
-  const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    open: boolean;
+    id: number | null;
+  }>({ open: false, id: null });
 
-  const canView = hasRole("admin", "supervisor");
-  const canManage = hasRole("admin");
+  // Citizen search
+  const [citizenSearch, setCitizenSearch] = useState("");
+  const [citizenOptions, setCitizenOptions] = useState<Citizen[]>([]);
+  const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
+  const [citizenLoading, setCitizenLoading] = useState(false);
 
-  const loadApplications = async () => {
-    if (!canView) return;
-    setLoading(true);
-    setError(null);
+  // Form
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isSubmitting, errors },
+  } = useForm<ApplicationFormData>({
+    resolver: yupResolver(applicationSchema),
+    defaultValues: {
+      citizenId: 0,
+      locationId: undefined,
+      status: "pending",
+      notes: "",
+    },
+  });
+
+  const {
+    loading,
+    data: applications,
+    setData,
+  } = useGet<Application[]>("/applications", {
+    immediate: true,
+  });
+
+  const { data: locations } = useGet<Location[]>("/locations", {
+    immediate: true,
+  });
+
+  const { loading: loadingDeleteApplication, execute } = useDelete({
+    onSuccess: () => {
+      showSuccess(t("success.applicationDeleted"));
+      setData((prev) =>
+        prev ? prev.filter((a) => a.id !== deleteConfirm.id) : prev
+      );
+      setDeleteConfirm({ open: false, id: null });
+    },
+    onError: (error) => {
+      showError(error || t("error.deleteApplication"));
+    },
+  });
+
+  const {
+    loading: loadingCreateApplication,
+    execute: executeCreateApplication,
+  } = usePost("/applications", {
+    onSuccess: (data) => {
+      setData((prev) => (prev ? [data, ...prev] : [data]));
+      showSuccess(t("success.applicationCreated"));
+      setIsDialogOpen(false);
+      reset();
+      setSelectedCitizen(null);
+      setCitizenSearch("");
+    },
+    onError: (error) => {
+      showError(error || t("error.createApplication"));
+    },
+  });
+
+  const {
+    loading: loadingUpdateApplication,
+    execute: executeUpdateApplication,
+  } = usePatch({
+    onSuccess: (data) => {
+      setData(
+        (prev) => prev?.map((a) => (a.id === data.id ? data : a)) || prev
+      );
+      showSuccess(t("success.applicationUpdated"));
+      setIsDialogOpen(false);
+      reset();
+      setSelectedCitizen(null);
+      setCitizenSearch("");
+    },
+    onError: (error) => {
+      showError(error || t("error.updateApplication"));
+    },
+  });
+
+  // Search citizens with debounce
+  const searchCitizens = async (searchValue: string) => {
+    if (!searchValue || searchValue.trim().length < 1) {
+      setCitizenOptions([]);
+      return;
+    }
+
+    setCitizenLoading(true);
     try {
-      const res = await adminApi.listApplications({ page: 1, pageSize: 100 });
-      setApplications(res);
-    } catch (e: any) {
-      console.error(e);
-      setError(t("error.loadApplications"));
+      const results = await adminApi.listCitizens({
+        search: searchValue,
+        pageSize: 10,
+      });
+      setCitizenOptions(results);
+    } catch (error) {
+      console.error("Citizen search failed:", error);
+      setCitizenOptions([]);
     } finally {
-      setLoading(false);
+      setCitizenLoading(false);
     }
   };
 
-  const loadLocations = async () => {
-    try {
-      const res = await adminApi.listLocations({ page: 1, pageSize: 200 });
-      setLocations(res);
-    } catch (e) {
-      console.error("Failed to load locations", e);
-      setLocations([]);
-    }
-  };
+  // Debounced citizen search
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      searchCitizens(citizenSearch);
+    }, 350);
 
-  useEffect(() => {
-    loadApplications();
-    loadLocations();
-  }, []);
+    return () => clearTimeout(timer);
+  }, [citizenSearch]);
 
+  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
-    setForm(emptyForm);
-    setCitizenResults([]);
+    reset({
+      citizenId: 0,
+      locationId: undefined,
+      status: "pending",
+      notes: "",
+    });
+    setSelectedCitizen(null);
+    setCitizenSearch("");
+    setCitizenOptions([]);
     setIsDialogOpen(true);
   };
 
+  // Open edit dialog
   const openEditDialog = (application: Application) => {
     setEditing(application);
-    setForm({
-      citizenId: String(application.citizenId),
-      locationId: application.locationId ? String(application.locationId) : "",
+    reset({
+      citizenId: application.citizenId,
+      locationId: application.locationId || undefined,
       status: application.status,
       notes: application.notes || "",
     });
-    setCitizenResults([]);
+    setSelectedCitizen(application.citizen || null);
+    setCitizenSearch(application.citizen?.full_name || "");
     setIsDialogOpen(true);
   };
 
-  // Debounce helper
-  let citizenSearchTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const handleCitizenSearch = async (value: string) => {
-    // update the input immediately so UI reflects typing
-    setForm((prev) => ({ ...prev, citizenId: value }));
-
-    if (citizenSearchTimer) clearTimeout(citizenSearchTimer);
-
-    // debounce network calls
-    citizenSearchTimer = setTimeout(async () => {
-      if (!value || value.trim().length < 1) {
-        setCitizenResults([]);
-        return;
-      }
-      try {
-        // Use existing listCitizens search param to perform search
-        const res = await adminApi.listCitizens({
-          search: value,
-          pageSize: 10,
-        });
-        setCitizenResults(res);
-      } catch (e) {
-        console.error("citizen search failed", e);
-        setCitizenResults([]);
-      }
-    }, 350);
-  };
-
-  const handleSelectCitizen = (c: Citizen) => {
-    setForm((prev) => ({ ...prev, citizenId: String(c.id) }));
-    setCitizenResults([]);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!canManage) return;
-    const citizenId = Number(form.citizenId);
-    if (Number.isNaN(citizenId)) {
-      setError(t("error.invalidCitizenId"));
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      if (editing) {
-        await adminApi.updateApplication(editing.id, {
-          citizenId,
-          status: form.status,
-          notes: form.notes,
-        });
-      } else {
-        const payload: any = {
-          citizenId,
-          status: form.status,
-          notes: form.notes,
-        };
-        if (form.locationId && String(form.locationId).trim() !== "") {
-          payload.locationId = Number(form.locationId);
-        }
-
-        await adminApi.createApplication(payload);
-      }
-      setIsDialogOpen(false);
-      setEditing(null);
-      setForm(emptyForm);
-      loadApplications();
-    } catch (e: any) {
-      console.error(e);
-      setError(t("error.saveApplication"));
-    } finally {
-      setLoading(false);
+  // Handle submit
+  const onSubmit = async (data: ApplicationFormData) => {
+    if (editing) {
+      executeUpdateApplication(`/applications/${editing.id}`, {
+        ...data,
+      });
+    } else {
+      executeCreateApplication({
+        ...data,
+      });
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!canManage) return;
-    if (
-      !window.confirm(
-        t("admin.applications.deleteConfirm") || "Delete application?"
-      )
+  const handleExportData = () => {
+    fetch(
+      `https://backend-5549.onrender.com/applications/export-applications`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     )
-      return;
-    setLoading(true);
-    setError(null);
-    try {
-      await adminApi.deleteApplication(id);
-      loadApplications();
-    } catch (e: any) {
-      console.error(e);
-      setError(t("error.deleteApplication"));
-    } finally {
-      setLoading(false);
-    }
+      .then((res) => {
+        if (!res.ok) throw new Error("Server error while downloading Excel");
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "applications.xlsx";
+        a.click();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to download Excel file");
+      });
   };
 
-  // Filter applications by citizen name or national ID
-  const filteredApplications = applications.filter(
+  // Handle delete
+  const handleDelete = async () => {
+    if (!deleteConfirm.id) return;
+    execute(`/applications/${deleteConfirm.id}`);
+  };
+
+  const filteredApplications = applications?.filter(
     (application) =>
-      application.citizen?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-      application.citizen?.national_id?.includes(search) ||
-      application.id.toString().includes(search)
+      application.id.toString().includes(search) ||
+      application.citizen?.first_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
+      application.citizen?.national_id?.includes(search)
   );
 
   if (!canView) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{t("admin.applications")}</h1>
-        <p className="text-sm text-gray-500">
-          {t("admin.noApplicationsPermission") ||
-            t("admin.noCitizensPermission")}
-        </p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <ErrorAlert
+          message={t("admin.noApplicationsPermission")}
+          severity="warning"
+        />
+      </Container>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
+        onClick={() => navigate("/admin/dashboard")}
+      >
+        <span
+          className="hover:underline text-blue-800 cursor-pointer"
+          onClick={() => navigate("/admin/dashboard")}
+        >
+          {t("common.backToDashboard")}
+        </span>
+        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold">
             {t("admin.applications.title")}
-          </h1>
-          <p className="text-sm text-gray-500">
+          </Typography>
+          <Typography color="textSecondary" sx={{ mt: 1 }}>
             {t("admin.applications.subtitle")}
-          </p>
-        </div>
-        <input
-          className="input-field w-[500px]"
+          </Typography>
+        </Box>
+        {canManage && (
+          <span className="flex justify-center items-center gap-3">
+            <Button
+              variant="contained"
+              color="inherit"
+              startIcon={
+                <Import
+                  className={`${language == "ar" ? "ml-2" : ""} `}
+                  size={20}
+                />
+              }
+              onClick={handleExportData}
+            >
+              {t("admin.applications.export")}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={
+                <Plus
+                  className={`${language == "ar" ? "ml-2" : ""}`}
+                  size={20}
+                />
+              }
+              onClick={openCreateDialog}
+            >
+              {t("admin.applications.create")}
+            </Button>
+          </span>
+        )}
+      </Box>
+
+      {/* Search */}
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          fullWidth
           placeholder={t("common.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+          }}
+          size="small"
         />
-        {canManage && (
-          <button
-            type="button"
-            className="btn-primary flex items-center gap-2"
-            onClick={openCreateDialog}
-          >
-            <Plus className="w-4 h-4" />
-            {t("admin.applications.create")}
-          </button>
-        )}
-      </div>
+      </Box>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.applications.id")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.applications.citizen")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.applications.status")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.applications.updated")}
-              </th>
-              {canManage && (
-                <th className="text-center py-3 px-2 font-semibold">
-                  {t("admin.actions")}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredApplications
-              .sort((a, b) => a.id - b.id)
-              .map((application) => (
-                <tr key={application.id} className="border-b border-gray-100">
-                  <td className="text-center py-3 px-2 font-medium">
-                    {application.id}
-                  </td>
-                  <td className="text-center py-3 px-2 text-gray-700">
-                    {application.citizen?.first_name || "----"}
-                  </td>
-                  <td className="text-center py-3 px-2 capitalize">
+      {/* Table */}
+      <TableContainer component={Paper} sx={{ mb: 3 }}>
+        {loading ? (
+          <Box sx={{ p: 4, textAlign: "center" }}>
+            <CircularProgress />
+          </Box>
+        ) : filteredApplications?.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
+            <Typography>{t("admin.noApplicationsFound")}</Typography>
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: "grey.100" }}>
+                <TableCell align="center">
+                  {t("admin.applications.id")}
+                </TableCell>
+                <TableCell align="center">
+                  {t("admin.applications.citizen")}
+                </TableCell>
+                <TableCell align="center">
+                  {t("admin.applications.status")}
+                </TableCell>
+                <TableCell align="center">
+                  {t("admin.applications.updated")}
+                </TableCell>
+                {canManage && (
+                  <TableCell align="center">{t("admin.actions")}</TableCell>
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredApplications?.map((application: Application) => (
+                <TableRow
+                  key={application.id}
+                  hover
+                  sx={{ "&:last-child td": { border: 0 } }}
+                >
+                  <TableCell align="center">{application.id}</TableCell>
+                  <TableCell align="center">
+                    {application.citizen?.full_name || "----"}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ textTransform: "capitalize" }}
+                  >
                     {application.status}
-                  </td>
-                  <td className="text-center py-3 px-2 text-gray-500">
+                  </TableCell>
+                  <TableCell align="center">
                     {new Date(application.updatedAt).toLocaleString()}
-                  </td>
+                  </TableCell>
+
                   {canManage && (
-                    <td className="flex justify-center py-3 px-2">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                    <TableCell align="center">
+                      <Box>
+                        <Button
+                          size="small"
+                          startIcon={
+                            <Edit2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
                           onClick={() => openEditDialog(application)}
                         >
                           {t("common.edit")}
-                        </button>
-                        <button
-                          type="button"
-                          className="text-red-600 hover:text-red-800 text-xs font-medium flex items-center gap-1"
-                          onClick={() => handleDelete(application.id)}
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={
+                            <Trash2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
+                          onClick={() =>
+                            setDeleteConfirm({ open: true, id: application.id })
+                          }
                         >
-                          <Trash2 className="w-3 h-3" />
                           {t("common.delete")}
-                        </button>
-                      </div>
-                    </td>
+                        </Button>
+                      </Box>
+                    </TableCell>
                   )}
-                </tr>
+                </TableRow>
               ))}
-            {!filteredApplications.length && !loading && (
-              <tr>
-                <td colSpan={5} className="py-6 text-center text-gray-500">
-                  {t("admin.noApplicationsFound")}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
 
-      {isDialogOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setIsDialogOpen(false)}
-        >
-          <div
-            className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                {editing
-                  ? t("admin.applications.update")
-                  : t("admin.applications.create")}
-              </h2>
-              <button
-                type="button"
-                className="text-gray-600 hover:text-gray-800"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.applications.citizenId")}
-                  </label>
-
-                  {/* Citizen search input */}
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.citizenId}
-                    onChange={(e) => handleCitizenSearch(e.target.value)}
+      {/* Create/Edit Dialog */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {editing
+            ? t("admin.applications.update")
+            : t("admin.applications.create")}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Stack spacing={3}>
+            {/* Citizen Search Autocomplete */}
+            <Box>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                {t("admin.applications.citizen")}
+              </Typography>
+              <Autocomplete
+                options={citizenOptions}
+                getOptionLabel={(option) =>
+                  `${option.full_name || option.first_name || ""} (${
+                    option.national_id
+                  })`
+                }
+                loading={citizenLoading}
+                value={selectedCitizen}
+                onChange={(_, newValue) => {
+                  setSelectedCitizen(newValue);
+                  setValue("citizenId", newValue?.id || 0);
+                }}
+                inputValue={citizenSearch}
+                onInputChange={(_, newInputValue) => {
+                  setCitizenSearch(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
                     placeholder={
                       t("admin.applications.searchCitizenPlaceholder") ||
                       "Search by name or national ID"
                     }
-                    required
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {citizenLoading ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
                   />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props} key={option.id}>
+                    <Box>
+                      <Typography variant="body2">
+                        {option.full_name || option.first_name || "-"}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        #{option.id} — {option.national_id}
+                      </Typography>
+                    </Box>
+                  </li>
+                )}
+              />
+            </Box>
 
-                  {/* results dropdown */}
-                  {citizenResults.length > 0 && (
-                    <div className="border rounded-md mt-1 bg-white shadow-sm max-h-40 overflow-y-auto z-50">
-                      {citizenResults.map((c) => (
-                        <div
-                          key={c.id}
-                          className="p-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center justify-between"
-                          onClick={() => handleSelectCitizen(c)}
-                        >
-                          <div>
-                            <div className="font-medium">
-                              {c.first_name || "-"} {c.last_name || ""}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              #{c.id} — {c.national_id}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-400">Select</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* Location Select */}
+            <FormTextField
+              control={control}
+              name="locationId"
+              label={t("admin.applications.location")}
+              select
+            >
+              <MenuItem value="">{t("admin.applications.noLocation")}</MenuItem>
+              {locations?.map((loc) => (
+                <MenuItem key={loc.id} value={loc.id}>
+                  {loc.governorate || "-"} / {loc.town || "-"}{" "}
+                  {loc.street ? `- ${loc.street}` : ""} (#{loc.id})
+                </MenuItem>
+              ))}
+            </FormTextField>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.applications.location")}
-                  </label>
-                  <select
-                    className="input-field"
-                    value={form.locationId}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        locationId: e.target.value,
-                      }))
-                    }
-                  >
-                    <option value="">
-                      {t("admin.applications.noLocation")}
-                    </option>
-                    {locations.map((loc) => (
-                      <option key={loc.id} value={String(loc.id)}>
-                        {loc.governorate || "-"} / {loc.town || "-"}{" "}
-                        {loc.street ? `- ${loc.street}` : ""} (#{loc.id})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            {/* Status Select */}
+            <FormTextField
+              control={control}
+              name="status"
+              label={t("admin.applications.status")}
+              select
+            >
+              <MenuItem value="pending">{t("status.submitted")}</MenuItem>
+              <MenuItem value="verified">{t("status.verified")}</MenuItem>
+              <MenuItem value="approved">{t("status.approved")}</MenuItem>
+              <MenuItem value="rejected">{t("status.rejected")}</MenuItem>
+              <MenuItem value="closed">
+                {t("status.closed") || "Closed"}
+              </MenuItem>
+            </FormTextField>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.applications.status")}
-                  </label>
-                  <select
-                    className="input-field capitalize"
-                    value={form.status}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        status: e.target.value as Application["status"],
-                      }))
-                    }
-                  >
-                    <option value="pending">{t("status.submitted")}</option>
-                    <option value="verified">{t("status.verified")}</option>
-                    <option value="approved">{t("status.approved")}</option>
-                    <option value="rejected">{t("status.rejected")}</option>
-                    <option value="closed">
-                      {t("status.closed") || "Closed"}
-                    </option>
-                  </select>
-                </div>
-              </div>
+            {/* Notes */}
+            <FormTextField
+              control={control}
+              name="notes"
+              label={t("admin.applications.notes")}
+              multiline
+              rows={4}
+              placeholder={t("admin.applications.notesPlaceholder")}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            variant="contained"
+            disabled={
+              isSubmitting ||
+              loadingCreateApplication ||
+              loadingUpdateApplication
+            }
+          >
+            {isSubmitting ? (
+              <CircularProgress size={20} />
+            ) : editing ? (
+              t("admin.applications.update")
+            ) : (
+              t("common.submit")
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("admin.applications.notes")}
-                </label>
-                <textarea
-                  className="input-field"
-                  rows={4}
-                  value={form.notes}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                  placeholder={t("admin.applications.notesPlaceholder")}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn-outline"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  {t("common.cancel")}
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={loading}
-                >
-                  {editing
-                    ? t("admin.applications.update")
-                    : t("common.submit")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Delete Confirm Dialog */}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title={t("admin.applications.deleteConfirm")}
+        message={""}
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
+        isLoading={loadingDeleteApplication}
+        isDangerous
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+      />
+    </Container>
   );
-};
+}
 
 export default AdminApplicationsPage;
-
-// === FILE: src/services/api.ts (PATCHED SNIPPET) ===
-// Add this function inside the exported adminApi object (you can place it near listCitizens)
-
-// searchCitizens is a tiny wrapper over listCitizens using the search param.
-// If your backend exposes a dedicated /citizens/search endpoint you can replace the implementation.
-
-/*
-  Add inside adminApi: 
-
-  searchCitizens: async (query: string) => {
-    const res = await api.get('/citizens', { params: { search: query, pageSize: 10 } });
-    return extractData<Citizen[]>(res);
-  },
-
-  But since listCitizens already supports a search param, you can use that directly from the component
-*/
-
-// No other changes required in api.ts for the frontend fixes to work.

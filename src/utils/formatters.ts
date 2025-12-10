@@ -26,7 +26,7 @@ export const formatDateTime = (date: string | Date): string => {
  * Format number with locale
  */
 export const formatNumber = (value: number): string => {
-  return value.toLocaleString("ar-PS");
+  return value.toLocaleString("en-US");
 };
 
 /**

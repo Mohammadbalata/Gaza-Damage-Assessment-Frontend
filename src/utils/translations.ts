@@ -28,6 +28,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.admin": "Admin",
     "common.supervisor": "Supervisor",
     "common.searchPlaceholder":"Search ....",
+    "common.backToDashboard": "Back to Dashboard",
+    "common.goToPage": "Go to Page",
     // Auth
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
@@ -56,13 +58,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     // Personal Info
     "form.fullName": "Name",
+    "form.nationalId": "National ID",
+    "form.firstName": "First Name",
+    "form.fatherName": "Father's Name",
+    "form.grandfatherName": "Grandfather's Name",
+    "form.familyName": "Family Name",
+    "form.phoneNumber": "Phone Number",
     "form.motherName": "Mother's Name",
     "form.dateOfBirth": "Date of Birth",
     "form.addressBeforeWar": "Address Before War",
     "form.numberOfChildren": "Number of Children",
     "form.wifeName": "Wife's Name",
     "form.wifeNationalId": "Wife's National ID",
-    "form.phoneNumber": "Phone Number",
 
     // Damage Assessment
     "form.damageLevel": "Damage Level",
@@ -124,11 +131,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens": "Citizens",
     "admin.locations": "Locations",
     "admin.totalApplications": "Total Applications",
+    "admin.totalUsers": "Total Users",
+    "admin.totalCitizens": "Total Citizens",
+    "admin.totalLocations": "Total Locations",
     "admin.pendingReview": "Pending Review",
     "admin.approved": "Approved",
     "admin.rejected": "Rejected",
     "admin.closed": "Closed",
     "admin.viewDetails": "View Details",
+    "admin.mostImportantTasks":" 🎯 Most Important Tasks",
+    "admin.mostImportantTasksDescription":"Quick access to key tasks in the system",
     "admin.approve": "Approve",
     "admin.reject": "Reject",
     "admin.rejectionReason": "Rejection Reason",
@@ -171,7 +183,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.selectOnMap": "Select coordinates on map",
     "admin.selectOnMapHelp":
       "Click anywhere on the map to set latitude and longitude for this location.",
-    "common.created": "Created",
+    "admin.addUser":"Add User",
+    "admin.addCitizen":"Add Citizen",
+    "admin.reviewApplications":"Review Applications",
+    
+      "common.created": "Created",
     "admin.applications.deleteConfirm":
       "Are you sure you want to delete this application?",
     "admin.locations.deleteConfirm":
@@ -190,6 +206,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.users.password": "Password",
     "admin.users.passwordOptional": "Password (optional)",
     "admin.users.create": "Create User",
+    "admin.users.export": "Export Users Data",
+
     "admin.users.update": "Update",
     "admin.users.deleteConfirm": "Are you sure you want to delete this user?",
 
@@ -206,6 +224,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.statusAlive": "Alive",
     "admin.citizens.statusDead": "Dead",
     "admin.citizens.create": "Create Citizen",
+    "admin.citizens.export": "Export Citizens Data",
     "admin.citizens.update": "Update",
     "admin.citizens.phoneNumber": "Phone Number",
     "admin.locations.title": "Locations",
@@ -239,6 +258,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.applications.status": "Status",
     "admin.applications.updated": "Updated",
     "admin.applications.create": "Create Application",
+    "admin.applications.export": "Export Applications Data",
     "admin.applications.update": "Update",
     "admin.applications.citizenId": "Citizen ID",
     "admin.applications.notes": "Notes",
@@ -311,9 +331,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.signUp-qesution": "ليس لديك حساب؟",
     "common.signIn-qesution": "هل لديك حساب بالفعل؟",
     "common.or": "أو",
-    "common.admin": "مدير",
+    "common.admin": "مسؤول النظام",
     "common.supervisor": "مشرف",
     "common.searchPlaceholder":"ابحث ....",
+    "common.backToDashboard": "العودة إلى لوحة التحكم",
+    "common.goToPage": "الذهاب إلى الصفحة",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",
@@ -343,13 +365,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifySuccess": "",
     // Personal Info
     "form.fullName": "الاسم الكامل",
+    "form.nationalId": "الرقم الوطني",
+    "form.firstName": "الاسم الأول",
+    "form.fatherName": "اسم الأب",
+    "form.grandfatherName": "اسم الجد",
+    "form.familyName": "اسم العائلة",
+    "form.phoneNumber": "رقم الهاتف",
     "form.motherName": "اسم الأم",
     "form.dateOfBirth": "تاريخ الميلاد",
     "form.addressBeforeWar": "العنوان قبل الحرب",
     "form.numberOfChildren": "عدد الأطفال",
     "form.wifeName": "اسم الزوجة",
     "form.wifeNationalId": "رقم هوية الزوجة",
-    "form.phoneNumber": "رقم الهاتف",
 
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
@@ -410,11 +437,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens": "المواطنون",
     "admin.locations": "المواقع",
     "admin.totalApplications": "إجمالي الطلبات",
+    "admin.totalUsers": "إجمالي المستخدمين",
+    "admin.totalCitizens": "إجمالي المواطنين",
+    "admin.totalLocations": "إجمالي المواقع",
     "admin.pendingReview": "قيد المراجعة",
     "admin.approved": "تم الموافقة",
     "admin.rejected": "تم الرفض",
     "admin.closed": "مغلق",
     "admin.viewDetails": "عرض التفاصيل",
+    "admin.mostImportantTasks":" 🎯 أهم المهام",
+    "admin.mostImportantTasksDescription":"الوصول السريع للمهام الأساسية في النظام",
     "admin.approve": "موافقة",
     "admin.reject": "رفض",
     "admin.rejectionReason": "سبب الرفض",
@@ -456,6 +488,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.selectOnMapHelp":
       "انقر في أي مكان على الخريطة لتعيين خطي الطول والعرض لهذا الموقع.",
 
+      "admin.addUser":"إضافة مستخدم",
+      "admin.addCitizen":"إضافة مواطن",
+      "admin.reviewApplications":"مراجعة الطلبات",
     // Admin - forms / labels
     "admin.users.title": "مستخدمي النظام",
     "admin.users.subtitle": "إدارة حسابات المدراء والمشرفين.",
@@ -465,6 +500,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.users.password": "كلمة المرور",
     "admin.users.passwordOptional": "كلمة المرور (اختياري)",
     "admin.users.create": "إنشاء مستخدم",
+    "admin.users.export": "تصدير بيانات المستخدمين",
     "admin.users.update": "تحديث",
     "admin.users.deleteConfirm": "هل أنت متأكد من حذف هذا المستخدم؟",
 
@@ -472,6 +508,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.subtitle": "إدارة المواطنين المسجلين وحالة التحقق.",
     "admin.citizens.nationalId": "رقم الهوية",
     "admin.citizens.fullName": "الاسم الكامل",
+
     "admin.citizens.gender": "الجنس",
     "admin.citizens.status": "الحالة",
     "admin.citizens.genderNotSet": "غير محدد",
@@ -480,6 +517,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.statusAlive": "حي",
     "admin.citizens.statusDead": "متوفى",
     "admin.citizens.create": "إنشاء مواطن",
+    "admin.citizens.export": "تصدير بيانات المواطنين",
     "admin.citizens.update": "تحديث",
     "admin.citizens.phoneNumber": "رقم الهاتف",
     "common.created": "تاريخ الإنشاء",
@@ -517,6 +555,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.applications.status": "الحالة",
     "admin.applications.updated": "تاريخ التحديث",
     "admin.applications.create": "إنشاء طلب",
+    "admin.applications.export": "تصدير بيانات الطلبات",
     "admin.applications.update": "تحديث",
     "admin.applications.citizenId": "رقم المواطن",
     "admin.applications.notes": "ملاحظات",

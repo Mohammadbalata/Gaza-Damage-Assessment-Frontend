@@ -1,555 +1,616 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
-import { useLanguage } from '../../contexts/LanguageContext'
-import { adminApi, Location } from '../../services/api'
-import { useAuth } from '../../contexts/AdminAuthContext'
-import { Plus, Trash2, X } from 'lucide-react'
-
-const emptyLocation = {
-  citizenId: '',
-  type: 'current' as Location['type'],
-  governorate: '',
-  town: '',
-  street: '',
-  block_number: '',
-  house_number: '',
-  latitude: '',
-  longitude: '',
-  notes: '',
-}
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  Box,
+  Container,
+  Button,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  CircularProgress,
+  Stack,
+  MenuItem,
+  Link as MuiLink,
+} from "@mui/material";
+import { Plus, Trash2, Edit2, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useAuth } from "../../contexts/AdminAuthContext";
+import { Location } from "../../services/api";
+import { locationSchema } from "../../services/validation";
+import FormTextField from "../../components/Shared/FormTextField";
+import ErrorAlert from "../../components/Shared/ErrorAlert";
+import ConfirmDialog from "../../components/Shared/ConfirmDialog";
+import { useNotification } from "../../hooks/useNotifications";
+import {
+  useDelete,
+  useGet,
+  usePatch,
+  usePost,
+} from "../../hooks/api/useApi";
+import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
 
 // Fix default marker icons for Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl
+delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
   shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-})
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+interface LocationFormData {
+  citizenId: number;
+  type: Location["type"];
+  governorate?: string;
+  town?: string;
+  street?: string;
+  block_number?: string;
+  house_number?: string;
+  latitude?: number;
+  longitude?: number;
+  notes?: string;
+}
 
 interface MapClickSelectorProps {
-  onSelect: (lat: number, lng: number) => void
+  onSelect: (lat: number, lng: number) => void;
 }
 
 const MapClickSelector = ({ onSelect }: MapClickSelectorProps) => {
   useMapEvents({
     click(e) {
-      onSelect(e.latlng.lat, e.latlng.lng)
+      onSelect(e.latlng.lat, e.latlng.lng);
     },
-  })
-  return null
-}
+  });
+  return null;
+};
 
-const AdminLocationsPage = () => {
-  const { t } = useLanguage()
-  const { hasRole } = useAuth()
-  const [locations, setLocations] = useState<Location[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editing, setEditing] = useState<Location | null>(null)
-  const [form, setForm] = useState(emptyLocation)
-  const [search, setSearch] = useState("")
+export function AdminLocationsPage() {
+  const { t, language } = useLanguage();
+  const { hasRole } = useAuth();
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole('admin')
-  const canView = hasRole('admin', 'supervisor')
+  const canManage = hasRole("admin");
+  const canView = hasRole("admin", "supervisor");
 
-  const loadLocations = async () => {
-    if (!canView) return
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await adminApi.listLocations({ page: 1, pageSize: 100 })
-      setLocations(res)
-    } catch (e: any) {
-      console.error(e)
-      setError(t('error.loadLocations'))
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Location | null>(null);
+  const [search, setSearch] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    open: boolean;
+    id: number | null;
+  }>({ open: false, id: null });
 
-  useEffect(() => {
-    loadLocations()
-  }, [])
+  // Form
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { isSubmitting, errors },
+  } = useForm<LocationFormData>({
+    resolver: yupResolver(locationSchema),
+    defaultValues: {
+      citizenId: 0,
+      type: "current",
+      governorate: "",
+      town: "",
+      street: "",
+      block_number: "",
+      house_number: "",
+      latitude: undefined,
+      longitude: undefined,
+      notes: "",
+    },
+  });
 
+  const latitude = watch("latitude");
+  const longitude = watch("longitude");
+
+  const {
+    loading,
+    data: locations,
+    setData,
+  } = useGet<Location[]>("/locations", {
+    immediate: true,
+  });
+
+  const { loading: loadingDeleteLocation, execute } = useDelete({
+    onSuccess: () => {
+      showSuccess(t("success.locationDeleted"));
+      setData((prev) =>
+        prev ? prev.filter((l) => l.id !== deleteConfirm.id) : prev
+      );
+      setDeleteConfirm({ open: false, id: null });
+    },
+    onError: (error) => {
+      showError(error || t("error.deleteLocation"));
+    },
+  });
+
+  const { loading: loadingCreateLocation, execute: executeCreateLocation } =
+    usePost("/locations", {
+      onSuccess: (data) => {
+        setData((prev) => (prev ? [data, ...prev] : [data]));
+        showSuccess(t("success.locationCreated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.createLocation"));
+      },
+    });
+
+  const { loading: loadingUpdateLocation, execute: executeUpdateLocation } =
+    usePatch({
+      onSuccess: (data) => {
+        setData(
+          (prev) => prev?.map((l) => (l.id === data.id ? data : l)) || prev
+        );
+        showSuccess(t("success.locationUpdated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.updateLocation"));
+      },
+    });
+
+  // Open create dialog
   const openCreateDialog = () => {
-    setEditing(null)
-    setForm(emptyLocation)
-    setIsDialogOpen(true)
-  }
+    setEditing(null);
+    reset({
+      citizenId: 0,
+      type: "current",
+      governorate: "",
+      town: "",
+      street: "",
+      block_number: "",
+      house_number: "",
+      latitude: undefined,
+      longitude: undefined,
+      notes: "",
+    });
+    setIsDialogOpen(true);
+  };
 
+  // Open edit dialog
   const openEditDialog = (location: Location) => {
-    setEditing(location)
-    setForm({
-      citizenId: String(location.citizenId),
+    setEditing(location);
+    reset({
+      citizenId: location.citizenId,
       type: location.type,
-      governorate: location.governorate || '',
-      town: location.town || '',
-      street: location.street || '',
-      block_number: location.block_number || '',
-      house_number: location.house_number || '',
-      latitude: location.latitude != null ? String(location.latitude) : '',
-      longitude: location.longitude != null ? String(location.longitude) : '',
-      notes: location.notes || '',
-    })
-    setIsDialogOpen(true)
-  }
+      governorate: location.governorate || "",
+      town: location.town || "",
+      street: location.street || "",
+      block_number: location.block_number || "",
+      house_number: location.house_number || "",
+      latitude: location.latitude || undefined,
+      longitude: location.longitude || undefined,
+      notes: location.notes || "",
+    });
+    setIsDialogOpen(true);
+  };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!canManage) return
-    const citizenId = Number(form.citizenId)
-    if (Number.isNaN(citizenId)) {
-      setError(t('error.invalidCitizenId'))
-      return
-    }
-    const latitude = form.latitude ? Number(form.latitude) : undefined
-    const longitude = form.longitude ? Number(form.longitude) : undefined
+  // Handle submit
+  const onSubmit = async (data: LocationFormData) => {
+    const payload = {
+      citizenId: data.citizenId,
+      type: data.type,
+      governorate: data.governorate || null,
+      town: data.town || null,
+      street: data.street || null,
+      block_number: data.block_number || null,
+      house_number: data.house_number || null,
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
+      notes: data.notes || null,
+    };
 
-    if (form.latitude && Number.isNaN(latitude)) {
-      setError(t('error.invalidLatitude'))
-      return
+    if (editing) {
+      executeUpdateLocation(`/locations/${editing.id}`, payload);
+    } else {
+      executeCreateLocation(payload);
     }
-    if (form.longitude && Number.isNaN(longitude)) {
-      setError(t('error.invalidLongitude'))
-      return
-    }
+  };
 
-    setLoading(true)
-    setError(null)
-    try {
-      const payload = {
-        citizenId,
-        type: form.type,
-        governorate: form.governorate || null,
-        town: form.town || null,
-        street: form.street || null,
-        block_number: form.block_number || null,
-        house_number: form.house_number || null,
-        latitude: latitude ?? null,
-        longitude: longitude ?? null,
-        notes: form.notes || null,
-      }
+  // Handle delete
+  const handleDelete = async () => {
+    if (!deleteConfirm.id) return;
+    execute(`/locations/${deleteConfirm.id}`);
+  };
 
-      if (editing) {
-        await adminApi.updateLocation(editing.id, payload)
-      } else {
-        await adminApi.createLocation(payload)
-      }
-      setIsDialogOpen(false)
-      setEditing(null)
-      setForm(emptyLocation)
-      loadLocations()
-    } catch (e: any) {
-      console.error(e)
-      setError(t('error.saveLocation'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDelete = async (id: number) => {
-    if (!canManage) return
-    if (!window.confirm(t('admin.locations.deleteConfirm') || 'Delete location?')) return
-    setLoading(true)
-    setError(null)
-    try {
-      await adminApi.deleteLocation(id)
-      loadLocations()
-    } catch (e: any) {
-      console.error(e)
-      setError(t('error.deleteLocation'))
-    } finally {
-      setLoading(false)
-    }
-  }
-  console.log(locations);
-  
-  // Filter locations by citizen name, national ID, governorate, town, or street
-  const filteredLocations = locations.filter(
+  const filteredLocations = locations?.filter(
     (location) =>
-      location.citizen?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+      location.citizen?.first_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
       location.citizen?.national_id?.includes(search) ||
       location.governorate?.toLowerCase().includes(search.toLowerCase()) ||
       location.town?.toLowerCase().includes(search.toLowerCase()) ||
       location.street?.toLowerCase().includes(search.toLowerCase())
-  )
+  );
 
   if (!canView) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{t('admin.locations.title')}</h1>
-        <p className="text-sm text-gray-500">{t('admin.locations.permissionMessage')}</p>
-      </div>
-    )
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <ErrorAlert
+          message={t("admin.locations.permissionMessage")}
+          severity="warning"
+        />
+      </Container>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('admin.locations.title')}</h1>
-          <p className="text-sm text-gray-500">{t('admin.locations.subtitle')}</p>
-        </div>
-        <input
-          className="input-field w-[500px]"
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
+        onClick={() => navigate("/admin/dashboard")}
+      >
+        <span
+          className="hover:underline text-blue-800 cursor-pointer"
+          onClick={() => navigate("/admin/dashboard")}
+        >
+          {t("common.backToDashboard")}
+        </span>
+        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold">
+            {t("admin.locations.title")}
+          </Typography>
+          <Typography color="textSecondary" sx={{ mt: 1 }}>
+            {t("admin.locations.subtitle")}
+          </Typography>
+        </Box>
+        {canManage && (
+          <Button
+            variant="contained"
+            startIcon={
+              <Plus
+                className={`${language == "ar" ? "ml-2" : ""}`}
+                size={20}
+              />
+            }
+            onClick={openCreateDialog}
+          >
+            {t("admin.locations.create")}
+          </Button>
+        )}
+      </Box>
+
+      {/* Search */}
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          fullWidth
           placeholder={t("common.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+          }}
+          size="small"
         />
-        {canManage && (
-          <button
-            type="button"
-            className="btn-primary flex items-center gap-2"
-            onClick={openCreateDialog}
-          >
-            <Plus className="w-4 h-4" />
-          {t('admin.locations.create')}
-          </button>
-        )}
-      </div>
+      </Box>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-center py-3 px-2 font-semibold">
-                {t('admin.citizen')}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t('admin.type')}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t('admin.address')}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t('admin.coordinates')}
-              </th>
-              {canManage && (
-                <th className="text-center py-3 px-2 font-semibold">
-                  {t('admin.actions')}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLocations.map((location) => (
-              <tr key={location.id} className="border-b border-gray-100">
-                <td className="text-center py-3 px-2">
-                  <p className="font-medium">
-                    {location.citizen?.first_name || `Citizen #${location.citizenId}`}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {location.citizen?.national_id}
-                  </p>
-                </td>
-                <td className="text-center py-3 px-2 capitalize">
-                  {location.type.replace('_', ' ')}
-                </td>
-                <td className="text-center py-3 px-2 text-gray-700">
-                  {[location.governorate, location.town, location.street]
-                    .filter(Boolean)
-                    .join(' • ') || '-'}
-                </td>
-                <td className="text-center py-3 px-2 text-gray-600">
-                  {location.latitude != null && location.longitude != null ? (
-                    <div className="space-y-1">
-                      <p>
-                        {location.latitude}, {location.longitude}
-                      </p>
-                      <Link
-                        to={
-                          `/admin/locations/map?lat=${location.latitude}&lng=${location.longitude}` +
-                          `&governorate=${encodeURIComponent(location.governorate || '')}` +
-                          `&town=${encodeURIComponent(location.town || '')}` +
-                          `&street=${encodeURIComponent(location.street || '')}`
-                        }
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                      >
-                        {t('map.showonmap')}
-                      </Link>
-                    </div>
-                  ) : (
-                    '-'
-                  )}
-                </td>
+      {/* Table */}
+      <TableContainer component={Paper} sx={{ mb: 3 }}>
+        {loading ? (
+          <Box sx={{ p: 4, textAlign: "center" }}>
+            <CircularProgress />
+          </Box>
+        ) : filteredLocations?.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
+            <Typography>{t("admin.noLocationsFound")}</Typography>
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: "grey.100" }}>
+                <TableCell align="center">{t("admin.citizen")}</TableCell>
+                <TableCell align="center">{t("admin.type")}</TableCell>
+                <TableCell align="center">{t("admin.address")}</TableCell>
+                <TableCell align="center">{t("admin.coordinates")}</TableCell>
                 {canManage && (
-                  <td className="flex justify-center py-3 px-2">
-                    <div className="flex  gap-2">
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                        onClick={() => openEditDialog(location)}
-                      >
-                        {t('common.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-red-600 hover:text-red-800 text-xs font-medium flex items-center gap-1"
-                        onClick={() => handleDelete(location.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        {t('common.delete')}
-                      </button>
-                    </div>
-                  </td>
+                  <TableCell align="center">{t("admin.actions")}</TableCell>
                 )}
-              </tr>
-            ))}
-            {!filteredLocations.length && !loading && (
-              <tr>
-                <td colSpan={5} className="py-6 text-center text-gray-500">
-                  {t('admin.noLocationsFound')}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {isDialogOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setIsDialogOpen(false)}
-        >
-          <div
-            className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                {editing ? t('admin.locations.update') : t('admin.locations.create')}
-              </h2>
-              <button
-                type="button"
-                className="text-gray-600 hover:text-gray-800"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.citizenId')}
-                  </label>
-                  <input
-                    type="number"
-                    className="input-field"
-                    value={form.citizenId}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, citizenId: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.formType')}
-                  </label>
-                  <select
-                    className="input-field capitalize"
-                    value={form.type}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        type: e.target.value as Location['type'],
-                      }))
-                    }
-                  >
-                    <option value="before_war">{t('admin.locations.beforeWar')}</option>
-                    <option value="after_war">{t('admin.locations.afterWar')}</option>
-                    <option value="temporary">{t('admin.locations.temporary')}</option>
-                    <option value="current">{t('admin.locations.current')}</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.governorate')}
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.governorate}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, governorate: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.town')}
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.town}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, town: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.street')}
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.street}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, street: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('admin.locations.block')}
-                    </label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={form.block_number}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          block_number: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('admin.locations.house')}
-                    </label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={form.house_number}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          house_number: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.latitude')}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.0000001"
-                    className="input-field"
-                    value={form.latitude}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, latitude: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('admin.locations.longitude')}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.0000001"
-                    className="input-field"
-                    value={form.longitude}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, longitude: e.target.value }))
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('admin.locations.notes')}
-                </label>
-                <textarea
-                  className="input-field"
-                  rows={3}
-                  value={form.notes}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, notes: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
-                  {t('admin.selectOnMap')}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {t('admin.selectOnMapHelp')}
-                </p>
-                <div className="h-64 rounded-lg overflow-hidden border border-gray-300">
-                  <MapContainer
-                    center={[31.5, 34.3]}
-                    zoom={12}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <MapClickSelector
-                      onSelect={(lat, lng) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          latitude: String(lat.toFixed(7)),
-                          longitude: String(lng.toFixed(7)),
-                        }))
-                      }
-                    />
-                    {form.latitude && form.longitude && (
-                      <Marker position={[Number(form.latitude), Number(form.longitude)]} />
-                    )}
-                  </MapContainer>
-                </div>
-                {form.latitude && form.longitude && (
-                  <p className="text-xs text-gray-600">
-                    {t('admin.coordinates')}: {form.latitude}, {form.longitude}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn-outline"
-                  onClick={() => setIsDialogOpen(false)}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredLocations?.map((location: Location) => (
+                <TableRow
+                  key={location.id}
+                  hover
+                  sx={{ "&:last-child td": { border: 0 } }}
                 >
-                  {t('common.cancel')}
-                </button>
-                <button type="submit" className="btn-primary" disabled={loading}>
-                  {editing ? t('admin.locations.update') : t('common.submit')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+                  <TableCell align="center">
+                    <Typography variant="body2" fontWeight="medium">
+                      {location.citizen?.first_name ||
+                        `Citizen #${location.citizenId}`}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {location.citizen?.national_id}
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{ textTransform: "capitalize" }}
+                  >
+                    {location.type.replace("_", " ")}
+                  </TableCell>
+                  <TableCell align="center">
+                    {[location.governorate, location.town, location.street]
+                      .filter(Boolean)
+                      .join(" • ") || "-"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {location.latitude != null && location.longitude != null ? (
+                      <Box>
+                        <Typography variant="body2">
+                          {location.latitude}, {location.longitude}
+                        </Typography>
+                        <MuiLink
+                          component={Link}
+                          to={
+                            `/admin/locations/map?lat=${location.latitude}&lng=${location.longitude}`
+                          }
+                          variant="caption"
+                          sx={{ display: "block", mt: 0.5 }}
+                        >
+                          {t("map.showonmap")}
+                        </MuiLink>
+                      </Box>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+
+                  {canManage && (
+                    <TableCell align="center">
+                      <Box>
+                        <Button
+                          size="small"
+                          startIcon={
+                            <Edit2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
+                          onClick={() => openEditDialog(location)}
+                        >
+                          {t("common.edit")}
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={
+                            <Trash2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
+                          onClick={() =>
+                            setDeleteConfirm({ open: true, id: location.id })
+                          }
+                        >
+                          {t("common.delete")}
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
+
+      {/* Create/Edit Dialog */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {editing
+            ? t("admin.locations.update")
+            : t("admin.locations.create")}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Stack spacing={3}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 2,
+              }}
+            >
+              <FormTextField
+                control={control}
+                name="citizenId"
+                label={t("admin.locations.citizenId")}
+                type="number"
+              />
+              <FormTextField
+                control={control}
+                name="type"
+                label={t("admin.locations.formType")}
+                select
+              >
+                <MenuItem value="before_war">
+                  {t("admin.locations.beforeWar")}
+                </MenuItem>
+                <MenuItem value="after_war">
+                  {t("admin.locations.afterWar")}
+                </MenuItem>
+                <MenuItem value="temporary">
+                  {t("admin.locations.temporary")}
+                </MenuItem>
+                <MenuItem value="current">
+                  {t("admin.locations.current")}
+                </MenuItem>
+              </FormTextField>
+              <FormTextField
+                control={control}
+                name="governorate"
+                label={t("admin.locations.governorate")}
+              />
+              <FormTextField
+                control={control}
+                name="town"
+                label={t("admin.locations.town")}
+              />
+              <FormTextField
+                control={control}
+                name="street"
+                label={t("admin.locations.street")}
+              />
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+                <FormTextField
+                  control={control}
+                  name="block_number"
+                  label={t("admin.locations.block")}
+                />
+                <FormTextField
+                  control={control}
+                  name="house_number"
+                  label={t("admin.locations.house")}
+                />
+              </Box>
+              <FormTextField
+                control={control}
+                name="latitude"
+                label={t("admin.locations.latitude")}
+                type="number"
+                inputProps={{ step: "0.0000001" }}
+              />
+              <FormTextField
+                control={control}
+                name="longitude"
+                label={t("admin.locations.longitude")}
+                type="number"
+                inputProps={{ step: "0.0000001" }}
+              />
+            </Box>
+
+            <FormTextField
+              control={control}
+              name="notes"
+              label={t("admin.locations.notes")}
+              multiline
+              rows={3}
+            />
+
+            <Box>
+              <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+                {t("admin.selectOnMap")}
+              </Typography>
+              <Typography variant="caption" color="textSecondary" sx={{ mb: 2, display: "block" }}>
+                {t("admin.selectOnMapHelp")}
+              </Typography>
+              <Box
+                sx={{
+                  height: 256,
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  border: 1,
+                  borderColor: "grey.300",
+                }}
+              >
+                <MapContainer
+                  center={[31.5, 34.3]}
+                  zoom={12}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <MapClickSelector
+                    onSelect={(lat, lng) => {
+                      setValue("latitude", Number(lat.toFixed(7)));
+                      setValue("longitude", Number(lng.toFixed(7)));
+                    }}
+                  />
+                  {latitude && longitude && (
+                    <Marker position={[latitude, longitude]} />
+                  )}
+                </MapContainer>
+              </Box>
+              {latitude && longitude && (
+                <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: "block" }}>
+                  {t("admin.coordinates")}: {latitude}, {longitude}
+                </Typography>
+              )}
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            variant="contained"
+            disabled={
+              isSubmitting || loadingCreateLocation || loadingUpdateLocation
+            }
+          >
+            {isSubmitting ? (
+              <CircularProgress size={20} />
+            ) : editing ? (
+              t("admin.locations.update")
+            ) : (
+              t("common.submit")
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirm Dialog */}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title={t("admin.locations.deleteConfirm")}
+        message={""}
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
+        isLoading={loadingDeleteLocation}
+        isDangerous
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+      />
+    </Container>
+  );
 }
 
-export default AdminLocationsPage
-
-
+export default AdminLocationsPage;

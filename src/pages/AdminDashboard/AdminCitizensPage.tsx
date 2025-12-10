@@ -27,40 +27,31 @@ import { useAuth } from "../../contexts/AdminAuthContext";
 import { adminApi, Citizen } from "../../services/api";
 import { citizenSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
-import FormSelectField from "../../components/Shared/FormSelectField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import { useGet } from "../../hooks/api/useApi";
+import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
 
 interface CitizenFormData {
   national_id: string;
   first_name: string;
-  gender: "male" | "female" | "";
-  status: "alive" | "dead";
+  father_name: string;
+  grandfather_name: string;
+  family_name: string;
+  phone_number: string;
 }
-
-const GENDER_OPTIONS = [
-  { value: "male", label: "ذكر" },
-  { value: "female", label: "أنثى" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "alive", label: "حي" },
-  { value: "dead", label: "متوفى" },
-];
 
 export function AdminCitizensPage() {
   const { t, language } = useLanguage();
   const { hasRole } = useAuth();
+  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasRole("admin");
   const canView = hasRole("admin", "supervisor");
 
-  // States
-  // const [citizens, setCitizens] = useState<Citizen[]>([]);
-  // const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Citizen | null>(null);
   const [search, setSearch] = useState("");
@@ -80,24 +71,73 @@ export function AdminCitizensPage() {
     defaultValues: {
       national_id: "",
       first_name: "",
-      gender: "",
-      status: "alive",
+      father_name: "",
+      grandfather_name: "",
+      family_name: "",
+      phone_number: "",
     },
   });
 
-  const { loading, data: citizens } = useGet<Citizen[]>("/citizens", {
+  const {
+    loading,
+    data: citizens,
+    setData,
+  } = useGet<Citizen[]>("/citizens", {
     immediate: true,
   });
 
-  
+  const { loading: loadingDeleteCitizen, execute } = useDelete({
+    onSuccess: () => {
+      showSuccess(t("success.citizenDeleted"));
+      // Remove deleted citizen from list
+      setData((prev) =>
+        prev ? prev.filter((c) => c.id !== deleteConfirm.id) : prev
+      );
+      setDeleteConfirm({ open: false, id: null });
+    },
+    onError: (error) => {
+      showError(error || t("error.deleteCitizen"));
+    },
+  });
+
+  const { loading: loadingCreateCitizen, execute: executeCreateCitizen } =
+    usePost("/citizens", {
+      onSuccess: (data) => {
+        setData((prev) => (prev ? [data, ...prev] : [data]));
+        showSuccess(t("success.citizenCreated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.createCitizen"));
+      },
+    });
+
+  const { loading: loadingUpdateCitizen, execute: executeUpdateCitizen } =
+    usePatch({
+      onSuccess: (data) => {
+        setData(
+          (prev) => prev?.map((c) => (c.id === data.id ? data : c)) || prev
+        );
+        showSuccess(t("success.citizenUpdated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.updateCitizen"));
+      },
+    });
+
   // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     reset({
       national_id: "",
       first_name: "",
-      gender: "",
-      status: "alive",
+      father_name: "",
+      grandfather_name: "",
+      family_name: "",
+      phone_number: "",
     });
     setIsDialogOpen(true);
   };
@@ -106,60 +146,64 @@ export function AdminCitizensPage() {
   const openEditDialog = (citizen: Citizen) => {
     setEditing(citizen);
     reset({
-      national_id: citizen.national_id,
+      national_id: citizen.national_id || "",
       first_name: citizen.first_name || "",
-      gender: citizen.gender || "",
-      status: citizen.status,
+      father_name: citizen.father_name || "",
+      grandfather_name: citizen.grandfather_name || "",
+      family_name: citizen.family_name || "",
+      phone_number: citizen.phone_number || "",
     });
     setIsDialogOpen(true);
   };
 
   // Handle submit
   const onSubmit = async (data: CitizenFormData) => {
-    try {
-      if (editing) {
-        await adminApi.updateCitizen(editing.id, {
-          national_id: data.national_id,
-          first_name: data.first_name || undefined,
-          gender: data.gender || undefined,
-          status: data.status,
-        });
-        showSuccess(t("success.citizenUpdated"));
-      } else {
-        await adminApi.createCitizen({
-          national_id: data.national_id,
-          first_name: data.first_name,
-          gender: data.gender || undefined,
-          status: data.status,
-        });
-        showSuccess(t("success.citizenCreated"));
-      }
-      setIsDialogOpen(false);
-      reset();
-    } catch (error: any) {
-      showError(error.message || t("error.saveCitizen"));
+    if (editing) {
+      executeUpdateCitizen(`/citizens/${editing.id}`, {
+        ...data,
+      });
+    } else {
+      executeCreateCitizen({
+        ...data,
+      });
     }
+  };
+
+  const handleExportData = () => {
+    fetch(`https://backend-5549.onrender.com/citizens/export-citizens`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Server error while downloading Excel");
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "citizens.xlsx";
+        a.click();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to download Excel file");
+      });
   };
 
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
-    try {
-      await adminApi.deleteCitizen(deleteConfirm.id);
-      showSuccess(t("success.citizenDeleted"));
-      loadCitizens();
-    } catch (error: any) {
-      showError(error.message || t("error.deleteCitizen"));
-    } finally {
-      setDeleteConfirm({ open: false, id: null });
-    }
+    execute(`/citizens/${deleteConfirm.id}`);
   };
 
   const filteredCitizens = citizens?.filter(
     (citizen) =>
       citizen.national_id.includes(search) ||
-      (citizen.first_name &&
-        citizen.first_name.toLowerCase().includes(search.toLowerCase()))
+      (citizen.full_name &&
+        citizen.full_name.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (!canView) {
@@ -176,6 +220,18 @@ export function AdminCitizensPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
+      <Box
+        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
+        onClick={() => navigate("/admin/dashboard")}
+      >
+        <span
+          className="hover:underline text-blue-800 cursor-pointer"
+          onClick={() => navigate("/admin/dashboard")}
+        >
+          {t("common.backToDashboard")}
+        </span>
+        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -194,25 +250,32 @@ export function AdminCitizensPage() {
         </Box>
         {canManage && (
           <span className="flex justify-center items-center gap-3">
-          <Button
-            variant="contained"
-            startIcon={
-              <Import className={`${language == "ar" ? "ml-2" : ""} `} size={20} />
-            }
-            onClick={openCreateDialog}
-          >
-            {t("admin.citizens.create")}
-          </Button><Button
-            variant="contained"
-            startIcon={
-              <Plus className={`${language == "ar" ? "ml-2" : ""}`} size={20} />
-            }
-            onClick={openCreateDialog}
-          >
-            {t("admin.citizens.create")}
-          </Button>
+            <Button
+              variant="contained"
+              color="inherit"
+              startIcon={
+                <Import
+                  className={`${language == "ar" ? "ml-2" : ""} `}
+                  size={20}
+                />
+              }
+              onClick={handleExportData}
+            >
+              {t("admin.citizens.export")}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={
+                <Plus
+                  className={`${language == "ar" ? "ml-2" : ""}`}
+                  size={20}
+                />
+              }
+              onClick={openCreateDialog}
+            >
+              {t("admin.citizens.create")}
+            </Button>
           </span>
-          
         )}
       </Box>
 
@@ -276,7 +339,12 @@ export function AdminCitizensPage() {
                       <Box>
                         <Button
                           size="small"
-                          startIcon={<Edit2 size={16} />}
+                          startIcon={
+                            <Edit2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
                           onClick={() => openEditDialog(citizen)}
                         >
                           {t("common.edit")}
@@ -284,7 +352,12 @@ export function AdminCitizensPage() {
                         <Button
                           size="small"
                           color="error"
-                          startIcon={<Trash2 size={16} />}
+                          startIcon={
+                            <Trash2
+                              className={`${language == "ar" ? "ml-2" : ""}  `}
+                              size={16}
+                            />
+                          }
                           onClick={() =>
                             setDeleteConfirm({ open: true, id: citizen.id })
                           }
@@ -316,24 +389,32 @@ export function AdminCitizensPage() {
             <FormTextField
               control={control}
               name="national_id"
-              label={t("admin.citizens.nationalId")}
+              label={t("form.nationalId")}
             />
             <FormTextField
               control={control}
               name="first_name"
-              label={t("admin.citizens.fullName")}
+              label={t("form.firstName")}
             />
-            <FormSelectField
+            <FormTextField
               control={control}
-              name="gender"
-              label={t("admin.citizens.gender")}
-              options={GENDER_OPTIONS}
+              name="father_name"
+              label={t("form.fatherName")}
             />
-            <FormSelectField
+            <FormTextField
               control={control}
-              name="status"
-              label={t("admin.citizens.status")}
-              options={STATUS_OPTIONS}
+              name="grandfather_name"
+              label={t("form.grandfatherName")}
+            />
+            <FormTextField
+              control={control}
+              name="family_name"
+              label={t("form.familyName")}
+            />
+            <FormTextField
+              control={control}
+              name="phone_number"
+              label={t("form.phoneNumber")}
             />
           </Stack>
         </DialogContent>
@@ -344,7 +425,9 @@ export function AdminCitizensPage() {
           <Button
             onClick={handleSubmit(onSubmit)}
             variant="contained"
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting || loadingCreateCitizen || loadingUpdateCitizen
+            }
           >
             {isSubmitting ? (
               <CircularProgress size={20} />
@@ -361,9 +444,10 @@ export function AdminCitizensPage() {
       <ConfirmDialog
         open={deleteConfirm.open}
         title={t("admin.citizens.deleteConfirm")}
-        message={t("admin.deleteConfirmMessage")}
+        message={""}
         confirmText={t("common.delete")}
         cancelText={t("common.cancel")}
+        isLoading={loadingDeleteCitizen}
         isDangerous
         onConfirm={handleDelete}
         onCancel={() => setDeleteConfirm({ open: false, id: null })}
