@@ -9,7 +9,8 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { ROUTES } from "../routes/Routes";
 import { signUp } from "../redux/slices/authSlice";
 import { axiosClient } from "../api/baseUrl";
-import Button from "../components/Shared/Button/Button";
+
+import ButtonShared from "../components/Shared/ButtonShared";
 
 interface FormData {
   [key: string]: string;
@@ -22,10 +23,9 @@ const VerificationQuestionsPage = () => {
   const query = new URLSearchParams(search);
   const id = query.get("id");
 
-  const {
-    verificationQuestion,
-    loading: loadingStore,
-  } = useAppSelector((state) => state.auth);
+  const { verificationQuestion, loading: loadingStore } = useAppSelector(
+    (state) => state.auth
+  );
   const dispatch = useAppDispatch();
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(loadingStore);
@@ -42,7 +42,9 @@ const VerificationQuestionsPage = () => {
   useEffect(() => {
     if (verificationQuestion?.length === 0) {
       setLoading(true);
-      dispatch(signUp({ nationalId: id, password: "" ,pathSignUp : 'verify-questions'}))
+      dispatch(
+        signUp({ nationalId: id, password: "", pathSignUp: "verify-questions" })
+      )
         .unwrap()
         .catch(() => {
           navigate(`/${ROUTES.SIGNUP}`);
@@ -53,36 +55,34 @@ const VerificationQuestionsPage = () => {
     }
   }, [verificationQuestion]);
 
-
   const onSubmit = async (formData: FormData) => {
-  setLoadingInput(true);
-  let answers: { [key: string]: string } = {};
+    setLoadingInput(true);
+    let answers: { [key: string]: string } = {};
 
-  for (let key in formData) {
-    let value = formData[key];
-    if (value !== "") {
-      if (key.toString().split("_").pop() === "bd") {
-        const [year, month, day] = value.split("-");
-        value = `${day}/${month}/${year}`;
+    for (let key in formData) {
+      let value = formData[key];
+      if (value !== "") {
+        if (key.toString().split("_").pop() === "bd") {
+          const [year, month, day] = value.split("-");
+          value = `${day}/${month}/${year}`;
+        }
+
+        answers[key] = value;
       }
-
-      answers[key] = value;
     }
-  }
 
-  try {
-    await axiosClient.post("/auth/verify-questions", {
-      nationalId: id,
-      answers: answers,
-    });
-    setLoadingInput(false);
-    navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
-  } catch (error: any) {
-    setLoadingInput(false);
-    setError(error.response?.data?.message || "Something went wrong");
-  }
-};
-
+    try {
+      await axiosClient.post("/auth/verify-questions", {
+        nationalId: id,
+        answers: answers,
+      });
+      setLoadingInput(false);
+      navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
+    } catch (error: any) {
+      setLoadingInput(false);
+      setError(error.response?.data?.message || "Something went wrong");
+    }
+  };
 
   if (loading) {
     return (
@@ -168,7 +168,7 @@ const VerificationQuestionsPage = () => {
             >
               {t("common.back")}
             </button>
-            <Button
+            <ButtonShared
               type="submit"
               className="btn-primary flex-1"
               label={

@@ -11,13 +11,13 @@ import {
   validatePassword,
 } from "../utils/validatePassword";
 
-import Button from "../components/Shared/Button/Button";
 import { FormDataCustom } from "./SignInPage";
 
 import classNames from "classnames";
-import MuiPhoneNumber from "mui-phone-number";
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
+import PhoneNumberInput from "../components/PhoneNumberInput";
+import ButtonShared from "../components/Shared/ButtonShared";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -59,7 +59,6 @@ const PasswordDisplayPage = () => {
   }, [navigate]);
 
   const onSubmit = async (data: FormDataCustom) => {
-    
     console.log(data);
     if (id) {
       await dispatch(
@@ -72,8 +71,8 @@ const PasswordDisplayPage = () => {
           grandfatherName: data.grandfatherName,
           familyName: data.familyName,
           email: data.email,
-          phoneNumber : data.phoneNumber,
-          whatsappNumber : data.whatsappNumber,
+          phoneNumber: data.phoneNumber,
+          whatsappNumber: data.whatsappNumber,
         })
       )
         .unwrap()
@@ -245,43 +244,25 @@ const PasswordDisplayPage = () => {
               >
                 رقم الموبايل <span className="text-red-500">*</span>
               </label>
-              <div>
-                <Controller
-                  name="phoneNumber"
-                  control={control}
-                  defaultValue=""
-                  rules={{
-                    required: "هذا الحقل مطلوب",
-                    validate: (value: any) => {
-                      if (value.length > 13) return true;
-                    },
-                  }}
-                  render={({ field }) => (
-                    <div className="w-full">
-                      <MuiPhoneNumber
-                        {...field}
-                        id="phoneNumber"
-                        defaultCountry="ps"
-                        onlyCountries={["ps", "il"]}
-                        variant="outlined"
-                        className="!input-field pr-10"
-                        onChange={(value: any) => {
-                          // const val = normalizePhone(value);
-                          // if (value.length > 12) return value;
-                          field.onChange(value);
-                        }}
-                      />
-
-                      {/* عرض الخطأ */}
-                      {errors.phoneNumber && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.phoneNumber.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
+              <Controller
+                name="phoneNumber"
+                control={control}
+                defaultValue="" // VERY IMPORTANT
+                rules={{
+                  required: "مطلوب",
+                }}
+                render={({ field , fieldState}) => (
+                  <PhoneNumberInput
+                    id="phoneNumber"
+                    placeholder={"أدخل رقم الموبايل"}
+                    {...field}
+                    value={field.value || ""} // prevent undefined
+                    onChange={(v: any) => field.onChange(v)}
+                    error={!!fieldState.error} // ← تمرير error
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
             </div>
             <div className="mt-5">
               <label
@@ -295,33 +276,20 @@ const PasswordDisplayPage = () => {
               <Controller
                 name="whatsappNumber"
                 control={control}
-                defaultValue=""
+                defaultValue="" // VERY IMPORTANT
                 rules={{
-                  required: "هذا الحقل مطلوب",
-                  validate: (value: any) => {
-                    if (value.length > 13) return true;
-                  },
+                  required: "مطلوب",
                 }}
-                render={({ field }) => (
-                  <div className="w-full">
-                    <MuiPhoneNumber
-                      {...field}
-                      id="whatsappNumber"
-                      defaultCountry="ps"
-                      onlyCountries={["ps", "il"]}
-                      variant="outlined"
-                      className="!input-field pr-10"
-                      onChange={(value: any) => {
-                        field.onChange(value);
-                      }}
-                    />
-                    {/* عرض الخطأ */}
-                    {errors.whatsappNumber && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.whatsappNumber.message}
-                      </p>
-                    )}
-                  </div>
+                render={({ field, fieldState }) => (
+                  <PhoneNumberInput
+                    id="whatsappNumber"
+                    placeholder={"أدخل رقم الواتساب "}
+                    {...field}
+                    value={field.value || ""} // prevent undefined
+                    onChange={(v: any) => field.onChange(v)}
+                    error={!!fieldState.error} // ← تمرير error
+                    helperText={fieldState.error?.message}
+                  />
                 )}
               />
             </div>
@@ -400,7 +368,7 @@ const PasswordDisplayPage = () => {
           </p>
 
           <div className="flex justify-end">
-            <Button
+            <ButtonShared
               className="underline !text-blue-700 flex-4 text-md"
               label={t("auth.generatePassword")}
               onClick={handleGeneratePassword}

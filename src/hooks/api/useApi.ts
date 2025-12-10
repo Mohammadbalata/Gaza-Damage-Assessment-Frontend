@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import ApiErrorHandler from "../../services/errorHandler";
+import { api } from "../../services/api";
 
 export interface ApiResponse<T> {
   data: T;

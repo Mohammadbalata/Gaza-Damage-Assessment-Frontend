@@ -19,7 +19,11 @@ export interface Citizen {
   id: number;
   national_id: string;
   first_name?: string;
-  last_name?: string;
+  father_name?: string;
+  grandfather_name?: string;
+  family_name?: string;
+  full_name?: string;
+  phone_number?: string;
   gender: "male" | "female";
   status: "alive" | "dead";
   verification_status:

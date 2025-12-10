@@ -207,7 +207,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.statusDead": "Dead",
     "admin.citizens.create": "Create Citizen",
     "admin.citizens.update": "Update",
-
+    "admin.citizens.phoneNumber": "Phone Number",
     "admin.locations.title": "Locations",
     "admin.locations.subtitle":
       "Manage citizen locations before/after war and temporary housing.",
@@ -481,6 +481,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.citizens.statusDead": "متوفى",
     "admin.citizens.create": "إنشاء مواطن",
     "admin.citizens.update": "تحديث",
+    "admin.citizens.phoneNumber": "رقم الهاتف",
     "common.created": "تاريخ الإنشاء",
     "admin.applications.deleteConfirm": "هل أنت متأكد من حذف هذا الطلب؟",
     "admin.locations.deleteConfirm": "هل أنت متأكد من حذف هذا الموقع؟",
