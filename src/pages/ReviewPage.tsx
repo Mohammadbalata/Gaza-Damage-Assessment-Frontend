@@ -33,15 +33,13 @@ const ReviewPage = () => {
   //   }
   // });
   // console.log(selected);
-    const selected = buildingMap[damageState.buildingType] || {};
+  const selected = buildingMap[damageState.buildingType] || {};
   // console.log(selected)
   const { damageType, isHabitable, habitability, propertyArea } = selected;
   const [loadingPage, setLoadingPage] = useState(loading);
   const [errorPage, setErrorPage] = useState(error);
   const dispatch = useAppDispatch();
   // const pageRef = useRef<HTMLDivElement>(null);
-
-
 
   const handleSubmit = () => {
     navigate(`${ROUTES.SUCCESS}`);
@@ -65,7 +63,6 @@ const ReviewPage = () => {
         setErrorPage(error);
         console.log(error);
       });
-   
   }, []);
   if (loadingPage) {
     return (

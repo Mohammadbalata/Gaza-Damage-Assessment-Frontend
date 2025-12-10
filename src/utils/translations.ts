@@ -1,8 +1,10 @@
 export const translations: Record<"en" | "ar", Record<string, string>> = {
   en: {
     // Common
-    "app.title": "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
+    "app.title":
+      "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
     "app.subtitle": "Khan Younis Municipality",
+    "app.receipt": "receipt",
     "common.submit": "Submit",
     "common.logout": "Logout",
     "common.cancel": "Cancel",
@@ -27,7 +29,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "OR",
     "common.admin": "Admin",
     "common.supervisor": "Supervisor",
-    "common.searchPlaceholder":"Search ....",
+    "common.searchPlaceholder": "Search ....",
     // Auth
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
@@ -59,6 +61,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.motherName": "Mother's Name",
     "form.dateOfBirth": "Date of Birth",
     "form.addressBeforeWar": "Address Before War",
+    "form.current": "CurrentLocation  ",
+
     "form.numberOfChildren": "Number of Children",
     "form.wifeName": "Wife's Name",
     "form.wifeNationalId": "Wife's National ID",
@@ -73,6 +77,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.yes": "Yes",
     "form.no": "No",
     "form.additionalNotes": "Additional Notes",
+    "form.submissionDate": "submissionDate",
 
     // Documents
     "form.uploadDocuments": "Upload Documents",
@@ -97,6 +102,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "review.location": "Location",
     "review.documents": "Uploaded Documents",
     "review.submit": "Submit Application",
+    "review.instructions": " instructions",
 
     // Success
     "success.title": "Application Submitted Successfully!",
@@ -289,6 +295,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Common
     "app.title": "النظام المركزي لحصر وتقييم أضرار المباني – بلدية خانيونس",
     "app.subtitle": "بلدية خانيونس",
+    "app.receipt": "إيصال",
     "common.submit": "إرسال",
     "common.logout": "تسجيل الخروج",
     "common.cancel": "إلغاء",
@@ -313,7 +320,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "أو",
     "common.admin": "مدير",
     "common.supervisor": "مشرف",
-    "common.searchPlaceholder":"ابحث ....",
+    "common.searchPlaceholder": "ابحث ....",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",
@@ -346,6 +353,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.motherName": "اسم الأم",
     "form.dateOfBirth": "تاريخ الميلاد",
     "form.addressBeforeWar": "العنوان قبل الحرب",
+    "form.current": "العنوان الحالي ",
+
     "form.numberOfChildren": "عدد الأطفال",
     "form.wifeName": "اسم الزوجة",
     "form.wifeNationalId": "رقم هوية الزوجة",
@@ -360,6 +369,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.yes": "نعم",
     "form.no": "لا",
     "form.additionalNotes": "ملاحظات إضافية",
+    "form.submissionDate": "تاريخ إرسال الطلب",
 
     // Documents
     "form.uploadDocuments": "رفع المستندات",
@@ -384,6 +394,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "review.location": "الموقع",
     "review.documents": "المستندات المرفوعة",
     "review.submit": "إرسال الطلب",
+    "review.instructions": "تعليمات هامة",
 
     // Success
     "success.title": "تم إرسال الطلب بنجاح!",
