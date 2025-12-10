@@ -1,17 +1,21 @@
-import { CircularProgress, Box, BoxProps } from "@mui/material";
+import React from "react";
+import { CircularProgress, Box, BoxProps, Typography } from "@mui/material";
 
 interface LoadingSpinnerProps extends BoxProps {
   size?: number;
   message?: string;
 }
 
-export function LoadingSpinner({
-  size = 40,
-  message,
-  ...rest
-}: LoadingSpinnerProps) {
+/**
+ * Loading spinner component with optional message
+ */
+export const LoadingSpinner = React.forwardRef<
+  HTMLDivElement,
+  LoadingSpinnerProps
+>(({ size = 40, message, ...rest }, ref) => {
   return (
     <Box
+      ref={ref}
       display="flex"
       flexDirection="column"
       alignItems="center"
@@ -21,9 +25,15 @@ export function LoadingSpinner({
       {...rest}
     >
       <CircularProgress size={size} />
-      {message && <p>{message}</p>}
+      {message && (
+        <Typography variant="body2" color="text.secondary">
+          {message}
+        </Typography>
+      )}
     </Box>
   );
-}
+});
+
+LoadingSpinner.displayName = "LoadingSpinner";
 
 export default LoadingSpinner;

@@ -31,6 +31,7 @@
     "react-router-dom": "^6.26.0",
     "react-to-pdf": "^2.0.3",
     "yup": "^1.7.1",
+    "zod": "^4.1.13",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

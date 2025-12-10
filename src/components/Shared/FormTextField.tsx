@@ -1,4 +1,10 @@
-import { TextField, TextFieldProps, CircularProgress } from "@mui/material";
+import React from "react";
+import {
+  TextField,
+  TextFieldProps,
+  CircularProgress,
+  Box,
+} from "@mui/material";
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
 
 interface FormTextFieldProps<T extends FieldValues>
@@ -8,45 +14,65 @@ interface FormTextFieldProps<T extends FieldValues>
   label: string;
   isLoading?: boolean;
   helperText?: string;
+  required?: boolean;
 }
 
-export function FormTextField<T extends FieldValues>({
-  control,
-  name,
-  label,
-  isLoading = false,
-  type = "text",
-  fullWidth = true,
-  variant = "outlined",
-  size = "small",
-  ...rest
-}: FormTextFieldProps<T>) {
-  return (
-    <Controller
-      control={control}
-      name={name}
-      render={({ field, fieldState: { error } }) => (
-        <TextField
-          {...field}
-          {...rest}
-          label={label}
-          type={type}
-          fullWidth={fullWidth}
-          variant={variant}
-          size={size}
-          error={!!error}
-          helperText={error?.message || rest.helperText}
-          disabled={isLoading || rest.disabled}
-          InputProps={{
-            endAdornment: isLoading ? (
-              <CircularProgress color="inherit" size={20} />
-            ) : null,
-            ...rest.InputProps,
-          }}
-        />
-      )}
-    />
-  );
-}
+/**
+ * Text input field with React Hook Form integration
+ */
+export const FormTextField = React.forwardRef<
+  HTMLDivElement,
+  FormTextFieldProps<any>
+>(
+  (
+    {
+      control,
+      name,
+      label,
+      isLoading = false,
+      type = "text",
+      fullWidth = true,
+      variant = "outlined",
+      size = "small",
+      required = false,
+      helperText,
+      ...rest
+    },
+    ref
+  ) => {
+    return (
+      <Controller
+        control={control}
+        name={name}
+        render={({ field, fieldState: { error } }) => (
+          <TextField
+            ref={ref}
+            {...field}
+            {...rest}
+            label={label}
+            type={type}
+            fullWidth={fullWidth}
+            variant={variant}
+            size={size}
+            required={required}
+            error={!!error}
+            helperText={error?.message || helperText}
+            disabled={isLoading || rest.disabled}
+            InputProps={{
+              endAdornment: isLoading ? (
+                <Box sx={{ display: "flex", alignItems: "center", mr: 1 }}>
+                  <CircularProgress color="inherit" size={20} />
+                </Box>
+              ) : null,
+              ...rest.InputProps,
+            }}
+          />
+        )}
+      />
+    );
+  }
+);
+
+FormTextField.displayName = "FormTextField";
 
 export default FormTextField;

@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-// مخططات التحقق الأساسية
+// Basic validation schemas
 export const emailSchema = yup
   .string()
   .email("بريد إلكتروني غير صالح")
@@ -27,13 +27,13 @@ export const coordinateSchema = yup
   .typeError("يجب أن تكون قيمة رقمية")
   .required("الإحداثي مطلوب");
 
-// مخطط تسجيل الدخول
+// Login schema
 export const loginSchema = yup.object().shape({
   email: emailSchema,
   password: passwordSchema,
 });
 
-// مخطط المستخدم الإداري
+// Admin User schema
 export const adminUserSchema = yup.object().shape({
   name: nameSchema,
   email: emailSchema,
@@ -48,7 +48,7 @@ export const adminUserSchema = yup.object().shape({
   }),
 });
 
-// مخطط المواطن
+// Citizen schema
 export const citizenSchema = yup.object().shape({
   national_id: nationalIdSchema,
   first_name: yup
@@ -62,7 +62,7 @@ export const citizenSchema = yup.object().shape({
     .required("الحالة مطلوبة"),
 });
 
-// مخطط الطلب
+// Application schema
 export const applicationSchema = yup.object().shape({
   citizenId: yup
     .number()
@@ -79,7 +79,7 @@ export const applicationSchema = yup.object().shape({
   notes: yup.string().max(500, "الملاحظات يجب ألا تتجاوز 500 حرف"),
 });
 
-// مخطط الموقع
+// Location schema
 export const locationSchema = yup.object().shape({
   citizenId: yup
     .number()
@@ -91,7 +91,7 @@ export const locationSchema = yup.object().shape({
     .required("النوع مطلوب"),
   governorate: yup.string().max(100, "المحافظة يجب ألا تتجاوز 100 حرف"),
   town: yup.string().max(100, "المدينة يجب ألا تتجاوز 100 حرف"),
-  street: yup.string().max(100, "الشارع يجب ألا تتجاوز 100 حرف"),
+  street: yup.string().max(100, "الشارع يجب ألا يتجاوز 100 حرف"),
   block_number: yup.string().max(20, "رقم البلوك يجب ألا يتجاوز 20 حرف"),
   house_number: yup.string().max(20, "رقم البيت يجب ألا يتجاوز 20 حرف"),
   latitude: yup

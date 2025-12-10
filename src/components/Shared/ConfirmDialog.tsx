@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,6 +7,8 @@ import {
   DialogActions,
   Button,
   DialogProps,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 
 interface ConfirmDialogProps extends Omit<DialogProps, "children"> {
@@ -20,39 +23,68 @@ interface ConfirmDialogProps extends Omit<DialogProps, "children"> {
   isDangerous?: boolean;
 }
 
-export function ConfirmDialog({
-  open,
-  title,
-  message,
-  confirmText = "تأكيد",
-  cancelText = "إلغاء",
-  onConfirm,
-  onCancel,
-  isLoading = false,
-  isDangerous = false,
-  ...rest
-}: ConfirmDialogProps) {
-  return (
-    <Dialog open={open} onClose={onCancel} {...rest}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{message}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel} disabled={isLoading}>
-          {cancelText}
-        </Button>
-        <Button
-          onClick={onConfirm}
-          disabled={isLoading}
-          variant="contained"
-          color={isDangerous ? "error" : "primary"}
-        >
-          {confirmText}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
+/**
+ * Confirmation dialog with loading state support
+ */
+export const ConfirmDialog = React.forwardRef<
+  HTMLDivElement,
+  ConfirmDialogProps
+>(
+  (
+    {
+      open,
+      title,
+      message,
+      confirmText = "تأكيد",
+      cancelText = "إلغاء",
+      onConfirm,
+      onCancel,
+      isLoading = false,
+      isDangerous = false,
+      ...rest
+    },
+    ref
+  ) => {
+    return (
+      <Dialog ref={ref} open={open} onClose={onCancel} {...rest}>
+        <DialogTitle sx={{ fontWeight: 600 }}>{title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "text.primary", mt: 1 }}>
+            {message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={onCancel} disabled={isLoading}>
+            {cancelText}
+          </Button>
+          <Box sx={{ position: "relative", display: "inline-flex" }}>
+            <Button
+              onClick={onConfirm}
+              disabled={isLoading}
+              variant="contained"
+              color={isDangerous ? "error" : "primary"}
+            >
+              {confirmText}
+            </Button>
+            {isLoading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
+          </Box>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+);
+
+ConfirmDialog.displayName = "ConfirmDialog";
 
 export default ConfirmDialog;

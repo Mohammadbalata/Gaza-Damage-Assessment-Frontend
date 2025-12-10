@@ -1,11 +1,5 @@
 import { AxiosError } from "axios";
-
-export interface ApiErrorResponse {
-  message?: string;
-  error?: string;
-  errors?: Record<string, string[]>;
-  statusCode?: number;
-}
+import { ApiErrorResponse } from "../services/api";
 
 export class ApiErrorHandler {
   static handle(error: unknown): string {
