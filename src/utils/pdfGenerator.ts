@@ -54,7 +54,7 @@ export const generatePDFReceipt = (data: any) => {
   // Tracking Number
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
-  doc.text(`TRACKING NUMBER: ${data.trackingNumber || "N/A"}`, margin, yPos);
+  doc.text(`TRACKING NUMBER: ${data.id || "N/A"}`, margin, yPos);
   yPos += 8;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
@@ -68,16 +68,20 @@ export const generatePDFReceipt = (data: any) => {
   yPos += 8;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Full Name: ${data.fullName || "N/A"}`, margin, yPos);
+  doc.text(
+    `Full Name: ${data.citizen.first_name + data.citizen.family_name || "N/A"}`,
+    margin,
+    yPos
+  );
   yPos += 6;
-  doc.text(`National ID: ${data.nationalId || "N/A"}`, margin, yPos);
+  doc.text(`National ID: ${data.national_id || "N/A"}`, margin, yPos);
   yPos += 6;
-  doc.text(`Date of Birth: ${data.dateOfBirth || "N/A"}`, margin, yPos);
-  yPos += 6;
-  doc.text(`Mother's Name: ${data.motherName || "N/A"}`, margin, yPos);
-  yPos += 6;
-  doc.text(`Phone Number: ${data.phoneNumber || "N/A"}`, margin, yPos);
-  yPos += 10;
+  // doc.text(`Date of Birth: ${data.dateOfBirth || "N/A"}`, margin, yPos);
+  // yPos += 6;
+  // doc.text(`Mother's Name: ${data.motherName || "N/A"}`, margin, yPos);
+  // yPos += 6;
+  // doc.text(`Phone Number: ${data.phoneNumber || "N/A"}`, margin, yPos);
+  // yPos += 10;
 
   // Property Information
   doc.setFontSize(12);
@@ -87,13 +91,13 @@ export const generatePDFReceipt = (data: any) => {
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(
-    `Address Before War: ${data.addressBeforeWar || "N/A"}`,
+    `Address Before War: ${data.locations[0].governorate || "N/A"}`,
     margin,
     yPos
   );
   yPos += 6;
   doc.text(
-    `Property Type: ${data.propertyType?.toUpperCase() || "N/A"}`,
+    `Current Address : ${data.locations[1].governorate || "N/A"}`,
     margin,
     yPos
   );
@@ -130,16 +134,16 @@ export const generatePDFReceipt = (data: any) => {
   }
 
   // Family Information
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("FAMILY INFORMATION", margin, yPos);
-  yPos += 8;
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Wife's Name: ${data.wifeName || "N/A"}`, margin, yPos);
-  yPos += 6;
-  doc.text(`Number of Children: ${data.numberOfChildren || 0}`, margin, yPos);
-  yPos += 10;
+  // doc.setFontSize(12);
+  // doc.setFont("helvetica", "bold");
+  // doc.text("FAMILY INFORMATION", margin, yPos);
+  // yPos += 8;
+  // doc.setFontSize(10);
+  // doc.setFont("helvetica", "normal");
+  // doc.text(`Wife's Name: ${data.wifeName || "N/A"}`, margin, yPos);
+  // yPos += 6;
+  // doc.text(`Number of Children: ${data.numberOfChildren || 0}`, margin, yPos);
+  // yPos += 10;
 
   // Password
   if (data.password) {

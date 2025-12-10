@@ -19,6 +19,7 @@ const SuccessPage = () => {
   };
 
   const handleDownloadReceipt = () => {
+    console.log(data)
     if (data?.id) {
       generatePDFReceipt(data);
     }

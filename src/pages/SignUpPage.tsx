@@ -70,6 +70,7 @@ const SignUpPage = () => {
               message: t("auth.nationalIdError"),
             },
           }}
+          isNationalId={true}
         />
 
         {/* Buttons */}

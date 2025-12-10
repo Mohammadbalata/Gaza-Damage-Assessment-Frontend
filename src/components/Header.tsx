@@ -12,13 +12,13 @@ const Header = () => {
         <div className="flex items-center gap-3">
           <Building2 className="w-10 h-10 text-white drop-shadow" />
           <div>
-            <h1 className="text-2xl font-bold tracking-wide">
+            <h1 className="text-xl font-bold tracking-wide">
               {t("app.title")}
             </h1>
             <p className="text-sm text-primary-light">{t("app.subtitle")}</p>
           </div>
         </div>
-        {isAuthenticated || token && (
+        {(isAuthenticated || token )&& (
           <button
             onClick={logout}
             className="flex justify-center items-center bg-white text-primary font-semibold px-5 py-2 rounded-lg shadow hover:bg-red-500 hover:text-white transition-colors duration-200"

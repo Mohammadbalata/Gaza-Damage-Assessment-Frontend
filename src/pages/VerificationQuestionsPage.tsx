@@ -40,7 +40,7 @@ const VerificationQuestionsPage = () => {
   } = useForm<FormData>();
 
   useEffect(() => {
-    if (verificationQuestion.length === 0) {
+    if (verificationQuestion?.length === 0) {
       setLoading(true);
       dispatch(signUp({ nationalId: id, password: "" ,pathSignUp : 'verify-questions'}))
         .unwrap()
