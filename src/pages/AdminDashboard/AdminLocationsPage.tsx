@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Chip } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Box,
@@ -36,14 +37,10 @@ import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import {
-  useDelete,
-  useGet,
-  usePatch,
-  usePost,
-} from "../../hooks/api/useApi";
+import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
+// import { LOCATION_STYLES } from "../../utils/locationStyles";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -81,6 +78,28 @@ const MapClickSelector = ({ onSelect }: MapClickSelectorProps) => {
   });
   return null;
 };
+const locationColors: Record<string, any> = {
+  before_war: {
+    bgcolor: "rgba(183, 28, 28, 0.12)",
+    color: "#b71c1c",
+    fontWeight: 600,
+  },
+  after_war: {
+    bgcolor: "rgba(255, 143, 0, 0.12)",
+    color: "#ff8f00",
+    fontWeight: 600,
+  },
+  temporary: {
+    bgcolor: "rgba(2, 136, 209, 0.12)",
+    color: "#0288d1",
+    fontWeight: 600,
+  },
+  current: {
+    bgcolor: "rgba(46, 125, 50, 0.12)",
+    color: "#2e7d32",
+    fontWeight: 600,
+  },
+};
 
 export function AdminLocationsPage() {
   const { t, language } = useLanguage();
@@ -98,6 +117,13 @@ export function AdminLocationsPage() {
     open: boolean;
     id: number | null;
   }>({ open: false, id: null });
+
+  const locationTypes = [
+    { id: 1, value: "before_war", label: t("admin.locations.beforeWar") },
+    { id: 2, value: "after_war", label: t("admin.locations.afterWar") },
+    { id: 3, value: "temporary", label: t("admin.locations.temporary") },
+    { id: 4, value: "current", label: t("admin.locations.current") },
+  ];
 
   // Form
   const {
@@ -296,10 +322,7 @@ export function AdminLocationsPage() {
           <Button
             variant="contained"
             startIcon={
-              <Plus
-                className={`${language == "ar" ? "ml-2" : ""}`}
-                size={20}
-              />
+              <Plus className={`${language == "ar" ? "ml-2" : ""}`} size={20} />
             }
             onClick={openCreateDialog}
           >
@@ -361,11 +384,18 @@ export function AdminLocationsPage() {
                       {location.citizen?.national_id}
                     </Typography>
                   </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ textTransform: "capitalize" }}
-                  >
-                    {location.type.replace("_", " ")}
+                  <TableCell align="center">
+                    <Chip
+                      label={location.type.replace("_", " ")}
+                      sx={{
+                        ...locationColors[location.type],
+                        textTransform: "capitalize",
+                        borderRadius: "6px",
+                        px: 1.5,
+                        py: 0.5,
+                        fontSize: "0.8rem",
+                      }}
+                    />
                   </TableCell>
                   <TableCell align="center">
                     {[location.governorate, location.town, location.street]
@@ -380,9 +410,7 @@ export function AdminLocationsPage() {
                         </Typography>
                         <MuiLink
                           component={Link}
-                          to={
-                            `/admin/locations/map?lat=${location.latitude}&lng=${location.longitude}`
-                          }
+                          to={`/admin/locations/map?lat=${location.latitude}&lng=${location.longitude}`}
                           variant="caption"
                           sx={{ display: "block", mt: 0.5 }}
                         >
@@ -393,7 +421,6 @@ export function AdminLocationsPage() {
                       "-"
                     )}
                   </TableCell>
-
                   {canManage && (
                     <TableCell align="center">
                       <Box>
@@ -442,9 +469,7 @@ export function AdminLocationsPage() {
         fullWidth
       >
         <DialogTitle>
-          {editing
-            ? t("admin.locations.update")
-            : t("admin.locations.create")}
+          {editing ? t("admin.locations.update") : t("admin.locations.create")}
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
@@ -467,18 +492,15 @@ export function AdminLocationsPage() {
                 label={t("admin.locations.formType")}
                 select
               >
-                <MenuItem value="before_war">
-                  {t("admin.locations.beforeWar")}
-                </MenuItem>
-                <MenuItem value="after_war">
-                  {t("admin.locations.afterWar")}
-                </MenuItem>
-                <MenuItem value="temporary">
-                  {t("admin.locations.temporary")}
-                </MenuItem>
-                <MenuItem value="current">
-                  {t("admin.locations.current")}
-                </MenuItem>
+                {locationTypes.map((type) => (
+                  <MenuItem
+                    key={type.id}
+                    value={type.value}
+                    sx={locationColors[type.value]}
+                  >
+                    {type.label}
+                  </MenuItem>
+                ))}
               </FormTextField>
               <FormTextField
                 control={control}
@@ -495,7 +517,9 @@ export function AdminLocationsPage() {
                 name="street"
                 label={t("admin.locations.street")}
               />
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+              <Box
+                sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
+              >
                 <FormTextField
                   control={control}
                   name="block_number"
@@ -535,7 +559,11 @@ export function AdminLocationsPage() {
               <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
                 {t("admin.selectOnMap")}
               </Typography>
-              <Typography variant="caption" color="textSecondary" sx={{ mb: 2, display: "block" }}>
+              <Typography
+                variant="caption"
+                color="textSecondary"
+                sx={{ mb: 2, display: "block" }}
+              >
                 {t("admin.selectOnMapHelp")}
               </Typography>
               <Box
@@ -568,7 +596,11 @@ export function AdminLocationsPage() {
                 </MapContainer>
               </Box>
               {latitude && longitude && (
-                <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: "block" }}>
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  sx={{ mt: 1, display: "block" }}
+                >
                   {t("admin.coordinates")}: {latitude}, {longitude}
                 </Typography>
               )}

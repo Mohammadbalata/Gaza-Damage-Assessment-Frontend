@@ -26,7 +26,7 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { adminApi, Application, Citizen, Location } from "../../services/api";
+import { adminApi, Application, Citizen } from "../../services/api";
 import { applicationSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -51,6 +51,7 @@ export function AdminApplicationsPage() {
 
   const canManage = hasRole("admin");
   const canView = hasRole("admin", "supervisor");
+  const canEditApplication = hasRole("supervisor");
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
@@ -65,6 +66,7 @@ export function AdminApplicationsPage() {
   const [citizenOptions, setCitizenOptions] = useState<Citizen[]>([]);
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
   const [citizenLoading, setCitizenLoading] = useState(false);
+  const isEdit = Boolean(selectedCitizen);
 
   // Form
   const {
@@ -91,9 +93,9 @@ export function AdminApplicationsPage() {
     immediate: true,
   });
 
-  const { data: locations } = useGet<Location[]>("/locations", {
-    immediate: true,
-  });
+  // const { data: locations } = useGet<Location[]>("/locations", {
+  //   immediate: true,
+  // });
 
   const { loading: loadingDeleteApplication, execute } = useDelete({
     onSuccess: () => {
@@ -372,7 +374,7 @@ export function AdminApplicationsPage() {
                 <TableCell align="center">
                   {t("admin.applications.updated")}
                 </TableCell>
-                {canManage && (
+                {(canManage || canEditApplication) && (
                   <TableCell align="center">{t("admin.actions")}</TableCell>
                 )}
               </TableRow>
@@ -431,6 +433,24 @@ export function AdminApplicationsPage() {
                       </Box>
                     </TableCell>
                   )}
+                  {canEditApplication && (
+                    <TableCell align="center">
+                      <Box>
+                        <Button
+                          size="small"
+                          startIcon={
+                            <Edit2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
+                          onClick={() => openEditDialog(application)}
+                        >
+                          {t("common.edit")}
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -453,10 +473,14 @@ export function AdminApplicationsPage() {
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
             {/* Citizen Search Autocomplete */}
-            <Box>
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                {t("admin.applications.citizen")}
-              </Typography>
+            {isEdit ? (
+              <TextField
+                label={t("admin.applications.citizen")}
+                value={`${selectedCitizen?.full_name} (${selectedCitizen?.national_id})`}
+                disabled
+                fullWidth
+              />
+            ) : (
               <Autocomplete
                 options={citizenOptions}
                 getOptionLabel={(option) =>
@@ -477,6 +501,7 @@ export function AdminApplicationsPage() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
+                    label={t("admin.applications.citizen")}
                     placeholder={
                       t("admin.applications.searchCitizenPlaceholder") ||
                       "Search by name or national ID"
@@ -485,32 +510,20 @@ export function AdminApplicationsPage() {
                       ...params.InputProps,
                       endAdornment: (
                         <>
-                          {citizenLoading ? (
+                          {citizenLoading && (
                             <CircularProgress color="inherit" size={20} />
-                          ) : null}
+                          )}
                           {params.InputProps.endAdornment}
                         </>
                       ),
                     }}
                   />
                 )}
-                renderOption={(props, option) => (
-                  <li {...props} key={option.id}>
-                    <Box>
-                      <Typography variant="body2">
-                        {option.full_name || option.first_name || "-"}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        #{option.id} — {option.national_id}
-                      </Typography>
-                    </Box>
-                  </li>
-                )}
               />
-            </Box>
+            )}
 
             {/* Location Select */}
-            <FormTextField
+            {/* <FormTextField
               control={control}
               name="locationId"
               label={t("admin.applications.location")}
@@ -523,7 +536,7 @@ export function AdminApplicationsPage() {
                   {loc.street ? `- ${loc.street}` : ""} (#{loc.id})
                 </MenuItem>
               ))}
-            </FormTextField>
+            </FormTextField> */}
 
             {/* Status Select */}
             <FormTextField

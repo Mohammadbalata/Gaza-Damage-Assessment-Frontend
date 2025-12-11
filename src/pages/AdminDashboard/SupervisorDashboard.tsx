@@ -1,193 +1,323 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  Chip,
+  Paper,
+  Button,
+} from "@mui/material";
+import {
+  Description as ApplicationsIcon,
+  PersonOutline as CitizensIcon,
+  LocationOn as LocationsIcon,
+  ArrowBack,
+} from "@mui/icons-material";
+import { useGet } from "../../hooks/api/useApi";
+import { useNotification } from "../../hooks/useNotifications";
+import LoadingSpinner from "../../components/Shared/LoadingSpinner";
+import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { adminApi } from "../../services/api";
-import { FileText, IdCard, MapPinned } from "lucide-react";
 
-const SupervisorDashboard = () => {
+/**
+ * Supervisor Dashboard Page
+ * لوحة تحكم المشرف
+ */
+const SupervisorDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showError } = useNotification();
   const [totals, setTotals] = useState({
     applications: 0,
     citizens: 0,
     locations: 0,
   });
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [appsRes, citizensRes, locationsRes] = await Promise.all([
-          adminApi.listApplications({ page: 1, pageSize: 1 }),
-          adminApi.listCitizens({ page: 1, pageSize: 1 }),
-          adminApi.listLocations({ page: 1, pageSize: 1 }),
-        ]);
+  const { loading, error } = useGet("supervisor-dashboard", {
+    immediate: true,
+    onSuccess: (data) => {
+      setTotals({
+        applications: data.applications?.length || 0,
+        citizens: data.citizens?.length || 0,
+        locations: data.locations?.length || 0,
+      });
+    },
+  });
 
-        setTotals({
-          applications: appsRes.length,
-          citizens: citizensRes.length,
-          locations: locationsRes.length,
-        });
-      } catch (e: any) {
-        setError(e?.message || "Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (error) {
+    showError(error);
+  }
 
-    load();
-  }, []);
+  /**
+   * Dashboard card configuration
+   */
+  interface DashboardCardConfig {
+    key: string;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    color: "info" | "success" | "warning";
+    value: number;
+    route: string;
+  }
+
+  const dashboardCards: DashboardCardConfig[] = [
+    {
+      key: "applications",
+      title: t("admin.applications"),
+      description:
+        t("admin.supervisorApplicationsDescription") ||
+        "View applications with limited permissions.",
+      icon: <ApplicationsIcon sx={{ fontSize: 40 }} />,
+      color: "info",
+      value: totals.applications,
+      route: "/admin/applications",
+    },
+    {
+      key: "citizens",
+      title: t("admin.citizens"),
+      description:
+        t("admin.supervisorCitizensDescription") ||
+        "View-only access to citizen records.",
+      icon: <CitizensIcon sx={{ fontSize: 40 }} />,
+      color: "success",
+      value: totals.citizens,
+      route: "/admin/citizens",
+    },
+    {
+      key: "locations",
+      title: t("admin.locations"),
+      description:
+        t("admin.supervisorLocationsDescription") ||
+        "View-only access to citizen locations.",
+      icon: <LocationsIcon sx={{ fontSize: 40 }} />,
+      color: "warning",
+      value: totals.locations,
+      route: "/admin/locations",
+    },
+  ];
 
   return (
-    <>
-      {loading ? (
-        <div className="flex items-center justify-center h-full">
-          <div className="loader">Loading...</div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">
-                {t("admin.supervisorDashboard") || "Supervisor Dashboard"}
-              </h1>
-              <p className="text-sm text-gray-500">
-                {user
-                  ? `${t("admin.welcomeBack") || "Welcome back"}, ${user.name}`
-                  : ""}
-              </p>
-            </div>
-            <div className="text-sm text-gray-600">
-              {t("admin.role")}:{" "}
-              <span className="font-semibold capitalize">
-                {t("common.supervisor")}
-              </span>
-            </div>
-          </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 5 }}>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", md: "center" }}
+          spacing={2}
+        >
+          <Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {t("admin.supervisorDashboard") || "Supervisor Dashboard"}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {t("admin.welcomeBack")}, {user?.name}
+            </Typography>
+          </Box>
+          <Chip
+            label={t("common.supervisor")}
+            color="info"
+            variant="outlined"
+            size="small"
+          />
+        </Stack>
+      </Box>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <div className="card space-y-4">
-              <div className="flex items-center justify-between">
-                <div
-                  onClick={() => navigate("/admin/applications")}
-                  className="flex items-center gap-3"
-                >
-                  <div className=" w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                    <FileText className="hover:cursor-pointer w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-                      {t("admin.applications")}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      {t("admin.supervisorApplicationsDescription") ||
-                        "View applications with limited permissions."}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Total:{" "}
-                  <span className="font-semibold">
-                    {totals.applications.toLocaleString()}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div className="card space-y-4">
-              <div className="flex items-center justify-between">
-                <div
-                  onClick={() => navigate("/admin/citizens")}
-                  className="flex items-center gap-3"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                    <IdCard className="hover:cursor-pointer w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-                      {t("admin.citizens")}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      {t("admin.supervisorCitizensDescription") ||
-                        "View-only access to citizen records."}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Total:{" "}
-                  <span className="font-semibold">
-                    {totals.citizens.toLocaleString()}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div className="card space-y-4">
-              <div
-                onClick={() => navigate("/admin/locations")}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-primary">
-                    <MapPinned className="hover:cursor-pointer w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="hover:underline hover:cursor-pointer text-xl font-semibold">
-                      {t("admin.locations")}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      {t("admin.supervisorLocationsDescription") ||
-                        "View-only access to citizen locations."}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Total:{" "}
-                  <span className="font-semibold">
-                    {totals.locations.toLocaleString()}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            {/* <div className="card space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary-light/10 flex items-center justify-center text-red-500">
-                <ShieldAlert className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold">{t('admin.users')}</h2>
-                <p className="text-sm text-gray-500">
-                  {t('admin.noUsersAccess')}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="btn-outline cursor-not-allowed opacity-60"
-            disabled
-          >
-            {t('admin.noAccess')}
-          </button>
-        </div> */}
-          </div>
-        </div>
+      {/* Loading State */}
+      {loading && (
+        <Box sx={{ py: 8 }}>
+          <LoadingSpinner message="جاري تحميل بيانات لوحة التحكم..." />
+        </Box>
       )}
-    </>
+
+      {/* Dashboard Content */}
+      {!loading && (
+        <>
+          {/* Dashboard Cards Grid */}
+          <Grid container spacing={3} sx={{ mb: 5 }}>
+            {dashboardCards.map((card) => (
+              <Grid key={card.key}>
+                <DashboardCard card={card} onNavigate={navigate} />
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Quick Access Section */}
+          <Paper
+            elevation={1}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
+              mb: 3,
+            }}
+          >
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  {t("admin.mostImportantTasks")}
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {t("admin.mostImportantTasksDescription")}
+                </Typography>
+              </Box>
+              <Box className="flex justify-start items-center gap-4">
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  size="small"
+                  startIcon={<ApplicationsIcon />}
+                  onClick={() => navigate("/admin/applications")}
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: 600,
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
+                  }}
+                >
+                  {t("admin.reviewApplications")}
+                </Button>
+              </Box>
+            </Stack>
+          </Paper>
+        </>
+      )}
+    </Container>
+  );
+};
+
+/**
+ * Dashboard Card Component
+ * مكون بطاقة لوحة التحكم
+ */
+interface DashboardCardProps {
+  card: {
+    key: string;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    color: "info" | "success" | "warning";
+    value: number;
+    route: string;
+  };
+  onNavigate: (route: string) => void;
+}
+
+const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
+  const { t, language } = useLanguage();
+
+  const colorMap = {
+    info: { bg: "info.light", text: "info.main", hover: "#e0f2f1" },
+    success: { bg: "success.light", text: "success.main", hover: "#e8f5e9" },
+    warning: { bg: "warning.light", text: "warning.main", hover: "#fff3e0" },
+  };
+
+  const color = colorMap[card.color];
+
+  return (
+    <Card
+      onClick={() => onNavigate(card.route)}
+      sx={{
+        cursor: "pointer",
+        height: "100%",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        border: "1px solid #f0f0f0",
+        "&:hover": {
+          boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
+          transform: "translateY(-4px)",
+          backgroundColor: color.hover,
+        },
+      }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Stack spacing={2}>
+          {/* Icon and Value */}
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+                backgroundColor: color.bg,
+                color: color.text,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {card.icon}
+            </Box>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                color: color.text,
+              }}
+            >
+              {formatNumber(card.value)}
+            </Typography>
+          </Stack>
+
+          {/* Title and Description */}
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                mb: 0.5,
+                color: "text.primary",
+              }}
+            >
+              {card.title}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ lineHeight: 1.4 }}
+            >
+              {card.description}
+            </Typography>
+          </Box>
+
+          {/* Action Link */}
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={0.5}
+            sx={{
+              mt: 1,
+              pt: 1,
+              borderTop: "1px solid #f0f0f0",
+              color: color.text,
+              fontWeight: 600,
+              fontSize: "0.875rem",
+              "&:hover": {
+                gap: "8px",
+              },
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {t("common.goToPage")}
+            </Typography>
+            <ArrowBack
+              className={`${language == "en" ? "rotate-180" : ""} `}
+              sx={{ fontSize: 20, transition: "margin 0.2s" }}
+            />
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -149,7 +149,7 @@ const AdminDashboard: React.FC = () => {
           {/* Dashboard Cards Grid */}
           <Grid container spacing={3} sx={{ mb: 5 }}>
             {dashboardCards.map((card) => (
-              <Grid  key={card.key}>
+              <Grid key={card.key}>
                 <DashboardCard card={card} onNavigate={navigate} />
               </Grid>
             ))}
@@ -188,7 +188,7 @@ const AdminDashboard: React.FC = () => {
                     "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
                   }}
                 >
-                 {t("admin.reviewApplications")}
+                  {t("admin.reviewApplications")}
                 </Button>
                 {user?.role === "admin" && (
                   <Button
@@ -203,7 +203,7 @@ const AdminDashboard: React.FC = () => {
                       "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
                     }}
                   >
-                   {t("admin.addUser")}
+                    {t("admin.addUser")}
                   </Button>
                 )}
                 {user?.role === "admin" && (
@@ -228,7 +228,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* Statistics Summary */}
           <Grid container spacing={2}>
-            <Grid  >
+            <Grid>
               <StatisticCard
                 label={t("admin.totalUsers")}
                 value={totals.users}
@@ -285,9 +285,8 @@ interface DashboardCardProps {
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
+  const { t, language } = useLanguage();
 
-  const {t,language} = useLanguage();
-  
   const colorMap = {
     primary: { bg: "primary.light", text: "primary.main", hover: "#e3f2fd" },
     info: { bg: "info.light", text: "info.main", hover: "#e0f2f1" },
@@ -383,9 +382,12 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
-             {t("common.goToPage")}
+              {t("common.goToPage")}
             </Typography>
-            <ArrowBack className={`${language =='en' ? "rotate-180":""} `} sx={{ fontSize: 20, transition: "margin 0.2s" }} />
+            <ArrowBack
+              className={`${language == "en" ? "rotate-180" : ""} `}
+              sx={{ fontSize: 20, transition: "margin 0.2s" }}
+            />
           </Stack>
         </Stack>
       </CardContent>

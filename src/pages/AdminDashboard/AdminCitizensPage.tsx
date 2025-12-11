@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -24,7 +24,7 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { adminApi, Citizen } from "../../services/api";
+import { Citizen } from "../../services/api";
 import { citizenSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
