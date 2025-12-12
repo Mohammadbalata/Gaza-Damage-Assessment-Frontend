@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Chip } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useForm, Resolver, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Box,
+  Chip,
   Container,
   Button,
   TextField,
@@ -23,27 +23,27 @@ import {
   Stack,
   MenuItem,
   Link as MuiLink,
+  Autocomplete,
 } from "@mui/material";
 import { Plus, Trash2, Edit2, Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Location } from "../../services/api";
-import { locationSchema } from "../../services/validation";
-import FormTextField from "../../components/Shared/FormTextField";
+import { Citizen, Location } from "../../services/api";
+import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
-// import { LOCATION_STYLES } from "../../utils/locationStyles";
+import MapContainer from "../../components/MapContainer";
+import { locationSchema } from "../../services/validation";
 
 // Fix default marker icons for Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -54,31 +54,12 @@ L.Icon.Default.mergeOptions({
 });
 
 interface LocationFormData {
-  citizenId: number;
   type: Location["type"];
-  governorate?: string;
-  town?: string;
-  street?: string;
-  block_number?: string;
-  house_number?: string;
-  latitude?: number;
-  longitude?: number;
   notes?: string;
+  citizenId?: number;
 }
 
-interface MapClickSelectorProps {
-  onSelect: (lat: number, lng: number) => void;
-}
-
-const MapClickSelector = ({ onSelect }: MapClickSelectorProps) => {
-  useMapEvents({
-    click(e) {
-      onSelect(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-};
-const locationColors: Record<string, any> = {
+const locationColors: Record<string, object> = {
   before_war: {
     bgcolor: "rgba(183, 28, 28, 0.12)",
     color: "#b71c1c",
@@ -113,10 +94,20 @@ export function AdminLocationsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
   const [search, setSearch] = useState("");
+  const [citizenSearch, setCitizenSearch] = useState("");
+  const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
+
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
     id: number | null;
   }>({ open: false, id: null });
+
+  const [position, setPosition] = useState<[number, number] | null>();
+  const [address, setAddress] = useState("");
+
+  // Default center: Gaza City
+  const defaultCenter: [number, number] = [31.3547, 34.3088];
+  const center = position || defaultCenter;
 
   const locationTypes = [
     { id: 1, value: "before_war", label: t("admin.locations.beforeWar") },
@@ -130,27 +121,16 @@ export function AdminLocationsPage() {
     control,
     handleSubmit,
     reset,
-    watch,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<LocationFormData>({
-    resolver: yupResolver(locationSchema),
+    resolver: yupResolver(locationSchema) as unknown as Resolver<LocationFormData>,
     defaultValues: {
-      citizenId: 0,
+      citizenId: undefined,
       type: "current",
-      governorate: "",
-      town: "",
-      street: "",
-      block_number: "",
-      house_number: "",
-      latitude: undefined,
-      longitude: undefined,
       notes: "",
     },
   });
-
-  const latitude = watch("latitude");
-  const longitude = watch("longitude");
 
   const {
     loading,
@@ -172,6 +152,11 @@ export function AdminLocationsPage() {
       showError(error || t("error.deleteLocation"));
     },
   });
+
+  const { data: citizenOptions, loading: citizenLoading } = useGet(
+    `/citizens`,
+    { immediate: true }
+  );
 
   const { loading: loadingCreateLocation, execute: executeCreateLocation } =
     usePost("/locations", {
@@ -201,20 +186,33 @@ export function AdminLocationsPage() {
       },
     });
 
+  useEffect(() => {
+    if (position) {
+      // Reverse geocoding
+      fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setAddress(data.display_name || "Location selected");
+        })
+        .catch(() => {
+          // setAddress(
+          //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
+          // );
+          setAddress("");
+        });
+    }
+  }, [position]);
+
   // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
+    setPosition(null);
     reset({
-      citizenId: 0,
       type: "current",
-      governorate: "",
-      town: "",
-      street: "",
-      block_number: "",
-      house_number: "",
-      latitude: undefined,
-      longitude: undefined,
       notes: "",
+      citizenId: undefined,
     });
     setIsDialogOpen(true);
   };
@@ -222,36 +220,30 @@ export function AdminLocationsPage() {
   // Open edit dialog
   const openEditDialog = (location: Location) => {
     setEditing(location);
+    setPosition([location?.latitude || 0, location?.longitude || 0]);
+    setSelectedCitizen(
+      citizenOptions.filter(
+        (c: Citizen) => c.id === location?.citizen?.id
+      )[0] || null
+    );
     reset({
-      citizenId: location.citizenId,
       type: location.type,
-      governorate: location.governorate || "",
-      town: location.town || "",
-      street: location.street || "",
-      block_number: location.block_number || "",
-      house_number: location.house_number || "",
-      latitude: location.latitude || undefined,
-      longitude: location.longitude || undefined,
       notes: location.notes || "",
+      citizenId: location?.citizen?.id,
     });
     setIsDialogOpen(true);
   };
 
   // Handle submit
-  const onSubmit = async (data: LocationFormData) => {
+  const onSubmit = async (data: LocationFormData & { citizenId?: number }) => {
     const payload = {
-      citizenId: data.citizenId,
+      citizenId: editing ? data.citizenId : selectedCitizen?.id,
       type: data.type,
-      governorate: data.governorate || null,
-      town: data.town || null,
-      street: data.street || null,
-      block_number: data.block_number || null,
-      house_number: data.house_number || null,
-      latitude: data.latitude ?? null,
-      longitude: data.longitude ?? null,
+      governorate: address || null,
+      latitude: position ? position[0] : null,
+      longitude: position ? position[1] : null,
       notes: data.notes || null,
     };
-
     if (editing) {
       executeUpdateLocation(`/locations/${editing.id}`, payload);
     } else {
@@ -469,7 +461,8 @@ export function AdminLocationsPage() {
         fullWidth
       >
         <DialogTitle>
-          {editing ? t("admin.locations.update") : t("admin.locations.create")}
+          {editing ? t("admin.locations.update") : t("admin.locations.create")}{" "}
+          {editing?.applicationId}
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
@@ -479,81 +472,88 @@ export function AdminLocationsPage() {
                 gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
                 gap: 2,
               }}
+            ></Box>
+
+            {/* <FormTextField
+              control={control}
+              name="citizenId"
+              label={t("admin.locations.citizenId")}
+              select
             >
-              <FormTextField
-                control={control}
-                name="citizenId"
-                label={t("admin.locations.citizenId")}
-                type="number"
+              {citizens?.map((citizen: Citizen) => (
+                <MenuItem key={citizen.id} value={citizen.id}>
+                  {citizen.full_name} - {citizen.national_id}
+                </MenuItem>
+              ))}
+            </FormTextField> */}
+
+            {editing ? (
+              <TextField
+                label={t("admin.applications.citizen")}
+                value={`${selectedCitizen?.full_name ?? "----"} (${
+                  selectedCitizen?.national_id
+                })`}
+                disabled
+                fullWidth
               />
-              <FormTextField
-                control={control}
-                name="type"
-                label={t("admin.locations.formType")}
-                select
-              >
-                {locationTypes.map((type) => (
-                  <MenuItem
-                    key={type.id}
-                    value={type.value}
-                    sx={locationColors[type.value]}
-                  >
-                    {type.label}
-                  </MenuItem>
-                ))}
-              </FormTextField>
-              <FormTextField
-                control={control}
-                name="governorate"
-                label={t("admin.locations.governorate")}
+            ) : (
+              <Autocomplete
+                options={citizenOptions}
+                getOptionLabel={(option) =>
+                  `${option.full_name || option.first_name || ""} (${
+                    option.national_id
+                  })`
+                }
+                loading={citizenLoading}
+                value={selectedCitizen}
+                onChange={(_, newValue) => {
+                  setSelectedCitizen(newValue);
+                  setValue("citizenId", newValue?.id || 0);
+                }}
+                inputValue={citizenSearch}
+                onInputChange={(_, newInputValue) => {
+                  setCitizenSearch(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t("admin.applications.citizen")}
+                    placeholder={
+                      t("admin.applications.searchCitizenPlaceholder") ||
+                      "Search by name or national ID"
+                    }
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {citizenLoading && (
+                            <CircularProgress color="inherit" size={20} />
+                          )}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
               />
-              <FormTextField
-                control={control}
-                name="town"
-                label={t("admin.locations.town")}
-              />
-              <FormTextField
-                control={control}
-                name="street"
-                label={t("admin.locations.street")}
-              />
-              <Box
-                sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
-              >
-                <FormTextField
-                  control={control}
-                  name="block_number"
-                  label={t("admin.locations.block")}
-                />
-                <FormTextField
-                  control={control}
-                  name="house_number"
-                  label={t("admin.locations.house")}
-                />
-              </Box>
-              <FormTextField
-                control={control}
-                name="latitude"
-                label={t("admin.locations.latitude")}
-                type="number"
-                inputProps={{ step: "0.0000001" }}
-              />
-              <FormTextField
-                control={control}
-                name="longitude"
-                label={t("admin.locations.longitude")}
-                type="number"
-                inputProps={{ step: "0.0000001" }}
-              />
-            </Box>
+            )}
 
             <FormTextField
               control={control}
-              name="notes"
-              label={t("admin.locations.notes")}
-              multiline
-              rows={3}
-            />
+              name="type"
+              label={t("admin.locations.formType")}
+              select
+            >
+              {locationTypes.map((type) => (
+                <MenuItem
+                  key={type.id}
+                  value={type.value}
+                  sx={locationColors[type.value]}
+                >
+                  {type.label}
+                </MenuItem>
+              ))}
+            </FormTextField>
 
             <Box>
               <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
@@ -566,9 +566,10 @@ export function AdminLocationsPage() {
               >
                 {t("admin.selectOnMapHelp")}
               </Typography>
+
               <Box
                 sx={{
-                  height: 256,
+                  height: 400,
                   borderRadius: 1,
                   overflow: "hidden",
                   border: 1,
@@ -576,35 +577,24 @@ export function AdminLocationsPage() {
                 }}
               >
                 <MapContainer
-                  center={[31.5, 34.3]}
-                  zoom={12}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <MapClickSelector
-                    onSelect={(lat, lng) => {
-                      setValue("latitude", Number(lat.toFixed(7)));
-                      setValue("longitude", Number(lng.toFixed(7)));
-                    }}
-                  />
-                  {latitude && longitude && (
-                    <Marker position={[latitude, longitude]} />
-                  )}
-                </MapContainer>
+                  center={center}
+                  zoom={15}
+                  markerPosition={position}
+                  setMarkerPosition={setPosition}
+                  height="100%"
+                  width="100%"
+                  {...{ setAddress }}
+                />
               </Box>
-              {latitude && longitude && (
-                <Typography
-                  variant="caption"
-                  color="textSecondary"
-                  sx={{ mt: 1, display: "block" }}
-                >
-                  {t("admin.coordinates")}: {latitude}, {longitude}
-                </Typography>
-              )}
             </Box>
+
+            <FormTextField
+              control={control}
+              name="notes"
+              label={t("admin.locations.notes")}
+              multiline
+              rows={3}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -612,7 +602,7 @@ export function AdminLocationsPage() {
             {t("common.cancel")}
           </Button>
           <Button
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit(onSubmit as SubmitHandler<LocationFormData>)}
             variant="contained"
             disabled={
               isSubmitting || loadingCreateLocation || loadingUpdateLocation

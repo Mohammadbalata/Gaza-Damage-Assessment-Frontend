@@ -44,7 +44,7 @@ interface UserFormData {
 
 export function AdminUsersPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
+  const { user: authUser, hasRole } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
@@ -64,9 +64,9 @@ export function AdminUsersPage() {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<UserFormData>({
-    resolver: yupResolver(userSchema),
+    resolver: yupResolver(userSchema) as any,
     defaultValues: {
       name: "",
       email: "",
@@ -299,6 +299,7 @@ export function AdminUsersPage() {
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: "grey.100" }}>
+                <TableCell align="center">{t("admin.users.id")}</TableCell>
                 <TableCell align="center">{t("admin.users.name")}</TableCell>
                 <TableCell align="center">{t("admin.users.email")}</TableCell>
                 <TableCell align="center">{t("admin.users.role")}</TableCell>
@@ -311,59 +312,77 @@ export function AdminUsersPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredUsers?.map((user: AdminUser) => (
-                <TableRow
-                  key={user.id}
-                  hover
-                  sx={{ "&:last-child td": { border: 0 } }}
-                >
-                  <TableCell align="center">{user.name}</TableCell>
-                  <TableCell align="center">{user.email}</TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ textTransform: "capitalize" }}
+              <TableRow>
+                <TableCell align="center">{authUser?.id}</TableCell>
+                <TableCell align="center">{authUser?.name}</TableCell>
+                <TableCell align="center">{authUser?.email}</TableCell>
+                <TableCell align="center">{authUser?.role}</TableCell>
+                <TableCell align="center">
+                  {new Date(authUser?.createdAt || "").toDateString()}
+                </TableCell>
+                <TableCell align="center"></TableCell>
+              </TableRow>
+              {filteredUsers
+                ?.sort((a, b) => a.id - b.id)
+                ?.map((user: AdminUser) => (
+                  <>
+                  {authUser?.id !== user.id && 
+                  <TableRow
+                    key={user.id}
+                    hover
+                    sx={{ "&:last-child td": { border: 0 } }}
                   >
-                    {user.role}
-                  </TableCell>
-                  <TableCell align="center">
-                    {new Date(user.createdAt).toDateString()}
-                  </TableCell>
-
-                  {canManage && (
-                    <TableCell align="center">
-                      <Box>
-                        <Button
-                          size="small"
-                          startIcon={
-                            <Edit2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() => openEditDialog(user)}
-                        >
-                          {t("common.edit")}
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={
-                            <Trash2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() =>
-                            setDeleteConfirm({ open: true, id: user.id })
-                          }
-                        >
-                          {t("common.delete")}
-                        </Button>
-                      </Box>
+                    <TableCell align="center">{user.id}</TableCell>
+                    <TableCell align="center">{user.name}</TableCell>
+                    <TableCell align="center">{user.email}</TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ textTransform: "capitalize" }}
+                    >
+                      {user.role}
                     </TableCell>
-                  )}
-                </TableRow>
-              ))}
+                    <TableCell align="center">
+                      {new Date(user.createdAt).toDateString()}
+                    </TableCell>
+
+                    {canManage && (
+                      <TableCell align="center">
+                        <Box>
+                          <Button
+                            size="small"
+                            startIcon={
+                              <Edit2
+                                className={`${language == "ar" ? "ml-2" : ""}`}
+                                size={16}
+                              />
+                            }
+                            onClick={() => openEditDialog(user)}
+                          >
+                            {t("common.edit")}
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            startIcon={
+                              <Trash2
+                                className={`${language == "ar" ? "ml-2" : ""}`}
+                                size={16}
+                              />
+                            }
+                            onClick={() =>
+                              setDeleteConfirm({ open: true, id: user.id })
+                            }
+                          >
+                            {t("common.delete")}
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                  }
+                  </>
+                  
+                ))}
             </TableBody>
           </Table>
         )}
@@ -418,7 +437,7 @@ export function AdminUsersPage() {
             {t("common.cancel")}
           </Button>
           <Button
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit(onSubmit as any)}
             variant="contained"
             disabled={isSubmitting || loadingCreateUser || loadingUpdateUser}
           >

@@ -65,9 +65,9 @@ export function AdminCitizensPage() {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<CitizenFormData>({
-    resolver: yupResolver(citizenSchema),
+    resolver: yupResolver(citizenSchema) as any,
     defaultValues: {
       national_id: "",
       first_name: "",
@@ -423,7 +423,7 @@ export function AdminCitizensPage() {
             {t("common.cancel")}
           </Button>
           <Button
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit(onSubmit as any)}
             variant="contained"
             disabled={
               isSubmitting || loadingCreateCitizen || loadingUpdateCitizen

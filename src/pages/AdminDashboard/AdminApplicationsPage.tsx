@@ -22,6 +22,7 @@ import {
   Stack,
   MenuItem,
   Autocomplete,
+  Chip,
 } from "@mui/material";
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -38,10 +39,40 @@ import { ArrowBack } from "@mui/icons-material";
 
 interface ApplicationFormData {
   citizenId: number;
-  locationId?: number;
   status: Application["status"];
   notes: string;
 }
+const applicationTypesColors: Record<string, object> = {
+  pending: {
+    bgcolor: "rgba(255, 193, 7, 0.15)", // Amber
+    color: "#FFC107",
+    fontWeight: 600,
+  },
+
+  verified: {
+    bgcolor: "rgba(33, 150, 243, 0.15)", // Blue
+    color: "#2196F3",
+    fontWeight: 600,
+  },
+
+  approved: {
+    bgcolor: "rgba(76, 175, 80, 0.15)", // Green
+    color: "#4CAF50",
+    fontWeight: 600,
+  },
+
+  rejected: {
+    bgcolor: "rgba(244, 67, 54, 0.15)", // Red
+    color: "#F44354",
+    fontWeight: 600,
+  },
+
+  closed: {
+    bgcolor: "rgba(158, 158, 158, 0.15)", // Grey
+    color: "#9E9E9E",
+    fontWeight: 600,
+  },
+};
 
 export function AdminApplicationsPage() {
   const { t, language } = useLanguage();
@@ -74,12 +105,11 @@ export function AdminApplicationsPage() {
     handleSubmit,
     reset,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<ApplicationFormData>({
-    resolver: yupResolver(applicationSchema),
+    resolver: yupResolver(applicationSchema) as any,
     defaultValues: {
       citizenId: 0,
-      locationId: undefined,
       status: "pending",
       notes: "",
     },
@@ -182,7 +212,6 @@ export function AdminApplicationsPage() {
     setEditing(null);
     reset({
       citizenId: 0,
-      locationId: undefined,
       status: "pending",
       notes: "",
     });
@@ -197,7 +226,6 @@ export function AdminApplicationsPage() {
     setEditing(application);
     reset({
       citizenId: application.citizenId,
-      locationId: application.locationId || undefined,
       status: application.status,
       notes: application.notes || "",
     });
@@ -208,6 +236,7 @@ export function AdminApplicationsPage() {
 
   // Handle submit
   const onSubmit = async (data: ApplicationFormData) => {
+
     if (editing) {
       executeUpdateApplication(`/applications/${editing.id}`, {
         ...data,
@@ -394,7 +423,17 @@ export function AdminApplicationsPage() {
                     align="center"
                     sx={{ textTransform: "capitalize" }}
                   >
-                    {application.status}
+                    <Chip
+                      label={application.status.replace("_", " ")}
+                      sx={{
+                        ...applicationTypesColors[application.status],
+                        textTransform: "capitalize",
+                        borderRadius: "6px",
+                        px: 1.5,
+                        py: 0.5,
+                        fontSize: "0.8rem",
+                      }}
+                    />
                   </TableCell>
                   <TableCell align="center">
                     {new Date(application.updatedAt).toLocaleString()}
@@ -570,7 +609,7 @@ export function AdminApplicationsPage() {
             {t("common.cancel")}
           </Button>
           <Button
-            onClick={handleSubmit(onSubmit)}
+            onClick={handleSubmit(onSubmit as any)}
             variant="contained"
             disabled={
               isSubmitting ||

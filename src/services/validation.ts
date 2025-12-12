@@ -96,7 +96,47 @@ export const applicationSchema = yup.object({
     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
 });
 
+
+// export const createLocationSchema = yup.object({
+//   citizenId: yup
+//     .number()
+//     .required("رقم المواطن مطلوب")
+//     .positive("يجب أن يكون رقم المواطن موجباً")
+//     .integer("يجب أن يكون رقم المواطن رقماً صحيحاً"),
+
+//   status: yup
+//     .string()
+//     .required("الحالة مطلوبة")
+//     .oneOf(
+//       ["pending", "verified", "approved", "rejected", "closed"],
+//       "حالة غير صحيحة"
+//     ),
+
+//   notes: yup
+//     .string()
+//     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
+// });
+
+
+// export const updateLocationSchema = yup.object().shape({
+//   citizenId: yup.number().notRequired(),
+//    status: yup
+//     .string()
+//     .required("الحالة مطلوبة")
+//     .oneOf(
+//       ["pending", "verified", "approved", "rejected", "closed"],
+//       "حالة غير صحيحة"
+//     ),
+
+//   notes: yup
+//     .string()
+//     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
+// });
+
 // Location schema
+
+
+
 export const locationSchema = yup.object({
   citizenId: yup
     .number()
@@ -111,37 +151,6 @@ export const locationSchema = yup.object({
       ["before_war", "after_war", "temporary", "current"],
       "نوع موقع غير صحيح"
     ),
-
-  governorate: yup
-    .string()
-    .optional()
-    .max(100, "يجب أن تكون المحافظة أقل من 100 حرف"),
-
-  town: yup.string().optional().max(100, "يجب أن تكون البلدة أقل من 100 حرف"),
-
-  street: yup.string().optional().max(200, "يجب أن يكون الشارع أقل من 200 حرف"),
-
-  block_number: yup
-    .string()
-    .optional()
-    .max(50, "يجب أن يكون رقم البلوك أقل من 50 حرف"),
-
-  house_number: yup
-    .string()
-    .optional()
-    .max(50, "يجب أن يكون رقم المنزل أقل من 50 حرف"),
-
-  latitude: yup
-    .number()
-    .optional()
-    .min(-90, "يجب أن يكون خط العرض بين -90 و 90")
-    .max(90, "يجب أن يكون خط العرض بين -90 و 90"),
-
-  longitude: yup
-    .number()
-    .optional()
-    .min(-180, "يجب أن يكون خط الطول بين -180 و 180")
-    .max(180, "يجب أن يكون خط الطول بين -180 و 180"),
 
   notes: yup
     .string()

@@ -1,7 +1,8 @@
 export const translations: Record<"en" | "ar", Record<string, string>> = {
   en: {
     // Common
-    "app.title": "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
+    "app.title":
+      "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
     "app.subtitle": "Khan Younis Municipality",
     "common.submit": "Submit",
     "common.logout": "Logout",
@@ -27,7 +28,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "OR",
     "common.admin": "Admin",
     "common.supervisor": "Supervisor",
-    "common.searchPlaceholder":"Search ....",
+    "common.searchPlaceholder": "Search ....",
     "common.backToDashboard": "Back to Dashboard",
     "common.goToPage": "Go to Page",
     // Auth
@@ -139,8 +140,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.rejected": "Rejected",
     "admin.closed": "Closed",
     "admin.viewDetails": "View Details",
-    "admin.mostImportantTasks":" 🎯 Most Important Tasks",
-    "admin.mostImportantTasksDescription":"Quick access to key tasks in the system",
+    "admin.mostImportantTasks": " 🎯 Most Important Tasks",
+    "admin.mostImportantTasksDescription":
+      "Quick access to key tasks in the system",
     "admin.approve": "Approve",
     "admin.reject": "Reject",
     "admin.rejectionReason": "Rejection Reason",
@@ -183,11 +185,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.selectOnMap": "Select coordinates on map",
     "admin.selectOnMapHelp":
       "Click anywhere on the map to set latitude and longitude for this location.",
-    "admin.addUser":"Add User",
-    "admin.addCitizen":"Add Citizen",
-    "admin.reviewApplications":"Review Applications",
-    
-      "common.created": "Created",
+    "admin.addUser": "Add User",
+    "admin.addCitizen": "Add Citizen",
+    "admin.reviewApplications": "Review Applications",
+
+    "common.created": "Created",
     "admin.applications.deleteConfirm":
       "Are you sure you want to delete this application?",
     "admin.locations.deleteConfirm":
@@ -275,6 +277,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.supervisorLocationsDescription":
       "View-only access to citizen locations.",
     "admin.manage": "Manage the system",
+    "success.applicationDeleted": "Application deleted successfully.",
+    "success.applicationCreated": "Application created successfully.",
+    "error.createApplication": "Failed to create application.",
+    "success.applicationUpdated": "Application updated successfully.",
+    "error.updateApplication": "Failed to update application.",
     "error.loadUsers": "Failed to load users.",
     "error.saveUser": "Failed to save user.",
     "error.deleteUser": "Failed to delete user.",
@@ -333,7 +340,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.or": "أو",
     "common.admin": "مسؤول النظام",
     "common.supervisor": "مشرف",
-    "common.searchPlaceholder":"ابحث ....",
+    "common.searchPlaceholder": "ابحث ....",
     "common.backToDashboard": "العودة إلى لوحة التحكم",
     "common.goToPage": "الذهاب إلى الصفحة",
 
@@ -445,8 +452,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.rejected": "تم الرفض",
     "admin.closed": "مغلق",
     "admin.viewDetails": "عرض التفاصيل",
-    "admin.mostImportantTasks":" 🎯 أهم المهام",
-    "admin.mostImportantTasksDescription":"الوصول السريع للمهام الأساسية في النظام",
+    "admin.mostImportantTasks": " 🎯 أهم المهام",
+    "admin.mostImportantTasksDescription":
+      "الوصول السريع للمهام الأساسية في النظام",
     "admin.approve": "موافقة",
     "admin.reject": "رفض",
     "admin.rejectionReason": "سبب الرفض",
@@ -488,9 +496,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.selectOnMapHelp":
       "انقر في أي مكان على الخريطة لتعيين خطي الطول والعرض لهذا الموقع.",
 
-      "admin.addUser":"إضافة مستخدم",
-      "admin.addCitizen":"إضافة مواطن",
-      "admin.reviewApplications":"مراجعة الطلبات",
+    "admin.addUser": "إضافة مستخدم",
+    "admin.addCitizen": "إضافة مواطن",
+    "admin.reviewApplications": "مراجعة الطلبات",
     // Admin - forms / labels
     "admin.users.title": "مستخدمي النظام",
     "admin.users.subtitle": "إدارة حسابات المدراء والمشرفين.",
@@ -566,7 +574,13 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.supervisorApplicationsDescription": "عرض الطلبات بصلاحيات محدودة.",
     "admin.supervisorCitizensDescription": "عرض سجلات المواطنين فقط.",
     "admin.supervisorLocationsDescription": "عرض مواقع المواطنين فقط.",
-    "admin.manage": "إدارة النظام",
+
+    "success.applicationDeleted": "فشل في حذف الطلب.",
+    "success.applicationCreated": "تم إنشاء الطلب بنجاح.",
+    "error.createApplication": "فشل في إنشاء الطلب.",
+    "success.applicationUpdated": "تم تحديث الطلب بنجاح.",
+    "error.updateApplication": "فشل في تحديث الطلب.",
+
     "error.loadUsers": "فشل في تحميل المستخدمين.",
     "error.saveUser": "فشل في حفظ المستخدم.",
     "error.deleteUser": "فشل في حذف المستخدم.",

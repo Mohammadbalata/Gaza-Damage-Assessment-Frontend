@@ -37,6 +37,7 @@ export interface Citizen {
 
 export interface Location {
   id: number;
+  applicationId:string;
   citizenId: number;
   type: "before_war" | "after_war" | "temporary" | "current";
   governorate?: string | null;
