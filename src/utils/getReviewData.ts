@@ -44,5 +44,5 @@ export const getReviewData = (dispatch: any, res: any) => {
       if (type === "additionalBuildings")
         dispatch(saveAdditionalBuildings(formData));
       // console.log(type)
-      console.log(res.data.data.extraData);
+      // console.log(res.data.data.extraData);
 };
