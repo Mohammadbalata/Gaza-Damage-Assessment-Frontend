@@ -8,8 +8,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useEffect } from "react";
 import ChangeView from "./ChangeView";
-
-
+import FlyToLocation from "./FlyToLocation";
 
 // Fix default marker icon for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -113,6 +112,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
           setPosition={setMarkerPosition}
         />
       )}
+      <FlyToLocation target={center} />
 
       {children}
     </LeafletMap>

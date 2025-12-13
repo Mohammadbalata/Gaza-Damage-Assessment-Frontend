@@ -8,8 +8,6 @@ import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
 import SelectLocations from "../components/SelectLocations";
-import FlyToLocation from "../components/FlyToLocation";
-
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -49,11 +47,12 @@ const PreviousLocationMapPage = () => {
         .then((data) => {
           setAddress(data.display_name || "Location selected");
         })
-        .catch(() => {
+        .catch((error: any) => {
           // setAddress(
           //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
           // );
-          setAddress("");
+          setAddress("لا يوجد اتصال في الانترنت");
+          console.log(error);
         });
     }
   }, [position]);
@@ -98,9 +97,7 @@ const PreviousLocationMapPage = () => {
             height="100%"
             width="100%"
             {...{ setAddress }}
-          >
-            <FlyToLocation target={center} />
-          </MapContainer>
+          />
         </div>
         {position && (
           <div className="space-y-4 mb-6">
@@ -121,30 +118,34 @@ const PreviousLocationMapPage = () => {
           </div>
         )}
 
-        <div className="flex gap-4">
-                    <SelectLocations setCenter={setCenter} />
-
-          <button
+        <div className="flex flex-wrap gap-4">
+          {/* <button
             type="button"
             onClick={() => navigate(`${ROUTES.PASSWORD_DISPLAY}`)}
-            className="btn-outline flex-1"
+            className="btn-outline basis-3/4 sm:basis-1/4 grow-[2] shrink-[2]"
           >
             {t("common.back")}
-          </button>
+          </button> */}
           <button
             type="button"
             onClick={handleReset}
-            className="btn-outline flex-1"
+            className="btn-outline grow-[2] shrink-[2]"
             disabled={!position}
           >
             <RotateCcw className="w-4 h-4 inline mr-2" />
             {t("map.reset")}
           </button>
+          <SelectLocations {...{handleReset}} setCenter={setCenter} className=" grow-[2] shrink-[2]" />
           <button
             type="button"
             onClick={handleConfirm}
-            className="btn-primary flex-1"
-            disabled={!position || loading || !address}
+            className="btn-primary grow-[2] shrink-[2]"
+            disabled={
+              !position ||
+              loading ||
+              !address ||
+              address === "لا يوجد اتصال في الانترنت"
+            }
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -158,16 +159,6 @@ const PreviousLocationMapPage = () => {
               </>
             )}
           </button>
-          {/* <button className="border-2" onClick={() => setCenter([30.282584, 31.348444])} >Change Center</button> */}
-          {/* {locations.map((loc) => (
-              <button
-                key={loc.name}
-                onClick={() => setCenter(loc.coords as [number, number])}
-                className="px-3 py-2 border rounded hover:bg-gray-100"
-              >
-                {loc.name}
-              </button>
-            ))} */}
         </div>
       </div>
     </div>

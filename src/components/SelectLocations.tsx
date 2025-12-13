@@ -1,5 +1,9 @@
+import classNames from "classnames";
+
 interface Props {
   setCenter: (center: [number, number]) => void;
+  className?:string
+  handleReset:any
 }
 
 const locations = [
@@ -35,17 +39,50 @@ const locations = [
     name: "حي قاع القرين",
     coords: [31.315155, 34.308796] as [number, number],
   },
+  {
+    name: "حي السطر",
+    coords: [31.363400, 34.322628] as [number, number],
+  },
+  {
+    name: "حي الكتيبة",
+    coords: [31.358792, 34.308489] as [number, number],
+  },
+  {
+    name: "حي المحطة",
+    coords: [31.350086, 34.312493] as [number, number],
+  },
+  {
+    name: "حي مركز المدينة",
+    coords: [31.349013, 34.292483] as [number, number],
+  },
+  {
+    name: "حي الجلاء",
+    coords: [31.377797, 34.313481] as [number, number],
+  },
+  {
+    name: "حي النصر",
+    coords: [31.365191, 34.292242] as [number, number],
+  },
+  {
+    name: "حي التحرير",
+    coords: [31.342449, 34.271177] as [number, number],
+  },
+  {
+    name: "حي الشيخ ناصر",
+    coords: [31.355604, 34.296072] as [number, number],
+  },
 ];
 
-const SelectLocations = ({ setCenter }: Props) => {
+const SelectLocations = ({ handleReset, setCenter , className }: Props) => {
   return (
     <select
-      className="border p-2 rounded"
+      className={classNames("btn-outline",className)}
       onChange={(e) => {
         const selected = locations.find((loc) => loc.name === e.target.value);
         if (selected) {
           setCenter(selected.coords);
         }
+        handleReset()
       }}
     >
       <option value="">اختر موقع</option>
