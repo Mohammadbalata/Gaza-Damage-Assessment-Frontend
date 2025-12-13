@@ -4,17 +4,20 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { CheckCircle } from "lucide-react";
 import { generatePassword } from "../utils/helpers";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
 import {
   checkPasswordRules,
   validatePassword,
 } from "../utils/validatePassword";
-import { signUp } from "../redux/slices/authSlice";
-import Button from "../components/Shared/Button/Button";
+
 import { FormDataCustom } from "./SignInPage";
-import { ROUTES } from "../routes/Routes";
+
 import classNames from "classnames";
+import { signUp } from "../redux/slices/authSlice";
+import { ROUTES } from "../routes/Routes";
+import PhoneNumberInput from "../components/PhoneNumberInput";
+import ButtonShared from "../components/Shared/ButtonShared";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -24,11 +27,13 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
+
   const {
     register,
     formState: { errors },
     handleSubmit,
     setValue,
+    control,
   } = useForm<FormDataCustom>();
 
   const [password, setPassword] = useState(generatePassword());
@@ -37,9 +42,7 @@ const PasswordDisplayPage = () => {
 
   useEffect(() => {
     setValue("password", password);
-    console.log("parent", password);
   }, [password, setValue]);
-  // const [isVerifyQues, setIsVerifyQues] = useState(false);
 
   useEffect(() => {
     dispatch(signUp({ nationalId: id, password: "", pathSignUp: "verify-id" }))
@@ -54,19 +57,29 @@ const PasswordDisplayPage = () => {
         navigate(`/${ROUTES.SIGNUP}`);
       });
   }, [navigate]);
+
   const onSubmit = async (data: FormDataCustom) => {
+    console.log(data);
     if (id) {
       await dispatch(
         signUp({
           nationalId: id,
           password: data.password,
           pathSignUp: "complete-signup",
+          firstName: data.firstName,
+          fatherName: data.fatherName,
+          grandfatherName: data.grandfatherName,
+          familyName: data.familyName,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          whatsappNumber: data.whatsappNumber,
         })
       )
         .unwrap()
         .then((res) => {
-          localStorage.setItem('token', res.token)
+          localStorage.setItem("token", res.token);
           navigate(`${ROUTES.PREVIOUS_LOCATION}`);
+          console.log(data);
         })
         .catch((error) => {
           console.log(error);
@@ -92,118 +105,286 @@ const PasswordDisplayPage = () => {
   };
 
   return (
-    <>
-      {loading ? (
-        <div> Loading...</div>
-      ) : (
-        <div className="max-w-2xl mx-auto">
-          <div className="card text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-green-100 rounded-full p-4">
-                <CheckCircle className="w-16 h-16 text-green-600" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold mb-4">
-              Verification Successful!
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Your identity has been verified. Please save your password
-              securely.
-            </p>
-
-            <div className="bg-gray-50 rounded-lg p-6 mb-3">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("success.password")}
-              </label>
-
-              <div className="flex flex-col items-center justify-center gap-2">
-                <FormInput
-                  id="password"
-                  type="password"
-                  label={t("auth.password")}
-                  classNameParent="w-4/5"
-                  placeholder={t("auth.passwordPlaceholder")}
-                  register={register}
-                  errors={errors}
-                  validation={{ validate: validatePassword(t) }}
-                  defaultValue={password}
-                  isRequired={false}
-                  isEye={true}
-                  isCopyIcon={true}
-                  {...{ setPassword }}
-                  {...{ setIsTouchInput }}
-                />
-
-                <div
-                  className={classNames(
-                    "justify-start w-4/5 text-red-500 text-left text-sm",
-                    isTouchInput ? "flex" : "hidden"
-                  )}
-                >
-                  <ul className="list-disc">
-                    <li
-                      className={
-                        rules.tooShort ? "text-red-500" : "text-green-700"
-                      }
-                    >
-                      {t("auth.passwordTooShort")}
-                    </li>
-                    <li
-                      className={
-                        rules.missingUpper ? "text-red-500" : "text-green-700"
-                      }
-                    >
-                      {t("auth.passwordMissingUpper")}
-                    </li>
-                    <li
-                      className={
-                        rules.missingLower ? "text-red-500" : "text-green-700"
-                      }
-                    >
-                      {t("auth.passwordMissingLower")}
-                    </li>
-                    <li
-                      className={
-                        rules.missingNumber ? "text-red-500" : "text-green-700"
-                      }
-                    >
-                      {t("auth.passwordMissingNumber")}
-                    </li>
-                    <li
-                      className={
-                        rules.missingSymbol ? "text-red-500" : "text-green-700"
-                      }
-                    >
-                      {t("auth.passwordMissingSymbol")}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <p className="text-sm text-red-600 mt-4 mb-7">
-                {t("success.savePassword")}
-              </p>
-
-              <div className="flex justify-end">
-                <Button
-                  className="underline !text-blue-700 flex-4 text-md"
-                  label={t("auth.generatePassword")}
-                  onClick={handleGeneratePassword}
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              onClick={handleSubmit(onSubmit)}
-              className="btn-primary w-full"
-            >
-              Continue
-            </button>
+    <div className="max-w-2xl mx-auto">
+      <div className="card text-center">
+        <div className="flex justify-center mb-6">
+          <div className="bg-green-100 rounded-full p-4">
+            <CheckCircle className="w-16 h-16 text-green-600" />
           </div>
         </div>
-      )}
-    </>
+        <h2 className="text-2xl font-bold mb-4">تم التحقق بنجاح!</h2>
+        <p className="text-gray-600 mb-8">
+          تم التحقق من هويتك بنجاح ، يرجى تعبئة بياناتك الشخصية
+        </p>
+        <div className=" flex flex-col justify-center items-center ">
+          <div className="flex flex-col sm:flex-row justify-between w-4/5 gap-4 sm:gap-10 ">
+            <div className="flex-col gap-5 flex">
+              <FormInput
+                id="firstName"
+                label={"الاسم الأول"}
+                placeholder={"أدخل الاسم الأول"}
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: { value: 100, message: "Maximum 100 characters" },
+                  pattern: {
+                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                    message: "Only letters and spaces allowed",
+                  },
+                }}
+                isRequired={true}
+                classNameLabel="text-right"
+              />
+              {/* {errors.fullName && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.fullName.message}
+                  </p>
+                  )} */}
+              <FormInput
+                id="fatherName"
+                label={"اسم الأب"}
+                placeholder={"أدخل اسم الأب"}
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: {
+                    value: 100,
+                    message: "Maximum 100 characters",
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                    message: "Only letters and spaces allowed",
+                  },
+                }}
+                isRequired={true}
+                classNameLabel="text-right"
+              />
+              {/* {errors.fullName && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.fullName.message}
+                </p>
+                )} */}
+            </div>
+            <div className="flex-col gap-5 flex">
+              <FormInput
+                id="grandfatherName"
+                label={"اسم الجد"}
+                placeholder={"أدخل اسم الجد"}
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: { value: 100, message: "Maximum 100 characters" },
+                  pattern: {
+                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                    message: "Only letters and spaces allowed",
+                  },
+                }}
+                isRequired={true}
+                classNameLabel="text-right"
+              />
+              {/* {errors.fullName && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.fullName.message}
+            </p>
+          )} */}
+              <FormInput
+                id="familyName"
+                label={"اسم العائلة"}
+                placeholder={"أدخل اسم العائلة"}
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: { value: 100, message: "Maximum 100 characters" },
+                  pattern: {
+                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                    message: "Only letters and spaces allowed",
+                  },
+                }}
+                isRequired={true}
+                classNameLabel="text-right"
+              />
+              {/* {errors.fullName && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.fullName.message}
+            </p>
+          )} */}
+            </div>
+          </div>
+          <div className="w-4/5 mt-5">
+            <FormInput
+              id="email"
+              label={"البريد الإلكتروني"}
+              placeholder={"أدخل بريدك الإلكتروني"}
+              type="email"
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: { value: 100, message: "Maximum 100 characters" },
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "البريد الإلكتروني غير صالح", // Invalid email message
+                },
+              }}
+              isRequired={true}
+              classNameLabel="text-right"
+            />
+          </div>
+          <div className="w-4/5 mt-5 text-right">
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className={classNames(
+                  "block text-sm font-medium text-gray-700 mb-2"
+                )}
+              >
+                رقم الموبايل <span className="text-red-500">*</span>
+              </label>
+              <Controller
+                name="phoneNumber"
+                control={control}
+                defaultValue="" // VERY IMPORTANT
+                rules={{
+                  required: "مطلوب",
+                }}
+                render={({ field , fieldState}) => (
+                  <PhoneNumberInput
+                    id="phoneNumber"
+                    placeholder={"أدخل رقم الموبايل"}
+                    {...field}
+                    value={field.value || ""} // prevent undefined
+                    onChange={(v: any) => field.onChange(v)}
+                    error={!!fieldState.error} // ← تمرير error
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+            </div>
+            <div className="mt-5">
+              <label
+                htmlFor="whatsappNumber"
+                className={classNames(
+                  "block text-sm font-medium text-gray-700 mb-2"
+                )}
+              >
+                رقم تواصل الواتساب <span className="text-red-500">*</span>
+              </label>
+              <Controller
+                name="whatsappNumber"
+                control={control}
+                defaultValue="" // VERY IMPORTANT
+                rules={{
+                  required: "مطلوب",
+                }}
+                render={({ field, fieldState }) => (
+                  <PhoneNumberInput
+                    id="whatsappNumber"
+                    placeholder={"أدخل رقم الواتساب "}
+                    {...field}
+                    value={field.value || ""} // prevent undefined
+                    onChange={(v: any) => field.onChange(v)}
+                    error={!!fieldState.error} // ← تمرير error
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-6 mt-14 mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("success.password")}
+          </label>
+
+          <div className="flex flex-col items-center justify-center gap-2">
+            <FormInput
+              id="password"
+              type="password"
+              label={t("auth.password")}
+              classNameParent="w-[95%] sm:w-[85%]"
+              placeholder={t("auth.passwordPlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{ validate: validatePassword(t) }}
+              defaultValue={password}
+              isRequired={false}
+              isEye={true}
+              isCopyIcon={true}
+              {...{ setPassword }}
+              {...{ setIsTouchInput }}
+            />
+
+            <div
+              className={classNames(
+                "justify-start  w-4/5 text-red-500 text-left text-sm",
+                isTouchInput ? "flex" : "hidden"
+              )}
+            >
+              <ul className="list-disc">
+                <li
+                  className={rules.tooShort ? "text-red-500" : "text-green-700"}
+                >
+                  {t("auth.passwordTooShort")}
+                </li>
+                <li
+                  className={
+                    rules.missingUpper ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingUpper")}
+                </li>
+                <li
+                  className={
+                    rules.missingLower ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingLower")}
+                </li>
+                <li
+                  className={
+                    rules.missingNumber ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingNumber")}
+                </li>
+                <li
+                  className={
+                    rules.missingSymbol ? "text-red-500" : "text-green-700"
+                  }
+                >
+                  {t("auth.passwordMissingSymbol")}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <p className="text-sm text-red-600 mt-4 mb-7">
+            {t("success.savePassword")}
+          </p>
+
+          <div className="flex justify-end">
+            <ButtonShared
+              className="underline !text-blue-700 flex-4 text-md"
+              label={t("auth.generatePassword")}
+              onClick={handleGeneratePassword}
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          onClick={handleSubmit(onSubmit)}
+          className="btn-primary w-full"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
   );
 };
 

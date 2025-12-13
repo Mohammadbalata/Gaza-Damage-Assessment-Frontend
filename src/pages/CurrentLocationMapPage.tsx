@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-import { usePost } from "../hooks/useApi";
+import { usePost } from "../hooks/api/useApi";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -97,6 +97,7 @@ const CurrentLocationMapPage = () => {
             setMarkerPosition={setPosition}
             height="100%"
             width="100%"
+            {...{setAddress}}
           >
             {/* You can add <Marker>, <Popup>, etc. as children if needed */}
           </MapContainer>
@@ -142,7 +143,9 @@ const CurrentLocationMapPage = () => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary flex-1"
-            disabled={!position || loading}
+            disabled={!position || loading || !address
+              
+            }
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">

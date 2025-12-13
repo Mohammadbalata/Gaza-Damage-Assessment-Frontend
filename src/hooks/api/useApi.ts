@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { AxiosError } from "axios";
-import { api } from "../services/api";
+import ApiErrorHandler from "../../services/errorHandler";
+import { api } from "../../services/api";
 
 export interface ApiResponse<T> {
   data: T;
@@ -20,6 +20,7 @@ export interface UseApiReturn<T> {
   error: string | null;
   execute: (...args: any[]) => Promise<T | undefined>;
   reset: () => void;
+  setData: React.Dispatch<React.SetStateAction<T | null>>;
 }
 
 /**
@@ -39,7 +40,6 @@ export function useApi<T = any>(
     async (...args: any[]): Promise<T | undefined> => {
       setLoading(true);
       setError(null);
-
       try {
         const response = await apiCall(...args);
         const result = response.data.data;
@@ -48,11 +48,8 @@ export function useApi<T = any>(
         if (onSuccess) onSuccess(result);
         return result;
       } catch (err) {
-        const errorMessage =
-          err instanceof AxiosError
-            ? err.response?.data?.message || err.message
-            : "An unexpected error occurred";
-
+        const errorMessage = ApiErrorHandler.handle(err);
+        setError(errorMessage);
         if (onError) onError(errorMessage);
         return undefined;
       } finally {
@@ -75,7 +72,7 @@ export function useApi<T = any>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [immediate]);
 
-  return { data, loading, error, execute, reset };
+  return { data, loading, error, execute, reset,setData };
 }
 
 /**
@@ -95,22 +92,22 @@ export function usePost<T = any>(url: string, options: UseApiOptions = {}) {
 /**
  * Hook for PUT requests
  */
-export function usePut<T = any>(url: string, options: UseApiOptions = {}) {
-  return useApi<T>((payload: any) => api.put(url, payload), options);
+export function usePut<T = any>(options: UseApiOptions = {}) {
+  return useApi<T>((url: string,payload: any) => api.put(url, payload), options);
 }
 
 /**
  * Hook for DELETE requests
  */
-export function useDelete<T = any>(url: string, options: UseApiOptions = {}) {
-  return useApi<T>(() => api.delete(url), options);
+export function useDelete<T = any>(options: UseApiOptions = {}) {
+  return useApi<T>((url: string) => api.delete(url), options);
 }
 
 /**
  * Hook for PATCH requests
  */
-export function usePatch<T = any>(url: string, options: UseApiOptions = {}) {
-  return useApi<T>((payload: any) => api.patch(url, payload), options);
+export function usePatch<T = any>(options: UseApiOptions = {}) {
+  return useApi<T>((url: string,payload: any) => api.patch(url, payload), options);
 }
 
 export default useApi;

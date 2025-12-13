@@ -1,390 +1,459 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  Box,
+  Container,
+  Button,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { adminApi, Citizen } from "../../services/api";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Plus, Trash2, X } from "lucide-react";
+import { Citizen } from "../../services/api";
+import { citizenSchema } from "../../services/validation";
+import FormTextField from "../../components/Shared/FormTextField";
+import ErrorAlert from "../../components/Shared/ErrorAlert";
+import ConfirmDialog from "../../components/Shared/ConfirmDialog";
+import { useNotification } from "../../hooks/useNotifications";
+import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
 
-const emptyCitizen = {
-  national_id: "",
-  first_name: "",
-  gender: "" as Citizen["gender"] | "",
-  status: "alive" as Citizen["status"],
-};
+interface CitizenFormData {
+  national_id: string;
+  first_name: string;
+  father_name: string;
+  grandfather_name: string;
+  family_name: string;
+  phone_number: string;
+}
 
-const AdminCitizensPage = () => {
-  const { t } = useLanguage();
+export function AdminCitizensPage() {
+  const { t, language } = useLanguage();
   const { hasRole } = useAuth();
-  const [citizens, setCitizens] = useState<Citizen[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Citizen | null>(null);
-  const [form, setForm] = useState(emptyCitizen);
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const canManage = hasRole("admin");
   const canView = hasRole("admin", "supervisor");
 
-  useEffect(() => {
-    if (!canView) return;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await adminApi.listCitizens({ page: 1, pageSize: 100 });
-        setCitizens(res);
-      } catch (e) {
-        console.error(e);
-        setError(t("error.loadCitizens"));
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [canView, t]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Citizen | null>(null);
+  const [search, setSearch] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    open: boolean;
+    id: number | null;
+  }>({ open: false, id: null });
 
+  // Form
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<CitizenFormData>({
+    resolver: yupResolver(citizenSchema) as any,
+    defaultValues: {
+      national_id: "",
+      first_name: "",
+      father_name: "",
+      grandfather_name: "",
+      family_name: "",
+      phone_number: "",
+    },
+  });
+
+  const {
+    loading,
+    data: citizens,
+    setData,
+  } = useGet<Citizen[]>("/citizens", {
+    immediate: true,
+  });
+
+  const { loading: loadingDeleteCitizen, execute } = useDelete({
+    onSuccess: () => {
+      showSuccess(t("success.citizenDeleted"));
+      // Remove deleted citizen from list
+      setData((prev) =>
+        prev ? prev.filter((c) => c.id !== deleteConfirm.id) : prev
+      );
+      setDeleteConfirm({ open: false, id: null });
+    },
+    onError: (error) => {
+      showError(error || t("error.deleteCitizen"));
+    },
+  });
+
+  const { loading: loadingCreateCitizen, execute: executeCreateCitizen } =
+    usePost("/citizens", {
+      onSuccess: (data) => {
+        setData((prev) => (prev ? [data, ...prev] : [data]));
+        showSuccess(t("success.citizenCreated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.createCitizen"));
+      },
+    });
+
+  const { loading: loadingUpdateCitizen, execute: executeUpdateCitizen } =
+    usePatch({
+      onSuccess: (data) => {
+        setData(
+          (prev) => prev?.map((c) => (c.id === data.id ? data : c)) || prev
+        );
+        showSuccess(t("success.citizenUpdated"));
+        setIsDialogOpen(false);
+        reset();
+      },
+      onError: (error) => {
+        showError(error || t("error.updateCitizen"));
+      },
+    });
+
+  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
-    setForm(emptyCitizen);
-    setIsDialogOpen(true);
-  };
-
-  const openEditDialog = (citizen: Citizen) => {
-    setEditing(citizen);
-    setForm({
-      national_id: citizen.national_id,
-      first_name: citizen.first_name || "",
-      gender: citizen.gender || "",
-      status: citizen.status,
+    reset({
+      national_id: "",
+      first_name: "",
+      father_name: "",
+      grandfather_name: "",
+      family_name: "",
+      phone_number: "",
     });
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!canManage) return;
-    setLoading(true);
-    setError(null);
-    try {
-      if (editing) {
-        await adminApi.updateCitizen(editing.id, {
-          national_id: form.national_id,
-          first_name: form.first_name || undefined,
-          gender: form.gender || undefined,
-          status: form.status,
-        });
-      } else {
-        // Build payload with only non-empty values
-        const createPayload: any = {
-          national_id: form.national_id,
-        };
-        if (form.first_name) createPayload.first_name = form.first_name;
-        if (form.gender) createPayload.gender = form.gender;
-        if (form.status) createPayload.status = form.status;
+  // Open edit dialog
+  const openEditDialog = (citizen: Citizen) => {
+    setEditing(citizen);
+    reset({
+      national_id: citizen.national_id || "",
+      first_name: citizen.first_name || "",
+      father_name: citizen.father_name || "",
+      grandfather_name: citizen.grandfather_name || "",
+      family_name: citizen.family_name || "",
+      phone_number: citizen.phone_number || "",
+    });
+    setIsDialogOpen(true);
+  };
 
-        console.log(
-          "[AdminCitizensPage] Creating citizen with payload:",
-          createPayload
-        );
-        await adminApi.createCitizen(createPayload);
-      }
-      setIsDialogOpen(false);
-      setEditing(null);
-      setForm(emptyCitizen);
-      // Reload citizens list after successful save
-      const res = await adminApi.listCitizens({ page: 1, pageSize: 100 });
-      setCitizens(res);
-    } catch (e: any) {
-      console.error("Error saving citizen:", e);
-      // Extract error message from backend response if available
-      const errorMessage =
-        e.response?.data?.message ||
-        e.response?.data?.error ||
-        t("error.saveCitizen");
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
+  // Handle submit
+  const onSubmit = async (data: CitizenFormData) => {
+    if (editing) {
+      executeUpdateCitizen(`/citizens/${editing.id}`, {
+        ...data,
+      });
+    } else {
+      executeCreateCitizen({
+        ...data,
+      });
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!canManage) return;
-    if (!window.confirm(t("admin.citizens.deleteConfirm") || "Delete citizen?"))
-      return;
-    setLoading(true);
-    setError(null);
-    try {
-      await adminApi.deleteCitizen(id);
-      const res = await adminApi.listCitizens({ page: 1, pageSize: 100 });
-      setCitizens(res);
-    } catch (e) {
-      console.error(e);
-      setError(t("error.deleteCitizen"));
-    } finally {
-      setLoading(false);
-    }
+  const handleExportData = () => {
+    fetch(`https://backend-5549.onrender.com/citizens/export-citizens`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Server error while downloading Excel");
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "citizens.xlsx";
+        a.click();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to download Excel file");
+      });
   };
 
-  // Filter citizens by search input (national_id or first_name)
-  const filteredCitizens = citizens.filter(
+  // Handle delete
+  const handleDelete = async () => {
+    if (!deleteConfirm.id) return;
+    execute(`/citizens/${deleteConfirm.id}`);
+  };
+
+  const filteredCitizens = citizens?.filter(
     (citizen) =>
       citizen.national_id.includes(search) ||
-      (citizen.first_name &&
-        citizen.first_name.toLowerCase().includes(search.toLowerCase()))
+      (citizen.full_name &&
+        citizen.full_name.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (!canView) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{t("admin.citizens.title")}</h1>
-        <p className="text-sm text-gray-500">
-          {t("admin.noCitizensPermission")}
-        </p>
-      </div>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <ErrorAlert
+          message={t("admin.noCitizensPermission")}
+          severity="warning"
+        />
+      </Container>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t("admin.citizens.title")}</h1>
-          <p className="text-sm text-gray-500">
-            {t("admin.citizens.subtitle")}
-          </p>
-        </div>
-        <div>
-          <input
-            id="search"
-            className="input-field w-[500px]"
-            placeholder={t("common.searchPlaceholder")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        {canManage && (
-          <button
-            type="button"
-            className="btn-primary flex items-center gap-2"
-            onClick={openCreateDialog}
-          >
-            <Plus className="w-4 h-4" />
-            {t("admin.citizens.create")}
-          </button>
-        )}
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.citizens.nationalId")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.citizens.fullName")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.citizens.gender")}
-              </th>
-              <th className="text-center py-3 px-2 font-semibold">
-                {t("admin.citizens.status")}
-              </th>
-              {canManage && (
-                <th className="text-center py-3 px-2 font-semibold">
-                  {t("admin.actions")}
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCitizens.map((citizen) => (
-              <tr key={citizen.id} className="border-b border-gray-100">
-                <td className="text-center py-3 px-2 font-mono text-sm">
-                  {citizen.national_id}
-                </td>
-                <td className="text-center py-3 px-2 text-gray-700">
-                  {citizen.first_name || "----"}
-                </td>
-                <td className="text-center py-3 px-2 capitalize">
-                  {citizen.gender
-                    ? citizen.gender === "male"
-                      ? t("admin.citizens.genderMale")
-                      : t("admin.citizens.genderFemale")
-                    : t("admin.citizens.genderNotSet")}
-                </td>
-                <td className="text-center py-3 px-2 capitalize">
-                  {citizen.status === "alive"
-                    ? t("admin.citizens.statusAlive")
-                    : t("admin.citizens.statusDead")}
-                </td>
-                {canManage && (
-                  <td className="flex justify-center py-3 px-2">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                        onClick={() => openEditDialog(citizen)}
-                      >
-                        {t("common.edit")}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-red-600 hover:text-red-800 text-xs font-medium flex items-center gap-1"
-                        onClick={() => handleDelete(citizen.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        {t("common.delete")}
-                      </button>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-            {!filteredCitizens.length && !loading && (
-              <tr>
-                <td colSpan={5} className="py-6 text-center text-gray-500">
-                  {t("admin.noCitizensFound")}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {isDialogOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setIsDialogOpen(false)}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
+        onClick={() => navigate("/admin/dashboard")}
+      >
+        <span
+          className="hover:underline text-blue-800 cursor-pointer"
+          onClick={() => navigate("/admin/dashboard")}
         >
-          <div
-            className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                {editing
-                  ? t("admin.citizens.update")
-                  : t("admin.citizens.create")}
-              </h2>
-              <button
-                type="button"
-                className="text-gray-600 hover:text-gray-800"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.citizens.nationalId")}
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.national_id}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        national_id: e.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.citizens.fullName")}
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={form.first_name}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        first_name: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.citizens.gender")}
-                  </label>
-                  <select
-                    className="input-field"
-                    value={form.gender || ""}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        gender: e.target.value as Citizen["gender"],
-                      }))
-                    }
-                  >
-                    <option value="">{t("admin.citizens.genderNotSet")}</option>
-                    <option value="male">
-                      {t("admin.citizens.genderMale")}
-                    </option>
-                    <option value="female">
-                      {t("admin.citizens.genderFemale")}
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("admin.citizens.status")}
-                  </label>
-                  <select
-                    className="input-field"
-                    value={form.status}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        status: e.target.value as Citizen["status"],
-                      }))
-                    }
-                  >
-                    <option value="alive">
-                      {t("admin.citizens.statusAlive")}
-                    </option>
-                    <option value="dead">
-                      {t("admin.citizens.statusDead")}
-                    </option>
-                  </select>
-                </div>
-              </div>
+          {t("common.backToDashboard")}
+        </span>
+        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold">
+            {t("admin.citizens.title")}
+          </Typography>
+          <Typography color="textSecondary" sx={{ mt: 1 }}>
+            {t("admin.citizens.subtitle")}
+          </Typography>
+        </Box>
+        {canManage && (
+          <span className="flex justify-center items-center gap-3">
+            <Button
+              variant="contained"
+              color="inherit"
+              startIcon={
+                <Import
+                  className={`${language == "ar" ? "ml-2" : ""} `}
+                  size={20}
+                />
+              }
+              onClick={handleExportData}
+            >
+              {t("admin.citizens.export")}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={
+                <Plus
+                  className={`${language == "ar" ? "ml-2" : ""}`}
+                  size={20}
+                />
+              }
+              onClick={openCreateDialog}
+            >
+              {t("admin.citizens.create")}
+            </Button>
+          </span>
+        )}
+      </Box>
 
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="btn-outline"
-                  onClick={() => setIsDialogOpen(false)}
+      {/* Search */}
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          fullWidth
+          placeholder={t("common.searchPlaceholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+          }}
+          size="small"
+        />
+      </Box>
+
+      {/* Table */}
+      <TableContainer component={Paper} sx={{ mb: 3 }}>
+        {loading ? (
+          <Box sx={{ p: 4, textAlign: "center" }}>
+            <CircularProgress />
+          </Box>
+        ) : filteredCitizens?.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
+            <Typography>{t("admin.noCitizensFound")}</Typography>
+          </Box>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: "grey.100" }}>
+                <TableCell align="center">
+                  {t("admin.citizens.nationalId")}
+                </TableCell>
+                <TableCell align="center">
+                  {t("admin.citizens.fullName")}
+                </TableCell>
+                <TableCell align="center">
+                  {t("admin.citizens.phoneNumber")}
+                </TableCell>
+                {canManage && (
+                  <TableCell align="center">{t("admin.actions")}</TableCell>
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredCitizens?.map((citizen: Citizen) => (
+                <TableRow
+                  key={citizen.id}
+                  hover
+                  sx={{ "&:last-child td": { border: 0 } }}
                 >
-                  {t("common.cancel")}
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={loading}
-                >
-                  {editing ? t("admin.citizens.update") : t("common.submit")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+                  <TableCell align="center">{citizen.national_id}</TableCell>
+                  <TableCell align="center">
+                    {citizen.full_name || "----"}
+                  </TableCell>
+                  <TableCell align="center">{citizen.phone_number}</TableCell>
+
+                  {canManage && (
+                    <TableCell align="center">
+                      <Box>
+                        <Button
+                          size="small"
+                          startIcon={
+                            <Edit2
+                              className={`${language == "ar" ? "ml-2" : ""}`}
+                              size={16}
+                            />
+                          }
+                          onClick={() => openEditDialog(citizen)}
+                        >
+                          {t("common.edit")}
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={
+                            <Trash2
+                              className={`${language == "ar" ? "ml-2" : ""}  `}
+                              size={16}
+                            />
+                          }
+                          onClick={() =>
+                            setDeleteConfirm({ open: true, id: citizen.id })
+                          }
+                        >
+                          {t("common.delete")}
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
+
+      {/* Create/Edit Dialog */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {editing ? t("admin.citizens.update") : t("admin.citizens.create")}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Stack spacing={3}>
+            <FormTextField
+              control={control}
+              name="national_id"
+              label={t("form.nationalId")}
+            />
+            <FormTextField
+              control={control}
+              name="first_name"
+              label={t("form.firstName")}
+            />
+            <FormTextField
+              control={control}
+              name="father_name"
+              label={t("form.fatherName")}
+            />
+            <FormTextField
+              control={control}
+              name="grandfather_name"
+              label={t("form.grandfatherName")}
+            />
+            <FormTextField
+              control={control}
+              name="family_name"
+              label={t("form.familyName")}
+            />
+            <FormTextField
+              control={control}
+              name="phone_number"
+              label={t("form.phoneNumber")}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            onClick={handleSubmit(onSubmit as any)}
+            variant="contained"
+            disabled={
+              isSubmitting || loadingCreateCitizen || loadingUpdateCitizen
+            }
+          >
+            {isSubmitting ? (
+              <CircularProgress size={20} />
+            ) : editing ? (
+              t("admin.citizens.update")
+            ) : (
+              t("common.submit")
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirm Dialog */}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        title={t("admin.citizens.deleteConfirm")}
+        message={""}
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
+        isLoading={loadingDeleteCitizen}
+        isDangerous
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteConfirm({ open: false, id: null })}
+      />
+    </Container>
   );
-};
+}
 
 export default AdminCitizensPage;

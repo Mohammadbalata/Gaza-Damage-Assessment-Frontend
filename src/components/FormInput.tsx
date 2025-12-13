@@ -21,6 +21,8 @@ export default function FormInput({
   classNameParent,
   setPassword,
   setIsTouchInput,
+  isNationalId,
+  classNameLabel,
 }: IFormInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -49,6 +51,20 @@ export default function FormInput({
     }
   };
   const handleChangeInput = (e: any) => {
+    const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+    if (isNationalId) {
+      let value = e.target.value;
+
+      // استبدال الأرقام العربية بالإنجليزية
+      arabicNumbers.forEach((num, idx) => {
+        value = value.replaceAll(num, idx.toString());
+      });
+
+      // منع أي شيء غير أرقام إنجليزية فقط
+      value = value.replace(/[^0-9]/g, "");
+
+      e.target.value = value;
+    }
     if (type === "password") {
       if (setPassword !== null) {
         setPassword(e.target.value);
@@ -62,7 +78,7 @@ export default function FormInput({
       {isRequired && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className={classNames("block text-sm font-medium text-gray-700 mb-2" , classNameLabel)}
         >
           {label} <span className="text-red-500">*</span>
         </label>
@@ -72,7 +88,7 @@ export default function FormInput({
         type={inputType}
         {...register(id, validation)}
         placeholder={placeholder}
-        className={`input-field pr-10 `} // padding for the eye icon
+        className={`input-field pr-10 !rounded-sm `} // padding for the eye icon
         maxLength={maxLength}
         {...{ defaultValue }}
         onChange={handleChangeInput}

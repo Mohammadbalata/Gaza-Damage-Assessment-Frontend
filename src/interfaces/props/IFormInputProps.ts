@@ -12,6 +12,8 @@ export interface IFormInputProps {
   isEye?: boolean;
   isCopyIcon?: boolean;
   classNameParent?:string;
+  classNameLabel?:string;
   setPassword?:any;
   setIsTouchInput?:any
+  isNationalId ?: any;
 }

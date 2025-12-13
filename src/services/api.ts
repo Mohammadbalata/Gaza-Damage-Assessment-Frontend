@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
+import { extractData } from "../api/client";
 
 // const LOCAL_URL = 'http://localhost:3000/api'
 const PROD_URL = "https://backend-5549.onrender.com";
@@ -12,13 +13,17 @@ export interface AdminUser {
   role: UserRole;
   createdAt: string;
   updatedAt: string;
-} 
+}
 
 export interface Citizen {
   id: number;
   national_id: string;
   first_name?: string;
-  last_name?: string;
+  father_name?: string;
+  grandfather_name?: string;
+  family_name?: string;
+  full_name?: string;
+  phone_number?: string;
   gender: "male" | "female";
   status: "alive" | "dead";
   verification_status:
@@ -32,6 +37,7 @@ export interface Citizen {
 
 export interface Location {
   id: number;
+  applicationId:string;
   citizenId: number;
   type: "before_war" | "after_war" | "temporary" | "current";
   governorate?: string | null;
@@ -66,6 +72,19 @@ export interface Application {
   } | null;
 }
 
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+export interface ApiErrorResponse {
+  message?: string;
+  error?: string;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
+}
+
 export interface PaginatedResult<T> {
   data: T[];
   total: number;
@@ -73,18 +92,18 @@ export interface PaginatedResult<T> {
   pageSize: number;
 }
 
-type CreateUserDto = {
+export type CreateUserDto = {
   name: string;
   email: string;
   password: string;
   role: UserRole;
 };
 
-type UpdateUserDto = Partial<Omit<CreateUserDto, "password">> & {
+export type UpdateUserDto = Partial<Omit<CreateUserDto, "password">> & {
   password?: string;
 };
 
-type CreateApplicationDto = {
+export type CreateApplicationDto = {
   citizenId: number;
   locationId?: number;
   status?: Application["status"];
@@ -129,35 +148,35 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-type NestedApiData<T> = { data: { data: T } };
-type FlatApiData<T> = { data: T };
-type ApiEnvelope<T> = NestedApiData<T> | FlatApiData<T> | T;
+// type NestedApiData<T> = { data: { data: T } };
+// type FlatApiData<T> = { data: T };
+// // type ApiEnvelope<T> = NestedApiData<T> | FlatApiData<T> | T;
 
-function isNestedApiData<T>(value: unknown): value is NestedApiData<T> {
-  if (!value || typeof value !== "object") return false;
-  const v = value as { data?: unknown };
-  if (!v.data || typeof v.data !== "object") return false;
-  return "data" in (v.data as object);
-}
+// // function isNestedApiData<T>(value: unknown): value is NestedApiData<T> {
+// //   if (!value || typeof value !== "object") return false;
+// //   const v = value as { data?: unknown };
+// //   if (!v.data || typeof v.data !== "object") return false;
+// //   return "data" in (v.data as object);
+// // }
 
-function isFlatApiData<T>(value: unknown): value is FlatApiData<T> {
-  if (!value || typeof value !== "object") return false;
-  const v = value as { data?: unknown };
-  return v.data !== undefined;
-}
+// // function isFlatApiData<T>(value: unknown): value is FlatApiData<T> {
+// //   if (!value || typeof value !== "object") return false;
+// //   const v = value as { data?: unknown };
+// //   return v.data !== undefined;
+// // }
 
 // Normalise API responses so callers always get T
-const extractData = <T>(response: ApiEnvelope<T>): T => {
-  if (isNestedApiData<T>(response)) {
-    return response.data.data;
-  }
+// const extractData = <T>(response: ApiEnvelope<T>): T => {
+//   if (isNestedApiData<T>(response)) {
+//     return response.data.data;
+//   }
 
-  if (isFlatApiData<T>(response)) {
-    return response.data as T;
-  }
+//   if (isFlatApiData<T>(response)) {
+//     return response.data as T;
+//   }
 
-  return response as T;
-};
+//   return response as T;
+// };
 
 // Request interceptor - Add auth token and log requests
 api.interceptors.request.use(
