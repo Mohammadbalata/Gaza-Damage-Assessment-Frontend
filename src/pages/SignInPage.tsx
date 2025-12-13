@@ -7,14 +7,13 @@ import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
 import classNames from "classnames";
-import Button from "../components/Shared/Button/Button";
+
 import { AlertCircle } from "lucide-react";
 import AuthComp from "./AuthComp";
 import { IAuthState } from "../interfaces/store/IAuthState";
+import ButtonShared from "../components/Shared/ButtonShared";
 
-export interface FormDataCustom extends IAuthState {
-  
-}
+export interface FormDataCustom extends IAuthState {}
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then((res) => {
-        console.log(res)
+        console.log(res);
         const isPrevLocation = res.locations.filter(
           (location: any) => location.type === "before_war"
         );
@@ -93,7 +92,7 @@ const LoginPage = () => {
           setPassword={null}
         />
         <div className="flex gap-4">
-          <Button
+          <ButtonShared
             type="button"
             className="btn-outline flex-1"
             label={t("common.cancel")}
@@ -103,7 +102,7 @@ const LoginPage = () => {
             }}
           />
 
-          <Button
+          <ButtonShared
             type="submit"
             className="btn-primary flex-1"
             label={
@@ -130,7 +129,7 @@ const LoginPage = () => {
           >
             {t("common.signUp-qesution")}
           </span>
-          <Button
+          <ButtonShared
             type="button"
             label={t("common.signUp")}
             className="text-blue-500 underline"

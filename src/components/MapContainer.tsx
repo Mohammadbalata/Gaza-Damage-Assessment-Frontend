@@ -56,6 +56,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
   setAddress,
 }) => {
   useEffect(() => {
+
+    if(setAddress)
     setAddress("");
   }, [markerPosition]);
   return (

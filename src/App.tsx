@@ -3,6 +3,9 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import AppRoutes from "./routes/AppRoutes";
 import { useEffect } from "react";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { ThemeProvider } from "@mui/material";
+import theme from "./theme/muiTheme";
+import { SnackbarProvider } from "notistack";
 
 function App() {
   useEffect(() => {
@@ -12,13 +15,23 @@ function App() {
     }
   });
   return (
-    <BrowserRouter>
-      <LanguageProvider>
-        <AdminAuthProvider>
-          <AppRoutes />
-        </AdminAuthProvider>
-      </LanguageProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <SnackbarProvider
+        maxSnack={3}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <BrowserRouter>
+          <LanguageProvider>
+            <AdminAuthProvider>
+              <AppRoutes />
+            </AdminAuthProvider>
+          </LanguageProvider>
+        </BrowserRouter>
+      </SnackbarProvider>
+    </ThemeProvider>
   );
 }
 

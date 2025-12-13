@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { FormDataCustom } from "./SignInPage";
 import FormInput from "../components/FormInput";
-import Button from "../components/Shared/Button/Button";
+
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { setError, signUp } from "../redux/slices/authSlice";
 import AuthComp from "./AuthComp";
@@ -11,6 +11,7 @@ import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import classNames from "classnames";
+import ButtonShared from "../components/Shared/ButtonShared";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -75,13 +76,13 @@ const SignUpPage = () => {
 
         {/* Buttons */}
         <div className="flex gap-4">
-          <Button
+          <ButtonShared
             type="button"
             onClick={() => navigate("/")}
             className="btn-outline flex-1"
             label={t("common.cancel")}
           />
-          <Button
+          <ButtonShared
             type="submit"
             className="btn-primary flex-1"
             label={
@@ -105,7 +106,7 @@ const SignUpPage = () => {
           >
             {t("common.signIn-qesution")}
           </span>
-          <Button
+          <ButtonShared
             type="button"
             label={t("common.signIn")}
             className="text-blue-500 underline"

@@ -10,6 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "^5.2.2",
+    "@mui/icons-material": "^7.3.6",
+    "@mui/material": "^7.3.6",
     "@reduxjs/toolkit": "^2.11.0",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
@@ -17,15 +22,16 @@
     "jspdf": "^2.5.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.427.0",
-    "mui-phone-number": "^3.0.3",
-    "pdfmake": "^0.2.20",
+    "notistack": "^3.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.55.0",
+    "react-hook-form": "^7.68.0",
     "react-leaflet": "^4.2.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.26.0",
     "react-to-pdf": "^2.0.3",
+    "yup": "^1.7.1",
+    "zod": "^4.1.13",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
