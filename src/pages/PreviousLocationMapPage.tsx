@@ -7,6 +7,7 @@ import { updatePreviousLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
+import SelectLocations from "../components/SelectLocations";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,8 @@ const PreviousLocationMapPage = () => {
 
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
-  const center = position || defaultCenter;
+
+  const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   const { loading, execute } = usePost(`applications/add-previous-location`, {
     onSuccess: () => {
@@ -45,11 +47,12 @@ const PreviousLocationMapPage = () => {
         .then((data) => {
           setAddress(data.display_name || "Location selected");
         })
-        .catch(() => {
+        .catch((error: any) => {
           // setAddress(
           //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
           // );
-          setAddress('')
+          setAddress("لا يوجد اتصال في الانترنت");
+          console.log(error);
         });
     }
   }, [position]);
@@ -80,11 +83,10 @@ const PreviousLocationMapPage = () => {
     <div className="max-w-4xl mx-auto">
       <div className="card">
         <h2 className="text-2xl font-bold mb-2">
-          Select Your Previous Location (Before War)
+          اختر موقعك السابق (قبل الحرب)
         </h2>
         <p className="text-gray-600 mb-4">
-          Please click on the map to mark the location of your property before
-          the war.
+          يرجى النقر على الخريطة لتحديد موقع ممتلكاتك قبل الحرب.
         </p>
         <div className="mb-4 h-96 rounded-lg overflow-hidden border border-gray-300">
           <MapContainer
@@ -94,7 +96,7 @@ const PreviousLocationMapPage = () => {
             setMarkerPosition={setPosition}
             height="100%"
             width="100%"
-            {...{setAddress}}
+            {...{ setAddress }}
           />
         </div>
         {position && (
@@ -116,28 +118,34 @@ const PreviousLocationMapPage = () => {
           </div>
         )}
 
-        <div className="flex gap-4">
-          <button
+        <div className="flex flex-wrap gap-4">
+          {/* <button
             type="button"
             onClick={() => navigate(`${ROUTES.PASSWORD_DISPLAY}`)}
-            className="btn-outline flex-1"
+            className="btn-outline basis-3/4 sm:basis-1/4 grow-[2] shrink-[2]"
           >
             {t("common.back")}
-          </button>
+          </button> */}
           <button
             type="button"
             onClick={handleReset}
-            className="btn-outline flex-1"
+            className="btn-outline grow-[2] shrink-[2]"
             disabled={!position}
           >
             <RotateCcw className="w-4 h-4 inline mr-2" />
             {t("map.reset")}
           </button>
+          <SelectLocations {...{handleReset}} setCenter={setCenter} className=" grow-[2] shrink-[2]" />
           <button
             type="button"
             onClick={handleConfirm}
-            className="btn-primary flex-1"
-            disabled={(!position || loading || !address)}
+            className="btn-primary grow-[2] shrink-[2]"
+            disabled={
+              !position ||
+              loading ||
+              !address ||
+              address === "لا يوجد اتصال في الانترنت"
+            }
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">

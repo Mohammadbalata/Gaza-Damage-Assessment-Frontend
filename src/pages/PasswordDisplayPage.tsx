@@ -133,6 +133,7 @@ const PasswordDisplayPage = () => {
                     message: "Only letters and spaces allowed",
                   },
                 }}
+                classNameParent="rounded-xl"
                 isRequired={true}
                 classNameLabel="text-right"
               />
@@ -325,7 +326,7 @@ const PasswordDisplayPage = () => {
                 isTouchInput ? "flex" : "hidden"
               )}
             >
-              <ul className="list-disc">
+              <ul className="list-disc text-right">
                 <li
                   className={rules.tooShort ? "text-red-500" : "text-green-700"}
                 >

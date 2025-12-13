@@ -7,6 +7,7 @@ import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
+import SelectLocations from "../components/SelectLocations";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -26,7 +27,7 @@ const CurrentLocationMapPage = () => {
 
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
-  const center = position || defaultCenter;
+  const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   const { loading, execute } = usePost(`applications/add-current-location`, {
     onSuccess: () => {
@@ -81,12 +82,9 @@ const CurrentLocationMapPage = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">
-        <h2 className="text-2xl font-bold mb-2">
-          Select Your Current Location
-        </h2>
+        <h2 className="text-2xl font-bold mb-2">حدد موقعك الحالي</h2>
         <p className="text-gray-600 mb-4">
-          Please click on the map to mark your current location (where you are
-          now).
+          يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).
         </p>
 
         <div className="mb-4 h-96 rounded-lg overflow-hidden border border-gray-300">
@@ -97,7 +95,7 @@ const CurrentLocationMapPage = () => {
             setMarkerPosition={setPosition}
             height="100%"
             width="100%"
-            {...{setAddress}}
+            {...{ setAddress }}
           >
             {/* You can add <Marker>, <Popup>, etc. as children if needed */}
           </MapContainer>
@@ -122,7 +120,7 @@ const CurrentLocationMapPage = () => {
           </div>
         )}
 
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4">
           <button
             type="button"
             onClick={() => navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`)}
@@ -145,6 +143,52 @@ const CurrentLocationMapPage = () => {
             className="btn-primary flex-1"
             disabled={!position || loading || !address
               
+            }
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                {t("common.loading")}
+              </div>
+            ) : (
+              <>
+                <Check className="w-4 h-4 inline mr-2" />
+                {t("map.confirm")}
+              </>
+            )}
+          </button>
+        </div> */}
+        <div className="flex flex-wrap gap-4">
+          {/* <button
+            type="button"
+            onClick={() => navigate(`${ROUTES.PASSWORD_DISPLAY}`)}
+            className="btn-outline basis-3/4 sm:basis-1/4 grow-[2] shrink-[2]"
+          >
+            {t("common.back")}
+          </button> */}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="btn-outline grow-[2] shrink-[2]"
+            disabled={!position}
+          >
+            <RotateCcw className="w-4 h-4 inline mr-2" />
+            {t("map.reset")}
+          </button>
+          <SelectLocations
+          {...{handleReset}}
+            setCenter={setCenter}
+            className=" grow-[2] shrink-[2]"
+          />
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className="btn-primary grow-[2] shrink-[2]"
+            disabled={
+              !position ||
+              loading ||
+              !address ||
+              address === "لا يوجد اتصال في الانترنت"
             }
           >
             {loading ? (

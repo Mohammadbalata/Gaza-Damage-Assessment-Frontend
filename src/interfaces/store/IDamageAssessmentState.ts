@@ -24,6 +24,8 @@ export interface IndependentBuilding {
   additionalNotes: string;
   isHabitable?: boolean; //done
   propertyArea?: number; // done
+  propertyType?:string;
+
 }
 
 interface ApartmentInsideBuilding {
@@ -45,6 +47,8 @@ interface ApartmentInsideBuilding {
   additionalNotes?: string;
   isHabitable?: boolean; //done
   damageType?: string; //done
+  propertyType?:string;
+
 }
 interface ResidentialBuilding {
   floorsCount?: number;
@@ -70,6 +74,8 @@ interface ResidentialBuilding {
   habitability?: string; // done
   isHabitable?: boolean; //done
   propertyArea?: number; // done
+  propertyType?:string;
+
 }
 export interface ITower {
   totalFloors?: number;
@@ -97,6 +103,8 @@ export interface ITower {
   isHabitable?: boolean; //done
   propertyArea?: number; // done
   damageType?: string; // done:
+  propertyType?:string;
+
 }
 
 export interface ICompHouse {
@@ -113,6 +121,8 @@ export interface ICompHouse {
   isHabitable?: boolean; //done
   propertyArea?: number; // done
   damageType?: string; // done:
+  propertyType?:string;
+
 }
 
 export interface IAdditionalBuildings {
@@ -128,4 +138,5 @@ export interface IAdditionalBuildings {
   habitability?: string; // done
   isHabitable?: boolean; //done
   propertyArea?: number; // done
+  propertyType?:string;
 }

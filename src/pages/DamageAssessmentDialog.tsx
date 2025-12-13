@@ -130,7 +130,7 @@ const DamageAssessmentDialog = () => {
           <BuildingTypeView />
           <div className="flex gap-4">
             <button type="submit" className="btn-primary flex-1">
-              Continue to Current Location
+              متابعة إلى الموقع الحالي
             </button>
           </div>
         </form>

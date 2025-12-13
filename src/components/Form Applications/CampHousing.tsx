@@ -63,7 +63,7 @@ const CampHousing = ({ register, errors }: CampHousingProps) => {
             نوع العقار
           </label>
           <select
-            {...register("compHouse.habitability")}
+            {...register("compHouse.propertyType")}
             className="input-field"
           >
             <option value="">لا يوجد</option>

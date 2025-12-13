@@ -52,7 +52,7 @@ const Tower = ({ register, errors }: any) => {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">نوع العقار</label>
-          <select {...register("tower.habitability")} className="input-field">
+          <select {...register("tower.propertyType")} className="input-field">
             <option value="">لا يوجد</option>
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
