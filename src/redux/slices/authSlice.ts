@@ -86,7 +86,7 @@ export const signIn = createAsyncThunk(
       console.log(res);
       // console.log("API Response:", res.data.data.user.application.extraData);
       const extraData = res.data?.data?.user?.application?.extraData;
-      const locations = res.data.data.user.application.locations;
+      const locations = res.data.data.user.application?.locations;
       const token = res.data?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
@@ -102,6 +102,7 @@ export const signIn = createAsyncThunk(
         locations,
       };
     } catch (error: any) {
+      console.log(error)
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }

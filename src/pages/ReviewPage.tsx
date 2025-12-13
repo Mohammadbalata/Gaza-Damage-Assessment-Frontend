@@ -35,7 +35,7 @@ const ReviewPage = () => {
   // console.log(selected);
   const selected = buildingMap[damageState.buildingType] || {};
   // console.log(selected)
-  const { damageType, isHabitable, habitability, propertyArea } = selected;
+  const { damageType, isHabitable, propertyType, propertyArea } = selected;
   const [loadingPage, setLoadingPage] = useState(loading);
   const [errorPage, setErrorPage] = useState(error);
   const dispatch = useAppDispatch();
@@ -170,7 +170,7 @@ const ReviewPage = () => {
 
             <div>
               <p className="text-sm text-gray-600">{t("form.propertyType")}</p>
-              <p className="font-medium capitalize">{habitability || "-"}</p>
+              <p className="font-medium capitalize">{ propertyType || "-"}</p>
             </div>
 
             <div>

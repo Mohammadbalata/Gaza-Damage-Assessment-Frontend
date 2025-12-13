@@ -33,7 +33,30 @@ export default function PhoneNumberInput({
             const newCode = e.target.value;
             onChange(newCode + numberWithoutCode);
           }}
-          sx={{ width: 120 }}
+          sx={{
+            width: 120,
+            "& .MuiOutlinedInput-root": {
+              height: "48px",
+              borderRadius: "0.5rem",
+              // الحالة العادية
+              "& fieldset": {
+                borderColor: "#d1d5db", // gray-300
+              },
+              // hover
+              "&:hover fieldset": {
+                borderColor: "#d1d5db",
+              },
+              // focus
+              "&.Mui-focused fieldset": {
+                borderColor: "#000", // أسود
+                boxShadow: "none",
+              },
+            },
+            // إزالة أي تأثير إضافي
+            "& .MuiOutlinedInput-input": {
+              outline: "none",
+            },
+          }}
         >
           {countries.map((country) => (
             <MenuItem key={country.code} value={country.code}>
@@ -47,9 +70,16 @@ export default function PhoneNumberInput({
       <TextField
         fullWidth
         value={numberWithoutCode}
-        inputProps={{ maxLength: 9 }}
-        error={error}              // ← إضافة error
-        helperText={helperText}    // ← إضافة helperText
+        inputProps={{
+          maxLength: 9,
+          style: {
+            paddingRight: "2.50rem",
+            fontSize: "1.03rem",
+            height: "2rem",
+          },
+        }}
+        error={error} // ← إضافة error
+        helperText={helperText} // ← إضافة helperText
         onChange={(e) => {
           let onlyDigits = e.target.value.replace(/\D/g, "");
 
@@ -61,6 +91,30 @@ export default function PhoneNumberInput({
           onChange(selectedCountry.code + onlyDigits);
         }}
         placeholder={placeholder}
+        // className="!h-8 text-[1.09rem] !pr-7"
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            height: "48px",
+            borderRadius: "0.5rem",
+            // الحالة العادية
+            "& fieldset": {
+              borderColor: "#d1d5db", // gray-300
+            },
+            // hover
+            "&:hover fieldset": {
+              borderColor: "#d1d5db",
+            },
+            // focus
+            "&.Mui-focused fieldset": {
+              borderColor: "#000", // أسود
+              boxShadow: "none",
+            },
+          },
+          // إزالة أي تأثير إضافي
+          "& .MuiOutlinedInput-input": {
+            outline: "none",
+          },
+        }}
       />
     </Box>
   );

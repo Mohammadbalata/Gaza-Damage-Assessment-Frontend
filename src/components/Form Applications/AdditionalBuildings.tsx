@@ -54,11 +54,9 @@ const AdditionalBuildings = ({ register, errors }: any) => {
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
-            نوع العقار
-          </label>
+          <label className="block text-sm font-medium mb-1">نوع العقار</label>
           <select
-            {...register("additionalBuildings.habitability")}
+            {...register("additionalBuildings.propertyType")}
             className="input-field"
           >
             <option value="">لا يوجد</option>
@@ -156,15 +154,17 @@ const AdditionalBuildings = ({ register, errors }: any) => {
               className="input-field"
             >
               <option value="">اختر نوع الضرر</option>
-          <option value="انهيار كامل">انهيار كامل</option>
-          <option value="انهيار جزئي">انهيار جزئي</option>
-          <option value="تشققات إنشائية">تشققات إنشائية</option>
-          <option value="تضرر الواجهات">تضرر الواجهات</option>
-          <option value="تضرر السقف">تضرر السقف</option>
-          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
-          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
-          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
-          <option value="تضرر شبكة المياه والصرف">تضرر شبكة المياه والصرف</option>
+              <option value="انهيار كامل">انهيار كامل</option>
+              <option value="انهيار جزئي">انهيار جزئي</option>
+              <option value="تشققات إنشائية">تشققات إنشائية</option>
+              <option value="تضرر الواجهات">تضرر الواجهات</option>
+              <option value="تضرر السقف">تضرر السقف</option>
+              <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
+              <option value="تضرر التشطيبات">تضرر التشطيبات</option>
+              <option value="تضرر الكهرباء">تضرر الكهرباء</option>
+              <option value="تضرر شبكة المياه والصرف">
+                تضرر شبكة المياه والصرف
+              </option>
               <option value="waterNetworkDamage">
                 تضرر شبكة المياه والصرف
               </option>

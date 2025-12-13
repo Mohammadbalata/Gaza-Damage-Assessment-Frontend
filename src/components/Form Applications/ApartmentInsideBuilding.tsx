@@ -82,7 +82,7 @@ const ApartmentInsideBuilding = ({
             نوع العقار
           </label>
           <select
-            {...register("ApartmentInsideBuilding.habitability")}
+            {...register("ApartmentInsideBuilding.propertyType")}
             className="input-field"
           >
             <option value="">لا يوجد</option>

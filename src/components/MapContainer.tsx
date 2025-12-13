@@ -7,6 +7,9 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useEffect } from "react";
+import ChangeView from "./ChangeView";
+
+
 
 // Fix default marker icon for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -45,6 +48,42 @@ function LocationMarker({
   return position ? <Marker position={position} /> : null;
 }
 
+// const MapContainer: React.FC<MapContainerProps> = ({
+//   center,
+//   zoom = 15,
+//   markerPosition,
+//   setMarkerPosition,
+//   children,
+//   height = "100%",
+//   width = "100%",
+//   setAddress,
+// }) => {
+//   useEffect(() => {
+//     if (setAddress) setAddress("");
+//   }, [markerPosition]);
+//   useEffect(() => {
+//     console.log("center", center);
+//   }, [center]);
+
+//   return (
+//     <LeafletMap center={center} zoom={zoom} style={{ height, width }}>
+//       <TileLayer
+//         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+//         attribution="&copy; Esri"
+//       />
+//       {setMarkerPosition && (
+//         <LocationMarker
+//           position={markerPosition ?? null}
+//           setPosition={setMarkerPosition}
+//         />
+//       )}
+//       {children}
+//     </LeafletMap>
+//   );
+// };
+
+// export default MapContainer;
+
 const MapContainer: React.FC<MapContainerProps> = ({
   center,
   zoom = 15,
@@ -56,25 +95,27 @@ const MapContainer: React.FC<MapContainerProps> = ({
   setAddress,
 }) => {
   useEffect(() => {
-
-    if(setAddress)
-    setAddress("");
+    if (setAddress) setAddress("");
   }, [markerPosition]);
+
   return (
     <LeafletMap center={center} zoom={zoom} style={{ height, width }}>
+      <ChangeView center={center} zoom={zoom} />
+
       <TileLayer
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         attribution="&copy; Esri"
       />
+
       {setMarkerPosition && (
         <LocationMarker
           position={markerPosition ?? null}
           setPosition={setMarkerPosition}
         />
       )}
+
       {children}
     </LeafletMap>
   );
 };
-
 export default MapContainer;

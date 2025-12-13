@@ -30,7 +30,7 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then((res) => {
-        console.log(res);
+        console.log("success",res);
         const isPrevLocation = res.locations.filter(
           (location: any) => location.type === "before_war"
         );

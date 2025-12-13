@@ -7,6 +7,9 @@ import { updatePreviousLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
+import SelectLocations from "../components/SelectLocations";
+import FlyToLocation from "../components/FlyToLocation";
+
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -24,7 +27,8 @@ const PreviousLocationMapPage = () => {
 
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
-  const center = position || defaultCenter;
+
+  const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   const { loading, execute } = usePost(`applications/add-previous-location`, {
     onSuccess: () => {
@@ -49,7 +53,7 @@ const PreviousLocationMapPage = () => {
           // setAddress(
           //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
           // );
-          setAddress('')
+          setAddress("");
         });
     }
   }, [position]);
@@ -80,11 +84,10 @@ const PreviousLocationMapPage = () => {
     <div className="max-w-4xl mx-auto">
       <div className="card">
         <h2 className="text-2xl font-bold mb-2">
-          Select Your Previous Location (Before War)
+          اختر موقعك السابق (قبل الحرب)
         </h2>
         <p className="text-gray-600 mb-4">
-          Please click on the map to mark the location of your property before
-          the war.
+          يرجى النقر على الخريطة لتحديد موقع ممتلكاتك قبل الحرب.
         </p>
         <div className="mb-4 h-96 rounded-lg overflow-hidden border border-gray-300">
           <MapContainer
@@ -94,8 +97,10 @@ const PreviousLocationMapPage = () => {
             setMarkerPosition={setPosition}
             height="100%"
             width="100%"
-            {...{setAddress}}
-          />
+            {...{ setAddress }}
+          >
+            <FlyToLocation target={center} />
+          </MapContainer>
         </div>
         {position && (
           <div className="space-y-4 mb-6">
@@ -117,6 +122,8 @@ const PreviousLocationMapPage = () => {
         )}
 
         <div className="flex gap-4">
+                    <SelectLocations setCenter={setCenter} />
+
           <button
             type="button"
             onClick={() => navigate(`${ROUTES.PASSWORD_DISPLAY}`)}
@@ -137,7 +144,7 @@ const PreviousLocationMapPage = () => {
             type="button"
             onClick={handleConfirm}
             className="btn-primary flex-1"
-            disabled={(!position || loading || !address)}
+            disabled={!position || loading || !address}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
@@ -151,6 +158,16 @@ const PreviousLocationMapPage = () => {
               </>
             )}
           </button>
+          {/* <button className="border-2" onClick={() => setCenter([30.282584, 31.348444])} >Change Center</button> */}
+          {/* {locations.map((loc) => (
+              <button
+                key={loc.name}
+                onClick={() => setCenter(loc.coords as [number, number])}
+                className="px-3 py-2 border rounded hover:bg-gray-100"
+              >
+                {loc.name}
+              </button>
+            ))} */}
         </div>
       </div>
     </div>

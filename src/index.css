@@ -65,3 +65,9 @@
     @apply bg-red-100 text-red-800;
   }
 }
+
+
+.MuiSelect-select{
+  height: 1.7rem !important;
+  margin-top: 6px !important;
+}

@@ -82,11 +82,10 @@ const CurrentLocationMapPage = () => {
     <div className="max-w-4xl mx-auto">
       <div className="card">
         <h2 className="text-2xl font-bold mb-2">
-          Select Your Current Location
+          حدد موقعك الحالي
         </h2>
         <p className="text-gray-600 mb-4">
-          Please click on the map to mark your current location (where you are
-          now).
+          يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).
         </p>
 
         <div className="mb-4 h-96 rounded-lg overflow-hidden border border-gray-300">

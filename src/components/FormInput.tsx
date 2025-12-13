@@ -88,7 +88,7 @@ export default function FormInput({
         type={inputType}
         {...register(id, validation)}
         placeholder={placeholder}
-        className={`input-field pr-10 !rounded-sm `} // padding for the eye icon
+        className={`input-field pr-10 !rounded-lg `} // padding for the eye icon
         maxLength={maxLength}
         {...{ defaultValue }}
         onChange={handleChangeInput}
