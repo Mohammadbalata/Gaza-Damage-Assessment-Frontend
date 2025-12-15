@@ -66,9 +66,9 @@ const ResidentialBuilding = ({
           <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
         </select>
-        {errors?.ResidentialBuilding?.habitability && (
+        {errors?.ResidentialBuilding?.propertyType && (
           <p className="text-red-600 text-sm">
-            {errors.ResidentialBuilding.habitability.message}
+            {errors.ResidentialBuilding?.propertyType.message}
           </p>
         )}
       </div>

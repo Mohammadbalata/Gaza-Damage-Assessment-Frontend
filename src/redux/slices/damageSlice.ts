@@ -137,27 +137,11 @@ const handleSave = async (
   data: any,
   errorMessage: string
 ) => {
-  const token = localStorage.getItem("token") || "";
   dispatch(setLoading(true));
   try {
     dispatch(setBuildingType(buildingType));
     dispatch(actionCreator(data));
     console.log("buildingType in handleSave", buildingType);
-    await axiosClient.post(
-      "https://backend-5549.onrender.com/applications/add-extra-data",
-      {
-        extraData: JSON.stringify({
-          buildingType: buildingType,
-          [buildingType]: data,
-        }),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
     // console.log(JSON.parse(res.data.data.extraData));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : errorMessage;

@@ -21,11 +21,13 @@ import CampHousing from "../components/Form Applications/CampHousing";
 import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../routes/Routes";
+import { Button, DialogActions } from "@mui/material";
 
-const DamageAssessmentDialog = () => {
-  const navigate = useNavigate();
+const DamageAssessmentDialog = ({
+  setApplications,
+  onClose,
+  location,
+}: any) => {
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -47,23 +49,89 @@ const DamageAssessmentDialog = () => {
 
   const onSubmit = (formData: IDamageAssessmentState) => {
     // dispatchBuildingType(dispatch, formData);
-    console.log(formData)
+    console.log(formData);
     const type = formData.buildingType;
-    if (type === "IndependentBuilding")
+    if (type === "IndependentBuilding") {
       dispatch(saveIndependentBuilding(formData));
-    if (type === "ApartmentInsideBuilding")
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.IndependentBuilding,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
+    }
+    if (type === "ApartmentInsideBuilding") {
       dispatch(saveApartmentInsideBuilding(formData));
-    if (type === "ResidentialBuilding")
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.ApartmentInsideBuilding,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
+    }
+    if (type === "ResidentialBuilding") {
       dispatch(saveResidentialBuilding(formData));
-    if (type === "tower") dispatch(saveTower(formData));
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.ResidentialBuilding,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
+    }
+
+    if (type === "tower") {
+      dispatch(saveTower(formData));
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.tower,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
+    }
     if (type === "compHouse") {
       dispatch(saveCompHouse(formData));
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.compHouse,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
     }
-    if (type === "additionalBuildings")
+    if (type === "additionalBuildings") {
       dispatch(saveAdditionalBuildings(formData));
-    navigate(`${ROUTES.CURRENT_LOCATION}`);
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          data: formData.additionalBuildings,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          governorate: location?.governorate,
+        },
+      ]);
+    }
     console.log("success submitted");
-    
+    onClose();
   };
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
@@ -85,7 +153,7 @@ const DamageAssessmentDialog = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full mx-auto">
       {damageAssessmentInfo.error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
           <AlertCircle className="w-5 h-5" />
@@ -93,11 +161,11 @@ const DamageAssessmentDialog = () => {
         </div>
       )}
 
-      <div className="card">
+      <div className="card shadow-none hover:shadow-none">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Damage Assessment</h2>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form className="space-y-6">
           <div>
             <label
               htmlFor="buildingType"
@@ -128,11 +196,14 @@ const DamageAssessmentDialog = () => {
             )}
           </div>
           <BuildingTypeView />
-          <div className="flex gap-4">
-            <button type="submit" className="btn-primary flex-1">
-              متابعة إلى الموقع الحالي
-            </button>
-          </div>
+          <DialogActions>
+            <Button className="!text-[17px]" onClick={onClose}>
+              إلغاء
+            </Button>
+            <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+              اعتماد الطلب
+            </Button>
+          </DialogActions>
         </form>
       </div>
     </div>

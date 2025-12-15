@@ -57,9 +57,9 @@ const Tower = ({ register, errors }: any) => {
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
           </select>
-          {errors?.tower?.habitability && (
+          {errors?.tower?.propertyType && (
             <p className="text-red-600 text-sm">
-              {errors.tower.habitability.message}
+              {errors.tower?.propertyType.message}
             </p>
           )}
         </div>

@@ -70,9 +70,9 @@ const CampHousing = ({ register, errors }: CampHousingProps) => {
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
           </select>
-          {errors?.compHouse?.habitability && (
+          {errors?.compHouse?.propertyType && (
             <p className="text-red-600 text-sm">
-              {errors.compHouse.habitability.message}
+              {errors.compHouse?.propertyType.message}
             </p>
           )}
         </div>

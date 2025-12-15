@@ -10,17 +10,14 @@ import { usePost } from "../hooks/api/useApi";
 import SelectLocations from "../components/SelectLocations";
 
 const PreviousLocationMapPage = () => {
+  const [applications, setApplications] = useState([]);
+
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const { previousLatitude, previousLongitude, previousLocationAddress } =
-    useAppSelector((state) => state.location);
+  const { previousLocationAddress } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
-  const [position, setPosition] = useState<[number, number] | null>(
-    previousLatitude && previousLongitude
-      ? [previousLatitude, previousLongitude]
-      : null
-  );
+  const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState(previousLocationAddress || "");
 
   // Default center: Gaza City
@@ -45,7 +42,7 @@ const PreviousLocationMapPage = () => {
       )
         .then((res) => res.json())
         .then((data) => {
-          setAddress(data.display_name || "Location selected");
+          setAddress(data.display_name);
         })
         .catch((error: any) => {
           // setAddress(
@@ -63,20 +60,33 @@ const PreviousLocationMapPage = () => {
   };
 
   const handleConfirm = () => {
-    if (position && address) {
-      dispatch(
-        updatePreviousLocation({
-          previousLatitude: position[0],
-          previousLongitude: position[1],
-          previousLocationAddress,
-        })
-      );
-      execute({
-        latitude: position[0].toString(),
-        longitude: position[1].toString(),
-        governorate: address,
+    if (applications.length !== 0) {
+      applications.map((application: any) => {
+        dispatch(
+          updatePreviousLocation({
+            latitude: application.latitude,
+            longitude: application.longitude,
+            governorate: application.governorate,
+            propertyDamaged: {
+              buildingType: application.buildingType,
+              [application.buildingType]: application.data,
+            },
+          })
+        );
+        execute({
+          latitude: application.latitude.toString(),
+          longitude: application.longitude.toString(),
+          governorate: application.governorate,
+          extraData: JSON.stringify({
+            buildingType: application.buildingType,
+            [application.buildingType]: application.data,
+          }),
+        });
       });
+      console.log(applications);
+      navigate(`${ROUTES.CURRENT_LOCATION}`);
     }
+    // console.log(position, address);
   };
 
   return (
@@ -97,6 +107,8 @@ const PreviousLocationMapPage = () => {
             height="100%"
             width="100%"
             {...{ setAddress }}
+            {...{ setApplications }}
+            location={{ position, governorate: address }}
           />
         </div>
         {position && (
@@ -135,7 +147,11 @@ const PreviousLocationMapPage = () => {
             <RotateCcw className="w-4 h-4 inline mr-2" />
             {t("map.reset")}
           </button>
-          <SelectLocations {...{handleReset}} setCenter={setCenter} className=" grow-[2] shrink-[2]" />
+          <SelectLocations
+            {...{ handleReset }}
+            setCenter={setCenter}
+            className=" grow-[2] shrink-[2]"
+          />
           <button
             type="button"
             onClick={handleConfirm}

@@ -71,3 +71,7 @@
   height: 1.7rem !important;
   margin-top: 6px !important;
 }
+
+.MuiPaper-root{
+  width: 100%;
+}
