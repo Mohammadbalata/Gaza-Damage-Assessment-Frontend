@@ -30,7 +30,7 @@ const LoginPage = () => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
       .then((res) => {
-        console.log("success",res);
+        console.log("success", res);
         const isPrevLocation = res.locations.filter(
           (location: any) => location.type === "before_war"
         );
@@ -39,8 +39,6 @@ const LoginPage = () => {
         );
         if (isPrevLocation.length === 0) {
           navigate(ROUTES.PREVIOUS_LOCATION);
-        } else if (res.extraData === null) {
-          navigate(ROUTES.DAMAGE_ASSESSMENT_DIALOG);
         } else if (isCurrentLocation.length === 0) {
           navigate(ROUTES.CURRENT_LOCATION);
         } else {

@@ -64,9 +64,9 @@ const IndependentBuilding = ({
           <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
         </select>
-        {errors?.IndependentBuilding?.habitability && (
+        {errors?.IndependentBuilding?.propertyType && (
           <p className="text-red-600 text-sm">
-            {errors.IndependentBuilding.habitability.message}
+            {errors.IndependentBuilding?.propertyType.message}
           </p>
         )}
       </div>

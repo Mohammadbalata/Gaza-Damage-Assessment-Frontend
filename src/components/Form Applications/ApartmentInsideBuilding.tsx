@@ -89,9 +89,9 @@ const ApartmentInsideBuilding = ({
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
           </select>
-          {errors?.ApartmentInsideBuilding?.habitability && (
+          {errors?.ApartmentInsideBuilding?.propertyType && (
             <p className="text-red-600 text-sm">
-              {errors.ApartmentInsideBuilding.habitability.message}
+              {errors.ApartmentInsideBuilding.propertyType.message}
             </p>
           )}
         </div>

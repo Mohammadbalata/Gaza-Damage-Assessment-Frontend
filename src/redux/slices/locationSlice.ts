@@ -47,13 +47,14 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ILocationState } from "../../interfaces/store/ILocationState";
 
 const initialState: ILocationState = {
-  previousLatitude: 0,
-  previousLongitude: 0,
-  previousLocationAddress: "",
+  previousLatitude: [],
+  previousLongitude: [],
+  previousLocationAddress: [],
   currentLatitude: 0,
   currentLongitude: 0,
   currentLocationAddress: "",
   loading: false,
+  extraData: [],
   error: null,
 };
 
@@ -70,9 +71,14 @@ export const locationSlice = createSlice({
       })
       .addCase(updatePreviousLocation.fulfilled, (state, action) => {
         state.loading = false;
-        state.previousLatitude = action.payload.previousLatitude;
-        state.previousLongitude = action.payload.previousLongitude;
-        state.previousLocationAddress = action.payload.previousLocationAddress;
+        // state.previousLatitude?.push(action.payload.latitude);
+        // state.previousLongitude?.push(action.payload.longitude);
+        // state.previousLocationAddress?.push(action.payload.governorate);
+        // state.extraData?.push(action.payload.propertyDamaged);
+        state.latitude = action.payload.latitude;
+        state.longitude = action.payload.longitude;
+        state.governorate = action.payload.governorate;
+        state.propertyDamaged = action.payload.propertyDamaged;
       })
       .addCase(updatePreviousLocation.rejected, (state, action) => {
         state.loading = false;

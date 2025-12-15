@@ -9,6 +9,7 @@ import "leaflet/dist/leaflet.css";
 import React, { useEffect } from "react";
 import ChangeView from "./ChangeView";
 import FlyToLocation from "./FlyToLocation";
+import FormDialog from "./FormDialog";
 
 // Fix default marker icon for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -30,6 +31,8 @@ interface MapContainerProps {
   height?: string;
   width?: string;
   setAddress: any;
+  setApplications?: any;
+  location?: any;
 }
 
 function LocationMarker({
@@ -44,44 +47,9 @@ function LocationMarker({
       setPosition([e.latlng.lat, e.latlng.lng]);
     },
   });
+
   return position ? <Marker position={position} /> : null;
 }
-
-// const MapContainer: React.FC<MapContainerProps> = ({
-//   center,
-//   zoom = 15,
-//   markerPosition,
-//   setMarkerPosition,
-//   children,
-//   height = "100%",
-//   width = "100%",
-//   setAddress,
-// }) => {
-//   useEffect(() => {
-//     if (setAddress) setAddress("");
-//   }, [markerPosition]);
-//   useEffect(() => {
-//     console.log("center", center);
-//   }, [center]);
-
-//   return (
-//     <LeafletMap center={center} zoom={zoom} style={{ height, width }}>
-//       <TileLayer
-//         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-//         attribution="&copy; Esri"
-//       />
-//       {setMarkerPosition && (
-//         <LocationMarker
-//           position={markerPosition ?? null}
-//           setPosition={setMarkerPosition}
-//         />
-//       )}
-//       {children}
-//     </LeafletMap>
-//   );
-// };
-
-// export default MapContainer;
 
 const MapContainer: React.FC<MapContainerProps> = ({
   center,
@@ -92,30 +60,47 @@ const MapContainer: React.FC<MapContainerProps> = ({
   height = "100%",
   width = "100%",
   setAddress,
+  setApplications,
+  location,
 }) => {
+  const [openDialog, setOpenDialog] = React.useState(false);
+
   useEffect(() => {
     if (setAddress) setAddress("");
   }, [markerPosition]);
 
   return (
-    <LeafletMap center={center} zoom={zoom} style={{ height, width }}>
-      <ChangeView center={center} zoom={zoom} />
+    <>
+      <LeafletMap center={center} zoom={zoom} style={{ height, width }}>
+        <ChangeView center={center} zoom={zoom} />
 
-      <TileLayer
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        attribution="&copy; Esri"
-      />
+        <TileLayer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution="&copy; Esri"
+        />
 
-      {setMarkerPosition && (
-        <LocationMarker
-          position={markerPosition ?? null}
-          setPosition={setMarkerPosition}
+        {setMarkerPosition && (
+          <LocationMarker
+            position={markerPosition ?? null}
+            setPosition={(pos) => {
+              setMarkerPosition(pos);
+              setOpenDialog(true); // ✅ افتح الفورم
+            }}
+          />
+        )}
+
+        <FlyToLocation target={center} />
+        {children}
+      </LeafletMap>
+      {location?.governorate && (
+        <FormDialog
+          {...{ setApplications }}
+          {...{ location }}
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
         />
       )}
-      <FlyToLocation target={center} />
-
-      {children}
-    </LeafletMap>
+    </>
   );
 };
 export default MapContainer;
