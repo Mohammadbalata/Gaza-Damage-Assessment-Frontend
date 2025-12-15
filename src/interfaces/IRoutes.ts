@@ -5,7 +5,7 @@ export interface IRoutes {
   VERIFICATION_QUESTIONS: string;
   PREVIOUS_LOCATION: string;
   PASSWORD_DISPLAY: string;
-  DAMAGE_ASSESSMENT_DIALOG: string;
+  // DAMAGE_ASSESSMENT_DIALOG: string;
   CURRENT_LOCATION: string;
   PERSONAL_INFO: string;
   FAMILY_INFO: string;

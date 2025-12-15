@@ -5,7 +5,6 @@ import {
 } from "@reduxjs/toolkit";
 import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { AppDispatch } from "../store";
-import { axiosClient } from "../../api/baseUrl";
 
 const initialState: IDamageAssessmentState = {
   buildingType: "",

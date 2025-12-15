@@ -13,7 +13,7 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { nationalId } = useAppSelector((state) => state.auth);
-  const { previousLocationAddress, currentLocationAddress, loading, error } =
+  const { governorate, currentLocationAddress, loading, error } =
     useAppSelector((state) => state.location);
 
   const damageState = useAppSelector((state) => state.damage);
@@ -188,7 +188,7 @@ const ReviewPage = () => {
         </section>
 
         {/* Previous Location (Before War) */}
-        {previousLocationAddress && (
+        {governorate && (
           <section className="mb-8 pb-8 border-b border-gray-200">
             <div className="flex items-center gap-2 mb-4">
               <MapPin className="w-5 h-5 text-primary" />
@@ -198,7 +198,7 @@ const ReviewPage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">{t("map.address")}</p>
-              <p className="font-medium">{previousLocationAddress}</p>
+              <p className="font-medium">{governorate}</p>
             </div>
           </section>
         )}

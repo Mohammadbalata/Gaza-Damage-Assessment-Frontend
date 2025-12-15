@@ -4,7 +4,6 @@ import HomePage from "../pages/HomePage";
 import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
-import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
 import ReviewPage from "../pages/ReviewPage";
 import SuccessPage from "../pages/SuccessPage";
@@ -56,7 +55,7 @@ export const ROUTES: IRoutes = {
   VERIFICATION_QUESTIONS: "/verification-questions",
   PREVIOUS_LOCATION: "/previous-location",
   PASSWORD_DISPLAY: "/password-display",
-  DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
+  // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
   FAMILY_INFO: "/family-info",
@@ -93,15 +92,15 @@ export const routes = [
     path: ROUTES.PASSWORD_DISPLAY,
     element: <PasswordDisplayPage />,
   },
-  {
-    path: ROUTES.DAMAGE_ASSESSMENT_DIALOG,
+  // {
+  //   path: ROUTES.DAMAGE_ASSESSMENT_DIALOG,
 
-    element: (
-      <ProtectedRoutes>
-        <DamageAssessmentDialog />
-      </ProtectedRoutes>
-    ),
-  },
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <DamageAssessmentDialog />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
 
   {
     path: ROUTES.CURRENT_LOCATION,

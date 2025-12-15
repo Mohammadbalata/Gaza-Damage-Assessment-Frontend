@@ -27,7 +27,7 @@ const PreviousLocationMapPage = () => {
 
   const { loading, execute } = usePost(`applications/add-previous-location`, {
     onSuccess: () => {
-      navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`);
+      navigate(`${ROUTES.CURRENT_LOCATION}`);
     },
     onError: (err) => {
       console.log(err);
@@ -84,9 +84,7 @@ const PreviousLocationMapPage = () => {
         });
       });
       console.log(applications);
-      navigate(`${ROUTES.CURRENT_LOCATION}`);
     }
-    // console.log(position, address);
   };
 
   return (

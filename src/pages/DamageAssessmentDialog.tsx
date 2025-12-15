@@ -22,6 +22,7 @@ import AdditionalBuildings from "../components/Form Applications/AdditionalBuild
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
 import { Button, DialogActions } from "@mui/material";
+import { useEffect } from "react";
 
 const DamageAssessmentDialog = ({
   setApplications,
@@ -34,6 +35,7 @@ const DamageAssessmentDialog = ({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<IDamageAssessmentState>({
     defaultValues: {
@@ -46,6 +48,10 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+  const resetBuildingTypeSelect = () => {
+    setValue("buildingType", "");
+    dispatch(setBuildingType("")); // يرجع على <option value="">
+  };
 
   const onSubmit = (formData: IDamageAssessmentState) => {
     // dispatchBuildingType(dispatch, formData);
@@ -132,7 +138,12 @@ const DamageAssessmentDialog = ({
     }
     console.log("success submitted");
     onClose();
+    // Reset form values
   };
+  useEffect(() => {
+    resetBuildingTypeSelect();
+  }, [onClose]);
+
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected = damageAssessmentInfo.buildingType;
