@@ -104,6 +104,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
       <TileLayer
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         attribution="&copy; Esri"
+        updateWhenZooming={false}
+        keepBuffer={4}
       />
 
       {setMarkerPosition && (
