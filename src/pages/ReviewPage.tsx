@@ -12,34 +12,22 @@ import { ROUTES } from "../routes/Routes";
 const ReviewPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { nationalId } = useAppSelector((state) => state.auth);
-  const { governorate, currentLocationAddress, loading, error } =
-    useAppSelector((state) => state.location);
+  const {
+    nationalId,
+    firstName,
+    fatherName,
+    grandfatherName,
+    familyName,
+    email,
+    phoneNumber,
+  } = useAppSelector((state) => state.auth);
+  const { loading, error, currentLocation, previosLocations } = useAppSelector(
+    (state) => state.location
+  );
 
-  const damageState = useAppSelector((state) => state.damage);
-
-  const buildingMap: any = {
-    IndependentBuilding: damageState.IndependentBuilding,
-    ApartmentInsideBuilding: damageState.ApartmentInsideBuilding,
-    ResidentialBuilding: damageState.ResidentialBuilding,
-    tower: damageState.tower,
-    compHouse: damageState.compHouse,
-    additionalBuildings: damageState.additionalBuildings,
-  };
-  // const selected = buildingOptions.filter((element: any) => {
-  //   if (element.value === 'compHouse') {
-  //     // console.log(buildingMap[element.value])
-  //     return buildingMap[element.value]
-  //   }
-  // });
-  // console.log(selected);
-  const selected = buildingMap[damageState.buildingType] || {};
-  // console.log(selected)
-  const { damageType, isHabitable, propertyType, propertyArea } = selected;
   const [loadingPage, setLoadingPage] = useState(loading);
   const [errorPage, setErrorPage] = useState(error);
   const dispatch = useAppDispatch();
-  // const pageRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = () => {
     navigate(`${ROUTES.SUCCESS}`);
@@ -100,111 +88,121 @@ const ReviewPage = () => {
               <p className="text-sm text-gray-600">{t("auth.nationalId")}</p>
               <p className="font-medium">{nationalId}</p>
             </div>
-            {/* <div>
+            <div>
               <p className="text-sm text-gray-600">{t("form.fullName")}</p>
-              <p className="font-medium">{}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">{t("form.motherName")}</p>
-              <p className="font-medium">{}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">{t("form.dateOfBirth")}</p>
-              <p className="font-medium">{}</p>
-            </div> */}
-          </div>
-        </section>
-
-        {/* Family Information */}
-        {/* <section className="mb-8 pb-8 border-b border-gray-200">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-primary" />
-            <h3 className="text-xl font-semibold">{t("review.familyInfo")}</h3>
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <p className="text-sm text-gray-600">
-                {t("form.addressBeforeWar")}
-              </p>
-              <p className="font-medium">{}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">
-                {t("form.numberOfChildren")}
-              </p>
-              <p className="font-medium">{}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">{t("form.wifeName")}</p>
-              <p className="font-medium">{}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">
-                {t("form.wifeNationalId")}
-              </p>
-              <p className="font-medium">{}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">{t("form.phoneNumber")}</p>
-              <p className="font-medium">{}</p>
-            </div>
-          </div>
-        </section> */}
-
-        {/* Damage Assessment */}
-        <section className="mb-8 pb-8 border-b border-gray-200">
-          <div className="flex items-center gap-2 mb-4">
-            <Home className="w-5 h-5 text-primary" />
-            <h3 className="text-xl font-semibold">{t("review.damageInfo")}</h3>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">{t("form.damageLevel")}</p>
-              <p className="font-medium capitalize">{damageType || "-"}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">{t("form.propertyType")}</p>
-              <p className="font-medium capitalize">{ propertyType || "-"}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">{t("form.propertySize")}</p>
-              <p className="font-medium">{propertyArea ?? 0} متر مربع</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">{t("form.isInhabitable")}</p>
               <p className="font-medium">
-                {isHabitable ? t("form.yes") : t("form.no")}
+                {firstName} {fatherName} {grandfatherName} {familyName}
               </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">البريد الإلكتروني</p>
+              <p className="font-medium">{email}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">رقم الموبايل</p>
+              <p className="font-medium">{phoneNumber}</p>
             </div>
           </div>
         </section>
-
         {/* Previous Location (Before War) */}
-        {governorate && (
-          <section className="mb-8 pb-8 border-b border-gray-200">
+        {previosLocations?.length && (
+          <>
             <div className="flex items-center gap-2 mb-4">
               <MapPin className="w-5 h-5 text-primary" />
               <h3 className="text-xl font-semibold">
                 السكن السابق ( قبل الحرب )
               </h3>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">{t("map.address")}</p>
-              <p className="font-medium">{governorate}</p>
-            </div>
-          </section>
+
+            {previosLocations?.map((location: any, index: number) => {
+              const damageType =
+                location?.extraData[location.extraData.buildingType]
+                  ?.damageType;
+              const propertyType =
+                location?.extraData[location.extraData.buildingType]
+                  ?.propertyType;
+              const propertyArea =
+                location?.extraData[location.extraData.buildingType]
+                  ?.propertyArea;
+              const isHabitable =
+                location?.extraData[location.extraData.buildingType]
+                  ?.isHabitable;
+
+              return (
+                <>
+                  <section key={index + 1} className="mb-4 pb-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <MapPin className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-semibold">
+                        الممتلك - {index + 1}
+                      </h3>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("map.address")}
+                      </p>
+                      <p className="font-medium">{location.governorate}</p>
+                    </div>
+                  </section>
+                  <section
+                    key={index * 100}
+                    className="mb-8 pb-8 border-b border-blue-400"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <Home className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-semibold">
+                        تقييم أضرار الممتلك
+                      </h3>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {t("form.damageLevel")}
+                        </p>
+                        <p className="font-medium capitalize">
+                          {damageType || "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {t("form.propertyType")}
+                        </p>
+                        <p className="font-medium capitalize">
+                          {propertyType || "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {t("form.propertySize")}
+                        </p>
+                        <p className="font-medium">
+                          {propertyArea ?? 0} متر مربع
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {t("form.isInhabitable")}
+                        </p>
+                        <p className="font-medium">
+                          {isHabitable ? t("form.yes") : t("form.no")}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </>
+              );
+            })}
+          </>
         )}
 
+        {/* Damage Assessment */}
+
         {/* Current Location */}
-        {currentLocationAddress && (
+        {currentLocation.currentLocationAddress && (
           <section className="mb-8 pb-8 border-b border-gray-200">
             <div className="flex items-center gap-2 mb-4">
               <MapPin className="w-5 h-5 text-primary" />
@@ -212,33 +210,14 @@ const ReviewPage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">{t("map.address")}</p>
-              <p className="font-medium">{currentLocationAddress}</p>
+              <p className="font-medium">
+                {currentLocation.currentLocationAddress}
+              </p>
             </div>
           </section>
         )}
-
-        {/* Documents */}
-        {/* {data.documents && data.documents.length > 0 && (
-          <section className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-primary" />
-              <h3 className="text-xl font-semibold">{t("review.documents")}</h3>
-            </div>
-            <p className="text-gray-600">
-              {data.documents.length} file(s) uploaded
-            </p>
-          </section>
-        )} */}
       </div>
-
       <div className="flex gap-4">
-        {/* <button
-          onClick={downloadPDF}
-          className="btn-primary px-6 py-3 rounded-lg font-medium w-full"
-        >
-          {t("success.downloadReceipt")}
-        </button> */}
-
         <button
           type="button"
           onClick={() => navigate("/current-location")}

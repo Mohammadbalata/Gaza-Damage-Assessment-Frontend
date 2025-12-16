@@ -7,7 +7,7 @@ import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
-import SelectLocations from "../components/SelectLocations";
+import SelectLocations, { locations } from "../components/SelectLocations";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -15,15 +15,15 @@ import SelectLocations from "../components/SelectLocations";
 const CurrentLocationMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { currentLatitude, currentLongitude, currentLocationAddress } =
-    useAppSelector((state) => state.location);
+  const { currentLocation } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const [position, setPosition] = useState<[number, number] | null>(
-    currentLatitude && currentLongitude
-      ? [currentLatitude, currentLongitude]
+    currentLocation.currentLatitude && currentLocation.currentLongitude
+      ? [currentLocation.currentLatitude, currentLocation.currentLongitude]
       : null
   );
-  const [address, setAddress] = useState(currentLocationAddress || "");
+  const [address, setAddress] = useState("");
+  const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
 
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
@@ -65,16 +65,19 @@ const CurrentLocationMapPage = () => {
     if (position && address) {
       dispatch(
         updateCurrentLocation({
-          currentLatitude: position[0],
-          currentLongitude: position[1],
-          currentLocationAddress,
+          currentLocation: {
+            currentLatitude: position[0],
+            currentLongitude: position[1],
+            currentLocationAddress:address,
+          },
         })
       );
 
       execute({
         latitude: position[0].toString(),
         longitude: position[1].toString(),
-        governorate: address,
+        address,
+        neighborhood,
       });
     }
   };
@@ -176,7 +179,8 @@ const CurrentLocationMapPage = () => {
             {t("map.reset")}
           </button>
           <SelectLocations
-          {...{handleReset}}
+            {...{ handleReset }}
+            {...{ setNeighborhood }}
             setCenter={setCenter}
             className=" grow-[2] shrink-[2]"
           />

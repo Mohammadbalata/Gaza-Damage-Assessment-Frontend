@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { useAppDispatch } from "../hooks/redux";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
-import SelectLocations from "../components/SelectLocations";
+import SelectLocations, { locations } from "../components/SelectLocations";
 
 const PreviousLocationMapPage = () => {
   const [applications, setApplications] = useState([]);
@@ -15,13 +15,13 @@ const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const { previousLocationAddress } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const [position, setPosition] = useState<[number, number] | null>();
-  const [address, setAddress] = useState(previousLocationAddress || "");
+  const [address, setAddress] = useState("");
+  const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
 
   // Default center: Gaza City
-  const defaultCenter: [number, number] = [31.3547, 34.3088];
+  const defaultCenter: [number, number] = [31.349013, 34.292483];
 
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
@@ -61,26 +61,21 @@ const PreviousLocationMapPage = () => {
 
   const handleConfirm = () => {
     if (applications.length !== 0) {
+      dispatch(
+        updatePreviousLocation({
+          previosLocations: applications,
+        })
+      );
       applications.map((application: any) => {
-        dispatch(
-          updatePreviousLocation({
-            latitude: application.latitude,
-            longitude: application.longitude,
-            governorate: application.governorate,
-            propertyDamaged: {
-              buildingType: application.buildingType,
-              [application.buildingType]: application.data,
-            },
-          })
-        );
         execute({
           latitude: application.latitude.toString(),
           longitude: application.longitude.toString(),
-          governorate: application.governorate,
+          address: application.address,
           extraData: JSON.stringify({
             buildingType: application.buildingType,
-            [application.buildingType]: application.data,
+            [application.buildingType]: application.extraData,
           }),
+          neighborhood: application.neighborhood,
         });
       });
       console.log(applications);
@@ -106,7 +101,7 @@ const PreviousLocationMapPage = () => {
             width="100%"
             {...{ setAddress }}
             {...{ setApplications }}
-            location={{ position, governorate: address }}
+            location={{ position, address, neighborhood }}
           />
         </div>
         {position && (
@@ -147,6 +142,7 @@ const PreviousLocationMapPage = () => {
           </button>
           <SelectLocations
             {...{ handleReset }}
+            {...{ setNeighborhood }}
             setCenter={setCenter}
             className=" grow-[2] shrink-[2]"
           />

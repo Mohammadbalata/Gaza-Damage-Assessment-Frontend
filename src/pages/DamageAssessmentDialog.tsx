@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
-  resetAllBuildings,
   saveAdditionalBuildings,
   saveApartmentInsideBuilding,
   saveCompHouse,
@@ -63,10 +62,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.IndependentBuilding,
+          extraData: formData.IndependentBuilding,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -76,10 +76,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.ApartmentInsideBuilding,
+          extraData: formData.ApartmentInsideBuilding,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -89,10 +90,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.ResidentialBuilding,
+          extraData: formData.ResidentialBuilding,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -103,10 +105,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.tower,
+          extraData: formData.tower,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -116,10 +119,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.compHouse,
+          extraData: formData.compHouse,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -129,10 +133,11 @@ const DamageAssessmentDialog = ({
         ...prev,
         {
           buildingType: type,
-          data: formData.additionalBuildings,
+          extraData: formData.additionalBuildings,
           latitude: location?.position[0],
           longitude: location?.position[1],
-          governorate: location?.governorate,
+          address: location?.address,
+          neighborhood: location?.neighborhood,
         },
       ]);
     }
@@ -189,7 +194,7 @@ const DamageAssessmentDialog = ({
               {...register("buildingType", { required: t("common.required") })}
               className="input-field"
               onChange={(e) => {
-                dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
+                // dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
                 dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
               }}
             >
