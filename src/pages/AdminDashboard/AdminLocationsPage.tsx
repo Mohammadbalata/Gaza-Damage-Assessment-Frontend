@@ -266,9 +266,10 @@ export function AdminLocationsPage() {
         ?.toLowerCase()
         .includes(search.toLowerCase()) ||
       location.citizen?.national_id?.includes(search) ||
-      location.governorate?.toLowerCase().includes(search.toLowerCase()) ||
+      location.address?.toLowerCase().includes(search.toLowerCase()) ||
       location.town?.toLowerCase().includes(search.toLowerCase()) ||
-      location.street?.toLowerCase().includes(search.toLowerCase())
+      location.street?.toLowerCase().includes(search.toLowerCase()) ||
+      location.neighborhood?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (!canView) {
