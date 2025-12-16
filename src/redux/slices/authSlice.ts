@@ -30,6 +30,24 @@ export const authSlice = createSlice({
     setNationalId: (state, action) => {
       state.nationalId = action.payload;
     },
+    setFirstName: (state, action) => {
+      state.firstName = action.payload;
+    },
+    setFatherName: (state, action) => {
+      state.fatherName = action.payload;
+    },
+    setGrandfatherName: (state, action) => {
+      state.grandfatherName = action.payload;
+    },
+    setFamilyName: (state, action) => {
+      state.familyName = action.payload;
+    },
+    setEmail: (state, action) => {
+      state.email = action.payload;
+    },
+    setPhoneNumber: (state, action) => {
+      state.phoneNumber = action.payload;
+    },
   },
   extraReducers: (builder) => {
     //---- sign in ----//
@@ -102,7 +120,7 @@ export const signIn = createAsyncThunk(
         locations,
       };
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
@@ -117,13 +135,13 @@ export const signUp = createAsyncThunk(
       const res = await axiosClient.post(`/auth/${payload.pathSignUp}`, {
         nationalId: payload.nationalId,
         password: payload.password, // include if backend expects it
-        firstName:payload.firstName,
-        fatherName:payload.fatherName,
-        grandfatherName:payload.grandfatherName,
-        familyName:payload.familyName,
-        email:payload.email,
-        phoneNumber:payload.phoneNumber,
-        whatsappNumber : payload.whatsappNumber
+        firstName: payload.firstName,
+        fatherName: payload.fatherName,
+        grandfatherName: payload.grandfatherName,
+        familyName: payload.familyName,
+        email: payload.email,
+        phoneNumber: payload.phoneNumber,
+        whatsappNumber: payload.whatsappNumber,
       });
       const token = res.data?.data?.token;
       console.log(res.data);
@@ -135,5 +153,14 @@ export const signUp = createAsyncThunk(
   }
 );
 // 410031934
-export const { setError, setNationalId } = authSlice.actions;
+export const {
+  setError,
+  setNationalId,
+  setFirstName,
+  setFatherName,
+  setGrandfatherName,
+  setFamilyName,
+  setEmail,
+  setPhoneNumber,
+} = authSlice.actions;
 export default authSlice.reducer;

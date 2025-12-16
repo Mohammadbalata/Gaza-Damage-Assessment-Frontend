@@ -2,11 +2,12 @@ import classNames from "classnames";
 
 interface Props {
   setCenter: (center: [number, number]) => void;
-  className?:string
-  handleReset:any
+  className?: string;
+  handleReset: any;
+  setNeighborhood?: any;
 }
 
-const locations = [
+export const locations = [
   {
     name: "المواصي الشمالي",
     coords: [31.377569, 34.28825] as [number, number],
@@ -41,7 +42,7 @@ const locations = [
   },
   {
     name: "حي السطر",
-    coords: [31.363400, 34.322628] as [number, number],
+    coords: [31.3634, 34.322628] as [number, number],
   },
   {
     name: "حي الكتيبة",
@@ -73,16 +74,23 @@ const locations = [
   },
 ];
 
-const SelectLocations = ({ handleReset, setCenter , className }: Props) => {
+const SelectLocations = ({
+  handleReset,
+  setCenter,
+  className,
+  setNeighborhood,
+}: Props) => {
   return (
     <select
-      className={classNames("btn-outline",className)}
+      defaultValue={locations[11].name}
+      className={classNames("btn-outline", className)}
       onChange={(e) => {
         const selected = locations.find((loc) => loc.name === e.target.value);
         if (selected) {
           setCenter(selected.coords);
+          setNeighborhood(selected.name);
         }
-        handleReset()
+        handleReset();
       }}
     >
       <option value="">اختر موقع</option>

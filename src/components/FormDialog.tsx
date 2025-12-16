@@ -6,22 +6,22 @@ interface FormDialogProps {
   open: boolean;
   onClose: () => void;
   setApplications: any;
-  location?:any
+  location?: any;
 }
 
 const FormDialog: React.FC<FormDialogProps> = ({
   open,
   onClose,
   setApplications,
-  location
+  location,
 }) => {
   return (
     <Dialog open={open} onClose={onClose}>
-        <DamageAssessmentDialog
-          {...{ setApplications }}
-          {...{ onClose }}
-          {...{location}}
-        />
+      <DamageAssessmentDialog
+        {...{ setApplications }}
+        {...{ onClose }}
+        {...{ location }}
+      />
     </Dialog>
   );
 };

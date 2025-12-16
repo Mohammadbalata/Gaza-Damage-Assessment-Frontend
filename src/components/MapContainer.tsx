@@ -92,7 +92,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
         <FlyToLocation target={center} />
         {children}
       </LeafletMap>
-      {location?.governorate && (
+      {location?.address && (
         <FormDialog
           {...{ setApplications }}
           {...{ location }}
