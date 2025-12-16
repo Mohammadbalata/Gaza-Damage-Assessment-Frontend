@@ -1,8 +1,7 @@
 export const translations: Record<"en" | "ar", Record<string, string>> = {
   en: {
     // Common
-    "app.title":
-      "Central System for Inventorying and Assessing Building Damages – Khan Younis Municipality",
+    "app.title": "Self-Damage Assessment System - Khan Younis Municipality",
     "app.subtitle": "Khan Younis Municipality",
     "app.receipt": "receipt",
     "common.submit": "Submit",
@@ -319,7 +318,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
   },
   ar: {
     // Common
-    "app.title": "النظام المركزي لحصر وتقييم أضرار المباني – بلدية خانيونس",
+    "app.title": "نظام حصر الاضرار الذاتي - بلدية خان يونس",
     "app.subtitle": "بلدية خانيونس",
     "app.receipt": "إيصال",
     "common.submit": "إرسال",

@@ -141,7 +141,7 @@ const ReviewPage = () => {
                       <p className="text-sm text-gray-600">
                         {t("map.address")}
                       </p>
-                      <p className="font-medium">{location.governorate}</p>
+                      <p className="font-medium">{location.address}</p>
                     </div>
                   </section>
                   <section
