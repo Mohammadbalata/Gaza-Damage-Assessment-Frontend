@@ -40,6 +40,8 @@ export interface Location {
   applicationId:string;
   citizenId: number;
   type: "before_war" | "after_war" | "temporary" | "current";
+  address:string;
+  neighborhood:string;
   governorate?: string | null;
   town?: string | null;
   street?: string | null;
@@ -48,6 +50,7 @@ export interface Location {
   latitude?: number | null;
   longitude?: number | null;
   notes?: string | null;
+  extraData:string;
   createdAt: string;
   updatedAt: string;
   citizen?: Citizen;

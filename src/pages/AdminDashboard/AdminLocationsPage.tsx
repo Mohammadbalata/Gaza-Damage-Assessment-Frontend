@@ -43,7 +43,8 @@ import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 
 // Fix default marker icons for Leaflet
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
+  ._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -124,7 +125,9 @@ export function AdminLocationsPage() {
     setValue,
     formState: { isSubmitting },
   } = useForm<LocationFormData>({
-    resolver: yupResolver(locationSchema) as unknown as Resolver<LocationFormData>,
+    resolver: yupResolver(
+      locationSchema
+    ) as unknown as Resolver<LocationFormData>,
     defaultValues: {
       citizenId: undefined,
       type: "current",
@@ -353,6 +356,7 @@ export function AdminLocationsPage() {
               <TableRow sx={{ bgcolor: "grey.100" }}>
                 <TableCell align="center">{t("admin.citizen")}</TableCell>
                 <TableCell align="center">{t("admin.type")}</TableCell>
+                <TableCell align="center">{t("admin.neighborhood")}</TableCell>
                 <TableCell align="center">{t("admin.address")}</TableCell>
                 <TableCell align="center">{t("admin.coordinates")}</TableCell>
                 {canManage && (
@@ -389,11 +393,13 @@ export function AdminLocationsPage() {
                       }}
                     />
                   </TableCell>
+                  <TableCell align="center">{location.neighborhood}</TableCell>
                   <TableCell align="center">
-                    {[location.governorate, location.town, location.street]
+                    {[location.address, location.town, location.street]
                       .filter(Boolean)
                       .join(" • ") || "-"}
                   </TableCell>
+
                   <TableCell align="center">
                     {location.latitude != null && location.longitude != null ? (
                       <Box>

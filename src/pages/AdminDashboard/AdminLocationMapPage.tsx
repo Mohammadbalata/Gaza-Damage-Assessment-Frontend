@@ -32,6 +32,8 @@ const AdminLocationMapPage = () => {
   const center: [number, number] = isValidCoords ? [lat, lng] : [31.5, 34.3]
   const position: [number, number] = isValidCoords ? [lat, lng] : [31.5, 34.3]
 
+
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
