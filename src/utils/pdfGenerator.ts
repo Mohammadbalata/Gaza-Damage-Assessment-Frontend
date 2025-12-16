@@ -3,110 +3,101 @@ import html2canvas from "html2canvas";
 import { formatDate } from "./helpers";
 
 export const generatePDFReceipt = async (data: any, t: any) => {
-  const buildingType = data.extraData.buildingType;
-  const buildingData = data.extraData?.[buildingType] || {};
+  const citizen = data.citizen;
+  const locations = data.locations || [];
 
-  // إنشاء عنصر HTML مؤقت
+  const previousLocations = locations.filter(
+    (l: any) => l.type === "before_war"
+  );
+  const currentLocation = locations.find(
+    (l: any) => l.type === "current"
+  );
+
   const element = document.createElement("div");
   element.style.width = "800px";
-  element.style.fontFamily = "'Amiri', 'Arial', sans-serif";
-  element.style.direction = "rtl"; // دعم اللغة العربية
+  element.style.fontFamily = "'Amiri', Arial, sans-serif";
+  element.style.direction = "rtl";
   element.style.padding = "30px";
   element.style.background = "#fff";
   element.style.color = "#333";
-  element.style.lineHeight = "1.6";
-  element.style.border = "1px solid #ddd";
-  element.style.borderRadius = "8px";
-  // success.trackingNumber
+  element.style.lineHeight = "1.8";
+
   element.innerHTML = `
-    <div style="text-align:center; margin-bottom: 20px;">
-      <h1 style="margin:0; font-size:24px; font-weight:bold;">${t(
-        "app.title"
-      )}</h1>
-      <h2 style="margin:5px 0 0 0; font-size:18px; font-weight:normal;">${t(
-        "app.subtitle"
-      )}</h2>
-      <p style="margin:10px 0 0 0; font-size:16px;">${t("app.receipt")}</p>
+    <div style="text-align:center; margin-bottom:20px;">
+      <h1 style="margin:0;">${t("app.title")}</h1>
+      <p>${t("app.receipt")}</p>
     </div>
-    <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;" />
 
-    <section style="margin-bottom:20px;">
-      <h3 style="font-size:18px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">
-        ${t("review.identityInfo")}
-      </h3>
-      <p><strong>${t("auth.nationalId")}:</strong> ${
-    data.citizen.national_id || "N/A"
-  }</p>
-        <p><strong>${t("success.trackingNumber")}:</strong> ${
-    data.id || "N/A"
-  }</p>
-      <p><strong>${t("form.fullName")}:</strong> ${
-    data.citizen.full_name || "N/A"
-  }</p>
-      <p><strong>${t("form.submissionDate")}:</strong> ${formatDate(
-    new Date(data.createdAt)
-  )}</p>
+    <hr />
+
+    <!-- بيانات الهوية -->
+    <section>
+      <h3>${t("review.identityInfo")}</h3>
+      <p><strong>${t("auth.nationalId")}:</strong> ${citizen?.national_id || "-"}</p>
+      <p><strong>${t("form.fullName")}:</strong> ${citizen?.full_name || "-"}</p>
+      <p><strong>البريد الإلكتروني:</strong> ${citizen?.email || "-"}</p>
+      <p><strong>رقم الموبايل:</strong> ${citizen?.phone_number || "-"}</p>
+      <p><strong>${t("success.trackingNumber")}:</strong> ${data.id}</p>
+      <p><strong>${t("form.submissionDate")}:</strong> ${formatDate(new Date(data.createdAt))}</p>
     </section>
 
-    <section style="margin-bottom:20px;">
-      <h3 style="font-size:18px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">
-        ${t("review.damageInfo")}
-      </h3>
+    <hr />
 
-            <p><strong>${t("form.propertyType")}:</strong> ${
-    buildingType || "N/A"
-  }</p>
+    <!-- السكن السابق -->
+    <section>
+      <h3>السكن السابق (قبل الحرب)</h3>
+      ${
+        previousLocations.length
+          ? previousLocations
+              .map((loc: any, index: number) => {
+                const extraData = JSON.parse(loc.extraData || "{}");
+                const buildingType = extraData.buildingType;
+                const building = extraData?.[buildingType] || {};
 
-      <p><strong>${t("form.damageLevel")}:</strong> ${
-    buildingData.damageType || "N/A"
-  }</p>
-
-      <p><strong>${t("form.propertySize")}:</strong> ${
-    buildingData.propertyArea ?? 0
-  } متر مربع</p>
-      <p><strong>${t("form.isInhabitable")}:</strong> ${
-    buildingData.isHabitable ? t("form.yes") : t("form.no")
-  }</p>
+                return `
+                  <div style="margin-bottom:15px; padding-bottom:10px; border-bottom:1px dashed #ccc;">
+                    <p><strong>الممتلك ${index + 1}</strong></p>
+                    <p><strong>${t("map.address")}:</strong> ${loc.address || "-"}</p>
+                    <p><strong>${t("form.damageLevel")}:</strong> ${building.damageType || "-"}</p>
+                    <p><strong>${t("form.propertyType")}:</strong> ${building.propertyType || "-"}</p>
+                    <p><strong>${t("form.propertySize")}:</strong> ${
+                      building.propertyArea ?? 0
+                    } متر مربع</p>
+                    <p><strong>${t("form.isInhabitable")}:</strong> ${
+                      building.isHabitable ? t("form.yes") : t("form.no")
+                    }</p>
+                  </div>
+                `;
+              })
+              .join("")
+          : "<p>لا يوجد سكن سابق</p>"
+      }
     </section>
 
-    <section style="margin-bottom:20px;">
-      <h3 style="font-size:18px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">
-        ${t("location.previous")}
-      </h3>
+    <hr />
+
+    <!-- السكن الحالي -->
+    <section>
+      <h3>السكن الحالي</h3>
       <p><strong>${t("map.address")}:</strong> ${
-    data.locations[0]?.governorate || "N/A"
-  }</p>
+        currentLocation?.address || "-"
+      }</p>
     </section>
 
-    <section style="margin-bottom:20px;">
-      <h3 style="font-size:18px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">
-        ${t("location.current")}
-      </h3>
-      <p><strong>${t("map.address")}:</strong> ${
-    data.locations[1]?.governorate || "N/A"
-  }</p>
-    </section>
+    <hr />
 
-    <section style="margin-top:20px;">
-      <h3 style="font-size:18px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">
-        ${t("review.instructions")}
-      </h3>
-      <ul style="padding-right: 20px; margin:0; list-style-type: none;">
-        <li>حافظ على هذا الإيصال ورقم التتبع بأمان</li>
-        <li>قم بحفظ كلمة المرور بشكل آمن</li>
-        <li>ستتلقى تحديثات عبر الرسائل القصيرة</li>
-        <li>هذا مستند رسمي صادر عن الحكومة</li>
-      </ul>
+    <section>
+      <p style="font-size:12px; color:#666;">
+        هذا إيصال رسمي، يرجى الاحتفاظ به ورقم التتبع لاستخدامه لاحقاً.
+      </p>
     </section>
   `;
 
   document.body.appendChild(element);
 
-  // تحويل HTML إلى canvas
   const canvas = await html2canvas(element, { scale: 2 });
   const imgData = canvas.toDataURL("image/jpeg");
 
-  // إنشاء PDF وإضافة الصورة
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -114,12 +105,12 @@ export const generatePDFReceipt = async (data: any, t: any) => {
   });
 
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgProps = pdf.getImageProperties(imgData);
   const pdfWidth = pageWidth - 40;
+  const imgProps = pdf.getImageProperties(imgData);
   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-  pdf.addImage(imgData, "PNG", 20, 20, pdfWidth, pdfHeight);
-  pdf.save(`Application-Receipt-${data.id || "N/A"}.pdf`);
+  pdf.addImage(imgData, "JPEG", 20, 20, pdfWidth, pdfHeight);
+  pdf.save(`Application-Receipt-${data.id}.pdf`);
 
   document.body.removeChild(element);
 };

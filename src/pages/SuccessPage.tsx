@@ -22,6 +22,7 @@ const SuccessPage = () => {
     // console.log(data);
     if (data?.id) {
       generatePDFReceipt(data, t);
+      
     }
   };
 
@@ -48,7 +49,6 @@ const SuccessPage = () => {
         setIsLoading(false);
       }
     };
-
     fetchApplication();
   }, []);
   return (

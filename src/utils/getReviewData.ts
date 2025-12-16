@@ -50,19 +50,4 @@ export const getReviewData = (dispatch: any, res: any) => {
       },
     })
   );
-  // locations.map((location: any) => {
-
-  //   if (location.type === "before_war") {
-  //   } else if (location.type === "current") {
-  //     dispatch(
-  // updateCurrentLocation({
-  //   currentLocation: {
-  //     currentLatitude: location.latitude,
-  //     currentLongitude: location.longitude,
-  //     currentLocationAddress: location.governorate,
-  //   },
-  //       })
-  //     );
-  //   }
-  // });
 };
