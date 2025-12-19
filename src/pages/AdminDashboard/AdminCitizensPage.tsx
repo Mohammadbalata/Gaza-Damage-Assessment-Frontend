@@ -24,7 +24,7 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Citizen } from "../../services/api";
+import { Citizen, UserRole } from "../../types/entities";
 import { citizenSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -49,8 +49,8 @@ export function AdminCitizensPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin", "supervisor");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Citizen | null>(null);

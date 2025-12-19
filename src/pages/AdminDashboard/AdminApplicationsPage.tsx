@@ -27,7 +27,6 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { adminApi, Application, Citizen } from "../../services/api";
 import { applicationSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -36,10 +35,12 @@ import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
+import { Application, ApplicationStatus, Citizen, UserRole } from "../../types/entities";
+import { adminApi } from "../../services/api";
 
 interface ApplicationFormData {
   citizenId: number;
-  status: Application["status"];
+  status: ApplicationStatus;
   notes: string;
 }
 const applicationTypesColors: Record<string, object> = {
@@ -80,9 +81,9 @@ export function AdminApplicationsPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin", "supervisor");
-  const canEditApplication = hasRole("supervisor");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN,UserRole.SUPERVISOR);
+  const canEditApplication = hasRole(UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
@@ -110,7 +111,7 @@ export function AdminApplicationsPage() {
     resolver: yupResolver(applicationSchema) as any,
     defaultValues: {
       citizenId: 0,
-      status: "pending",
+      status: ApplicationStatus.PENDING,
       notes: "",
     },
   });
@@ -212,7 +213,7 @@ export function AdminApplicationsPage() {
     setEditing(null);
     reset({
       citizenId: 0,
-      status: "pending",
+      status: ApplicationStatus.PENDING,
       notes: "",
     });
     setSelectedCitizen(null);

@@ -22,6 +22,7 @@ import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
+import { UserRole } from "../types/entities";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,9 +40,9 @@ function RoleBasedRoute() {
   if (!user) return <Navigate to={ROUTES.ADMIN_LOGIN} />;
 
   switch (user.role) {
-    case "supervisor":
+    case UserRole.SUPERVISOR:
       return <SupervisorDashboard />;
-    case "admin":
+    case UserRole.ADMIN:
       return <AdminDashboard />;
     default:
       return <Navigate to={ROUTES.ADMIN_LOGIN} />;

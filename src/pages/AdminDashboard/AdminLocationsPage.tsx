@@ -31,7 +31,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Citizen, Location } from "../../services/api";
+import { Citizen, Location, LocationType, UserRole } from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
@@ -89,8 +89,8 @@ export function AdminLocationsPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin", "supervisor");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN,UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
@@ -130,7 +130,7 @@ export function AdminLocationsPage() {
     ) as unknown as Resolver<LocationFormData>,
     defaultValues: {
       citizenId: undefined,
-      type: "current",
+      type: LocationType.CURRENT,
       notes: "",
     },
   });
@@ -213,7 +213,7 @@ export function AdminLocationsPage() {
     setEditing(null);
     setPosition(null);
     reset({
-      type: "current",
+      type: LocationType.CURRENT,
       notes: "",
       citizenId: undefined,
     });

@@ -6,22 +6,21 @@ import React, {
   useCallback,
 } from "react";
 import type { AxiosError } from "axios";
-import { api, AdminUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes/Routes";
+import { api } from "../services/api";
+import { AdminUser,UserRole } from "../types/entities";
 
-type Role = "admin" | "supervisor";
 
-export interface User extends AdminUser {}
 
 interface AdminAuthContextType {
-  user: User | null;
+  user: AdminUser | null;
   token: string | null;
   login: (credentials: { email: string; password: string }) => Promise<boolean>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
   isAuthenticated: boolean;
-  hasRole: (...roles: Role[]) => boolean;
+  hasRole: (...roles: UserRole[]) => boolean;
   error: string | null;
   loading: boolean;
 }
@@ -33,7 +32,7 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
 export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(() => {
+  const [user, setUser] = useState<AdminUser | null>(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
@@ -45,7 +44,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const persistAuth = (payload: { user: User; access_token: string }) => {
+  const persistAuth = (payload: { user: AdminUser; access_token: string }) => {
     setUser(payload.user);
     setToken(payload.access_token);
     localStorage.setItem("user", JSON.stringify(payload.user));
@@ -118,16 +117,16 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.removeItem("token");
     setUser(null);
     setToken(null);
-    if (user?.role !== "admin" || "supervisor") {
+    if (user?.role !== UserRole.ADMIN || UserRole.SUPERVISOR) {
       navigate(`${ROUTES.SIGNIN}`);
       console.log("into if logout");
     }
   };
 
   const hasRole = useCallback(
-    (...roles: Role[]) => {
+    (...roles: UserRole[]) => {
       if (!user) return false;
-      return roles.includes(user.role as Role);
+      return roles.includes(user.role as UserRole);
     },
     [user]
   );

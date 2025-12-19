@@ -25,6 +25,7 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
+import { UserRole } from "../../types/entities";
 
 /**
  * Admin Dashboard Page
@@ -190,7 +191,7 @@ const AdminDashboard: React.FC = () => {
                 >
                   {t("admin.reviewApplications")}
                 </Button>
-                {user?.role === "admin" && (
+                {user?.role === UserRole.ADMIN && (
                   <Button
                     variant="contained"
                     color="inherit"
@@ -206,7 +207,7 @@ const AdminDashboard: React.FC = () => {
                     {t("admin.addUser")}
                   </Button>
                 )}
-                {user?.role === "admin" && (
+                {user?.role === UserRole.ADMIN && (
                   <Button
                     variant="contained"
                     color="inherit"
