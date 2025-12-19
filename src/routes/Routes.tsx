@@ -23,6 +23,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import { UserRole } from "../types/entities";
+import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,7 @@ export const ROUTES: IRoutes = {
   ADMIN_CITIZENS: "/admin/citizens",
   ADMIN_LOCATIONS: "/admin/locations",
   ADMIN_LOCATION_MAP: "/admin/locations/map",
+  ADMIN_BANKING:"admin/banking"
 };
 
 export const routes = [
@@ -180,6 +182,14 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <AdminLocationMapPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_BANKING,
+    element: (
+      <ProtectedRoute>
+        <AdminBankingPage />
       </ProtectedRoute>
     ),
   },

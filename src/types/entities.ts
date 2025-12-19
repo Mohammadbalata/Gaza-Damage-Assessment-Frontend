@@ -1,4 +1,3 @@
-
 export enum UserRole {
   ADMIN = "ADMIN",
   SUPERVISOR = "SUPERVISOR",
@@ -6,38 +5,46 @@ export enum UserRole {
 
 export enum Gender {
   MALE = "MALE",
-FEMALE = "FEMALE"
-  
+  FEMALE = "FEMALE",
 }
 
 export enum CitizenStatus {
   ALIVE = "ALIVE",
-DEAD = "DEAD"
-  
+  DEAD = "DEAD",
 }
 
 export enum VerificationStatus {
   PENDING = "PENDING",
-NATIONAL_ID_VERIFIED = "NATIONAL_ID_VERIFIED",
-QUESTIONS_VERIFIED = "QUESTIONS_VERIFIED",
-VERIFIED = "VERIFIED",
-  
+  NATIONAL_ID_VERIFIED = "NATIONAL_ID_VERIFIED",
+  QUESTIONS_VERIFIED = "QUESTIONS_VERIFIED",
+  VERIFIED = "VERIFIED",
 }
 
 export enum ApplicationStatus {
   PENDING = "PENDING",
-VERIFIED = "VERIFIED",
-APPROVED = "APPROVED",
-REJECTED = "REJECTED",
-CLOSED = "CLOSED"
-  
+  VERIFIED = "VERIFIED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  CLOSED = "CLOSED",
 }
 
 export enum LocationType {
   BEFORE_WAR = "BEFORE_WAR",
-AFTER_WAR = "AFTER_WAR",
-TEMPORARY = "TEMPORARY",
-CURRENT = "CURRENT"
+  AFTER_WAR = "AFTER_WAR",
+  TEMPORARY = "TEMPORARY",
+  CURRENT = "CURRENT",
+}
+
+export enum AccountType {
+  SAVINGS = "SAVINGS",
+  CURRENT = "CURRENT",
+  WALLET = "WALLET",
+}
+
+export enum AccountStatus {
+  ACTIVE = "ACTIVE",
+  SUSPENDED = "SUSPENDED",
+  CLOSED = "CLOSED",
 }
 
 export interface AdminUser {
@@ -60,7 +67,7 @@ export interface Citizen {
   phone_number?: string;
   gender: Gender;
   status: CitizenStatus;
-  verification_status:VerificationStatus;
+  verification_status: VerificationStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -105,6 +112,35 @@ export interface Application {
   } | null;
 }
 
+export interface Bank {
+  id: string;
+  enName: string;
+  arName: string;
+  swiftCode?: string;
+  country?: string;
+  accounts?: BankAccount[];
+  createdAt: string;
+}
+
+export interface BankAccount {
+  id: string;
+  citizenId: number;
+  bankId: string;
+  accountHolderName: string;
+  accountNumber: string;
+  iban?: string;
+  accountType: AccountType;
+  currency: string;
+  isPrimary: boolean;
+  status: AccountStatus;
+  citizen?: Citizen;
+  bank?: Bank;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+
 export interface ApiResponse<T> {
   data: T;
   success: boolean;
@@ -142,5 +178,3 @@ export type CreateApplicationDto = {
   status?: ApplicationStatus;
   notes?: string;
 };
-
-
