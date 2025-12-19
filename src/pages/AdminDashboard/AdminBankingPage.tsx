@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -111,7 +111,7 @@ export function AdminBankingPage() {
     control,
     handleSubmit,
     reset,
-    setValue,
+    // setValue,
     formState: { isSubmitting },
   } = useForm<BankAccountFormData>({
     resolver: yupResolver(bankAccountSchema) as any,
@@ -546,7 +546,6 @@ export function AdminBankingPage() {
                 value={selectedCitizen}
                 onChange={(_, newValue) => {
                   setSelectedCitizen(newValue);
-                  setValue("citizenId", newValue?.id || 0);
                 }}
                 inputValue={citizenSearch}
                 onInputChange={(_, newInputValue) => {
