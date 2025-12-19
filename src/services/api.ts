@@ -1,6 +1,4 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
-import { extractData } from "../api/client";
-import { Citizen } from "../types/entities";
 
 // const LOCAL_URL = 'http://localhost:3000/api'
 const PROD_URL = "https://backend-5549.onrender.com";
@@ -94,35 +92,5 @@ api.interceptors.response.use(
   }
 );
 
-export const adminApi = {
-  listCitizens: async (params?: {
-    page?: number;
-    pageSize?: number;
-    search?: string;
-  }) => {
-    const res = await api.get("/citizens", { params });
-    return extractData<Citizen[]>(res);
-  },
-};
-
-// export const supervisorApi = {
-//   listApplications: async (params?: {
-//     page?: number;
-//     status?: Application["status"];
-//   }) => {
-//     const res = await api.get("/supervisor/applications", { params });
-//     return extractData<PaginatedResult<Application>>(res);
-//   },
-//   updateApplicationStatus: async (
-//     id: number,
-//     payload: { status: Application["status"]; notes?: string }
-//   ) => {
-//     const res = await api.patch(`/supervisor/applications/${id}`, payload);
-//     return extractData<Application>(res);
-//   },
-//   deleteApplication: async (id: number) => {
-//     await api.delete(`/supervisor/applications/${id}`);
-//   },
-// };
 
 export { api };

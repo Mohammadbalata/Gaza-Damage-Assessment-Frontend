@@ -61,22 +61,22 @@ interface LocationFormData {
 }
 
 const locationColors: Record<string, object> = {
-  before_war: {
+  BEFORE_WAR: {
     bgcolor: "rgba(183, 28, 28, 0.12)",
     color: "#b71c1c",
     fontWeight: 600,
   },
-  after_war: {
+  AFTER_WAR: {
     bgcolor: "rgba(255, 143, 0, 0.12)",
     color: "#ff8f00",
     fontWeight: 600,
   },
-  temporary: {
+  TEMPORARY: {
     bgcolor: "rgba(2, 136, 209, 0.12)",
     color: "#0288d1",
     fontWeight: 600,
   },
-  current: {
+  CURRENT: {
     bgcolor: "rgba(46, 125, 50, 0.12)",
     color: "#2e7d32",
     fontWeight: 600,
@@ -383,7 +383,7 @@ export function AdminLocationsPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Chip
-                      label={location.type.replace("_", " ")}
+                      label={location.type.replace("_", " ").toLocaleLowerCase()}
                       sx={{
                         ...locationColors[location.type],
                         textTransform: "capitalize",

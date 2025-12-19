@@ -117,10 +117,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.removeItem("token");
     setUser(null);
     setToken(null);
-    if (user?.role !== UserRole.ADMIN || UserRole.SUPERVISOR) {
-      navigate(`${ROUTES.SIGNIN}`);
-      console.log("into if logout");
-    }
+    navigate(`${ROUTES.LAYOUT}`);
   };
 
   const hasRole = useCallback(
