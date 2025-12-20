@@ -1,20 +1,47 @@
+import React from "react";
 import { useForm } from "react-hook-form";
-import { useLanguage } from "../../contexts/LanguageContext";
-import { Shield } from "lucide-react";
-import { useAuth } from "../../contexts/AdminAuthContext";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { useAuth } from "../../contexts/AdminAuthContext";
 import { ROUTES } from "../../routes/Routes";
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Stack,
+  Button,
+  TextField,
+  Alert,
+  CircularProgress,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import {
+  AdminPanelSettings as AdminIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Visibility,
+  VisibilityOff,
+  Login as LoginIcon,
+} from "@mui/icons-material";
+import BackButton from "../../components/Shared/BackButton";
 
 interface FormData {
   email: string;
   password: string;
 }
 
-const AdminLoginPage = () => {
+/**
+ * Admin Login Page
+ * صفحة تسجيل دخول المسؤول
+ */
+const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-
   const { loading, error, login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [showPassword, setShowPassword] = React.useState(false);
+
   const {
     register,
     handleSubmit,
@@ -29,224 +56,260 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <div className="card">
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full">
-              <Shield className="w-8 h-8 text-primary" />
-            </div>
-          </div>
-          <h2 className="text-2xl font-bold">{t("auth.adminLogin")}</h2>
-        </div>
+    <Container maxWidth="sm" sx={{ py: { xs: 2, md: 4 } }}>
+      {/* Main Card */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+          border: "1px solid",
+          borderColor: "divider",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+          },
+        }}
+      >
+        {/* Header - Dark theme for admin distinction */}
+        <Box
+          sx={{
+            background: "linear-gradient(135deg, #37474f 0%, #546e7a 100%)",
+            color: "white",
+            p: 4,
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Decorative elements */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: -30,
+              right: language === "ar" ? "auto" : -30,
+              left: language === "ar" ? -30 : "auto",
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.05)",
+            }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: -20,
+              right: language === "ar" ? -20 : "auto",
+              left: language === "ar" ? "auto" : -20,
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.03)",
+            }}
+          />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {t("auth.email")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register("email", {
-                required: t("common.required"),
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email format",
-                },
-              })}
-              className="input-field"
-              placeholder="admin@gaza.gov.ps"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {t("auth.password")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password", {
-                required: t("common.required"),
-                minLength: { value: 8, message: "Minimum 8 characters" },
-              })}
-              className="input-field"
-            />
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="btn-primary w-full"
-            disabled={loading}
+          <Stack
+            spacing={2}
+            alignItems="center"
+            sx={{ position: "relative", zIndex: 1 }}
           >
-            {loading ? t("common.loading") : t("auth.login")}
-          </button>
+            {/* Admin Icon */}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                bgcolor: "rgba(255,255,255,0.1)",
+                border: "2px solid rgba(255,255,255,0.2)",
+                display: "inline-flex",
+              }}
+            >
+              <AdminIcon sx={{ fontSize: 40 }} />
+            </Box>
+
+            {/* Title */}
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+              {t("auth.adminLogin")}
+            </Typography>
+
+            {/* Subtitle */}
+            <Typography variant="body2" sx={{ opacity: 0.8 }}>
+              {language === "ar"
+                ? "تسجيل الدخول إلى لوحة التحكم الإدارية"
+                : "Sign in to the admin dashboard"}
+            </Typography>
+          </Stack>
+        </Box>
+
+        {/* Form Content */}
+        <Box sx={{ p: { xs: 3, md: 4 } }}>
+          {/* Error Alert */}
           {error && (
-            <p className="mt-2 text-sm text-red-600 text-center">{error}</p>
+            <Alert
+              severity="error"
+              sx={{
+                mb: 3,
+                borderRadius: 2,
+                "& .MuiAlert-icon": {
+                  alignItems: "center",
+                },
+              }}
+            >
+              {error}
+            </Alert>
           )}
-        </form>
-      </div>
-    </div>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack spacing={3}>
+              {/* Email Field */}
+              <TextField
+                fullWidth
+                label={t("auth.email")}
+                type="email"
+                placeholder="admin@gaza.gov.ps"
+                {...register("email", {
+                  required: t("common.required"),
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message:
+                      language === "ar"
+                        ? "صيغة البريد الإلكتروني غير صحيحة"
+                        : "Invalid email format",
+                  },
+                })}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+
+              {/* Password Field */}
+              <TextField
+                fullWidth
+                label={t("auth.password")}
+                type={showPassword ? "text" : "password"}
+                {...register("password", {
+                  required: t("common.required"),
+                  minLength: {
+                    value: 8,
+                    message:
+                      language === "ar"
+                        ? "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
+                        : "Password must be at least 8 characters",
+                  },
+                })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                disabled={loading}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <LoginIcon />
+                  )
+                }
+                sx={{
+                  gap: 1,
+                  py: 1.5,
+                  mt: 1,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  bgcolor: "grey.800",
+                  boxShadow: "0 4px 12px rgba(55, 71, 79, 0.3)",
+                  "&:hover": {
+                    bgcolor: "grey.900",
+                    boxShadow: "0 6px 16px rgba(55, 71, 79, 0.4)",
+                  },
+                }}
+              >
+                {loading ? t("common.loading") : t("auth.login")}
+              </Button>
+            </Stack>
+          </form>
+
+          {/* Security Notice */}
+          <Box
+            sx={{
+              mt: 3,
+              p: 2,
+              borderRadius: 2,
+              bgcolor: "grey.50",
+              border: "1px solid",
+              borderColor: "grey.200",
+            }}
+          >
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              textAlign="center"
+            >
+              {language === "ar"
+                ? "🔒 هذه المنطقة مخصصة للمسؤولين المعتمدين فقط"
+                : "🔒 This area is restricted to authorized personnel only"}
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+      <BackButton language={language} to="/" />
+
+      {/* Footer Text */}
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{
+          display: "block",
+          textAlign: "center",
+          mt: 3,
+          opacity: 0.7,
+        }}
+      >
+        {language === "ar"
+          ? "نظام حصر الأضرار الذاتي - بلدية خان يونس"
+          : "Self-Damage Assessment System - Khan Younis Municipality"}
+      </Typography>
+    </Container>
   );
 };
 
 export default AdminLoginPage;
-
-// import React from "react";
-// import { useForm } from "react-hook-form";
-// import { yupResolver } from "@hookform/resolvers/yup";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   Box,
-//   Card,
-//   Typography,
-//   Button,
-//   CircularProgress,
-//   Container,
-//   Avatar,
-// } from "@mui/material";
-// import { Shield } from "lucide-react";
-// import FormTextField from "../../components/Shared/FormTextField";
-// import ErrorAlert from "../../components/Shared/ErrorAlert";
-// import { loginSchema } from "../../services/validation";
-// import { useAuth } from "../../contexts/AdminAuthContext";
-// import { useLanguage } from "../../contexts/LanguageContext";
-// import { ROUTES } from "../../routes/Routes";
-
-// interface LoginFormData {
-//   email: string;
-//   password: string;
-// }
-
-// export function AdminLoginPage() {
-//   const navigate = useNavigate();
-//   const { t } = useLanguage();
-//   const { login, loading, error } = useAuth();
-
-//   const {
-//     control,
-//     handleSubmit,
-//     formState: { isSubmitting },
-//   } = useForm<LoginFormData>({
-//     resolver: yupResolver(loginSchema),
-//     defaultValues: {
-//       email: "",
-//       password: "",
-//     },
-//   });
-
-//   const onSubmit = async (data: LoginFormData) => {
-//     const success = await login(data);
-//     if (success) {
-//       navigate(ROUTES.ADMIN_DASHBOARD);
-//     }
-//   };
-
-//   return (
-//     <Container maxWidth="sm">
-//       <Box
-//         sx={{
-//           display: "flex",
-//           minHeight: "100vh",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           py: 4,
-//         }}
-//       >
-//         <Card sx={{ width: "100%", p: 4 }}>
-//           {/* Header */}
-//           <Box sx={{ textAlign: "center", mb: 4 }}>
-//             <Avatar
-//               sx={{
-//                 mx: "auto",
-//                 mb: 2,
-//                 bgcolor: "primary.main",
-//                 width: 56,
-//                 height: 56,
-//               }}
-//             >
-//               <Shield size={32} />
-//             </Avatar>
-//             <Typography variant="h4" component="h1" gutterBottom>
-//               {t("auth.adminLogin")}
-//             </Typography>
-//             <Typography color="textSecondary" variant="body2">
-//               {t("auth.adminLoginDescription") || "يرجى تسجيل الدخول للمتابعة"}
-//             </Typography>
-//           </Box>
-
-//           {/* Error Alert */}
-//           {error && (
-//             <ErrorAlert
-//               message={error}
-//               severity="error"
-//               sx={{ mb: 3 }}
-//               onClose={() => {}}
-//             />
-//           )}
-
-//           {/* Form */}
-//           <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-//             <Box sx={{ mb: 3 }}>
-//               <FormTextField
-//                 control={control}
-//                 name="email"
-//                 label={t("auth.email")}
-//                 type="email"
-//                 placeholder="admin@example.com"
-//                 isLoading={isSubmitting}
-//               />
-//             </Box>
-
-//             <Box sx={{ mb: 4 }}>
-//               <FormTextField
-//                 control={control}
-//                 name="password"
-//                 label={t("auth.password")}
-//                 type="password"
-//                 isLoading={isSubmitting}
-//               />
-//             </Box>
-
-//             <Button
-//               type="submit"
-//               variant="contained"
-//               fullWidth
-//               size="large"
-//               disabled={loading || isSubmitting}
-//               sx={{ py: 1.5 }}
-//             >
-//               {loading || isSubmitting ? (
-//                 <>
-//                   <CircularProgress size={20} sx={{ mr: 1 }} />
-//                   {t("common.loading")}
-//                 </>
-//               ) : (
-//                 t("auth.login")
-//               )}
-//             </Button>
-//           </Box>
-//         </Card>
-//       </Box>
-//     </Container>
-//   );
-// }
-
-// export default AdminLoginPage;

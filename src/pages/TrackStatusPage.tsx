@@ -1,14 +1,32 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  XCircle,
-  FileCheck,
-} from "lucide-react";
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Stack,
+  Button,
+  TextField,
+  Alert,
+  Chip,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
+  Divider,
+} from "@mui/material";
+import {
+  Search as SearchIcon,
+  CheckCircle as CheckIcon,
+  Schedule as ClockIcon,
+  Cancel as CancelIcon,
+  Verified as VerifiedIcon,
+} from "@mui/icons-material";
 import { axiosClient } from "../api/baseUrl";
+import BackButton from "../components/Shared/BackButton";
 
 interface FormData {
   trackingNumber: string;
@@ -19,11 +37,16 @@ interface StatusHistory {
   timestamp: string;
 }
 
-const TrackStatusPage = () => {
-  const { t } = useLanguage();
+/**
+ * Track Status Page
+ * صفحة تتبع حالة الطلب
+ */
+const TrackStatusPage: React.FC = () => {
+  const { t, language } = useLanguage();
   const [application, setApplication] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -32,6 +55,7 @@ const TrackStatusPage = () => {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+    setError("");
     try {
       const res = await axiosClient.get(
         `/track-application/${data.trackingNumber}`
@@ -39,158 +63,369 @@ const TrackStatusPage = () => {
 
       if (res) {
         const app = res.data.data;
+        console.log(app);
         setApplication({
           trackingNumber: app.id,
-          status: app.status,
+          status: app.status.toLowerCase(),
           submittedAt: app.createdAt,
           lastUpdate: app.updatedAt,
           statusHistory: [
-            { status: app.status, timestamp: app.createdAt },
-            { status: app.status, timestamp: app.createdAt },
+            { status: app.status.toLowerCase(), timestamp: app.createdAt },
+            { status: app.status.toLowerCase(), timestamp: app.createdAt },
           ],
         });
       }
     } catch (err: any) {
-      setError(err.response.data.message);
-      console.log(err.response.data.message);
+      setError(err.response?.data?.message || "Failed to fetch application");
+      console.log(err.response?.data?.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "submitted":
+        return "info";
+      case "pending":
+        return "default";
+      case "underReview":
+        return "warning";
+      case "verified":
+        return "success";
+      case "approved":
+        return "success";
+      case "rejected":
+        return "error";
+      default:
+        return "default";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "submitted":
-        return <Clock className="w-5 h-5 text-blue-600" />;
+        return <ClockIcon sx={{ fontSize: 20 }} />;
       case "pending":
-        return <AlertCircle className="w-5 h-5 text-gray-600" />;
+        return <ClockIcon sx={{ fontSize: 20 }} />;
       case "underReview":
-        return <FileCheck className="w-5 h-5 text-yellow-600" />;
+        return <SearchIcon sx={{ fontSize: 20 }} />;
       case "verified":
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <VerifiedIcon sx={{ fontSize: 20 }} />;
       case "approved":
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckIcon sx={{ fontSize: 20 }} />;
       case "rejected":
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <CancelIcon sx={{ fontSize: 20 }} />;
       default:
-        return <AlertCircle className="w-5 h-5 text-gray-600" />;
+        return <ClockIcon sx={{ fontSize: 20 }} />;
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    if (!status) return null;
-
-    const statusClass = `badge badge-${status
-      .replace(/([A-Z])/g, "-$1")
-      .toLowerCase()}`;
-
-    return <span className={statusClass}>{t(`${status}`)}</span>;
-  };
-
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="card">
-        <h2 className="text-2xl font-bold mb-6">{t("auth.trackStatus")}</h2>
+    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+      {/* Header Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          mb: 4,
+          p: { xs: 3, md: 4 },
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)",
+          color: "white",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Decorative circles */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -40,
+            right: language === "ar" ? "auto" : -40,
+            left: language === "ar" ? -40 : "auto",
+            width: 150,
+            height: 150,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.08)",
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: -30,
+            right: language === "ar" ? -30 : "auto",
+            left: language === "ar" ? "auto" : -30,
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.06)",
+          }}
+        />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
-          <div>
-            <label
-              htmlFor="trackingNumber"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              {t("success.trackingNumber")}{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="trackingNumber"
-              type="text"
-              {...register("trackingNumber", {
-                required: t("common.required"),
-                pattern: {
-                  value: /^GAZA-\d{4}-\d{6}$/,
-                  message: "Invalid tracking number format (GAZA-YYYY-XXXXXX)",
-                },
-              })}
-              placeholder="GAZA-2024-123456"
-              className="input-field"
-            />
-            {errors.trackingNumber && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.trackingNumber.message}
-              </p>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="btn-primary w-full"
-            disabled={loading}
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{ position: "relative", zIndex: 1 }}
+        >
+          <Box
+            sx={{
+              p: 1.5,
+              borderRadius: 2,
+              bgcolor: "rgba(255,255,255,0.15)",
+              display: "flex",
+            }}
           >
-            {loading ? t("common.loading") : "Track Status"}
-          </button>
-        </form>
-        {error ? (
-          <p className="text-center mt-1 text-md text-red-600">{error}</p>
-        ) : (
-          <>
-            {application && (
-              <div className="mt-8 space-y-6">
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">
-                      Application Status
-                    </h3>
-                    {getStatusBadge(application.status)}
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Tracking Number:{" "}
-                    <span className="font-mono font-bold">
-                      {application.trackingNumber}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Last Updated:{" "}
-                    {new Date(application.lastUpdate).toLocaleString()}
-                  </p>
-                </div>
+            <SearchIcon sx={{ fontSize: 32 }} />
+          </Box>
+          <Box>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, mr: 1 }}>
+              {t("auth.trackStatus")}
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
+              {language === "ar"
+                ? "أدخل رقم التتبع للاستعلام عن حالة طلبك"
+                : "Enter your tracking number to check your application status"}
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
 
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Status Timeline
-                  </h3>
-                  <div className="space-y-4">
-                    {application.statusHistory?.map(
-                      (history: StatusHistory, index: number) => (
-                        <div key={index} className="flex items-start gap-4">
-                          <div className="mt-1">
-                            {getStatusIcon(history.status)}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium">
-                                {t(`${history.status}`)}
-                              </p>
-                              {index ===
-                                application.statusHistory.length - 1 && (
-                                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                  Current
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600">
-                              {new Date(history.timestamp).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+      {/* Search Form */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, md: 4 },
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          mb: 4,
+        }}
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3}>
+            {/* Tracking Number Input */}
+            <Box>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                sx={{ mb: 1, fontWeight: 600 }}
+              >
+                {t("success.trackingNumber")} *
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="GAZA-2024-123456"
+                {...register("trackingNumber", {
+                  required: t("common.required"),
+                  pattern: {
+                    value: /^GAZA-\d{4}-\d{6}$/,
+                    message:
+                      language === "ar"
+                        ? "صيغة رقم التتبع غير صحيحة (GAZA-YYYY-XXXXXX)"
+                        : "Invalid tracking number format (GAZA-YYYY-XXXXXX)",
+                  },
+                })}
+                error={!!errors.trackingNumber}
+                helperText={errors.trackingNumber?.message}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                    fontSize: "1.1rem",
+                    fontFamily: "monospace",
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="contained"
+              color="success"
+              size="large"
+              fullWidth
+              disabled={loading}
+              startIcon={
+                loading ? (
+                  <CircularProgress sx={{ mx: 1 }} size={20} color="inherit" />
+                ) : (
+                  <SearchIcon sx={{ mx: 1 }} />
+                )
+              }
+              sx={{
+                color: "white",
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                boxShadow: "0 4px 12px rgba(46, 125, 50, 0.3)",
+                "&:hover": {
+                  boxShadow: "0 6px 16px rgba(46, 125, 50, 0.4)",
+                },
+              }}
+            >
+              {loading ? t("common.loading") : t("auth.trackStatus")}
+            </Button>
+          </Stack>
+        </form>
+      </Paper>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 4, borderRadius: 2 }}
+          onClose={() => setError("")}
+        >
+          {error}
+        </Alert>
+      )}
+
+      {/* Application Status Results */}
+      {application && (
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+          }}
+        >
+          {/* Status Header */}
+          <Box
+            sx={{
+              p: 3,
+              bgcolor: "grey.50",
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              justifyContent="space-between"
+              alignItems={{ xs: "flex-start", sm: "center" }}
+              spacing={2}
+              useFlexGap={true}
+            >
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  {language === "ar" ? "حالة الطلب" : "Application Status"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {language === "ar" ? "رقم التتبع: " : "Tracking Number: "}
+                  <Typography
+                    component="span"
+                    sx={{ fontFamily: "monospace", fontWeight: 700 }}
+                  >
+                    {application.trackingNumber}
+                  </Typography>
+                </Typography>
+              </Box>
+              <Chip
+                icon={getStatusIcon(application.status)}
+                label={t(`status.${application.status}`)}
+                color={getStatusColor(application.status) as any}
+                sx={{ fontWeight: 600, px: 1 }}
+              />
+            </Stack>
+          </Box>
+
+          {/* Last Update Info */}
+          <Box sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider" }}>
+            <Stack direction="row" spacing={4}>
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  {language === "ar" ? "تاريخ التقديم" : "Submitted Date"}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {new Date(application.submittedAt).toLocaleDateString(
+                    language === "ar" ? "ar-EG" : "en-US",
+                    { year: "numeric", month: "long", day: "numeric" }
+                  )}
+                </Typography>
+              </Box>
+              <Divider orientation="vertical" flexItem />
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  {language === "ar" ? "آخر تحديث" : "Last Updated"}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {new Date(application.lastUpdate).toLocaleDateString(
+                    language === "ar" ? "ar-EG" : "en-US",
+                    { year: "numeric", month: "long", day: "numeric" }
+                  )}
+                </Typography>
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* Status Timeline */}
+          <Box sx={{ p: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>
+              {language === "ar" ? "سجل الحالة" : "Status Timeline"}
+            </Typography>
+            <Stepper
+              orientation="vertical"
+              activeStep={application.statusHistory?.length - 1}
+            >
+              {application.statusHistory?.map(
+                (history: StatusHistory, index: number) => (
+                  <Step key={index} completed>
+                    <StepLabel
+                      StepIconComponent={() => (
+                        <Box
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor:
+                              index === application.statusHistory.length - 1
+                                ? `${getStatusColor(history.status)}.main`
+                                : "grey.300",
+                            color: "white",
+                            ml: 1,
+                          }}
+                        >
+                          {getStatusIcon(history.status)}
+                        </Box>
+                      )}
+                    >
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          {t(`status.${history.status}`)}
+                        </Typography>
+                        {index === application.statusHistory.length - 1 && (
+                          <Chip
+                            label={language === "ar" ? "الحالي" : "Current"}
+                            size="small"
+                            color="success"
+                            sx={{ height: 20, fontSize: "0.7rem" }}
+                          />
+                        )}
+                      </Stack>
+                    </StepLabel>
+                    <StepContent>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(history.timestamp).toLocaleString(
+                          language === "ar" ? "ar-EG" : "en-US"
+                        )}
+                      </Typography>
+                    </StepContent>
+                  </Step>
+                )
+              )}
+            </Stepper>
+          </Box>
+        </Paper>
+      )}
+
+      {/* Back Button */}
+      <BackButton language={language} to="/" />
+    </Container>
   );
 };
 
