@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
+  resetAllBuildings,
   saveAdditionalBuildings,
   saveApartmentInsideBuilding,
   saveCompHouse,
@@ -35,6 +36,8 @@ const DamageAssessmentDialog = ({
     register,
     handleSubmit,
     setValue,
+    watch,
+    control,
     formState: { errors },
   } = useForm<IDamageAssessmentState>({
     defaultValues: {
@@ -154,17 +157,59 @@ const DamageAssessmentDialog = ({
     const selected = damageAssessmentInfo.buildingType;
     switch (selected) {
       case "IndependentBuilding":
-        return <IndependentBuilding {...{ register }} {...{ errors }} />;
+        return (
+          <IndependentBuilding
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
       case "ApartmentInsideBuilding":
-        return <ApartmentInsideBuilding {...{ register }} {...{ errors }} />;
+        return (
+          <ApartmentInsideBuilding
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
       case "ResidentialBuilding":
-        return <ResidentialBuilding {...{ register }} {...{ errors }} />;
+        return (
+          <ResidentialBuilding
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
       case "tower":
-        return <Tower {...{ register }} {...{ errors }} />;
+        return (
+          <Tower
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
       case "compHouse":
-        return <CampHousing {...{ register }} {...{ errors }} />;
+        return (
+          <CampHousing
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
       case "additionalBuildings":
-        return <AdditionalBuildings {...{ register }} {...{ errors }} />;
+        return (
+          <AdditionalBuildings
+            {...{ register }}
+            {...{ watch }}
+            {...{ control }}
+            {...{ errors }}
+          />
+        );
     }
   };
 
@@ -198,7 +243,7 @@ const DamageAssessmentDialog = ({
                 dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
               }}
             >
-              <option value="">{t("common.required")}</option>
+              <option value="">اختر مبنى</option>
               {buildingOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -213,7 +258,13 @@ const DamageAssessmentDialog = ({
           </div>
           <BuildingTypeView />
           <DialogActions>
-            <Button className="!text-[17px]" onClick={onClose}>
+            <Button
+              className="!text-[17px]"
+              onClick={() => {
+                dispatch(resetAllBuildings());
+                onClose();
+              }}
+            >
               إلغاء
             </Button>
             <Button variant="contained" onClick={handleSubmit(onSubmit)}>

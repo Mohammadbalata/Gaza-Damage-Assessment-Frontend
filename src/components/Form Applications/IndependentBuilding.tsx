@@ -1,15 +1,21 @@
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { useLanguage } from "../../contexts/LanguageContext";
-interface IndependentBuildingProps {
-  register: UseFormRegister<IDamageAssessmentState>;
-  errors: FieldErrors<IDamageAssessmentState>;
-}
+import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { IndependentBuildingProps } from "../../interfaces/props/IImageUploadInputProps";
+import SingleImageInput from "./ImagesInput/SingleImageInput";
+import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
+
 const IndependentBuilding = ({
   register,
   errors,
+  watch,
+  control,
 }: IndependentBuildingProps) => {
   const { t } = useLanguage();
+
+  const propertyType = watch("IndependentBuilding.propertyType");
+  const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
+  const damageTypeWatch = watch("IndependentBuilding.damageType");
+  const showDamageValue = damageTypeWatch === "هدم جزئي";
 
   return (
     <div className="space-y-6">
@@ -20,6 +26,7 @@ const IndependentBuilding = ({
         </label>
         <input
           type="number"
+          min={0}
           {...register("IndependentBuilding.numberOfFloors", {
             required: t("common.required"),
             min: { value: 1, message: "الحد الأدنى طابق واحد" },
@@ -34,13 +41,15 @@ const IndependentBuilding = ({
           </p>
         )}
       </div>
-      <div>
+      {/* مساحة الطابق الأرضي */}
+      <div className="edit">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          مساحة المبنى (م²) <span className="text-red-500">*</span>
+          مساحة الطابق الأرضي (م²) <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
-          {...register("IndependentBuilding.propertyArea", {
+          min={0}
+          {...register("IndependentBuilding.groundFloorArea", {
             required: t("common.required"),
             min: { value: 20, message: "الحد الأدنى 20 م²" },
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
@@ -48,21 +57,51 @@ const IndependentBuilding = ({
           })}
           className="input-field"
         />
-        {errors?.IndependentBuilding?.propertyArea && (
+        {errors?.IndependentBuilding?.groundFloorArea && (
           <p className="text-red-600 text-sm">
-            {errors.IndependentBuilding.propertyArea.message}
+            {errors.IndependentBuilding.groundFloorArea.message}
           </p>
         )}
       </div>
+      {/* مساحة الطابق المتكرر */}
+      <div className="edit">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          مساحة الطابق المتكرر (م²) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          min={0}
+          {...register("IndependentBuilding.commonFloorArea", {
+            required: t("common.required"),
+            min: { value: 20, message: "الحد الأدنى 20 م²" },
+            max: { value: 2000, message: "الحد الأقصى 2000 م²" },
+            valueAsNumber: true,
+          })}
+          className="input-field"
+        />
+        {errors?.IndependentBuilding?.commonFloorArea && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.commonFloorArea.message}
+          </p>
+        )}
+      </div>
+      {/* نوع حيازة العقار */}
       <div>
-        <label className="block text-sm font-medium mb-1">نوع العقار</label>
+        <label className="block text-sm font-medium mb-1">
+          نوع حيازة العقار <span className="text-red-500">*</span>
+        </label>
         <select
-          {...register("IndependentBuilding.propertyType")}
+          {...register("IndependentBuilding.propertyType", {
+            required: t("common.required"),
+          })}
           className="input-field"
         >
-          <option value="">لا يوجد</option>
+          <option value=""  >
+            لا يوجد
+          </option>
           <option value="ملك">ملك</option>
-            <option value="ايجار">ايجار </option>
+          <option value="ايجار">ايجار </option>
+          <option value="انتفاع">انتفاع </option>
         </select>
         {errors?.IndependentBuilding?.propertyType && (
           <p className="text-red-600 text-sm">
@@ -70,32 +109,31 @@ const IndependentBuilding = ({
           </p>
         )}
       </div>
+      {showOwnerName && (
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            اسم المالك الأساسي <span className="text-red-500">*</span>
+          </label>
 
-      {/* مساحة كل طابق */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          مساحة كل طابق <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="number"
-          {...register("IndependentBuilding.floorArea", {
-            required: t("common.required"),
-            min: { value: 10, message: "الحد الأدنى 10 متر مربع" },
-            max: { value: 10000, message: "الحد الأقصى 10000 متر مربع" },
-            valueAsNumber: true,
-          })}
-          className="input-field"
-        />
+          <input
+            className="input-field"
+            type="text"
+            placeholder="أدخل اسم المالك الأساسي"
+            {...register("IndependentBuilding.propertyOwnerName", {
+              required: t("common.required"),
+            })}
+          />
 
-        {errors?.IndependentBuilding?.floorArea && (
-          <p className="text-red-600 text-sm">
-            {errors.IndependentBuilding.floorArea.message}
-          </p>
-        )}
-      </div>
+          {errors?.IndependentBuilding?.propertyOwnerName && (
+            <p className="text-red-600 text-sm">
+              {errors.IndependentBuilding.propertyOwnerName.message}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* نوع السقف */}
-      <div>
+      <div className="edit">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نوع السقف <span className="text-red-500">*</span>
         </label>
@@ -105,11 +143,13 @@ const IndependentBuilding = ({
           })}
           className="input-field"
         >
-          <option value="">اختر النوع</option>
-          <option value="concrete">بلاطة خرسانية</option>
-          <option value="arch">عقد</option>
-          <option value="zinc">زينكو</option>
-          <option value="turbo">تيربو</option>
+          <option value=""  >
+            اختر النوع
+          </option>
+          <option value="بلاطة خرسانية">بلاطة خرسانية</option>
+          <option value="كرميد">كرميد</option>
+          <option value="زينكو">زينكو</option>
+          <option value="أسبست">أسبست</option>
         </select>
 
         {errors?.IndependentBuilding?.roofType && (
@@ -120,7 +160,7 @@ const IndependentBuilding = ({
       </div>
 
       {/* نوع الجدران */}
-      <div>
+      <div className="edit">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نوع الجدران <span className="text-red-500">*</span>
         </label>
@@ -130,10 +170,13 @@ const IndependentBuilding = ({
           })}
           className="input-field"
         >
-          <option value="">اختر النوع</option>
-          <option value="block">بلوك</option>
-          <option value="stone">حجر</option>
-          <option value="brick">طوب</option>
+          <option value=""  >
+            اختر النوع
+          </option>
+          <option value="بلوك / حجر">بلوك / حجر</option>
+          <option value="قواطع ( خشب - ألمنيوم - جبص - زينكو )">
+            قواطع ( خشب - ألمنيوم - جبص - زينكو )
+          </option>
         </select>
 
         {errors?.IndependentBuilding?.wallType && (
@@ -175,25 +218,40 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.damageType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className="input-field mb-4"
         >
-          <option value="">اختر نوع الضرر</option>
-          <option value="انهيار كامل">انهيار كامل</option>
-          <option value="انهيار جزئي">انهيار جزئي</option>
-          <option value="تشققات إنشائية">تشققات إنشائية</option>
-          <option value="تضرر الواجهات">تضرر الواجهات</option>
-          <option value="تضرر السقف">تضرر السقف</option>
-          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
-          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
-          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
-          <option value="تضرر شبكة المياه والصرف">
-            تضرر شبكة المياه والصرف
+          <option value=""  >
+            اختر نوع الضرر
           </option>
+          <option value="هدم كلي"> هدم كلي</option>
+          <option value="هدم جزئي">هدم جزئي</option>
         </select>
+        {showDamageValue &&
+          DAMAGE_TYPES.map(
+            (item, index) =>
+              item.buildingType !== "بناية" && (
+                <div className="mr-3" key={index}>
+                  <input
+                    type="checkbox"
+                    value={item.value}
+                    {...register("IndependentBuilding.damageTypes", {
+                      required: "اختر نوع ضرر واحد على الأقل",
+                    })}
+                    className="accent-primary"
+                  />
+                  <span className="mr-2">{item.label}</span>
+                </div>
+              )
+          )}
 
         {errors?.IndependentBuilding?.damageType && (
           <p className="text-red-600 text-sm">
             {errors.IndependentBuilding.damageType.message}
+          </p>
+        )}
+        {errors?.IndependentBuilding?.damageTypes && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.damageTypes.message}
           </p>
         )}
       </div>
@@ -203,16 +261,20 @@ const IndependentBuilding = ({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نسبة الضرر (%) <span className="text-red-500">*</span>
         </label>
-        <input
-          type="number"
+        <select
           {...register("IndependentBuilding.damagePercentage", {
             required: t("common.required"),
-            min: { value: 0, message: "لا يمكن أن تكون أقل من 0" },
-            max: { value: 100, message: "لا يمكن أن تتجاوز 100%" },
-            valueAsNumber: true,
           })}
           className="input-field"
-        />
+        >
+          <option value=""  >
+            0
+          </option>
+          <option value="25%">25%</option>
+          <option value="50%">50% </option>
+          <option value="75%">75% </option>
+          <option value="100%">100% </option>
+        </select>
 
         {errors?.IndependentBuilding?.damagePercentage && (
           <p className="text-red-600 text-sm">
@@ -220,41 +282,22 @@ const IndependentBuilding = ({
           </p>
         )}
       </div>
-
-      {/* قابلية السكن */}
+      {/* هل هو قابل للسكن حالياً؟ */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          قابلية السكن <span className="text-red-500">*</span>
+        <label className="block text-sm font-medium mb-1">
+          هل هو قابل للسكن حالياً؟ <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("IndependentBuilding.habitability", {
+          {...register("IndependentBuilding.isHabitable", {
             required: t("common.required"),
           })}
           className="input-field"
         >
-          <option value="">اختر الحالة</option>
-          <option value="habitable">صالح للسكن</option>
-          <option value="needs-reinforcement">يحتاج تدعيم</option>
-          <option value="uninhabitable">غير صالح</option>
-        </select>
-
-        {errors?.IndependentBuilding?.habitability && (
-          <p className="text-red-600 text-sm">
-            {errors.IndependentBuilding.habitability.message}
-          </p>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          هل هو قابل للسكن حالياً؟
-        </label>
-        <select
-          {...register("IndependentBuilding.isHabitable")}
-          className="input-field"
-        >
-          <option value="">لا يوجد</option>
-          <option value="true">نعم</option>
-          <option value="false">لا </option>
+          <option value=""  >
+            اختر نوع
+          </option>
+          <option value="نعم">نعم</option>
+          <option value="لا">لا </option>
         </select>
         {errors?.IndependentBuilding?.isHabitable && (
           <p className="text-red-600 text-sm">
@@ -272,6 +315,26 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.additionalNotes")}
           className="input-field min-h-[100px] resize-none"
         ></textarea>
+      </div>
+      {/* صور ومستندات */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SingleImageInput
+          control={control}
+          name="IndependentBuilding.beforeWarImage"
+          label="صورة العقار قبل الحرب ( إن وجد )"
+        />
+
+        <SingleImageInput
+          control={control}
+          name="IndependentBuilding.afterWarImage"
+          label="صورة العقار بعد الحرب ( إن وجد )"
+        />
+
+        <MultipleImagesInput
+          control={control}
+          name="IndependentBuilding.ownershipDocuments"
+          label="مستندات الملكية ( إن وجد )"
+        />
       </div>
     </div>
   );

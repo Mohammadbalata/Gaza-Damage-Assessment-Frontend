@@ -1,43 +1,28 @@
 import { useLanguage } from "../../contexts/LanguageContext";
-
+import SingleImageInput from "./ImagesInput/SingleImageInput";
+import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
+import { DAMAGE_TYPE_CompHouse } from "../../utils/DamageAssessment";
 interface CampHousingProps {
   register: any;
   errors: any;
+  watch: any;
+  control: any;
 }
 
-const CampHousing = ({ register, errors }: CampHousingProps) => {
+const CampHousing = ({
+  register,
+  errors,
+  watch,
+  control,
+}: CampHousingProps) => {
   const { t } = useLanguage();
-
+  const propertyType = watch("compHouse.propertyType");
+  const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
+  const damageTypeWatch = watch("compHouse.damageType");
+  const showDamageValue = damageTypeWatch === "هدم جزئي";
   return (
-    <div className="space-y-10">
-      {/* ============================= */}
-      {/* 1. Unit Type */}
-      {/* ============================= */}
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">نوع الوحدة</h3>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            نوع المسكن <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("compHouse.unitType", {
-              required: t("common.required"),
-            })}
-            className="input-field"
-          >
-            <option value="">اختر النوع</option>
-            <option value="block">مسكن بلوك بسيط</option>
-            <option value="caravan">كرفان معدني</option>
-            <option value="tent">خيمة محمية</option>
-          </select>
-          {errors?.compHouse?.unitType && (
-            <p className="text-red-600 text-sm">
-              {errors.compHouse.unitType.message}
-            </p>
-          )}
-        </div>
-      </section>
+    <div className="space-y-6">
+      {/* مساحة المسكن */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           مساحة المسكن (م²) <span className="text-red-500">*</span>
@@ -58,214 +43,166 @@ const CampHousing = ({ register, errors }: CampHousingProps) => {
           </p>
         )}
       </div>
-       <div>
-          <label className="block text-sm font-medium mb-1">
-            نوع العقار
-          </label>
-          <select
-            {...register("compHouse.propertyType")}
-            className="input-field"
-          >
-            <option value="">لا يوجد</option>
-            <option value="ملك">ملك</option>
-            <option value="ايجار">ايجار </option>
-          </select>
-          {errors?.compHouse?.propertyType && (
-            <p className="text-red-600 text-sm">
-              {errors.compHouse?.propertyType.message}
-            </p>
-          )}
-        </div>
-      {/* ============================= */}
-      {/* 2. Damage Details */}
-      {/* ============================= */}
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">تفاصيل الضرر</h3>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              {...register("compHouse.directHitCollapse")}
-            />
-            <span>إصابة مباشرة أدت إلى انهيار</span>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              فتحات أو ضرر في السقف
-            </label>
-            <select
-              {...register("compHouse.roofHoles")}
-              className="input-field"
-            >
-              <option value="">لا يوجد</option>
-              <option value="torn">سقف ممزق</option>
-              <option value="holes">ثقوب في السقف</option>
-            </select>
-            {errors?.compHouse?.roofHoles && (
-              <p className="text-red-600 text-sm">
-                {errors.compHouse.roofHoles.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              تشققات في الجدران
-            </label>
-            <select
-              {...register("compHouse.minorCracks")}
-              className="input-field"
-            >
-              <option value="">لا يوجد</option>
-              <option value="minor">تشققات بسيطة</option>
-              <option value="moderate">تشققات متوسطة</option>
-            </select>
-            {errors?.compHouse?.minorCracks && (
-              <p className="text-red-600 text-sm">
-                {errors.compHouse.minorCracks.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              الأبواب والنوافذ
-            </label>
-            <select
-              {...register("compHouse.doorsWindowsDamage")}
-              className="input-field"
-            >
-              <option value="">لا يوجد</option>
-              <option value="damaged">تضرر</option>
-              <option value="broken">مكسور</option>
-            </select>
-            {errors?.compHouse?.doorsWindowsDamage && (
-              <p className="text-red-600 text-sm">
-                {errors.compHouse.doorsWindowsDamage.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              ضرر شبكة الكهرباء
-            </label>
-            <select
-              {...register("compHouse.electricalDamage")}
-              className="input-field"
-            >
-              <option value="">لا يوجد</option>
-              <option value="cut">كيبل مقطوع</option>
-              <option value="exposed">كيبل مكشوف</option>
-            </select>
-            {errors?.compHouse?.electricalDamage && (
-              <p className="text-red-600 text-sm">
-                {errors.compHouse.electricalDamage.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input type="checkbox" {...register("compHouse.waterLeak")} />
-            <span>تسرب مياه من السقف</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================= */}
-      {/* 3. Assessment */}
-      {/* ============================= */}
-
+      {/*نوع حيازة العقار */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تفاصيل الضرر <span className="text-red-500">*</span>
+        <label className="block text-sm font-medium mb-1">
+          نوع حيازة العقار <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("compHouse.damageType", {
+          {...register("compHouse.propertyType", {
             required: t("common.required"),
           })}
           className="input-field"
         >
-          <option value="">اختر نوع الضرر</option>
-          <option value="انهيار كامل">انهيار كامل</option>
-          <option value="انهيار جزئي">انهيار جزئي</option>
-          <option value="تشققات إنشائية">تشققات إنشائية</option>
-          <option value="تضرر الواجهات">تضرر الواجهات</option>
-          <option value="تضرر السقف">تضرر السقف</option>
-          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
-          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
-          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
-          <option value="تضرر شبكة المياه والصرف">تضرر شبكة المياه والصرف</option>
+          <option value="">لا يوجد</option>
+          <option value="ملك">ملك</option>
+          <option value="ايجار">ايجار </option>
+          <option value="انتفاع">انتفاع </option>
         </select>
-
-        {errors?.compHouse?.damageType && (
+        {errors?.compHouse?.propertyType && (
           <p className="text-red-600 text-sm">
-            {errors.compHouse.damageType.message}
+            {errors.compHouse?.propertyType.message}
           </p>
         )}
       </div>
-
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">التقييم</h3>
-
-        {/* <div>
-          <label className="block text-sm font-medium mb-1">
-            إمكانية السكن
-          </label>
-          <select
-            {...register("compHouse.habitability")}
-            className="input-field"
-          >
-            <option value="">اختر</option>
-            <option value="habitable">صالح للسكن</option>
-            <option value="partially">صالح جزئياً</option>
-            <option value="not-habitable">غير صالح</option>
-          </select>
-          {errors?.compHouse?.habitability && (
-            <p className="text-red-600 text-sm">
-              {errors.compHouse.habitability.message}
-            </p>
-          )}
-        </div> */}
-
+      {showOwnerName && (
         <div>
           <label className="block text-sm font-medium mb-1">
-            نسبة التلف (%)
+            اسم المالك الأساسي <span className="text-red-500">*</span>
           </label>
+
           <input
-            type="number"
+            className="input-field"
+            type="text"
+            placeholder="أدخل اسم المالك الأساسي"
+            {...register("compHouse.propertyOwnerName", {
+              required: t("common.required"),
+            })}
+          />
+
+          {errors?.compHouse?.propertyOwnerName && (
+            <p className="text-red-600 text-sm">
+              {errors.compHouse.propertyOwnerName.message}
+            </p>
+          )}
+        </div>
+      )}
+      {/* تفاصيل الضرر */}
+      <section className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            تفاصيل الضرر <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("compHouse.damageType", {
+              required: t("common.required"),
+            })}
+            className="input-field mb-4"
+          >
+            <option value="">اختر نوع الضرر</option>
+            <option value="هدم كلي"> هدم كلي</option>
+            <option value="هدم جزئي">هدم جزئي</option>
+          </select>
+          {showDamageValue &&
+            DAMAGE_TYPE_CompHouse.map((item, index) => (
+              <div className="mr-3" key={index}>
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("compHouse.damageTypes", {
+                    required: "اختر نوع ضرر واحد على الأقل",
+                  })}
+                  className="accent-primary"
+                />
+                <span className="mr-2">{item.label}</span>
+              </div>
+            ))}
+          {errors?.compHouse?.damageTypes && (
+            <p className="text-red-600 mr-3 mt-2 text-sm">
+              {errors.compHouse.damageTypes.message}
+            </p>
+          )}
+          {errors?.compHouse?.damageType && (
+            <p className="text-red-600 text-sm">
+              {errors.compHouse.damageType.message}
+            </p>
+          )}
+        </div>
+        {/* نسبة الضرر */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            نسبة الضرر (%) <span className="text-red-500">*</span>
+          </label>
+          <select
             {...register("compHouse.damagePercentage", {
-              min: 0,
-              max: 100,
-              valueAsNumber: true,
+              required: t("common.required"),
             })}
             className="input-field"
-          />
+          >
+            <option value="">0</option>
+            <option value="25%">25%</option>
+            <option value="50%">50% </option>
+            <option value="75%">75% </option>
+            <option value="100%">100% </option>
+          </select>
+
           {errors?.compHouse?.damagePercentage && (
             <p className="text-red-600 text-sm">
               {errors.compHouse.damagePercentage.message}
             </p>
           )}
         </div>
+        {/*هل قابل للسكن حاليا */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            هل هو قابل للسكن حالياً؟
+            هل هو قابل للسكن حالياً؟ <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("compHouse.isHabitable")}
+            {...register("compHouse.isHabitable", {
+              required: t("common.required"),
+            })}
             className="input-field"
           >
-            <option value="">لا يوجد</option>
-            <option value="true">نعم</option>
-            <option value="false">لا </option>
+            <option value="">اختر نوع</option>
+            <option value="نعم">نعم</option>
+            <option value="لا">لا </option>
           </select>
           {errors?.compHouse?.isHabitable && (
             <p className="text-red-600 text-sm">
               {errors.compHouse.isHabitable.message}
             </p>
           )}
+        </div>
+        {/* ملاحظات إضافية */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            ملاحظات إضافية
+          </label>
+          <textarea
+            {...register("compHouse.additionalNotes")}
+            className="input-field min-h-[100px] resize-none"
+            placeholder="اكتب أي تفاصيل إضافية..."
+          ></textarea>
+        </div>
+        {/* صور ومستندات */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SingleImageInput
+            control={control}
+            name="compHouse.beforeWarImage"
+            label="صورة العقار قبل الحرب ( إن وجد )"
+          />
+
+          <SingleImageInput
+            control={control}
+            name="compHouse.afterWarImage"
+            label="صورة العقار بعد الحرب ( إن وجد )"
+          />
+
+          <MultipleImagesInput
+            control={control}
+            name="compHouse.ownershipDocuments"
+            label="مستندات الملكية ( إن وجد )"
+          />
         </div>
       </section>
     </div>
