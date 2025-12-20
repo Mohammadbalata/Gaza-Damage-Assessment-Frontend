@@ -1,20 +1,33 @@
 import { useLanguage } from "../contexts/LanguageContext";
 import { Languages } from "lucide-react";
+import { Fab, Tooltip } from "@mui/material";
 
 const LanguageToggle = () => {
   const { language, toggleLanguage } = useLanguage();
 
   return (
-    <button
-      onClick={toggleLanguage}
-      className="fixed bottom-6 right-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary-dark transition-colors z-50"
-      aria-label="Toggle language"
+    <Tooltip
+      title={language === "en" ? "Switch to Arabic" : "Switch to English"}
+      placement="left"
     >
-      <Languages className="w-6 h-6" />
-      <span className="sr-only">
-        {language === "en" ? "العربية" : "English"}
-      </span>
-    </button>
+      <Fab
+        color="primary"
+        aria-label="Toggle language"
+        onClick={toggleLanguage}
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          zIndex: 1000,
+          boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
+          "&:hover": {
+            boxShadow: "0 6px 16px rgba(25, 118, 210, 0.4)",
+          },
+        }}
+      >
+        <Languages size={24} />
+      </Fab>
+    </Tooltip>
   );
 };
 

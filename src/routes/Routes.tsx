@@ -16,12 +16,17 @@ import AdminLocationsPage from "../pages/AdminDashboard/AdminLocationsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
+import CitizenDashboard from "../pages/CitizenDashboard";
 import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
+import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
+import MyApplications from "../pages/MyApplications";
+import { UserRole } from "../types/entities";
+import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,9 +44,9 @@ function RoleBasedRoute() {
   if (!user) return <Navigate to={ROUTES.ADMIN_LOGIN} />;
 
   switch (user.role) {
-    case "supervisor":
+    case UserRole.SUPERVISOR:
       return <SupervisorDashboard />;
-    case "admin":
+    case UserRole.ADMIN:
       return <AdminDashboard />;
     default:
       return <Navigate to={ROUTES.ADMIN_LOGIN} />;
@@ -53,9 +58,11 @@ export const ROUTES: IRoutes = {
   SIGNIN: "auth/signIn",
   SIGNUP: "auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
-  PREVIOUS_LOCATION: "/previous-location",
   PASSWORD_DISPLAY: "/password-display",
+  CHANGE_PASSWORD: "/settings/change-password",
+  MAY_APPLICATIONS: "/my-applications",
   // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
+  PREVIOUS_LOCATION: "/previous-location",
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
   FAMILY_INFO: "/family-info",
@@ -69,6 +76,8 @@ export const ROUTES: IRoutes = {
   ADMIN_CITIZENS: "/admin/citizens",
   ADMIN_LOCATIONS: "/admin/locations",
   ADMIN_LOCATION_MAP: "/admin/locations/map",
+  CITIZEN_DASHBOARD: "/citizen/dashboard",
+  ADMIN_BANKING:"admin/banking"
 };
 
 export const routes = [
@@ -92,6 +101,25 @@ export const routes = [
     path: ROUTES.PASSWORD_DISPLAY,
     element: <PasswordDisplayPage />,
   },
+
+  {
+    path: ROUTES.MAY_APPLICATIONS,
+    element: (
+      <ProtectedRoutes>
+        <MyApplications />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.CHANGE_PASSWORD,
+    element: (
+      <ProtectedRoutes>
+        <ResetPasswordPage />
+      </ProtectedRoutes>
+    ),
+  },
+  // MyApplications
+
   // {
   //   path: ROUTES.DAMAGE_ASSESSMENT_DIALOG,
 
@@ -130,6 +158,14 @@ export const routes = [
   {
     path: ROUTES.TRACK_STATUS,
     element: <TrackStatusPage />,
+  },
+  {
+    path: ROUTES.CITIZEN_DASHBOARD,
+    element: (
+      <ProtectedRoutes>
+        <CitizenDashboard />
+      </ProtectedRoutes>
+    ),
   },
   {
     path: ROUTES.ADMIN_LOGIN,
@@ -180,6 +216,14 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <AdminLocationMapPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_BANKING,
+    element: (
+      <ProtectedRoute>
+        <AdminBankingPage />
       </ProtectedRoute>
     ),
   },

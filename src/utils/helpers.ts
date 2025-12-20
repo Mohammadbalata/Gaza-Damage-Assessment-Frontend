@@ -44,3 +44,9 @@ export const formatDate = (date: string | Date): string => {
     year: "numeric",
   });
 };
+
+
+export const titleCase = (sentence:string) =>
+  sentence
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());

@@ -31,10 +31,14 @@ export default function FormInput({
     type === "password" ? (showPassword ? "text" : "password") : type;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(defaultValue);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const inputElement = document.getElementById(id) as HTMLInputElement;
+    if (inputElement) {
+      navigator.clipboard.writeText(inputElement.value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
+
   const setClassName = () => {
     if (language === "ar") {
       if (isCopyIcon) {
@@ -78,7 +82,10 @@ export default function FormInput({
       {isRequired && (
         <label
           htmlFor={id}
-          className={classNames("block text-sm font-medium text-gray-700 mb-2" , classNameLabel)}
+          className={classNames(
+            "block text-sm font-medium text-gray-700 mb-2",
+            classNameLabel
+          )}
         >
           {label} <span className="text-red-500">*</span>
         </label>
