@@ -16,6 +16,7 @@ import AdminLocationsPage from "../pages/AdminDashboard/AdminLocationsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
+import CitizenDashboard from "../pages/CitizenDashboard";
 import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
 import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
@@ -70,6 +71,7 @@ export const ROUTES: IRoutes = {
   ADMIN_CITIZENS: "/admin/citizens",
   ADMIN_LOCATIONS: "/admin/locations",
   ADMIN_LOCATION_MAP: "/admin/locations/map",
+  CITIZEN_DASHBOARD: "/citizen/dashboard",
   ADMIN_BANKING:"admin/banking"
 };
 
@@ -132,6 +134,14 @@ export const routes = [
   {
     path: ROUTES.TRACK_STATUS,
     element: <TrackStatusPage />,
+  },
+  {
+    path: ROUTES.CITIZEN_DASHBOARD,
+    element: (
+      <ProtectedRoutes>
+        <CitizenDashboard />
+      </ProtectedRoutes>
+    ),
   },
   {
     path: ROUTES.ADMIN_LOGIN,

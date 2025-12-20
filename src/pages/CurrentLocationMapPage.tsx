@@ -31,7 +31,7 @@ const CurrentLocationMapPage = () => {
 
   const { loading, execute } = usePost(`applications/add-current-location`, {
     onSuccess: () => {
-      navigate(`${ROUTES.REVIEW}`);
+      navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },
     onError: (err) => {
       console.log(err);
@@ -68,7 +68,7 @@ const CurrentLocationMapPage = () => {
           currentLocation: {
             currentLatitude: position[0],
             currentLongitude: position[1],
-            currentLocationAddress:address,
+            currentLocationAddress: address,
           },
         })
       );

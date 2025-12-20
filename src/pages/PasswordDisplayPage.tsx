@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Refresh } from "@mui/icons-material";
 import { generatePassword } from "../utils/helpers";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { Controller, useForm } from "react-hook-form";
@@ -13,11 +13,22 @@ import {
 
 import { FormDataCustom } from "./SignInPage";
 
-import classNames from "classnames";
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
 import PhoneNumberInput from "../components/PhoneNumberInput";
-import ButtonShared from "../components/Shared/ButtonShared";
+import AuthComp from "./AuthComp";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { Check, Close } from "@mui/icons-material";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -45,18 +56,20 @@ const PasswordDisplayPage = () => {
   }, [password, setValue]);
 
   useEffect(() => {
-    dispatch(signUp({ nationalId: id, password: "", pathSignUp: "verify-id" }))
+    dispatch(
+      signUp({ nationalId: id ?? "", password: "", pathSignUp: "verify-id" })
+    )
       .unwrap()
       .then((res) => {
         console.log(res.data.data.verification_status);
-        if (res.data.data.verification_status !== "national_id_verified") {
+        if (res.data.data.verification_status !== "NATIONAL_ID_VERIFIED") {
           navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${id}`);
         }
       })
       .catch(() => {
         navigate(`/${ROUTES.SIGNUP}`);
       });
-  }, [navigate]);
+  }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: FormDataCustom) => {
     console.log(data);
@@ -88,15 +101,6 @@ const PasswordDisplayPage = () => {
       navigate(`/${ROUTES.SIGNUP}`);
     }
   };
-  if (loading) {
-    return (
-      <div className="max-w-2xl mx-auto">
-        <div className="card text-center">
-          <p>{t("common.loading")}</p>
-        </div>
-      </div>
-    );
-  }
 
   const handleGeneratePassword = () => {
     const newPass = generatePassword();
@@ -104,122 +108,131 @@ const PasswordDisplayPage = () => {
     setValue("password", newPass, { shouldValidate: true });
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="card text-center">
-        <div className="flex justify-center mb-6">
-          <div className="bg-green-100 rounded-full p-4">
-            <CheckCircle className="w-16 h-16 text-green-600" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-bold mb-4">تم التحقق بنجاح!</h2>
-        <p className="text-gray-600 mb-8">
-          تم التحقق من هويتك بنجاح ، يرجى تعبئة بياناتك الشخصية
-        </p>
-        <div className=" flex flex-col justify-center items-center ">
-          <div className="flex flex-col sm:flex-row justify-between w-4/5 gap-4 sm:gap-10 ">
-            <div className="flex-col gap-5 flex">
-              <FormInput
-                id="firstName"
-                label={"الاسم الأول"}
-                placeholder={"أدخل الاسم الأول"}
-                register={register}
-                errors={errors}
-                validation={{
-                  required: t("common.required"),
-                  maxLength: { value: 100, message: "Maximum 100 characters" },
-                  pattern: {
-                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
-                    message: "Only letters and spaces allowed",
-                  },
-                }}
-                classNameParent="rounded-xl"
-                isRequired={true}
-                classNameLabel="text-right"
-              />
-              {/* {errors.fullName && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.fullName.message}
-                  </p>
-                  )} */}
-              <FormInput
-                id="fatherName"
-                label={"اسم الأب"}
-                placeholder={"أدخل اسم الأب"}
-                register={register}
-                errors={errors}
-                validation={{
-                  required: t("common.required"),
-                  maxLength: {
-                    value: 100,
-                    message: "Maximum 100 characters",
-                  },
-                  pattern: {
-                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
-                    message: "Only letters and spaces allowed",
-                  },
-                }}
-                isRequired={true}
-                classNameLabel="text-right"
-              />
-              {/* {errors.fullName && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.fullName.message}
-                </p>
-                )} */}
-            </div>
-            <div className="flex-col gap-5 flex">
-              <FormInput
-                id="grandfatherName"
-                label={"اسم الجد"}
-                placeholder={"أدخل اسم الجد"}
-                register={register}
-                errors={errors}
-                validation={{
-                  required: t("common.required"),
-                  maxLength: { value: 100, message: "Maximum 100 characters" },
-                  pattern: {
-                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
-                    message: "Only letters and spaces allowed",
-                  },
-                }}
-                isRequired={true}
-                classNameLabel="text-right"
-              />
-              {/* {errors.fullName && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.fullName.message}
-            </p>
-          )} */}
-              <FormInput
-                id="familyName"
-                label={"اسم العائلة"}
-                placeholder={"أدخل اسم العائلة"}
-                register={register}
-                errors={errors}
-                validation={{
-                  required: t("common.required"),
-                  maxLength: { value: 100, message: "Maximum 100 characters" },
-                  pattern: {
-                    value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
-                    message: "Only letters and spaces allowed",
-                  },
-                }}
-                isRequired={true}
-                classNameLabel="text-right"
-              />
-              {/* {errors.fullName && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.fullName.message}
-            </p>
-          )} */}
-            </div>
-          </div>
-          <div className="w-4/5 mt-5">
+    <AuthComp>
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Box
+          sx={{
+            display: "inline-flex",
+            p: 2,
+            borderRadius: "50%",
+            bgcolor: "success.light",
+            color: "success.main",
+            mb: 2,
+            background: "rgba(46, 125, 50, 0.1)",
+          }}
+        >
+          <CheckCircle sx={{ fontSize: 48, color: "success.main" }} />
+        </Box>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          {t("form.success")}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {t("form.successDescription")}
+        </Typography>
+      </Box>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            gap: 2,
+          }}
+        >
+          {/* Name Fields Row 1 */}
+          <Box>
+            <FormInput
+              id="firstName"
+              label={t("form.firstName")}
+              placeholder={t("form.firstNamePlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: { value: 100, message: "Maximum 100 characters" },
+                pattern: {
+                  value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              }}
+              isRequired={true}
+            />
+          </Box>
+          <Box>
+            <FormInput
+              id="fatherName"
+              label={t("form.fatherName")}
+              placeholder={t("form.fatherNamePlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: {
+                  value: 100,
+                  message: "Maximum 100 characters",
+                },
+                pattern: {
+                  value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              }}
+              isRequired={true}
+            />
+          </Box>
+
+          {/* Name Fields Row 2 */}
+          <Box>
+            <FormInput
+              id="grandfatherName"
+              label={t("form.grandfatherName")}
+              placeholder={t("form.grandfatherNamePlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: { value: 100, message: "Maximum 100 characters" },
+                pattern: {
+                  value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              }}
+              isRequired={true}
+            />
+          </Box>
+          <Box>
+            <FormInput
+              id="familyName"
+              label={t("form.familyName")}
+              placeholder={t("form.familyNamePlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: { value: 100, message: "Maximum 100 characters" },
+                pattern: {
+                  value: /^[a-zA-Z\s\u0600-\u06FF]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              }}
+              isRequired={true}
+            />
+          </Box>
+
+          {/* Email - Spans 2 columns on small screens if desired, or just full width row */}
+          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}>
             <FormInput
               id="email"
-              label={"البريد الإلكتروني"}
-              placeholder={"أدخل بريدك الإلكتروني"}
+              label={t("form.email")}
+              placeholder={t("form.emailPlaceholder")}
               type="email"
               register={register}
               errors={errors}
@@ -228,164 +241,175 @@ const PasswordDisplayPage = () => {
                 maxLength: { value: 100, message: "Maximum 100 characters" },
                 pattern: {
                   value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "البريد الإلكتروني غير صالح", // Invalid email message
+                  message: t("form.invalidEmail"),
                 },
               }}
               isRequired={true}
-              classNameLabel="text-right"
             />
-          </div>
-          <div className="w-4/5 mt-5 text-right">
-            <div>
-              <label
-                htmlFor="phoneNumber"
-                className={classNames(
-                  "block text-sm font-medium text-gray-700 mb-2"
-                )}
-              >
-                رقم الموبايل <span className="text-red-500">*</span>
-              </label>
-              <Controller
-                name="phoneNumber"
-                control={control}
-                defaultValue="" // VERY IMPORTANT
-                rules={{
-                  required: "مطلوب",
-                }}
-                render={({ field , fieldState}) => (
-                  <PhoneNumberInput
-                    id="phoneNumber"
-                    placeholder={"أدخل رقم الموبايل"}
-                    {...field}
-                    value={field.value || ""} // prevent undefined
-                    onChange={(v: any) => field.onChange(v)}
-                    error={!!fieldState.error} // ← تمرير error
-                    helperText={fieldState.error?.message}
-                  />
-                )}
+          </Box>
+        </Box>
+        <Box>
+          {/* Phone Numbers */}
+          <Box my={1}>
+            <Typography variant="body2" fontWeight="medium" gutterBottom>
+              {t("form.phoneNumber")} <span style={{ color: "red" }}>*</span>
+            </Typography>
+          </Box>
+          <Controller
+            name="phoneNumber"
+            control={control}
+            defaultValue=""
+            rules={{
+              required: t("common.required"),
+            }}
+            render={({ field, fieldState }) => (
+              <PhoneNumberInput
+                id="phoneNumber"
+                placeholder={t("form.phoneNumberPlaceholder")}
+                {...field}
+                value={field.value || ""}
+                onChange={(v: any) => field.onChange(v)}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
               />
-            </div>
-            <div className="mt-5">
-              <label
-                htmlFor="whatsappNumber"
-                className={classNames(
-                  "block text-sm font-medium text-gray-700 mb-2"
-                )}
-              >
-                رقم تواصل الواتساب <span className="text-red-500">*</span>
-              </label>
-              <Controller
-                name="whatsappNumber"
-                control={control}
-                defaultValue="" // VERY IMPORTANT
-                rules={{
-                  required: "مطلوب",
-                }}
-                render={({ field, fieldState }) => (
-                  <PhoneNumberInput
-                    id="whatsappNumber"
-                    placeholder={"أدخل رقم الواتساب "}
-                    {...field}
-                    value={field.value || ""} // prevent undefined
-                    onChange={(v: any) => field.onChange(v)}
-                    error={!!fieldState.error} // ← تمرير error
-                    helperText={fieldState.error?.message}
-                  />
-                )}
+            )}
+          />
+          <Box my={1}>
+            <Typography variant="body2" fontWeight="medium" gutterBottom>
+              {t("form.whatsappNumber")} <span style={{ color: "red" }}>*</span>
+            </Typography>
+          </Box>
+          <Controller
+            name="whatsappNumber"
+            control={control}
+            defaultValue=""
+            rules={{
+              required: t("common.required"),
+            }}
+            render={({ field, fieldState }) => (
+              <PhoneNumberInput
+                id="whatsappNumber"
+                placeholder={t("form.whatsappNumberPlaceholder")}
+                {...field}
+                value={field.value || ""}
+                onChange={(v: any) => field.onChange(v)}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
               />
-            </div>
-          </div>
-        </div>
+            )}
+          />
 
-        <div className="bg-gray-50 rounded-lg p-6 mt-14 mb-3">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("success.password")}
-          </label>
-
-          <div className="flex flex-col items-center justify-center gap-2">
-            <FormInput
-              id="password"
-              type="password"
-              label={t("auth.password")}
-              classNameParent="w-[95%] sm:w-[85%]"
-              placeholder={t("auth.passwordPlaceholder")}
-              register={register}
-              errors={errors}
-              validation={{ validate: validatePassword(t) }}
-              defaultValue={password}
-              isRequired={false}
-              isEye={true}
-              isCopyIcon={true}
-              {...{ setPassword }}
-              {...{ setIsTouchInput }}
-            />
-
-            <div
-              className={classNames(
-                "justify-start  w-4/5 text-red-500 text-left text-sm",
-                isTouchInput ? "flex" : "hidden"
-              )}
+          {/* Password Section */}
+          <Box sx={{ gridColumn: "1 / -1" }}>
+            <Box
+              sx={{
+                bgcolor: "grey.50",
+                p: 3,
+                borderRadius: 2,
+                mt: 2,
+                border: "1px dashed",
+                borderColor: "grey.300",
+              }}
             >
-              <ul className="list-disc text-right">
-                <li
-                  className={rules.tooShort ? "text-red-500" : "text-green-700"}
-                >
-                  {t("auth.passwordTooShort")}
-                </li>
-                <li
-                  className={
-                    rules.missingUpper ? "text-red-500" : "text-green-700"
-                  }
-                >
-                  {t("auth.passwordMissingUpper")}
-                </li>
-                <li
-                  className={
-                    rules.missingLower ? "text-red-500" : "text-green-700"
-                  }
-                >
-                  {t("auth.passwordMissingLower")}
-                </li>
-                <li
-                  className={
-                    rules.missingNumber ? "text-red-500" : "text-green-700"
-                  }
-                >
-                  {t("auth.passwordMissingNumber")}
-                </li>
-                <li
-                  className={
-                    rules.missingSymbol ? "text-red-500" : "text-green-700"
-                  }
-                >
-                  {t("auth.passwordMissingSymbol")}
-                </li>
-              </ul>
-            </div>
-          </div>
+              <Typography variant="subtitle2" gutterBottom>
+                {t("success.password")}
+              </Typography>
 
-          <p className="text-sm text-red-600 mt-4 mb-7">
-            {t("success.savePassword")}
-          </p>
+              <Box sx={{ position: "relative" }}>
+                <FormInput
+                  id="password"
+                  type="password"
+                  label={t("auth.password")}
+                  placeholder={t("auth.passwordPlaceholder")}
+                  register={register}
+                  errors={errors}
+                  validation={{ validate: validatePassword(t) }}
+                  defaultValue={password}
+                  isRequired={false}
+                  isEye={true}
+                  isCopyIcon={true}
+                  {...{ setPassword }}
+                  {...{ setIsTouchInput }}
+                />
+              </Box>
 
-          <div className="flex justify-end">
-            <ButtonShared
-              className="underline !text-blue-700 flex-4 text-md"
-              label={t("auth.generatePassword")}
-              onClick={handleGeneratePassword}
-            />
-          </div>
-        </div>
+              {isTouchInput && (
+                <List dense sx={{ mt: 1 }}>
+                  {[
+                    { key: "tooShort", label: t("auth.passwordTooShort") },
+                    {
+                      key: "missingUpper",
+                      label: t("auth.passwordMissingUpper"),
+                    },
+                    {
+                      key: "missingLower",
+                      label: t("auth.passwordMissingLower"),
+                    },
+                    {
+                      key: "missingNumber",
+                      label: t("auth.passwordMissingNumber"),
+                    },
+                    {
+                      key: "missingSymbol",
+                      label: t("auth.passwordMissingSymbol"),
+                    },
+                  ].map((rule) => {
+                    const isMet = !rules[rule.key as keyof typeof rules];
+                    return (
+                      <ListItem key={rule.key} disablePadding>
+                        <ListItemIcon sx={{ minWidth: 30 }}>
+                          {isMet ? (
+                            <Check fontSize="small" color="success" />
+                          ) : (
+                            <Close fontSize="small" color="error" />
+                          )}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={rule.label}
+                          primaryTypographyProps={{
+                            variant: "caption",
+                            color: isMet ? "success.main" : "error.main",
+                          }}
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              )}
 
-        <button
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                mt={2}
+              >
+                <Typography variant="caption" color="error">
+                  {t("success.savePassword")}
+                </Typography>
+                <Button
+                  size="small"
+                  startIcon={<Refresh sx={{ mx: 1 }} />}
+                  onClick={handleGeneratePassword}
+                  sx={{ textTransform: "none" }}
+                >
+                  {t("auth.generatePassword")}
+                </Button>
+              </Stack>
+            </Box>
+          </Box>
+        </Box>
+
+        <Button
           type="submit"
-          onClick={handleSubmit(onSubmit)}
-          className="btn-primary w-full"
+          variant="contained"
+          fullWidth
+          size="large"
+          sx={{ mt: 4, py: 1.5, fontWeight: "bold" }}
         >
-          Continue
-        </button>
-      </div>
-    </div>
+          {t("common.continue")}
+        </Button>
+      </form>
+    </AuthComp>
   );
 };
 

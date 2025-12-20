@@ -17,10 +17,11 @@ export interface IRoutes {
   TRACK_STATUS: string;
   ADMIN_LOGIN: string;
   ADMIN_DASHBOARD: string;
-  ADMIN_USERS: string,
-  ADMIN_APPLICATIONS: string,
-  ADMIN_CITIZENS: string,
-  ADMIN_LOCATIONS: string,
-  ADMIN_LOCATION_MAP: string,
+  ADMIN_USERS: string;
+  ADMIN_APPLICATIONS: string;
+  ADMIN_CITIZENS: string;
+  ADMIN_LOCATIONS: string;
+  ADMIN_LOCATION_MAP: string;
+  CITIZEN_DASHBOARD: string;
   ADMIN_BANKING:string
 }
