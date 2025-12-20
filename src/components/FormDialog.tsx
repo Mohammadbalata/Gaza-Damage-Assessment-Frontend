@@ -16,7 +16,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
   location,
 }) => {
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog className="" open={open} onClose={onClose}>
       <DamageAssessmentDialog
         {...{ setApplications }}
         {...{ onClose }}

@@ -74,4 +74,5 @@
 
 .MuiPaper-root{
   width: 100%;
+  max-width: 670px !important;
 }

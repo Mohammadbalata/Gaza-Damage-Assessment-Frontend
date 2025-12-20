@@ -1,16 +1,20 @@
 import { useLanguage } from "../../contexts/LanguageContext";
+import SingleImageInput from "./ImagesInput/SingleImageInput";
+import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
+import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
 
-const Tower = ({ register, errors }: any) => {
+const Tower = ({ register, errors, watch, control }: any) => {
   const { t } = useLanguage();
-
+  const propertyType = watch("tower.propertyType");
+  const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
+  const usageTypeWatch = watch("tower.usageType");
+  const showUsageType = usageTypeWatch === "أخرى";
+  const damageTypeWatch = watch("tower.damageType");
+  const showDamageValue = damageTypeWatch === "هدم جزئي";
   return (
     <div className="space-y-10">
-      {/* ============================= */}
-      {/* 1. Tower Basic Information */}
-      {/* ============================= */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold">معلومات البرج</h3>
-
         {/* Total Floors */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -30,13 +34,14 @@ const Tower = ({ register, errors }: any) => {
             </p>
           )}
         </div>
+        {/* مساحة الطابق الأرضي */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            مساحة البرج (م²) <span className="text-red-500">*</span>
+            مساحة الطابق الأرضي (م²) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
-            {...register("tower.propertyArea", {
+            {...register("tower.groundFloorArea", {
               required: t("common.required"),
               min: { value: 20, message: "الحد الأدنى 20 م²" },
               max: { value: 2000, message: "الحد الأقصى 2000 م²" },
@@ -44,18 +49,48 @@ const Tower = ({ register, errors }: any) => {
             })}
             className="input-field"
           />
-          {errors?.tower?.propertyArea && (
+          {errors?.tower?.groundFloorArea && (
             <p className="text-red-600 text-sm">
-              {errors.tower.propertyArea.message}
+              {errors.tower.groundFloorArea.message}
             </p>
           )}
         </div>
+        {/* مساحة الطابق المتكرر */}
         <div>
-          <label className="block text-sm font-medium mb-1">نوع العقار</label>
-          <select {...register("tower.propertyType")} className="input-field">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            مساحة الطابق المتكرر (م²) <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            {...register("tower.commonFloorArea", {
+              required: t("common.required"),
+              min: { value: 20, message: "الحد الأدنى 20 م²" },
+              max: { value: 2000, message: "الحد الأقصى 2000 م²" },
+              valueAsNumber: true,
+            })}
+            className="input-field"
+          />
+          {errors?.tower?.commonFloorArea && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.commonFloorArea.message}
+            </p>
+          )}
+        </div>
+        {/* نوع حيازة العقار */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            نوع حيازة العقار <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("tower.propertyType", {
+              required: t("common.required"),
+            })}
+            className="input-field"
+          >
             <option value="">لا يوجد</option>
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
+            <option value="انتفاع">انتفاع </option>
           </select>
           {errors?.tower?.propertyType && (
             <p className="text-red-600 text-sm">
@@ -63,28 +98,41 @@ const Tower = ({ register, errors }: any) => {
             </p>
           )}
         </div>
-        {/* Service Floors */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            طوابق الخدمات
-          </label>
-          <input
-            type="number"
-            {...register("tower.serviceFloors", { valueAsNumber: true })}
-            className="input-field"
-          />
-        </div>
+        {showOwnerName && (
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              اسم المالك الأساسي <span className="text-red-500">*</span>
+            </label>
 
-        {/* Number of units */}
+            <input
+              className="input-field"
+              type="text"
+              placeholder="أدخل اسم المالك الأساسي"
+              {...register("tower.propertyOwnerName", {
+                required: t("common.required"),
+              })}
+            />
+
+            {errors?.tower?.propertyOwnerName && (
+              <p className="text-red-600 text-sm">
+                {errors.tower.propertyOwnerName.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* عدد الوحدات */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            عدد الوحدات (شقق / مكاتب / محلات)
+            عدد الوحدات (شقق / مكاتب / محلات){" "}
+            <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             {...register("tower.unitsCount", {
               valueAsNumber: true,
               min: { value: 0, message: "لا يمكن أن يكون أقل من 0" },
+              required: t("common.required"),
             })}
             className="input-field"
           />
@@ -97,81 +145,98 @@ const Tower = ({ register, errors }: any) => {
 
         {/* Usage Type */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            نوع الاستخدام
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            نوع الاستخدام <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("tower.usageType", { required: t("common.required") })}
+            {...register("tower.usageType", {
+              required: t("common.required"),
+            })}
             className="input-field"
           >
-            <option value="">اختر النوع</option>
-            <option value="residential">سكني</option>
-            <option value="commercial">تجاري</option>
-            <option value="mixed">مختلط</option>
+            <option value=""  >
+              اختر النوع
+            </option>
+            <option value="سكني">سكني</option>
+            <option value="تجاري">تجاري</option>
+            <option value="مزدوج الاستخدام">مزدوج الاستخدام</option>
+            <option value="أخرى">أخرى</option>
           </select>
+          <div className="mr-3 mt-5">
+            {showUsageType && (
+              <input
+                className="input-field"
+                type="text"
+                placeholder="أدخل نوع الاستخدام"
+                {...register("tower.otherUsageType", {
+                  required: t("common.required"),
+                })}
+                value={" "}
+              />
+            )}
+            {errors?.tower?.otherUsageType && (
+              <p className="text-red-600 text-sm">
+                {errors.tower.otherUsageType.message}
+              </p>
+            )}
+          </div>
           {errors?.tower?.usageType && (
             <p className="text-red-600 text-sm">
               {errors.tower.usageType.message}
             </p>
           )}
         </div>
-
-        {/* Structural System */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            النظام الإنشائي
-          </label>
-          <select
-            {...register("tower.structuralSystem", {
-              required: t("common.required"),
-            })}
-            className="input-field"
-          >
-            <option value="">اختر النوع</option>
-            <option value="columns">أعمدة + جسور</option>
-            <option value="shearWalls">جدران قص</option>
-          </select>
-        </div>
       </section>
 
-      {/* ============================= */}
-      {/* 2. Structural Damage */}
-      {/* ============================= */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold">الأضرار الإنشائية</h3>
 
         {/* Collapsed Floors */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            عدد الطوابق المنهارة
+            عدد الطوابق المنهارة <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             {...register("tower.collapsedFloors", {
               valueAsNumber: true,
+              required: t("common.required"),
             })}
+            min={0}
             className="input-field"
           />
+          {errors?.tower?.collapsedFloors && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.collapsedFloors.message}
+            </p>
+          )}
         </div>
 
         {/* Partially Collapsed Floors */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            عدد الطوابق المتضررة جزئياً
+            عدد الطوابق المتضررة جزئياً <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             {...register("tower.partialCollapses", {
               valueAsNumber: true,
+              required: t("common.required"),
             })}
+            min={0}
             className="input-field"
           />
+          {errors?.tower?.partialCollapses && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.partialCollapses.message}
+            </p>
+          )}
         </div>
 
         {/* Critical Structural Damage */}
         <div className="space-y-2">
           <label className="block text-sm font-medium">
-            عناصر إنشائية حرجة متضررة:
+            عناصر انشائية متضررة ( تشكل خطر ):
           </label>
 
           <div className="flex items-center gap-2">
@@ -179,7 +244,7 @@ const Tower = ({ register, errors }: any) => {
               type="checkbox"
               {...register("tower.criticalColumnDamage")}
             />
-            <span>أعمدة حرجة</span>
+            <span>أعمدة</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -187,74 +252,37 @@ const Tower = ({ register, errors }: any) => {
               type="checkbox"
               {...register("tower.criticalShearWallDamage")}
             />
-            <span>جدران قص حرجة</span>
+            <span>جدران</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" {...register("tower.criticalRoofBelts")} />
+            <span>أحزمة و كشفات أسقف</span>
           </div>
         </div>
-
-        {/* Projectile Penetrations */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            عدد الاختراقات بالقذائف
-          </label>
-          <input
-            type="number"
-            {...register("tower.projectilePenetrations", {
-              valueAsNumber: true,
-            })}
-            className="input-field"
-          />
-        </div>
       </section>
-
-      {/* ============================= */}
-      {/* 3. Services Damage */}
-      {/* ============================= */}
       <section className="space-y-6">
-        <h3 className="text-lg font-semibold">أضرار الخدمات</h3>
-
-        <div className="flex items-center gap-3">
-          <input type="checkbox" {...register("tower.elevatorsDown")} />
-          <span>تعطل المصاعد</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input type="checkbox" {...register("tower.fireSystemDamaged")} />
-          <span>تضرر نظام الإطفاء</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input type="checkbox" {...register("tower.mainElectricRoom")} />
-          <span>تضرر غرفة الكهرباء</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input type="checkbox" {...register("tower.roofTanksDamaged")} />
-          <span>تضرر خزانات السطح</span>
-        </div>
-      </section>
-
-      {/* ============================= */}
-      {/* 4. Final Assessment */}
-      {/* ============================= */}
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">التقييم النهائي</h3>
-
         {/* Unusable Floors */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            الطوابق غير الصالحة للاستخدام
+            عدد الطوابق غير الصالحة للاستخدام{" "}
+            <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             {...register("tower.unusableFloors", {
               valueAsNumber: true,
+              required: t("common.required"),
             })}
+            min={0}
             className="input-field"
           />
+          {errors?.tower?.unusableFloors && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.unusableFloors.message}
+            </p>
+          )}
         </div>
-
-        {/* Damage Percentages */}
-
+        {/* تفاصيل الضرر */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             تفاصيل الضرر <span className="text-red-500">*</span>
@@ -263,81 +291,82 @@ const Tower = ({ register, errors }: any) => {
             {...register("tower.damageType", {
               required: t("common.required"),
             })}
-            className="input-field"
+            className="input-field mb-4"
           >
-            <option value="">اختر نوع الضرر</option>
-            <option value="انهيار كامل">انهيار كامل</option>
-            <option value="انهيار جزئي">انهيار جزئي</option>
-            <option value="تشققات إنشائية">تشققات إنشائية</option>
-            <option value="تضرر الواجهات">تضرر الواجهات</option>
-            <option value="تضرر السقف">تضرر السقف</option>
-            <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
-            <option value="تضرر التشطيبات">تضرر التشطيبات</option>
-            <option value="تضرر الكهرباء">تضرر الكهرباء</option>
-            <option value="تضرر شبكة المياه والصرف">
-              تضرر شبكة المياه والصرف
+            <option value=""  >
+              اختر نوع الضرر
             </option>
+            <option value="هدم كلي"> هدم كلي</option>
+            <option value="هدم جزئي">هدم جزئي</option>
           </select>
+          {showDamageValue &&
+            DAMAGE_TYPES.map((item, index) => (
+              <div className="mr-3" key={index}>
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("tower.damageTypes", {
+                    required: "اختر نوع ضرر واحد على الأقل",
+                  })}
+                  className="accent-primary"
+                />
+                <span className="mr-2">{item.label}</span>
+              </div>
+            ))}
 
+          {errors?.tower?.damageTypes && (
+            <p className="text-red-600 mr-3 mt-2 text-sm">
+              {errors.tower.damageTypes.message}
+            </p>
+          )}
           {errors?.tower?.damageType && (
             <p className="text-red-600 text-sm">
               {errors.tower.damageType.message}
             </p>
           )}
         </div>
+        {/* نسبة الضرر */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            نسبة الضرر الإنشائي (%)
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            نسبة الضرر (%) <span className="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            {...register("tower.structuralDamagePercent", {
-              min: 0,
-              max: 100,
-              valueAsNumber: true,
+          <select
+            {...register("tower.damagePercentage", {
+              required: t("common.required"),
             })}
             className="input-field"
-          />
-        </div>
+          >
+            <option value=""  >
+              0
+            </option>
+            <option value="25%">25%</option>
+            <option value="50%">50% </option>
+            <option value="75%">75% </option>
+            <option value="100%">100% </option>
+          </select>
 
+          {errors?.tower?.damagePercentage && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.damagePercentage.message}
+            </p>
+          )}
+        </div>
+        {/* هل هو قابل للسكن حالياً؟ */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            نسبة الضرر المعماري (%)
+            هل هو قابل للسكن حالياً؟ <span className="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            {...register("tower.architecturalDamagePercent", {
-              min: 0,
-              max: 100,
-              valueAsNumber: true,
+          <select
+            {...register("tower.isHabitable", {
+              required: t("common.required"),
             })}
             className="input-field"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            نسبة ضرر الخدمات (%)
-          </label>
-          <input
-            type="number"
-            {...register("tower.servicesDamagePercent", {
-              min: 0,
-              max: 100,
-              valueAsNumber: true,
-            })}
-            className="input-field"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            هل هو قابل للسكن حالياً؟
-          </label>
-          <select {...register("tower.isHabitable")} className="input-field">
-            <option value="">لا يوجد</option>
-            <option value="true">نعم</option>
-            <option value="false">لا </option>
+          >
+            <option value=""   >
+              اختر نوع
+            </option>
+            <option value="نعم">نعم</option>
+            <option value="لا">لا </option>
           </select>
           {errors?.tower?.isHabitable && (
             <p className="text-red-600 text-sm">
@@ -345,23 +374,36 @@ const Tower = ({ register, errors }: any) => {
             </p>
           )}
         </div>
-        {/* Engineer Recommendation */}
+        {/* ملاحظات إضافية */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            توصية المهندس <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            ملاحظات إضافية
           </label>
-          <select
-            {...register("tower.engineerRecommendation", {
-              required: t("common.required"),
-            })}
-            className="input-field"
-          >
-            <option value="">اختر التوصية</option>
-            <option value="repair">ترميم</option>
-            <option value="strengthening">تدعيم</option>
-            <option value="partial-demolition">هدم جزئي</option>
-            <option value="full-demolition">هدم كامل</option>
-          </select>
+          <textarea
+            {...register("tower.additionalNotes")}
+            className="input-field min-h-[100px] resize-none"
+            placeholder="اكتب أي تفاصيل إضافية..."
+          ></textarea>
+        </div>
+        {/* صور ومستندات */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SingleImageInput
+            control={control}
+            name="tower.beforeWarImage"
+            label="صورة العقار قبل الحرب ( إن وجد )"
+          />
+
+          <SingleImageInput
+            control={control}
+            name="tower.afterWarImage"
+            label="صورة العقار بعد الحرب ( إن وجد )"
+          />
+
+          <MultipleImagesInput
+            control={control}
+            name="tower.ownershipDocuments"
+            label="مستندات الملكية ( إن وجد )"
+          />
         </div>
       </section>
     </div>

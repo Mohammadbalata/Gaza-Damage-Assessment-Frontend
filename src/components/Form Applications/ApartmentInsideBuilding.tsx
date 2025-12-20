@@ -1,17 +1,27 @@
 import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { useLanguage } from "../../contexts/LanguageContext";
+import SingleImageInput from "./ImagesInput/SingleImageInput";
+import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
+import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
 
 interface ApartmentInsideBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
   errors: FieldErrors<IDamageAssessmentState>;
+  watch: any;
+  control: any;
 }
 const ApartmentInsideBuilding = ({
   register,
   errors,
+  watch,
+  control,
 }: ApartmentInsideBuildingProps) => {
   const { t } = useLanguage();
-
+  const propertyType = watch("ApartmentInsideBuilding.propertyType");
+  const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
+  const damageTypeWatch = watch("ApartmentInsideBuilding.damageType");
+  const showDamageValue = damageTypeWatch === "هدم جزئي";
   return (
     <div className="space-y-6">
       {/* رقم الطابق */}
@@ -77,248 +87,100 @@ const ApartmentInsideBuilding = ({
           </p>
         )}
       </div>
-       <div>
+      {/* نوع حيازة العقار */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          نوع حيازة العقار <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register("ApartmentInsideBuilding.propertyType", {
+            required: t("common.required"),
+          })}
+          className="input-field"
+        >
+          <option value=""  >
+            لا يوجد
+          </option>
+          <option value="ملك">ملك</option>
+          <option value="ايجار">ايجار </option>
+          <option value="انتفاع">انتفاع </option>
+        </select>
+        {errors?.ApartmentInsideBuilding?.propertyType && (
+          <p className="text-red-600 text-sm">
+            {errors.ApartmentInsideBuilding?.propertyType.message}
+          </p>
+        )}
+      </div>
+      {showOwnerName && (
+        <div>
           <label className="block text-sm font-medium mb-1">
-            نوع العقار
+            اسم المالك الأساسي <span className="text-red-500">*</span>
           </label>
-          <select
-            {...register("ApartmentInsideBuilding.propertyType")}
+
+          <input
             className="input-field"
-          >
-            <option value="">لا يوجد</option>
-            <option value="ملك">ملك</option>
-            <option value="ايجار">ايجار </option>
-          </select>
-          {errors?.ApartmentInsideBuilding?.propertyType && (
+            type="text"
+            placeholder="أدخل اسم المالك الأساسي"
+            {...register("ApartmentInsideBuilding.propertyOwnerName", {
+              required: t("common.required"),
+            })}
+          />
+
+          {errors?.ApartmentInsideBuilding?.propertyOwnerName && (
             <p className="text-red-600 text-sm">
-              {errors.ApartmentInsideBuilding.propertyType.message}
+              {errors.ApartmentInsideBuilding.propertyOwnerName.message}
             </p>
           )}
         </div>
-
-      {/* عدد الغرف */}
+      )}
+      {/* Usage Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          عدد الغرف والمنافع <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="number"
-          {...register("ApartmentInsideBuilding.roomsCount", {
-            required: t("common.required"),
-            min: { value: 1, message: "يجب أن يكون على الأقل غرفة واحدة" },
-            max: { value: 50, message: "الحد الأقصى 50" },
-            valueAsNumber: true,
-          })}
-          className="input-field"
-        />
-        {errors?.ApartmentInsideBuilding?.roomsCount && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.roomsCount.message}
-          </p>
-        )}
-      </div>
-
-      {/* تشققات الجدران */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تشققات الجدران <span className="text-red-500">*</span>
+        <label className="block text-sm font-medium mb-1">
+          نوع الاستخدام <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("ApartmentInsideBuilding.wallCracks", {
+          {...register("ApartmentInsideBuilding.usageType", {
             required: t("common.required"),
           })}
           className="input-field"
         >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="structural">إنشائية</option>
-          <option value="nonStructural">غير إنشائية</option>
+          <option value=""  >
+            اختر النوع
+          </option>
+          <option value="سكني">سكني</option>
+          <option value="تجاري">تجاري</option>
+          <option value="اداري">اداري</option>
+          <option value="خدماتي">خدماتي</option>
         </select>
-        {errors?.ApartmentInsideBuilding?.wallCracks && (
+        {errors?.ApartmentInsideBuilding?.usageType && (
           <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.wallCracks.message}
+            {errors.ApartmentInsideBuilding.usageType.message}
           </p>
         )}
       </div>
-
-      {/* الأبواب */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر الأبواب <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.doorsDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="minor">تلف طفيف</option>
-          <option value="moderate">تلف متوسط</option>
-          <option value="severe">تلف شديد</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.doorsDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.doorsDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* النوافذ */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر النوافذ والزجاج <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.windowsDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="broken">محطم</option>
-          <option value="cracked">متشقق</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.windowsDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.windowsDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* الأرضيات */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر الأرضيات <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.floorDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر النوع</option>
-          <option value="none">لا يوجد</option>
-          <option value="ceramic">سيراميك</option>
-          <option value="parquet">باركيه</option>
-          <option value="sidewalk">رصيف</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.floorDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.floorDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* السقف */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر السقف <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.ceilingDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر النوع</option>
-          <option value="none">لا يوجد</option>
-          <option value="penetration">اختراق</option>
-          <option value="cracks">تشققات</option>
-          <option value="leak">تسريب</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.ceilingDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.ceilingDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* المطبخ */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر المطبخ والخزائن <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.kitchenDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="minor">تلف بسيط</option>
-          <option value="moderate">تلف متوسط</option>
-          <option value="severe">تلف شديد</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.kitchenDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.kitchenDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* الحمامات */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر الحمامات وشبكات المياه <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.bathroomDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="pipes">تضرر المواسير</option>
-          <option value="fixtures">تضرر الأدوات الصحية</option>
-          <option value="leaks">تسريب مياه</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.bathroomDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.bathroomDamage.message}
-          </p>
-        )}
-      </div>
-
-      {/* الكهرباء */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          تضرر الكهرباء الداخلية <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.electricalDamage", {
-            required: t("common.required"),
-          })}
-          className="input-field"
-        >
-          <option value="">اختر الحالة</option>
-          <option value="none">لا يوجد</option>
-          <option value="partial">تضرر جزئي</option>
-          <option value="complete">تضرر كامل</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.electricalDamage && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.electricalDamage.message}
-          </p>
-        )}
-      </div>
-
       {/* ضرر المبنى الأم */}
-      <div>
+      <div className="edit">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          ضرر المبنى الأم (إن وجد)
+          ضرر المبنى الأساسي (إن وجد)
         </label>
-        <textarea
+        <select
           {...register("ApartmentInsideBuilding.mainBuildingDamage")}
-          className="input-field min-h-[100px] resize-none"
-          placeholder="مثال: تشققات أعمدة، تضرر الواجهات..."
-        ></textarea>
+          className="input-field"
+          defaultValue=""
+        >
+          <option value=""  >
+            اختر نوع الضرر
+          </option>
+          <option value="لا يوجد ضرر">لا يوجد ضرر</option>
+          <option value="تشققات في الأعمدة">تشققات في الأعمدة</option>
+          <option value="تضرر الواجهات">تضرر الواجهات</option>
+          <option value="تضرر السقف">تضرر السقف</option>
+          <option value="تضرر الجدران">تضرر الجدران</option>
+          <option value="تضرر جزئي">تضرر جزئي</option>
+          <option value="تضرر كلي">تضرر كلي</option>
+        </select>
       </div>
-
+      {/* نوع الضرر */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           تفاصيل الضرر <span className="text-red-500">*</span>
@@ -327,81 +189,83 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.damageType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className="input-field mb-4"
         >
-          <option value="">اختر نوع الضرر</option>
-          <option value="انهيار كامل">انهيار كامل</option>
-          <option value="انهيار جزئي">انهيار جزئي</option>
-          <option value="تشققات إنشائية">تشققات إنشائية</option>
-          <option value="تضرر الواجهات">تضرر الواجهات</option>
-          <option value="تضرر السقف">تضرر السقف</option>
-          <option value="تضرر الأبواب">تضرر الأبواب والنوافذ</option>
-          <option value="تضرر التشطيبات">تضرر التشطيبات</option>
-          <option value="تضرر الكهرباء">تضرر الكهرباء</option>
-          <option value="تضرر شبكة المياه والصرف">تضرر شبكة المياه والصرف</option>
+          <option value=""  >
+            اختر نوع الضرر
+          </option>
+          <option value="هدم كلي"> هدم كلي</option>
+          <option value="هدم جزئي">هدم جزئي</option>
         </select>
-
+        {showDamageValue &&
+          DAMAGE_TYPES.map(
+            (item, index) =>
+              item.buildingType !== "بناية" && (
+                <div className="mr-3" key={index}>
+                  <input
+                    type="checkbox"
+                    value={item.value}
+                    {...register("ApartmentInsideBuilding.damageTypes", {
+                      required: "اختر نوع ضرر واحد على الأقل",
+                    })}
+                    className="accent-primary"
+                  />
+                  <span className="mr-2">{item.label}</span>
+                </div>
+              )
+          )}
         {errors?.ApartmentInsideBuilding?.damageType && (
           <p className="text-red-600 text-sm">
             {errors.ApartmentInsideBuilding.damageType.message}
           </p>
         )}
+        {errors?.ApartmentInsideBuilding?.damageTypes && (
+          <p className="text-red-600 text-sm">
+            {errors.ApartmentInsideBuilding.damageTypes.message}
+          </p>
+        )}
       </div>
       {/* نسبة الضرر */}
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نسبة الضرر (%) <span className="text-red-500">*</span>
         </label>
-        <input
-          type="number"
+        <select
           {...register("ApartmentInsideBuilding.damagePercentage", {
             required: t("common.required"),
-            min: { value: 0, message: "لا يمكن أن تكون أقل من 0" },
-            max: { value: 100, message: "لا يمكن أن تتجاوز 100%" },
-            valueAsNumber: true,
           })}
           className="input-field"
-        />
+        >
+          <option value="">0</option>
+          <option value="25%">25%</option>
+          <option value="50%">50% </option>
+          <option value="75%">75% </option>
+          <option value="100%">100% </option>
+        </select>
+
         {errors?.ApartmentInsideBuilding?.damagePercentage && (
           <p className="text-red-600 text-sm">
             {errors.ApartmentInsideBuilding.damagePercentage.message}
           </p>
         )}
       </div>
-
-      {/* صلاحية السكن */}
+      {/* هل هو قابل للسكن حالياً؟ */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          صلاحية الشقة للسكن <span className="text-red-500">*</span>
+        <label className="block text-sm font-medium mb-1">
+          هل هو قابل للسكن حالياً؟ <span className="text-red-500">*</span>
         </label>
         <select
-          {...register("ApartmentInsideBuilding.habitability", {
+          {...register("ApartmentInsideBuilding.isHabitable", {
             required: t("common.required"),
           })}
           className="input-field"
         >
-          <option value="">اختر الحالة</option>
-          <option value="habitable">صالحة للسكن</option>
-          <option value="needs-repair">تحتاج إصلاح</option>
-          <option value="uninhabitable">غير صالحة</option>
-        </select>
-        {errors?.ApartmentInsideBuilding?.habitability && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.habitability.message}
-          </p>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          هل هو قابل للسكن حالياً؟
-        </label>
-        <select
-          {...register("ApartmentInsideBuilding.isHabitable")}
-          className="input-field"
-        >
-          <option value="">لا يوجد</option>
-          <option value="true">نعم</option>
-          <option value="false">لا </option>
+          <option value=""  >
+            اختر نوع
+          </option>
+          <option value="نعم">نعم</option>
+          <option value="لا">لا </option>
         </select>
         {errors?.ApartmentInsideBuilding?.isHabitable && (
           <p className="text-red-600 text-sm">
@@ -419,6 +283,26 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.additionalNotes")}
           className="input-field min-h-[100px] resize-none"
         ></textarea>
+      </div>
+      {/* صور ومستندات */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SingleImageInput
+          control={control}
+          name="ApartmentInsideBuilding.beforeWarImage"
+          label="صورة العقار قبل الحرب ( إن وجد )"
+        />
+
+        <SingleImageInput
+          control={control}
+          name="ApartmentInsideBuilding.afterWarImage"
+          label="صورة العقار بعد الحرب ( إن وجد )"
+        />
+
+        <MultipleImagesInput
+          control={control}
+          name="ApartmentInsideBuilding.ownershipDocuments"
+          label="مستندات الملكية ( إن وجد )"
+        />
       </div>
     </div>
   );
