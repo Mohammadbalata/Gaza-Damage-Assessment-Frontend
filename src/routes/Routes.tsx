@@ -23,6 +23,8 @@ import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
+import { UserRole } from "../types/entities";
+import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -40,9 +42,9 @@ function RoleBasedRoute() {
   if (!user) return <Navigate to={ROUTES.ADMIN_LOGIN} />;
 
   switch (user.role) {
-    case "supervisor":
+    case UserRole.SUPERVISOR:
       return <SupervisorDashboard />;
-    case "admin":
+    case UserRole.ADMIN:
       return <AdminDashboard />;
     default:
       return <Navigate to={ROUTES.ADMIN_LOGIN} />;
@@ -54,9 +56,8 @@ export const ROUTES: IRoutes = {
   SIGNIN: "auth/signIn",
   SIGNUP: "auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
-  PREVIOUS_LOCATION: "/previous-location",
   PASSWORD_DISPLAY: "/password-display",
-  // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
+  PREVIOUS_LOCATION: "/previous-location",
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
   FAMILY_INFO: "/family-info",
@@ -71,6 +72,7 @@ export const ROUTES: IRoutes = {
   ADMIN_LOCATIONS: "/admin/locations",
   ADMIN_LOCATION_MAP: "/admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
+  ADMIN_BANKING:"admin/banking"
 };
 
 export const routes = [
@@ -190,6 +192,14 @@ export const routes = [
     element: (
       <ProtectedRoute>
         <AdminLocationMapPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_BANKING,
+    element: (
+      <ProtectedRoute>
+        <AdminBankingPage />
       </ProtectedRoute>
     ),
   },

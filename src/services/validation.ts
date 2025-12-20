@@ -191,6 +191,29 @@ export const userSchema = yup.object({
     .oneOf(["admin", "supervisor"], "دور غير صحيح"),
 });
 
+export const bankAccountSchema = yup.object({
+  bankId: yup.string().required("البنك مطلوب"),
+  accountHolderName: yup
+    .string()
+    .required("اسم صاحب الحساب مطلوب")
+    .min(2, "يجب أن يكون الاسم حرفين على الأقل"),
+  accountNumber: yup
+    .string()
+    .required("رقم الحساب مطلوب")
+    .min(5, "رقم الحساب غير صحيح"),
+  iban: yup.string().optional(),
+  accountType: yup
+    .string()
+    .required("نوع الحساب مطلوب")
+    .oneOf(["SAVINGS", "CURRENT", "WALLET"], "نوع حساب غير صحيح"),
+  currency: yup.string().required("العملة مطلوبة"),
+  isPrimary: yup.boolean().optional(),
+  status: yup
+    .string()
+    .optional()
+    .oneOf(["ACTIVE", "SUSPENDED", "CLOSED"], "حالة غير صحيحة"),
+});
+
 
 
 // export const citizenSchema = yup.object({

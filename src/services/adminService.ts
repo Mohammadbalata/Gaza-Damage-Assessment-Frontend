@@ -6,7 +6,7 @@ import {
   Application,
   Citizen,
   Location,
-} from "../services/api";
+} from "../types/entities";
 
 /**
  * Admin API Services

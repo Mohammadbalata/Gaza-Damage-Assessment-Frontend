@@ -25,7 +25,7 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { AdminUser, UserRole } from "../../services/api";
+import {  AdminUser, UserRole } from "../../types/entities";
 import { userSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -48,8 +48,8 @@ export function AdminUsersPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUser | null>(null);
@@ -71,7 +71,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      role: "supervisor",
+      role: UserRole.SUPERVISOR,
     },
   });
 
@@ -132,7 +132,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      role: "supervisor",
+      role: UserRole.SUPERVISOR,
     });
     setIsDialogOpen(true);
   };

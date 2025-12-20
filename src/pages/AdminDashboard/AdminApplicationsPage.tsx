@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -27,7 +27,6 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { adminApi, Application, Citizen } from "../../services/api";
 import { applicationSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -36,38 +35,44 @@ import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
+import {
+  Application,
+  ApplicationStatus,
+  Citizen,
+  UserRole,
+} from "../../types/entities";
 
 interface ApplicationFormData {
   citizenId: number;
-  status: Application["status"];
+  status: ApplicationStatus;
   notes: string;
 }
 const applicationTypesColors: Record<string, object> = {
-  pending: {
+  PENDING: {
     bgcolor: "rgba(255, 193, 7, 0.15)", // Amber
     color: "#FFC107",
     fontWeight: 600,
   },
 
-  verified: {
+  VERIFIED: {
     bgcolor: "rgba(33, 150, 243, 0.15)", // Blue
     color: "#2196F3",
     fontWeight: 600,
   },
 
-  approved: {
+  APPROVED: {
     bgcolor: "rgba(76, 175, 80, 0.15)", // Green
     color: "#4CAF50",
     fontWeight: 600,
   },
 
-  rejected: {
+  REJECTED: {
     bgcolor: "rgba(244, 67, 54, 0.15)", // Red
     color: "#F44354",
     fontWeight: 600,
   },
 
-  closed: {
+  CLOSED: {
     bgcolor: "rgba(158, 158, 158, 0.15)", // Grey
     color: "#9E9E9E",
     fontWeight: 600,
@@ -80,24 +85,22 @@ export function AdminApplicationsPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin", "supervisor");
-  const canEditApplication = hasRole("supervisor");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canEditApplication = hasRole(UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
-  const [search, setSearch] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
     id: number | null;
   }>({ open: false, id: null });
 
   // Citizen search
+  const [search, setSearch] = useState("");
   const [citizenSearch, setCitizenSearch] = useState("");
-  const [citizenOptions, setCitizenOptions] = useState<Citizen[]>([]);
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
-  const [citizenLoading, setCitizenLoading] = useState(false);
-  const isEdit = Boolean(selectedCitizen);
+
 
   // Form
   const {
@@ -110,7 +113,7 @@ export function AdminApplicationsPage() {
     resolver: yupResolver(applicationSchema) as any,
     defaultValues: {
       citizenId: 0,
-      status: "pending",
+      status: ApplicationStatus.PENDING,
       notes: "",
     },
   });
@@ -176,48 +179,21 @@ export function AdminApplicationsPage() {
     },
   });
 
-  // Search citizens with debounce
-  const searchCitizens = async (searchValue: string) => {
-    if (!searchValue || searchValue.trim().length < 1) {
-      setCitizenOptions([]);
-      return;
-    }
-
-    setCitizenLoading(true);
-    try {
-      const results = await adminApi.listCitizens({
-        search: searchValue,
-        pageSize: 10,
-      });
-      setCitizenOptions(results);
-    } catch (error) {
-      console.error("Citizen search failed:", error);
-      setCitizenOptions([]);
-    } finally {
-      setCitizenLoading(false);
-    }
-  };
-
-  // Debounced citizen search
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      searchCitizens(citizenSearch);
-    }, 350);
-
-    return () => clearTimeout(timer);
-  }, [citizenSearch]);
+  const { data: citizenOptions, loading: citizenLoading } = useGet(
+    `/citizens`,
+    { immediate: true }
+  );
 
   // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     reset({
       citizenId: 0,
-      status: "pending",
+      status: ApplicationStatus.PENDING,
       notes: "",
     });
     setSelectedCitizen(null);
     setCitizenSearch("");
-    setCitizenOptions([]);
     setIsDialogOpen(true);
   };
 
@@ -236,7 +212,6 @@ export function AdminApplicationsPage() {
 
   // Handle submit
   const onSubmit = async (data: ApplicationFormData) => {
-
     if (editing) {
       executeUpdateApplication(`/applications/${editing.id}`, {
         ...data,
@@ -424,7 +399,7 @@ export function AdminApplicationsPage() {
                     sx={{ textTransform: "capitalize" }}
                   >
                     <Chip
-                      label={application.status.replace("_", " ")}
+                      label={application.status.replace("_", " ").toLocaleLowerCase()}
                       sx={{
                         ...applicationTypesColors[application.status],
                         textTransform: "capitalize",
@@ -512,7 +487,7 @@ export function AdminApplicationsPage() {
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
             {/* Citizen Search Autocomplete */}
-            {isEdit ? (
+            {editing ? (
               <TextField
                 label={t("admin.applications.citizen")}
                 value={`${selectedCitizen?.full_name} (${selectedCitizen?.national_id})`}
