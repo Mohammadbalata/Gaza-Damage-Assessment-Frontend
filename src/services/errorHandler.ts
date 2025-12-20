@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { ApiErrorResponse } from "../services/api";
+import { ApiErrorResponse } from "../types/entities";
 
 export class ApiErrorHandler {
   static handle(error: unknown): string {

@@ -31,7 +31,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Citizen, Location } from "../../services/api";
+import { Citizen, Location, LocationType, UserRole } from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
@@ -43,7 +43,8 @@ import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 
 // Fix default marker icons for Leaflet
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
+  ._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -60,22 +61,22 @@ interface LocationFormData {
 }
 
 const locationColors: Record<string, object> = {
-  before_war: {
+  BEFORE_WAR: {
     bgcolor: "rgba(183, 28, 28, 0.12)",
     color: "#b71c1c",
     fontWeight: 600,
   },
-  after_war: {
+  AFTER_WAR: {
     bgcolor: "rgba(255, 143, 0, 0.12)",
     color: "#ff8f00",
     fontWeight: 600,
   },
-  temporary: {
+  TEMPORARY: {
     bgcolor: "rgba(2, 136, 209, 0.12)",
     color: "#0288d1",
     fontWeight: 600,
   },
-  current: {
+  CURRENT: {
     bgcolor: "rgba(46, 125, 50, 0.12)",
     color: "#2e7d32",
     fontWeight: 600,
@@ -88,8 +89,8 @@ export function AdminLocationsPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole("admin");
-  const canView = hasRole("admin", "supervisor");
+  const canManage = hasRole(UserRole.ADMIN);
+  const canView = hasRole(UserRole.ADMIN,UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
@@ -124,10 +125,12 @@ export function AdminLocationsPage() {
     setValue,
     formState: { isSubmitting },
   } = useForm<LocationFormData>({
-    resolver: yupResolver(locationSchema) as unknown as Resolver<LocationFormData>,
+    resolver: yupResolver(
+      locationSchema
+    ) as unknown as Resolver<LocationFormData>,
     defaultValues: {
       citizenId: undefined,
-      type: "current",
+      type: LocationType.CURRENT,
       notes: "",
     },
   });
@@ -210,7 +213,7 @@ export function AdminLocationsPage() {
     setEditing(null);
     setPosition(null);
     reset({
-      type: "current",
+      type: LocationType.CURRENT,
       notes: "",
       citizenId: undefined,
     });
@@ -263,9 +266,10 @@ export function AdminLocationsPage() {
         ?.toLowerCase()
         .includes(search.toLowerCase()) ||
       location.citizen?.national_id?.includes(search) ||
-      location.governorate?.toLowerCase().includes(search.toLowerCase()) ||
+      location.address?.toLowerCase().includes(search.toLowerCase()) ||
       location.town?.toLowerCase().includes(search.toLowerCase()) ||
-      location.street?.toLowerCase().includes(search.toLowerCase())
+      location.street?.toLowerCase().includes(search.toLowerCase()) ||
+      location.neighborhood?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (!canView) {
@@ -353,6 +357,7 @@ export function AdminLocationsPage() {
               <TableRow sx={{ bgcolor: "grey.100" }}>
                 <TableCell align="center">{t("admin.citizen")}</TableCell>
                 <TableCell align="center">{t("admin.type")}</TableCell>
+                <TableCell align="center">{t("admin.neighborhood")}</TableCell>
                 <TableCell align="center">{t("admin.address")}</TableCell>
                 <TableCell align="center">{t("admin.coordinates")}</TableCell>
                 {canManage && (
@@ -378,7 +383,7 @@ export function AdminLocationsPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Chip
-                      label={location.type.replace("_", " ")}
+                      label={location.type.replace("_", " ").toLocaleLowerCase()}
                       sx={{
                         ...locationColors[location.type],
                         textTransform: "capitalize",
@@ -389,11 +394,13 @@ export function AdminLocationsPage() {
                       }}
                     />
                   </TableCell>
+                  <TableCell align="center">{location.neighborhood}</TableCell>
                   <TableCell align="center">
-                    {[location.governorate, location.town, location.street]
+                    {[location.address, location.town, location.street]
                       .filter(Boolean)
                       .join(" • ") || "-"}
                   </TableCell>
+
                   <TableCell align="center">
                     {location.latitude != null && location.longitude != null ? (
                       <Box>

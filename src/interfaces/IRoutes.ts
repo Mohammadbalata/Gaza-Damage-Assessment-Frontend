@@ -25,4 +25,6 @@ export interface IRoutes {
   ADMIN_CITIZENS: string;
   ADMIN_LOCATIONS: string;
   ADMIN_LOCATION_MAP: string;
+  CITIZEN_DASHBOARD: string;
+  ADMIN_BANKING:string
 }

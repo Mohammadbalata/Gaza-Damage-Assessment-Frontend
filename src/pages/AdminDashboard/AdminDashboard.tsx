@@ -18,6 +18,7 @@ import {
   PersonOutline as CitizensIcon,
   LocationOn as LocationsIcon,
   ArrowBack,
+  Money,
 } from "@mui/icons-material";
 import { useGet } from "../../hooks/api/useApi";
 import { useNotification } from "../../hooks/useNotifications";
@@ -25,6 +26,7 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
+import { UserRole } from "../../types/entities";
 
 /**
  * Admin Dashboard Page
@@ -40,6 +42,7 @@ const AdminDashboard: React.FC = () => {
     applications: 0,
     citizens: 0,
     locations: 0,
+    banking:0
   });
 
   const { loading, error } = useGet("admin-dashboard", {
@@ -50,6 +53,7 @@ const AdminDashboard: React.FC = () => {
         applications: data.applications?.length || 0,
         citizens: data.citizens?.length || 0,
         locations: data.locations?.length || 0,
+         banking:data.banking?.length || 0
       });
     },
   });
@@ -106,6 +110,15 @@ const AdminDashboard: React.FC = () => {
       color: "warning",
       value: totals.locations,
       route: "/admin/locations",
+    },
+    {
+      key: "banking",
+      title: t("admin.manageBanking"),
+      description: t("admin.bankingDescription"),
+      icon: <Money sx={{ fontSize: 40 }} />,
+      color: "info",
+      value: totals.banking,
+      route: "/admin/banking",
     },
   ];
 
@@ -190,7 +203,7 @@ const AdminDashboard: React.FC = () => {
                 >
                   {t("admin.reviewApplications")}
                 </Button>
-                {user?.role === "admin" && (
+                {user?.role === UserRole.ADMIN && (
                   <Button
                     variant="contained"
                     color="inherit"
@@ -206,7 +219,7 @@ const AdminDashboard: React.FC = () => {
                     {t("admin.addUser")}
                   </Button>
                 )}
-                {user?.role === "admin" && (
+                {user?.role === UserRole.ADMIN && (
                   <Button
                     variant="contained"
                     color="inherit"
@@ -260,6 +273,15 @@ const AdminDashboard: React.FC = () => {
                 color="warning"
               />
             </Grid>
+
+            <Grid>
+              <StatisticCard
+                label={t("admin.totalBanking")}
+                value={totals.banking}
+                icon={<Money />}
+                color="info"
+              />
+            </Grid>
           </Grid>
         </>
       )}
@@ -292,6 +314,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
     info: { bg: "info.light", text: "info.main", hover: "#e0f2f1" },
     success: { bg: "success.light", text: "success.main", hover: "#e8f5e9" },
     warning: { bg: "warning.light", text: "warning.main", hover: "#fff3e0" },
+    secondary: { bg: "secondary.light", text: "secondary.main", hover: "#fff3e0" },
   };
 
   const color = colorMap[card.color];
