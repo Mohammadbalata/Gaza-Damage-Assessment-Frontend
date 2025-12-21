@@ -59,8 +59,8 @@ export const ROUTES: IRoutes = {
   SIGNUP: "auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
   PASSWORD_DISPLAY: "/password-display",
-  CHANGE_PASSWORD: "/settings/change-password",
-  MAY_APPLICATIONS: "/my-applications",
+  CHANGE_PASSWORD: "/citizen/change-password",
+  MY_APPLICATIONS: "/my-applications",
   // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
   PREVIOUS_LOCATION: "/previous-location",
   CURRENT_LOCATION: "/current-location",
@@ -77,7 +77,7 @@ export const ROUTES: IRoutes = {
   ADMIN_LOCATIONS: "/admin/locations",
   ADMIN_LOCATION_MAP: "/admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
-  ADMIN_BANKING:"admin/banking"
+  ADMIN_BANKING: "admin/banking",
 };
 
 export const routes = [
@@ -99,11 +99,15 @@ export const routes = [
   },
   {
     path: ROUTES.PASSWORD_DISPLAY,
-    element: <PasswordDisplayPage />,
+    element: (
+      <ProtectedRoutes>
+        <PasswordDisplayPage />
+      </ProtectedRoutes>
+    ),
   },
 
   {
-    path: ROUTES.MAY_APPLICATIONS,
+    path: ROUTES.MY_APPLICATIONS,
     element: (
       <ProtectedRoutes>
         <MyApplications />
