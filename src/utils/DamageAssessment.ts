@@ -1,5 +1,12 @@
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
-import { saveAdditionalBuildings, saveApartmentInsideBuilding, saveCompHouse, saveIndependentBuilding, saveResidentialBuilding, saveTower } from "../redux/slices/damageSlice";
+import {
+  saveAdditionalBuildings,
+  saveApartmentInsideBuilding,
+  saveCompHouse,
+  saveIndependentBuilding,
+  saveResidentialBuilding,
+  saveTower,
+} from "../redux/slices/damageSlice";
 
 export const buildingOptions = [
   {
@@ -82,7 +89,7 @@ export const buildFormDataWithoutImages = (
   };
 };
 
-export const dispatchByType = (dispatch:any , type: string, data: any) => {
+export const dispatchByType = (dispatch: any, type: string, data: any) => {
   const actionsMap: Record<string, Function> = {
     IndependentBuilding: saveIndependentBuilding,
     ApartmentInsideBuilding: saveApartmentInsideBuilding,

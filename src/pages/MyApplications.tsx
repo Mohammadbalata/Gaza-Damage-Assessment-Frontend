@@ -30,12 +30,11 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useGet } from "../hooks/api/useApi";
 import { ROUTES } from "../routes/Routes";
-import { Application } from "../types/entities";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
@@ -51,24 +50,24 @@ const MyApplications = () => {
 
   // Dialog State
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] =
-    useState<Application | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   const {
     data: rawData,
     loading,
     error,
-  } = useGet<any>("applications/my-application", {
+  } = useGet<any>("applications/my-applications", {
     immediate: true,
   });
 
   // Robust data handling
-  const applications: Application[] = Array.isArray(rawData)
+  const applications: any = Array.isArray(rawData)
     ? rawData
     : rawData
-    ? [rawData]
+    ? rawData.applications
     : [];
+  const citizen: any = rawData?.citizen;
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -93,7 +92,7 @@ const MyApplications = () => {
     }
   };
 
-  const handleAction = (app: Application) => {
+  const handleAction = (app: any) => {
     // const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
     // Assuming status is returned from API.
     // If status is "pending", allow edit. Else, read-only.
@@ -131,7 +130,9 @@ const MyApplications = () => {
         return "warning";
     }
   };
-
+  useEffect(() => {
+    console.log(citizen);
+  }, [applications]);
   if (loading) {
     return (
       <Box
@@ -338,9 +339,10 @@ const MyApplications = () => {
           </Paper>
         ) : (
           <Stack spacing={2}>
-            {applications.map((app) => {
+            {applications.map((app: any) => {
               const status = app.status?.toUpperCase() || "PENDING";
               const isPending = status === "PENDING";
+              // console.log(app);
 
               return (
                 <Fade
@@ -433,6 +435,19 @@ const MyApplications = () => {
                             language === "ar" ? "ar-EG" : "en-US"
                           )}
                         </Typography>
+                        <Typography
+                          variant="h6"
+                          color="text.secondary"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            justifyContent: { xs: "center", sm: "flex-start" },
+                            marginTop: "10px",
+                          }}
+                        >
+                          العنوان : {app.location.address}
+                        </Typography>
                       </Box>
 
                       {/* Actions */}
@@ -479,10 +494,87 @@ const MyApplications = () => {
               onClose={handleDialogClose}
               readOnly={isReadOnly}
               initialData={selectedApplication}
-              location={null} // Location shouldn't be needed for existing applications unless used for display map
+              location={null}
             />
           )}
         </Dialog>
+        <CardContent
+          sx={{
+            p: 2,
+            "&:last-child": { pb: 2 },
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: "center",
+            gap: 2,
+            marginTop: "50px",
+          }}
+        >
+          <Box
+            sx={{
+              width: 50,
+              height: 50,
+              borderRadius: 2,
+              bgcolor: "primary.50",
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <DescriptionIcon />
+          </Box>
+
+          {/* Content */}
+          <Box
+            sx={{
+              width: "100%",
+            }}
+          >
+            <Stack alignItems="right" sx={{ mb: 0.5 }}>
+              <Typography
+                variant="h4"
+                color="text.secondary"
+                sx={{
+                  display: "block",
+                  alignItems: "text-rignt",
+                  gap: 0.5,
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                }}
+              >
+                العنوان الحالي :
+              </Typography>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                sx={{
+                  display: "block",
+                  alignItems: "center",
+                  gap: 0.5,
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                }}
+              >
+                {citizen.current_location?.address}
+              </Typography>
+            </Stack>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                justifyContent: { xs: "center", sm: "flex-start" },
+              }}
+            >
+              <EventIcon sx={{ fontSize: 16 }} />
+              {t("citizen.submittedOn")}:{" "}
+              {new Date(citizen.createdAt).toLocaleDateString(
+                language === "ar" ? "ar-EG" : "en-US"
+              )}
+            </Typography>
+          </Box>
+        </CardContent>
       </Container>
     </Fade>
   );

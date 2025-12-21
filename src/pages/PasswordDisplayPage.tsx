@@ -86,7 +86,7 @@ const PasswordDisplayPage = () => {
           email: data.email,
           phoneNumber: data.phoneNumber,
           whatsappNumber: data.whatsappNumber,
-          familyMembersNumber: data.familyMembersNumber,
+          familyMembersNumber: Number(data.familyMembersNumber),
         })
       )
         .unwrap()
@@ -266,6 +266,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              isNationalId={true}
             />
           </Box>
           {/* Phone Numbers */}
@@ -353,7 +354,7 @@ const PasswordDisplayPage = () => {
               </Box>
 
               {isTouchInput && (
-                <List dense sx={{ mt: 1 }}>
+                <List dense sx={{ mt: 1, textAlign:'right' }}>
                   {[
                     { key: "tooShort", label: t("auth.passwordTooShort") },
                     {
@@ -375,7 +376,7 @@ const PasswordDisplayPage = () => {
                   ].map((rule) => {
                     const isMet = !rules[rule.key as keyof typeof rules];
                     return (
-                      <ListItem key={rule.key} disablePadding>
+                      <ListItem key={rule.key} disablePadding className="text-right">
                         <ListItemIcon sx={{ minWidth: 30 }}>
                           {isMet ? (
                             <Check fontSize="small" color="success" />
