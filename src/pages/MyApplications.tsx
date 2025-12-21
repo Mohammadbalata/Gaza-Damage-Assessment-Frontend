@@ -20,8 +20,6 @@ import {
   Add as AddIcon,
   Description as DescriptionIcon,
   Event as EventIcon,
-  ArrowForward,
-  KeyboardArrowLeft,
   Home as HomeIcon,
   Foundation as FoundationIcon,
   MonetizationOn as MonetizationOnIcon,

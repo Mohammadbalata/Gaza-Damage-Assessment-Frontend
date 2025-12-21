@@ -18,7 +18,6 @@ import {
   Stack,
   CircularProgress,
 } from "@mui/material";
-import BackButton from "../components/Shared/BackButton";
 import axios from "axios";
 
 const PreviousLocationMapPage = () => {
