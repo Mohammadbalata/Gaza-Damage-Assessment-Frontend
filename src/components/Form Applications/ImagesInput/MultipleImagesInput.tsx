@@ -10,7 +10,7 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CropIcon from "@mui/icons-material/Crop";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 const MAX_SIZE = 2 * 1024 * 1024;
@@ -19,10 +19,12 @@ const MultipleImagesInput = ({
   control,
   name,
   label,
+  isChangeToReviewPage,
 }: {
   control: any;
   name: string;
   label: string;
+  isChangeToReviewPage?: boolean;
 }) => (
   <Controller
     name={name}
@@ -30,6 +32,9 @@ const MultipleImagesInput = ({
     defaultValue={[]}
     rules={{
       validate: (files: File[]) => {
+        if (files.length > 5) {
+          return "لا يمكن رفع أكثر من 5 صور";
+        }
         if (files.some((f) => f.size > MAX_SIZE)) {
           return "كل صورة يجب أن لا تتجاوز 2MB";
         }
@@ -41,6 +46,20 @@ const MultipleImagesInput = ({
       const files: File[] = field.value || [];
 
       const [cropIndex, setCropIndex] = useState<number | null>(null);
+      const [previews, setPreviews] = useState<string[]>([]);
+
+      /* ✅ مزامنة المعاينات مع قيمة الفورم */
+      useEffect(() => {
+        const urls = files.map((file) =>
+          file instanceof File ? URL.createObjectURL(file) : ""
+        );
+
+        setPreviews(urls);
+
+        return () => {
+          urls.forEach((url) => URL.revokeObjectURL(url));
+        };
+      }, [files]);
 
       const addFiles = (newFiles: File[]) => {
         field.onChange([...files, ...newFiles]);
@@ -59,15 +78,12 @@ const MultipleImagesInput = ({
 
       const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        const dropped = Array.from(e.dataTransfer.files || []);
-        addFiles(dropped);
+        addFiles(Array.from(e.dataTransfer.files || []));
       };
 
       return (
         <Box>
-          <label className="block text-sm font-medium mb-2 ">
-            {label}
-          </label>
+          <label className="block text-sm font-medium mb-2">{label}</label>
 
           {/* Drop Area */}
           <Card
@@ -82,16 +98,14 @@ const MultipleImagesInput = ({
             onDrop={handleDrop}
             onClick={() => inputRef.current?.click()}
           >
-            <CardContent>
+            <CardContent className={isChangeToReviewPage ? "hidden" : ""}>
               <input
                 ref={inputRef}
                 type="file"
                 hidden
                 accept="image/*"
                 multiple
-                onChange={(e) =>
-                  addFiles(Array.from(e.target.files || []))
-                }
+                onChange={(e) => addFiles(Array.from(e.target.files || []))}
               />
               <CloudUploadIcon fontSize="large" color="action" />
               <Typography variant="body2" color="text.secondary">
@@ -107,22 +121,21 @@ const MultipleImagesInput = ({
             gridTemplateColumns="repeat(auto-fill, minmax(120px, 1fr))"
             gap={1}
           >
-            {files.map((file, index) => {
-              const preview = URL.createObjectURL(file);
+            {previews.map((preview, index) => (
+              <Box key={index} position="relative">
+                <img
+                  src={preview}
+                  alt={`preview-${index}`}
+                  style={{
+                    width: "100%",
+                    height: 110,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
+                />
 
-              return (
-                <Box key={index} position="relative">
-                  <img
-                    src={preview}
-                    style={{
-                      width: "100%",
-                      height: 110,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  {/* Actions */}
+                {/* Actions */}
+                {!isChangeToReviewPage && (
                   <Stack
                     direction="row"
                     spacing={0.5}
@@ -148,9 +161,9 @@ const MultipleImagesInput = ({
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Stack>
-                </Box>
-              );
-            })}
+                )}
+              </Box>
+            ))}
           </Box>
 
           {fieldState.error && (
@@ -160,10 +173,10 @@ const MultipleImagesInput = ({
           )}
 
           {/* Crop Dialog */}
-          {cropIndex !== null && files[cropIndex] && (
+          {cropIndex !== null && previews[cropIndex] && (
             <ImageCropDialog
               open
-              image={URL.createObjectURL(files[cropIndex])}
+              image={previews[cropIndex]}
               onClose={() => setCropIndex(null)}
               onCropComplete={(file) => {
                 replaceFile(cropIndex, file);

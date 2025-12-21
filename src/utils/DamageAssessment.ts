@@ -1,3 +1,6 @@
+import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
+import { saveAdditionalBuildings, saveApartmentInsideBuilding, saveCompHouse, saveIndependentBuilding, saveResidentialBuilding, saveTower } from "../redux/slices/damageSlice";
+
 export const buildingOptions = [
   {
     value: "IndependentBuilding",
@@ -14,9 +17,21 @@ export const buildingOptions = [
 ];
 
 export const DAMAGE_TYPES = [
-  { label: "تشققات إنشائية ( أسقف )", value: "تشققات إنشائية ( أسقف )", buildingType: "" },
-  { label: "تشققات إنشائية ( أعمدة )", value: "تشققات إنشائية ( أعمدة )", buildingType: "" },
-  { label: "تضرر الواجهات ( تفريغ )", value: "تضرر الواجهات", buildingType: "" },
+  {
+    label: "تشققات إنشائية ( أسقف )",
+    value: "تشققات إنشائية ( أسقف )",
+    buildingType: "",
+  },
+  {
+    label: "تشققات إنشائية ( أعمدة )",
+    value: "تشققات إنشائية ( أعمدة )",
+    buildingType: "",
+  },
+  {
+    label: "تضرر الواجهات ( تفريغ )",
+    value: "تضرر الواجهات",
+    buildingType: "",
+  },
   { label: "تضرر الأبواب والنوافذ", value: "تضرر الأبواب", buildingType: "" },
   { label: "تضرر التشطيبات", value: "تضرر التشطيبات", buildingType: "" },
   { label: "تضرر الكهرباء", value: "تضرر الكهرباء", buildingType: "" },
@@ -26,7 +41,11 @@ export const DAMAGE_TYPES = [
     value: "تضرر مداخل أو أدراج البناية",
     buildingType: "بناية",
   },
-  { label: "تضرر شبكة المياه والصرف", value: "تضرر شبكة المياه والصرف", buildingType: "" },
+  {
+    label: "تضرر شبكة المياه والصرف",
+    value: "تضرر شبكة المياه والصرف",
+    buildingType: "",
+  },
   { label: "تضرر بالحريق", value: "تضرر بالحريق", buildingType: "" },
 ];
 
@@ -38,3 +57,43 @@ export const DAMAGE_TYPE_CompHouse = [
   { label: "ضرر أبواب وشبابيك", value: "ضرر أبواب وشبابيك" },
   { label: "ضرر بالحريق", value: "ضرر بالحريق" },
 ];
+
+export const removeImagesFromBuilding = (buildingData: any) => {
+  if (!buildingData) return buildingData;
+
+  const cleaned = { ...buildingData };
+  delete cleaned.beforeWarImage;
+  delete cleaned.afterWarImage;
+  delete cleaned.ownershipDocuments;
+
+  return cleaned;
+};
+
+export const buildFormDataWithoutImages = (
+  formData: IDamageAssessmentState
+) => {
+  const type = formData.buildingType;
+
+  return {
+    ...formData,
+    [type]: removeImagesFromBuilding(
+      formData[type as keyof IDamageAssessmentState]
+    ),
+  };
+};
+
+export const dispatchByType = (dispatch:any , type: string, data: any) => {
+  const actionsMap: Record<string, Function> = {
+    IndependentBuilding: saveIndependentBuilding,
+    ApartmentInsideBuilding: saveApartmentInsideBuilding,
+    ResidentialBuilding: saveResidentialBuilding,
+    tower: saveTower,
+    compHouse: saveCompHouse,
+    additionalBuildings: saveAdditionalBuildings,
+  };
+
+  const action = actionsMap[type];
+  if (action) {
+    dispatch(action(data));
+  }
+};

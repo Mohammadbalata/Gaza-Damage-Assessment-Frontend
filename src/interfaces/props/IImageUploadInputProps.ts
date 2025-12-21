@@ -6,4 +6,5 @@ export interface IndependentBuildingProps {
   errors: FieldErrors<IDamageAssessmentState>;
   watch: any;
   control: any;
+  isChangeToReviewPage:boolean
 }

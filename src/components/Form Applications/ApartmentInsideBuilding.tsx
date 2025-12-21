@@ -4,18 +4,21 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import classNames from "classnames";
 
 interface ApartmentInsideBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
   errors: FieldErrors<IDamageAssessmentState>;
   watch: any;
   control: any;
+  isChangeToReviewPage: boolean;
 }
 const ApartmentInsideBuilding = ({
   register,
   errors,
   watch,
   control,
+  isChangeToReviewPage,
 }: ApartmentInsideBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("ApartmentInsideBuilding.propertyType");
@@ -37,7 +40,11 @@ const ApartmentInsideBuilding = ({
             max: { value: 200, message: "الحد الأقصى 200" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ApartmentInsideBuilding?.floorNumber && (
           <p className="text-red-600 text-sm">
@@ -57,7 +64,11 @@ const ApartmentInsideBuilding = ({
             required: t("common.required"),
             minLength: { value: 1, message: "رقم الشقة غير صالح" },
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ApartmentInsideBuilding?.apartmentNumber && (
           <p className="text-red-600 text-sm">
@@ -79,7 +90,11 @@ const ApartmentInsideBuilding = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ApartmentInsideBuilding?.propertyArea && (
           <p className="text-red-600 text-sm">
@@ -96,11 +111,13 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.propertyType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            لا يوجد
-          </option>
+          <option value="">لا يوجد</option>
           <option value="ملك">ملك</option>
           <option value="ايجار">ايجار </option>
           <option value="انتفاع">انتفاع </option>
@@ -118,12 +135,18 @@ const ApartmentInsideBuilding = ({
           </label>
 
           <input
-            className="input-field"
             type="text"
             placeholder="أدخل اسم المالك الأساسي"
             {...register("ApartmentInsideBuilding.propertyOwnerName", {
               required: t("common.required"),
             })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           />
 
           {errors?.ApartmentInsideBuilding?.propertyOwnerName && (
@@ -142,11 +165,13 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.usageType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر النوع
-          </option>
+          <option value="">اختر النوع</option>
           <option value="سكني">سكني</option>
           <option value="تجاري">تجاري</option>
           <option value="اداري">اداري</option>
@@ -165,12 +190,14 @@ const ApartmentInsideBuilding = ({
         </label>
         <select
           {...register("ApartmentInsideBuilding.mainBuildingDamage")}
-          className="input-field"
           defaultValue=""
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع الضرر
-          </option>
+          <option value="">اختر نوع الضرر</option>
           <option value="لا يوجد ضرر">لا يوجد ضرر</option>
           <option value="تشققات في الأعمدة">تشققات في الأعمدة</option>
           <option value="تضرر الواجهات">تضرر الواجهات</option>
@@ -189,11 +216,13 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.damageType", {
             required: t("common.required"),
           })}
-          className="input-field mb-4"
+          className={classNames(
+            "input-field mb-4",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع الضرر
-          </option>
+          <option value="">اختر نوع الضرر</option>
           <option value="هدم كلي"> هدم كلي</option>
           <option value="هدم جزئي">هدم جزئي</option>
         </select>
@@ -201,14 +230,23 @@ const ApartmentInsideBuilding = ({
           DAMAGE_TYPES.map(
             (item, index) =>
               item.buildingType !== "بناية" && (
-                <div className="mr-3" key={index}>
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
                   <input
                     type="checkbox"
                     value={item.value}
                     {...register("ApartmentInsideBuilding.damageTypes", {
                       required: "اختر نوع ضرر واحد على الأقل",
                     })}
-                    className="accent-primary"
+                    className={classNames(
+                      "accent-primary",
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
+                    )}
                   />
                   <span className="mr-2">{item.label}</span>
                 </div>
@@ -235,7 +273,11 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.damagePercentage", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
           <option value="">0</option>
           <option value="25%">25%</option>
@@ -259,11 +301,13 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.isHabitable", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع
-          </option>
+          <option value="">اختر نوع</option>
           <option value="نعم">نعم</option>
           <option value="لا">لا </option>
         </select>
@@ -281,7 +325,11 @@ const ApartmentInsideBuilding = ({
         </label>
         <textarea
           {...register("ApartmentInsideBuilding.additionalNotes")}
-          className="input-field min-h-[100px] resize-none"
+          className={classNames(
+            "input-field min-h-[100px] resize-none",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         ></textarea>
       </div>
       {/* صور ومستندات */}
@@ -290,18 +338,21 @@ const ApartmentInsideBuilding = ({
           control={control}
           name="ApartmentInsideBuilding.beforeWarImage"
           label="صورة العقار قبل الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="ApartmentInsideBuilding.afterWarImage"
           label="صورة العقار بعد الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
           name="ApartmentInsideBuilding.ownershipDocuments"
           label="مستندات الملكية ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
       </div>
     </div>
