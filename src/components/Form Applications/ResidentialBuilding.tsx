@@ -4,12 +4,14 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import classNames from "classnames";
 
 interface ResidentialBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
   errors: FieldErrors<IDamageAssessmentState>;
   watch: any;
   control: any;
+  isChangeToReviewPage: boolean;
 }
 
 const ResidentialBuilding = ({
@@ -17,6 +19,7 @@ const ResidentialBuilding = ({
   errors,
   watch,
   control,
+  isChangeToReviewPage,
 }: ResidentialBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("ResidentialBuilding.propertyType");
@@ -40,7 +43,11 @@ const ResidentialBuilding = ({
             max: { value: 200, message: "الحد الأقصى 200" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ResidentialBuilding?.floorsCount && (
           <p className="text-red-600 text-sm">
@@ -61,7 +68,11 @@ const ResidentialBuilding = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ResidentialBuilding?.groundFloorArea && (
           <p className="text-red-600 text-sm">
@@ -81,7 +92,11 @@ const ResidentialBuilding = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ResidentialBuilding?.commonFloorArea && (
           <p className="text-red-600 text-sm">
@@ -98,7 +113,11 @@ const ResidentialBuilding = ({
           {...register("ResidentialBuilding.propertyType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
           <option value="">لا يوجد</option>
           <option value="ملك">ملك</option>
@@ -118,12 +137,18 @@ const ResidentialBuilding = ({
           </label>
 
           <input
-            className="input-field"
             type="text"
             placeholder="أدخل اسم المالك الأساسي"
             {...register("ResidentialBuilding.propertyOwnerName", {
               required: t("common.required"),
             })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           />
 
           {errors?.ResidentialBuilding?.propertyOwnerName && (
@@ -149,7 +174,11 @@ const ResidentialBuilding = ({
             max: { value: 50, message: "الحد الأقصى 50" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ResidentialBuilding?.apartmentsPerFloor && (
           <p className="text-red-600 text-sm">
@@ -167,11 +196,13 @@ const ResidentialBuilding = ({
           {...register("ResidentialBuilding.usageType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر النوع
-          </option>
+          <option value="">اختر النوع</option>
           <option value="سكني">سكني</option>
           <option value="تجاري">تجاري</option>
           <option value="مزدوج الاستخدام">مزدوج الاستخدام</option>
@@ -180,13 +211,18 @@ const ResidentialBuilding = ({
         <div className="mr-3 mt-5">
           {showUsageType && (
             <input
-              className="input-field"
               type="text"
               placeholder="أدخل نوع الاستخدام"
               {...register("ResidentialBuilding.otherUsageType", {
                 required: t("common.required"),
               })}
-              value={" "}
+              className={classNames(
+                "input-field",
+                isChangeToReviewPage == true
+                  ? "cursor-not-allowed bg-gray-200"
+                  : ""
+              )}
+              disabled={isChangeToReviewPage ? true : false}
             />
           )}
           {errors?.ResidentialBuilding?.otherUsageType && (
@@ -217,7 +253,13 @@ const ResidentialBuilding = ({
               required: t("common.required"),
             })}
             min={0}
-            className="input-field"
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           />
           {errors?.ResidentialBuilding?.collapsedFloors && (
             <p className="text-red-600 text-sm">
@@ -238,7 +280,13 @@ const ResidentialBuilding = ({
               required: t("common.required"),
             })}
             min={0}
-            className="input-field"
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           />
           {errors?.ResidentialBuilding?.partialCollapses && (
             <p className="text-red-600 text-sm">
@@ -257,6 +305,10 @@ const ResidentialBuilding = ({
             <input
               type="checkbox"
               {...register("ResidentialBuilding.criticalColumnDamage")}
+              className={classNames(
+                "accent-primary",
+                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+              )}
             />
             <span>أعمدة</span>
           </div>
@@ -265,6 +317,10 @@ const ResidentialBuilding = ({
             <input
               type="checkbox"
               {...register("ResidentialBuilding.criticalShearWallDamage")}
+              className={classNames(
+                "accent-primary",
+                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+              )}
             />
             <span>جدران</span>
           </div>
@@ -272,6 +328,10 @@ const ResidentialBuilding = ({
             <input
               type="checkbox"
               {...register("ResidentialBuilding.criticalRoofBelts")}
+              className={classNames(
+                "accent-primary",
+                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+              )}
             />
             <span>أحزمة و كشفات أسقف</span>
           </div>
@@ -289,7 +349,11 @@ const ResidentialBuilding = ({
           {...register("ResidentialBuilding.damageType", {
             required: t("common.required"),
           })}
-          className="input-field mb-4"
+          className={classNames(
+            "input-field mb-4",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
           <option value="">اختر نوع الضرر</option>
           <option value="هدم كلي"> هدم كلي</option>
@@ -297,14 +361,22 @@ const ResidentialBuilding = ({
         </select>
         {showDamageValue &&
           DAMAGE_TYPES.map((item, index) => (
-            <div className="mr-3" key={index}>
+            <div
+              className={classNames("mr-3", {
+                "cursor-not-allowed": isChangeToReviewPage,
+              })}
+              key={index}
+            >
               <input
                 type="checkbox"
                 value={item.value}
                 {...register("ResidentialBuilding.damageTypes", {
                   required: "اختر نوع ضرر واحد على الأقل",
                 })}
-                className="accent-primary"
+                className={classNames(
+                  "accent-primary",
+                  isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                )}
               />
               <span className="mr-2">{item.label}</span>
             </div>
@@ -333,7 +405,11 @@ const ResidentialBuilding = ({
             required: t("common.required"),
           })}
           min={0}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.ResidentialBuilding?.unusableFloors && (
           <p className="text-red-600 text-sm">
@@ -350,11 +426,13 @@ const ResidentialBuilding = ({
           {...register("ResidentialBuilding.damagePercentage", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            0
-          </option>
+          <option value="">0</option>
           <option value="25%">25%</option>
           <option value="50%">50% </option>
           <option value="75%">75% </option>
@@ -376,11 +454,13 @@ const ResidentialBuilding = ({
           {...register("ResidentialBuilding.isHabitable", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع
-          </option>
+          <option value="">اختر نوع</option>
           <option value="نعم">نعم</option>
           <option value="لا">لا </option>
         </select>
@@ -397,8 +477,12 @@ const ResidentialBuilding = ({
         </label>
         <textarea
           {...register("ResidentialBuilding.additionalNotes")}
-          className="input-field min-h-[100px] resize-none"
           placeholder="اكتب أي تفاصيل إضافية..."
+          className={classNames(
+            "input-field min-h-[100px] resize-none",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         ></textarea>
       </div>
       {/* صور ومستندات */}
@@ -407,18 +491,21 @@ const ResidentialBuilding = ({
           control={control}
           name="ResidentialBuilding.beforeWarImage"
           label="صورة العقار قبل الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="ResidentialBuilding.afterWarImage"
           label="صورة العقار بعد الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
           name="ResidentialBuilding.ownershipDocuments"
           label="مستندات الملكية ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
       </div>
     </div>

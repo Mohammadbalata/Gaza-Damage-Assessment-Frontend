@@ -3,12 +3,14 @@ import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import { IndependentBuildingProps } from "../../interfaces/props/IImageUploadInputProps";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
+import classNames from "classnames";
 
 const IndependentBuilding = ({
   register,
   errors,
   watch,
   control,
+  isChangeToReviewPage,
 }: IndependentBuildingProps) => {
   const { t } = useLanguage();
 
@@ -33,7 +35,11 @@ const IndependentBuilding = ({
             max: { value: 200, message: "الحد الأقصى 200 طابق" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.IndependentBuilding?.numberOfFloors && (
           <p className="text-red-600 text-sm">
@@ -42,7 +48,7 @@ const IndependentBuilding = ({
         )}
       </div>
       {/* مساحة الطابق الأرضي */}
-      <div className="edit">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           مساحة الطابق الأرضي (م²) <span className="text-red-500">*</span>
         </label>
@@ -55,7 +61,11 @@ const IndependentBuilding = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.IndependentBuilding?.groundFloorArea && (
           <p className="text-red-600 text-sm">
@@ -64,7 +74,7 @@ const IndependentBuilding = ({
         )}
       </div>
       {/* مساحة الطابق المتكرر */}
-      <div className="edit">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           مساحة الطابق المتكرر (م²) <span className="text-red-500">*</span>
         </label>
@@ -77,7 +87,11 @@ const IndependentBuilding = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.IndependentBuilding?.commonFloorArea && (
           <p className="text-red-600 text-sm">
@@ -94,11 +108,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.propertyType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            لا يوجد
-          </option>
+          <option value="">لا يوجد</option>
           <option value="ملك">ملك</option>
           <option value="ايجار">ايجار </option>
           <option value="انتفاع">انتفاع </option>
@@ -110,18 +126,27 @@ const IndependentBuilding = ({
         )}
       </div>
       {showOwnerName && (
-        <div>
+        <div
+          className={classNames({
+            "cursor-not-allowed": isChangeToReviewPage === true,
+          })}
+        >
           <label className="block text-sm font-medium mb-1">
             اسم المالك الأساسي <span className="text-red-500">*</span>
           </label>
 
           <input
-            className="input-field"
             type="text"
             placeholder="أدخل اسم المالك الأساسي"
             {...register("IndependentBuilding.propertyOwnerName", {
               required: t("common.required"),
             })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed pointer-events-none  bg-gray-200"
+                : ""
+            )}
           />
 
           {errors?.IndependentBuilding?.propertyOwnerName && (
@@ -133,7 +158,7 @@ const IndependentBuilding = ({
       )}
 
       {/* نوع السقف */}
-      <div className="edit">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نوع السقف <span className="text-red-500">*</span>
         </label>
@@ -141,11 +166,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.roofType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر النوع
-          </option>
+          <option value="">اختر النوع</option>
           <option value="بلاطة خرسانية">بلاطة خرسانية</option>
           <option value="كرميد">كرميد</option>
           <option value="زينكو">زينكو</option>
@@ -160,7 +187,7 @@ const IndependentBuilding = ({
       </div>
 
       {/* نوع الجدران */}
-      <div className="edit">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نوع الجدران <span className="text-red-500">*</span>
         </label>
@@ -168,11 +195,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.wallType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر النوع
-          </option>
+          <option value="">اختر النوع</option>
           <option value="بلوك / حجر">بلوك / حجر</option>
           <option value="قواطع ( خشب - ألمنيوم - جبص - زينكو )">
             قواطع ( خشب - ألمنيوم - جبص - زينكو )
@@ -199,7 +228,11 @@ const IndependentBuilding = ({
             max: { value: 200, message: "الحد الأقصى 200 سنة" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
 
         {errors?.IndependentBuilding?.buildingAge && (
@@ -218,11 +251,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.damageType", {
             required: t("common.required"),
           })}
-          className="input-field mb-4"
+          className={classNames(
+            "input-field mb-4",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع الضرر
-          </option>
+          <option value="">اختر نوع الضرر</option>
           <option value="هدم كلي"> هدم كلي</option>
           <option value="هدم جزئي">هدم جزئي</option>
         </select>
@@ -230,14 +265,17 @@ const IndependentBuilding = ({
           DAMAGE_TYPES.map(
             (item, index) =>
               item.buildingType !== "بناية" && (
-                <div className="mr-3" key={index}>
+                <div className={classNames('mr-3',{'cursor-not-allowed':isChangeToReviewPage})} key={index}>
                   <input
                     type="checkbox"
                     value={item.value}
                     {...register("IndependentBuilding.damageTypes", {
                       required: "اختر نوع ضرر واحد على الأقل",
                     })}
-                    className="accent-primary"
+                    className={classNames(
+                      "accent-primary",
+                      isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                    )}
                   />
                   <span className="mr-2">{item.label}</span>
                 </div>
@@ -265,11 +303,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.damagePercentage", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            0
-          </option>
+          <option value="">0</option>
           <option value="25%">25%</option>
           <option value="50%">50% </option>
           <option value="75%">75% </option>
@@ -291,11 +331,13 @@ const IndependentBuilding = ({
           {...register("IndependentBuilding.isHabitable", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
-          <option value=""  >
-            اختر نوع
-          </option>
+          <option value="">اختر نوع</option>
           <option value="نعم">نعم</option>
           <option value="لا">لا </option>
         </select>
@@ -313,27 +355,38 @@ const IndependentBuilding = ({
         </label>
         <textarea
           {...register("IndependentBuilding.additionalNotes")}
-          className="input-field min-h-[100px] resize-none"
+          className={classNames(
+            "input-field min-h-[100px] resize-none",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         ></textarea>
       </div>
       {/* صور ومستندات */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+        className={classNames("grid grid-cols-1 md:grid-cols-3 gap-4", {
+          "cursor-not-allowed": isChangeToReviewPage === true,
+        })}
+      >
         <SingleImageInput
           control={control}
           name="IndependentBuilding.beforeWarImage"
           label="صورة العقار قبل الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="IndependentBuilding.afterWarImage"
           label="صورة العقار بعد الحرب ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
           name="IndependentBuilding.ownershipDocuments"
           label="مستندات الملكية ( إن وجد )"
+          {...{ isChangeToReviewPage }}
         />
       </div>
     </div>

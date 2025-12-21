@@ -72,7 +72,7 @@
   margin-top: 6px !important;
 }
 
-.MuiPaper-root{
+.MuiDialog-paperScrollPaper{
   width: 100%;
   max-width: 670px !important;
 }
