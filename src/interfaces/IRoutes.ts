@@ -6,7 +6,7 @@ export interface IRoutes {
   PREVIOUS_LOCATION: string;
   PASSWORD_DISPLAY: string;
   CHANGE_PASSWORD: string;
-  MAY_APPLICATIONS: string;
+  MY_APPLICATIONS: string;
   // DAMAGE_ASSESSMENT_DIALOG: string;
   CURRENT_LOCATION: string;
   PERSONAL_INFO: string;
@@ -26,5 +26,5 @@ export interface IRoutes {
   ADMIN_LOCATIONS: string;
   ADMIN_LOCATION_MAP: string;
   CITIZEN_DASHBOARD: string;
-  ADMIN_BANKING:string
+  ADMIN_BANKING: string;
 }

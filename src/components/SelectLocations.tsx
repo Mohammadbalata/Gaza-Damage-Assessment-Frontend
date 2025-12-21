@@ -1,10 +1,17 @@
-import classNames from "classnames";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface Props {
   setCenter: (center: [number, number]) => void;
   className?: string;
   handleReset: any;
-  setNeighborhood?: any;
+  setNeighborhood?: (name: string) => void;
 }
 
 export const locations = [
@@ -80,26 +87,38 @@ const SelectLocations = ({
   className,
   setNeighborhood,
 }: Props) => {
+  const handleChange = (e: SelectChangeEvent) => {
+    const selected = locations.find((loc) => loc.name === e.target.value);
+    if (selected) {
+      setCenter(selected.coords);
+      if (setNeighborhood) {
+        setNeighborhood(selected.name);
+      }
+    }
+    handleReset();
+  };
+
+  const { language } = useLanguage();
+
   return (
-    <select
-      defaultValue={locations[11].name}
-      className={classNames("btn-outline", className)}
-      onChange={(e) => {
-        const selected = locations.find((loc) => loc.name === e.target.value);
-        if (selected) {
-          setCenter(selected.coords);
-          setNeighborhood(selected.name);
-        }
-        handleReset();
-      }}
-    >
-      <option value="">اختر موقع</option>
-      {locations.map((loc) => (
-        <option key={loc.name} value={loc.name}>
-          {loc.name}
-        </option>
-      ))}
-    </select>
+    <FormControl fullWidth className={className} size="small">
+      <InputLabel id="select-location-label">
+        {language === "ar" ? "اختر موقع" : "Select Location"}
+      </InputLabel>
+      <Select
+        labelId="select-location-label"
+        id="select-location"
+        defaultValue=""
+        label={language === "ar" ? "اختر موقع" : "Select Location"}
+        onChange={handleChange}
+      >
+        {locations.map((loc) => (
+          <MenuItem key={loc.name} value={loc.name}>
+            {loc.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
 

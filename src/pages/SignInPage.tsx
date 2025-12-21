@@ -35,24 +35,11 @@ const LoginPage = () => {
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
-      .then((res) => {
-        console.log("success", res);
-        const isPrevLocation = res.locations.filter(
-          (location: any) => location.type === "before_war"
-        );
-        const isCurrentLocation = res.locations.filter(
-          (location: any) => location.type === "current"
-        );
-        if (isPrevLocation.length === 0) {
-          navigate(ROUTES.PREVIOUS_LOCATION);
-        } else if (isCurrentLocation.length === 0) {
-          navigate(ROUTES.CURRENT_LOCATION);
-        } else {
-          navigate(ROUTES.CITIZEN_DASHBOARD);
-        }
+      .then(() => {
+        navigate(ROUTES.CITIZEN_DASHBOARD);
       })
       .catch((error) => {
-        console.log(error);
+        dispatch(setError(error));
       });
   };
 
@@ -162,7 +149,7 @@ const LoginPage = () => {
                 },
               }}
             >
-              {loading ? t("common.loading") : t("common.signIn")}
+              {loading ? "" : t("common.signIn")}
             </Button>
           </Stack>
 

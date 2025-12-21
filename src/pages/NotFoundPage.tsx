@@ -3,9 +3,11 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes/Routes";
 import { Home } from "@mui/icons-material";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <Container maxWidth="sm">
@@ -48,7 +50,7 @@ const NotFoundPage = () => {
           variant="h4"
           sx={{ fontWeight: 700, mb: 2, color: "text.primary" }}
         >
-          Page Not Found
+          {t("notFound.title")}
         </Typography>
 
         <Typography
@@ -56,13 +58,13 @@ const NotFoundPage = () => {
           color="text.secondary"
           sx={{ mb: 4, maxWidth: 400 }}
         >
-          Sorry, the page you are looking for does not exist or has been moved.
+          {t("notFound.description")}
         </Typography>
 
         <Button
           variant="contained"
           size="large"
-          startIcon={<Home />}
+          startIcon={<Home sx={{ ml: 1.5 }} />}
           onClick={() => navigate(ROUTES.LAYOUT)}
           sx={{
             borderRadius: 2,
@@ -71,7 +73,7 @@ const NotFoundPage = () => {
             fontWeight: 600,
           }}
         >
-          Back to Home
+          {t("notFound.backToHome")}
         </Button>
       </Box>
     </Container>

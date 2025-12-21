@@ -264,7 +264,7 @@ const TrackStatusPage: React.FC = () => {
                 },
               }}
             >
-              {loading ? t("common.loading") : t("auth.trackStatus")}
+              {loading ? "" : t("auth.trackStatus")}
             </Button>
           </Stack>
         </form>
@@ -333,7 +333,7 @@ const TrackStatusPage: React.FC = () => {
 
           {/* Last Update Info */}
           <Box sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider" }}>
-            <Stack direction="row" spacing={4}>
+            <Stack useFlexGap={true} direction="row" spacing={4}>
               <Box>
                 <Typography variant="caption" color="text.secondary">
                   {language === "ar" ? "تاريخ التقديم" : "Submitted Date"}
@@ -394,7 +394,12 @@ const TrackStatusPage: React.FC = () => {
                         </Box>
                       )}
                     >
-                      <Stack direction="row" alignItems="center" spacing={1}>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        useFlexGap={true}
+                      >
                         <Typography sx={{ fontWeight: 500 }}>
                           {t(`status.${history.status}`)}
                         </Typography>

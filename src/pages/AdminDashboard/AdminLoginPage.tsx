@@ -262,7 +262,7 @@ const AdminLoginPage: React.FC = () => {
                   },
                 }}
               >
-                {loading ? t("common.loading") : t("auth.login")}
+                {loading ? "" : t("auth.login")}
               </Button>
             </Stack>
           </form>

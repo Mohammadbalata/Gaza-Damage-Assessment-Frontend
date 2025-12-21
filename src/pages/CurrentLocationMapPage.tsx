@@ -8,13 +8,23 @@ import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
 import SelectLocations, { locations } from "../components/SelectLocations";
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Button,
+  Stack,
+  CircularProgress,
+} from "@mui/material";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
 
 const CurrentLocationMapPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { currentLocation } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const [position, setPosition] = useState<[number, number] | null>(
@@ -83,133 +93,159 @@ const CurrentLocationMapPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="card">
-        <h2 className="text-2xl font-bold mb-2">حدد موقعك الحالي</h2>
-        <p className="text-gray-600 mb-4">
-          يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).
-        </p>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Card
+        elevation={3}
+        sx={{
+          borderRadius: 4,
+          overflow: "hidden",
+          border: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Typography
+              variant="h4"
+              component="h2"
+              fontWeight="bold"
+              gutterBottom
+              color="primary"
+            >
+              {t("map.currentLocation")}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {t("map.currentLocationDescription")}
+            </Typography>
+          </Box>
 
-        <div className="mb-4 h-96 rounded-lg overflow-hidden border border-gray-300">
-          <MapContainer
-            center={center}
-            zoom={15}
-            markerPosition={position}
-            setMarkerPosition={setPosition}
-            height="100%"
-            width="100%"
-            {...{ setAddress }}
+          <Box
+            sx={{
+              height: 400,
+              borderRadius: 2,
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "divider",
+              mb: 3,
+              position: "relative",
+            }}
           >
-            {/* You can add <Marker>, <Popup>, etc. as children if needed */}
-          </MapContainer>
-        </div>
+            <MapContainer
+              center={center}
+              zoom={15}
+              markerPosition={position}
+              setMarkerPosition={setPosition}
+              height="100%"
+              width="100%"
+              {...{ setAddress }}
+            >
+              {/* You can add <Marker>, <Popup>, etc. as children if needed */}
+            </MapContainer>
+          </Box>
 
-        {position && (
-          <div className="space-y-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("map.coordinates")}
-              </label>
-              <p className="text-gray-900">
-                {position[0].toFixed(6)}, {position[1].toFixed(6)}
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("map.address")}
-              </label>
-              <p className="text-gray-900">{address}</p>
-            </div>
-          </div>
-        )}
+          {position && (
+            <Box
+              sx={{
+                mb: 4,
+                p: 2,
+                bgcolor: "background.default",
+                borderRadius: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Box flex={1}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    gutterBottom
+                  >
+                    {t("map.coordinates")}
+                  </Typography>
+                  <Typography variant="body1" fontWeight="medium" dir="ltr">
+                    {position[0].toFixed(6)}, {position[1].toFixed(6)}
+                  </Typography>
+                </Box>
+                <Box flex={1}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    gutterBottom
+                  >
+                    {t("map.address")}
+                  </Typography>
+                  <Typography variant="body1" fontWeight="medium">
+                    {address}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          )}
 
-        {/* <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => navigate(`${ROUTES.DAMAGE_ASSESSMENT_DIALOG}`)}
-            className="btn-outline flex-1"
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            justifyContent="space-between"
+            alignItems="stretch"
+            useFlexGap={true}
           >
-            {t("common.back")}
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="btn-outline flex-1"
-            disabled={!position || loading}
-          >
-            <RotateCcw className="w-4 h-4 inline mr-2" />
-            {t("map.reset")}
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="btn-primary flex-1"
-            disabled={!position || loading || !address
-              
-            }
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                {t("common.loading")}
-              </div>
-            ) : (
-              <>
-                <Check className="w-4 h-4 inline mr-2" />
-                {t("map.confirm")}
-              </>
-            )}
-          </button>
-        </div> */}
-        <div className="flex flex-wrap gap-4">
-          {/* <button
-            type="button"
-            onClick={() => navigate(`${ROUTES.PASSWORD_DISPLAY}`)}
-            className="btn-outline basis-3/4 sm:basis-1/4 grow-[2] shrink-[2]"
-          >
-            {t("common.back")}
-          </button> */}
-          <button
-            type="button"
-            onClick={handleReset}
-            className="btn-outline grow-[2] shrink-[2]"
-            disabled={!position}
-          >
-            <RotateCcw className="w-4 h-4 inline mr-2" />
-            {t("map.reset")}
-          </button>
-          <SelectLocations
-            {...{ handleReset }}
-            {...{ setNeighborhood }}
-            setCenter={setCenter}
-            className=" grow-[2] shrink-[2]"
-          />
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="btn-primary grow-[2] shrink-[2]"
-            disabled={
-              !position ||
-              loading ||
-              !address ||
-              address === "لا يوجد اتصال في الانترنت"
-            }
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <span className="loader w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                {t("common.loading")}
-              </div>
-            ) : (
-              <>
-                <Check className="w-4 h-4 inline mr-2" />
-                {t("map.confirm")}
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={handleReset}
+              disabled={!position}
+              startIcon={
+                <RotateCcw
+                  className={language === "ar" ? "ml-2" : "mr-2"}
+                  size={18}
+                />
+              }
+              sx={{ flex: 1, height: 48 }}
+            >
+              {t("map.reset")}
+            </Button>
+
+            <Box sx={{ flex: 1 }}>
+              <SelectLocations
+                {...{ handleReset }}
+                {...{ setNeighborhood }}
+                setCenter={setCenter}
+              />
+            </Box>
+
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleConfirm}
+              disabled={
+                !position ||
+                loading ||
+                !address ||
+                address === "لا يوجد اتصال في الانترنت"
+              }
+              startIcon={
+                !loading && (
+                  <Check
+                    className={language === "ar" ? "ml-2" : "mr-2"}
+                    size={18}
+                  />
+                )
+              }
+              sx={{ flex: 1, height: 48 }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                t("map.confirm")
+              )}
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

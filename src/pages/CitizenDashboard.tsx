@@ -88,7 +88,7 @@ const CitizenDashboard: React.FC = () => {
       description: t("citizen.addDamageRequestDesc"),
       icon: <AddIcon sx={{ fontSize: 40 }} />,
       color: "primary",
-      onClick: () => handlePlaceholderClick(t("citizen.addDamageRequest")),
+      onClick: () => navigate(ROUTES.PREVIOUS_LOCATION),
     },
     {
       key: "myRequests",
@@ -96,7 +96,7 @@ const CitizenDashboard: React.FC = () => {
       description: t("citizen.myRequestsDesc"),
       icon: <ListIcon sx={{ fontSize: 40 }} />,
       color: "info",
-      onClick: () => handlePlaceholderClick(t("citizen.myRequests")),
+      onClick: () => navigate(ROUTES.MY_APPLICATIONS),
     },
     {
       key: "bankInfo",
@@ -112,7 +112,7 @@ const CitizenDashboard: React.FC = () => {
       description: t("citizen.resetPasswordDesc"),
       icon: <LockIcon sx={{ fontSize: 40 }} />,
       color: "warning",
-      onClick: () => handlePlaceholderClick(t("citizen.resetPassword")),
+      onClick: () => navigate(ROUTES.CHANGE_PASSWORD),
     },
   ];
 

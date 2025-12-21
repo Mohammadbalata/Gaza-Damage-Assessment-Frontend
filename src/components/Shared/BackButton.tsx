@@ -3,10 +3,10 @@ import { Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { IBackButton } from "../../interfaces/IBackButton";
 
-const BackButton = ({ language, to }: IBackButton) => {
+const BackButton = ({ language, to, sx }: IBackButton) => {
   const navigate = useNavigate();
   return (
-    <Box sx={{ mt: 4, textAlign: "center" }}>
+    <Box sx={{ mt: 4, textAlign: "center", ...sx }}>
       <Button
         variant="text"
         startIcon={

@@ -32,6 +32,17 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.backToDashboard": "Back to Dashboard",
     "common.goToPage": "Go to Page",
     "common.continue": "Continue",
+    "common.retry": "Retry",
+    "common.comingSoonMessage": "This request type will be available soon",
+    "common.damageRequest": "Damage Assessment Request",
+    "common.reliefRequest": "Relief Request",
+    "common.compensationRequest": "Compensation Request",
+    "common.housingRequest": "Housing Request",
+    "common.infrastructureRequest": "Infrastructure Request",
+    "common.copied": "Copied to clipboard",
+    "validation.required": "Required",
+    "validation.passwordMismatch": "Passwords do not match",
+
     // Auth
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
@@ -58,6 +69,29 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesTitle": "Identity Verification",
     "auth.verifyQuesBody":
       "Please answer the following questions to verify your identity. These questions are based on your civil registry information.",
+
+    // Reset Password
+    "auth.resetPassword": "Reset Password",
+    "auth.resetPasswordBody":
+      "Please answer the following questions to verify your identity. These questions are based on your civil registry information.",
+    "auth.resetPasswordSuccess": "Password Reset Successfully",
+    "auth.resetPasswordSuccessBody":
+      "Your password has been reset successfully. You can now login with your new password.",
+    "auth.resetPasswordSuccessDescription":
+      "Your password has been reset successfully. You can now login with your new password.",
+    "citizen.currentPassword": "Current Password",
+    "citizen.newPassword": "New Password",
+    "citizen.confirmPassword": "Confirm Password",
+    "citizen.passwordMismatch": "Passwords do not match",
+    "citizen.passwordTooShort": "Password must be at least 8 characters",
+    "citizen.passwordMissingUpper":
+      "Password must include at least one uppercase letter (A-Z).",
+    "citizen.passwordMissingLower":
+      "Password must include at least one uppercase letter (a-z).",
+    "citizen.passwordMissingNumber":
+      "Password must include at least one number (0-9).",
+    "citizen.passwordMissingSymbol":
+      "Password must include at least one special symbol.",
 
     // Personal Info
     "form.fullName": "Name",
@@ -121,6 +155,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "Reset Location",
     "map.confirm": "Confirm Location",
     "map.showonmap": "View on Map",
+    "map.previousLocation": "Previous Location (Before War)",
+    "map.previousLocationDescription":
+      "Please select the location of your property before the war.",
+    "map.currentLocation": "Current Location (After War)",
+    "map.currentLocationDescription":
+      "Please select the location of your property after the war. (Where are you staying now?)",
 
     // Review
     "review.title": "Review Your Application",
@@ -162,7 +202,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.totalUsers": "Total Users",
     "admin.totalCitizens": "Total Citizens",
     "admin.totalLocations": "Total Locations",
-    "admin.totalBanking":"Totals Bank Accoutns",
+    "admin.totalBanking": "Totals Bank Accoutns",
     "admin.pendingReview": "Pending Review",
     "admin.approved": "Approved",
     "admin.rejected": "Rejected",
@@ -371,15 +411,30 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Citizen Dashboard
     "citizen.dashboard": "Citizen Dashboard",
     "citizen.welcome": "Welcome back",
-    "citizen.addDamageRequest": "Add New Damage Request",
-    "citizen.addDamageRequestDesc": "Register a new property damage assessment",
-    "citizen.myRequests": "My Requests",
-    "citizen.myRequestsDesc": "View and track your submitted requests",
+    "citizen.addDamageRequest": "Add New Damage Application",
+    "citizen.addDamageRequestDesc":
+      "Register a new damage assessment application",
+    "citizen.myRequests": "My Applications",
+    "citizen.myRequestsDesc": "View the status of your submitted applications",
+    "citizen.noApplications": "You have no applications yet",
+    "citizen.createFirstApplication": "Create your first application",
+    "citizen.applicationId": "Application ID",
+    "citizen.submittedOn": "Submitted on",
+    "citizen.viewDetails": "View Details",
+    "citizen.status": "Status",
     "citizen.bankInfo": "Bank Information",
     "citizen.bankInfoDesc": "Register your bank account details",
     "citizen.resetPassword": "Reset Password",
     "citizen.resetPasswordDesc": "Change your account password",
     "citizen.comingSoon": "Coming Soon",
+    "citizen.passwordChangeError": "Failed to change password.",
+    "citizen.passwordChangedSuccess": "Password changed successfully.",
+
+    // Not Found
+    "notFound.title": "Page Not Found",
+    "notFound.description":
+      "The page you are looking for does not exist or has been moved.",
+    "notFound.backToHome": "Back to Home",
   },
   ar: {
     // Common
@@ -414,6 +469,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.searchPlaceholder": "ابحث ....",
     "common.backToDashboard": "العودة إلى لوحة التحكم",
     "common.goToPage": "الذهاب إلى الصفحة",
+    "common.copied": "تم النسخ إلى الحافظة",
+    "common.retry": "إعادة المحاولة",
+    "common.comingSoonMessage": "هذا النوع من الطلبات سيكون متاحاً قريباً",
+    "common.damageRequest": "طلبات حصر الأضرار",
+    "common.reliefRequest": "طلبات الإغاثة",
+    "common.compensationRequest": "طلبات التعويض",
+    "common.housingRequest": "طلبات الإسكان",
+    "common.infrastructureRequest": "طلبات البنية التحتية",
+    "validation.required": "هذا الحقل مطلوب",
+    "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",
@@ -442,6 +507,33 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
     "auth.verifySuccess": "",
+
+    // Reset Password
+    "auth.resetPassword": "إعادة تعيين كلمة المرور",
+    "auth.resetPasswordBody":
+      "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
+    "auth.resetPasswordSuccess": "تم إعادة تعيين كلمة المرور بنجاح",
+    "auth.resetPasswordSuccessBody":
+      "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+    "auth.resetPasswordSuccessDescription":
+      "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+    "citizen.currentPassword": "كلمة المرور الحالية",
+    "citizen.newPassword": "كلمة المرور الجديدة",
+    "citizen.confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "citizen.passwordMismatch": "كلمة المرور الجديدة غير متطابقة",
+    "citizen.passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "citizen.passwordMissingUpper":
+      "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
+    "citizen.passwordMissingLower":
+      "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل",
+    "citizen.passwordMissingNumber":
+      "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+    "citizen.passwordMissingSymbol":
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل",
+    "citizen.passwordError": "كلمة المرور خاطئة",
+    "citizen.passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
+    "citizen.confirmPassword": "تأكيد كلمة المرور الجديدة",
+
     // Personal Info
     "form.fullName": "الاسم الكامل",
     "form.nationalId": "الرقم الوطني",
@@ -500,6 +592,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
     "map.showonmap": "عرض على الخريطة",
+    "map.previousLocation": " اختر موقعك السابق (قبل الحرب)",
+    "map.previousLocationDescription":
+      "يرجى النقر على الخريطة لتحديد موقع ممتلكاتك قبل الحرب.",
+    "map.currentLocation": " اختر موقعك الحالي (بعد الحرب)",
+    "map.currentLocationDescription":
+      "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
 
     // Review
     "review.title": "مراجعة طلبك",
@@ -540,7 +638,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.totalUsers": "إجمالي المستخدمين",
     "admin.totalCitizens": "إجمالي المواطنين",
     "admin.totalLocations": "إجمالي المواقع",
-    "admin.totalBanking":"إجمالي الحسابات البنكية",
+    "admin.totalBanking": "إجمالي الحسابات البنكية",
     "admin.pendingReview": "قيد المراجعة",
     "admin.approved": "تم الموافقة",
     "admin.rejected": "تم الرفض",
@@ -738,11 +836,24 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.addDamageRequest": "إضافة طلب ضرر جديد",
     "citizen.addDamageRequestDesc": "تسجيل تقييم أضرار جديد للممتلكات",
     "citizen.myRequests": "طلباتي",
-    "citizen.myRequestsDesc": "عرض وتتبع طلباتك المقدمة",
+    "citizen.myRequestsDesc": "عرض حالة الطلبات المقدمة",
+    "citizen.noApplications": "ليس لديك أي طلبات حتى الآن",
+    "citizen.createFirstApplication": "قم بإنشاء طلبك الأول",
+    "citizen.applicationId": "رقم الطلب",
+    "citizen.submittedOn": "تاريخ التقديم",
+    "citizen.viewDetails": "عرض التفاصيل",
+    "citizen.status": "الحالة",
     "citizen.bankInfo": "معلومات البنك",
     "citizen.bankInfoDesc": "تسجيل تفاصيل حسابك المصرفي",
     "citizen.resetPassword": "إعادة تعيين كلمة المرور",
     "citizen.resetPasswordDesc": "تغيير كلمة مرور حسابك",
     "citizen.comingSoon": "قريباً",
+    "citizen.passwordChangeError": "فشل في تغيير كلمة المرور.",
+    "citizen.passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح.",
+
+    // Not Found
+    "notFound.title": "الصفحة غير موجودة",
+    "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "notFound.backToHome": "العودة إلى الصفحة الرئيسية",
   },
 };
