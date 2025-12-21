@@ -24,12 +24,23 @@ import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { axiosClient } from "../api/baseUrl";
 
+interface DamageAssessmentDialogProps {
+  setApplications?: any;
+  onClose: () => void;
+  location: any;
+  readOnly?: boolean;
+  initialData?: any;
+  setIsCurrentLocation?: any;
+}
+
 const DamageAssessmentDialog = ({
   setApplications,
   onClose,
   location,
+  readOnly = false,
+  initialData,
   setIsCurrentLocation,
-}: any) => {
+}: DamageAssessmentDialogProps) => {
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -52,6 +63,29 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+
+  // Handle Initial Data for Edit/Review Mode
+  useEffect(() => {
+    if (initialData) {
+      // 1. Set Building Type
+      const type = initialData.buildingType;
+      dispatch(setBuildingType(type));
+      setValue("buildingType", type);
+
+      // 2. Populate specific building data
+      // Map extraData to the form structure for that building type
+      if (initialData.extraData) {
+        // e.g., setValue('IndependentBuilding', initialData.extraData)
+        // But we need to handle deep fields potentially if components use flat register calls
+        // For now assuming passed initialData matches store structure OR extraData is the sub-object
+        setValue(type as any, initialData.extraData);
+
+        // Dispatch to store so child components render correctly if they rely on Redux
+        dispatchByType(dispatch, type, { [type]: initialData.extraData });
+      }
+    }
+  }, [initialData, dispatch, setValue]);
+
   const resetBuildingTypeSelect = () => {
     setValue("buildingType", "");
     dispatch(setBuildingType(""));
@@ -82,6 +116,11 @@ const DamageAssessmentDialog = ({
   };
 
   const onSubmit = (formData: any) => {
+    if (readOnly) {
+      onClose();
+      return;
+    }
+
     setIsChangeToReviewPage(true);
     if (!isChangeToReviewPage) return;
 
@@ -122,73 +161,40 @@ const DamageAssessmentDialog = ({
   }, []);
 
   useEffect(() => {
-    resetBuildingTypeSelect();
+    if (!initialData) {
+      resetBuildingTypeSelect();
+    }
   }, [onClose]);
 
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected = damageAssessmentInfo.buildingType;
+
+    // Pass readOnly/disabled state to children if they support it
+    // Using CSS pointer-events-none for a generic read-only mode wrapper could also work
+    const commonProps = {
+      register,
+      watch,
+      control,
+      errors,
+      isChangeToReviewPage: isChangeToReviewPage, // Keep existing review logic
+    };
+
     switch (selected) {
       case "IndependentBuilding":
-        return (
-          <IndependentBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <IndependentBuilding {...commonProps} />;
       case "ApartmentInsideBuilding":
-        return (
-          <ApartmentInsideBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <ApartmentInsideBuilding {...commonProps} />;
       case "ResidentialBuilding":
-        return (
-          <ResidentialBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <ResidentialBuilding {...commonProps} />;
       case "tower":
-        return (
-          <Tower
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <Tower {...commonProps} />;
       case "compHouse":
-        return (
-          <CampHousing
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <CampHousing {...commonProps} />;
       case "additionalBuildings":
-        return (
-          <AdditionalBuildings
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <AdditionalBuildings {...commonProps} />;
+      default:
+        return null;
     }
   };
 
@@ -203,16 +209,22 @@ const DamageAssessmentDialog = ({
 
       <div
         className={classNames("card shadow-none hover:shadow-none", {
-          "bg-gray-200": isChangeToReviewPage,
+          "bg-gray-200": isChangeToReviewPage || readOnly,
         })}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Damage Assessment</h2>
+          <h2 className="text-2xl font-bold">
+            {readOnly ? t("common.reviewRequest") : "Damage Assessment"}
+          </h2>
         </div>
-        <form className="space-y-6">
+        <form
+          className={classNames("space-y-6", {
+            "pointer-events-none opacity-80": readOnly,
+          })}
+        >
           <div
             className={classNames({
-              "cursor-not-allowed": isChangeToReviewPage,
+              "cursor-not-allowed": isChangeToReviewPage || readOnly,
             })}
           >
             <label
@@ -225,13 +237,15 @@ const DamageAssessmentDialog = ({
               id="buildingType "
               {...register("buildingType", { required: t("common.required") })}
               className={classNames("input-field", {
-                " cursor-not-allowed bg-gray-200": isChangeToReviewPage,
+                " cursor-not-allowed bg-gray-200":
+                  isChangeToReviewPage || readOnly,
               })}
               onChange={(e) => {
                 // dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
                 dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
               }}
-              disabled={isChangeToReviewPage ? true : false}
+              disabled={isChangeToReviewPage || readOnly}
+              value={damageAssessmentInfo.buildingType} // Ensure controlled value from store/form match
             >
               <option value="">اختر مبنى</option>
               {buildingOptions.map((option) => (
@@ -247,32 +261,44 @@ const DamageAssessmentDialog = ({
             )}
           </div>
           <BuildingTypeView />
-          <DialogActions>
-            <Button
-              className="!text-[17px]"
-              onClick={() => {
-                dispatch(resetAllBuildings());
-                onClose();
-                setIsChangeToReviewPage(false);
-              }}
-            >
-              إلغاء
-            </Button>
-            <Button
-              className={classNames(
-                isChangeToReviewPage ? "!inline-block" : "!hidden"
-              )}
-              onClick={() => {
-                setIsChangeToReviewPage(false);
-              }}
-              variant="outlined"
-            >
-              تعديل الطلب
-            </Button>
-            <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-              {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
-            </Button>
-          </DialogActions>
+
+          {/* Actions Area - Hide/Modify based on ReadOnly */}
+          {!readOnly && (
+            <DialogActions>
+              <Button
+                className="!text-[17px]"
+                onClick={() => {
+                  dispatch(resetAllBuildings());
+                  onClose();
+                  setIsChangeToReviewPage(false);
+                }}
+              >
+                إلغاء
+              </Button>
+              <Button
+                className={classNames(
+                  isChangeToReviewPage ? "!inline-block" : "!hidden"
+                )}
+                onClick={() => {
+                  setIsChangeToReviewPage(false);
+                }}
+                variant="outlined"
+              >
+                تعديل الطلب
+              </Button>
+              <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+                {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
+              </Button>
+            </DialogActions>
+          )}
+
+          {readOnly && (
+            <DialogActions>
+              <Button variant="contained" onClick={onClose}>
+                {t("common.close")}
+              </Button>
+            </DialogActions>
+          )}
         </form>
       </div>
     </div>
