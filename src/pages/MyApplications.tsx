@@ -94,7 +94,7 @@ const MyApplications = () => {
   };
 
   const handleAction = (app: Application) => {
-    const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
+    // const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
     // Assuming status is returned from API.
     // If status is "pending", allow edit. Else, read-only.
     // NOTE: Check exact enum/string value for "pending" from backend. Usually "PENDING".
