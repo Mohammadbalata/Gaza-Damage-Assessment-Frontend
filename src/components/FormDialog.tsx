@@ -7,6 +7,7 @@ interface FormDialogProps {
   onClose: () => void;
   setApplications: any;
   location?: any;
+  setIsCurrentLocation?: any;
 }
 
 const FormDialog: React.FC<FormDialogProps> = ({
@@ -14,6 +15,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
   onClose,
   setApplications,
   location,
+  setIsCurrentLocation,
 }) => {
   return (
     <Dialog className="" open={open} onClose={onClose}>
@@ -21,6 +23,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
         {...{ setApplications }}
         {...{ onClose }}
         {...{ location }}
+        {...{ setIsCurrentLocation }}
       />
     </Dialog>
   );

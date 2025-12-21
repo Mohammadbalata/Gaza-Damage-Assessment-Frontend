@@ -22,11 +22,13 @@ import { AlertCircle } from "lucide-react";
 import { Button, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
+import { axiosClient } from "../api/baseUrl";
 
 const DamageAssessmentDialog = ({
   setApplications,
   onClose,
   location,
+  setIsCurrentLocation,
 }: any) => {
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
@@ -56,99 +58,6 @@ const DamageAssessmentDialog = ({
     dispatch(resetAllBuildings()); // يرجع على <option value="">
   };
 
-  // const onSubmit = (formData: IDamageAssessmentState) => {
-  //   // dispatchBuildingType(dispatch, formData);
-  //   console.log(formData);
-  //   const type = formData.buildingType;
-  //   if (type === "IndependentBuilding") {
-  //     dispatch(saveIndependentBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.IndependentBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "ApartmentInsideBuilding") {
-  //     dispatch(saveApartmentInsideBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.ApartmentInsideBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "ResidentialBuilding") {
-  //     dispatch(saveResidentialBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.ResidentialBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-
-  //   if (type === "tower") {
-  //     dispatch(saveTower(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.tower,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "compHouse") {
-  //     dispatch(saveCompHouse(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.compHouse,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "additionalBuildings") {
-  //     dispatch(saveAdditionalBuildings(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.additionalBuildings,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   console.log("success submitted");
-  //   onClose();
-  //   // Reset form values
-  // };
   const addApplication = (
     type: string,
     extraData: any,
@@ -171,141 +80,7 @@ const DamageAssessmentDialog = ({
       },
     ]);
   };
-  // const onSubmit = (formData: IDamageAssessmentState) => {
-  //   setIsChangeToReviewPage(true);
-  //   if (isChangeToReviewPage) {
-  //     const formDataWithoutImg: any = {
-  //       ...formData,
-  //       IndependentBuilding: {
-  //         ...formData.IndependentBuilding,
-  //       },
-  //       ApartmentInsideBuilding: {
-  //         ...formData.ApartmentInsideBuilding,
-  //       },
-  //       ResidentialBuilding: {
-  //         ...formData.ResidentialBuilding,
-  //       },
-  //       tower: {
-  //         ...formData.tower,
-  //       },
-  //       compHouse: {
-  //         ...formData.compHouse,
-  //       },
-  //       additionalBuildings: {
-  //         ...formData.additionalBuildings,
-  //       },
-  //     };
-  //     const type = formData.buildingType;
-  //     delete formDataWithoutImg[type]?.beforeWarImage;
-  //     delete formDataWithoutImg[type]?.afterWarImage;
-  //     delete formDataWithoutImg[type].ownershipDocuments;
-  //     if (type === "IndependentBuilding") {
-  //       dispatch(saveIndependentBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formDataWithoutImg.IndependentBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.IndependentBuilding.beforeWarImage,
-  //           afterWarImage: formData.IndependentBuilding.afterWarImage,
-  //           ownershipDocuments: formData.IndependentBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "ApartmentInsideBuilding") {
-  //       dispatch(saveApartmentInsideBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.ApartmentInsideBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.ApartmentInsideBuilding.beforeWarImage,
-  //           afterWarImage: formData.ApartmentInsideBuilding.afterWarImage,
-  //           ownershipDocuments:
-  //             formData.ApartmentInsideBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "ResidentialBuilding") {
-  //       dispatch(saveResidentialBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.ResidentialBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.ResidentialBuilding.beforeWarImage,
-  //           afterWarImage: formData.ResidentialBuilding.afterWarImage,
-  //           ownershipDocuments: formData.ResidentialBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "tower") {
-  //       dispatch(saveTower(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.tower,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.tower.beforeWarImage,
-  //           afterWarImage: formData.tower.afterWarImage,
-  //           ownershipDocuments: formData.tower.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "compHouse") {
-  //       dispatch(saveCompHouse(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.compHouse,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.compHouse.beforeWarImage,
-  //           afterWarImage: formData.compHouse.afterWarImage,
-  //           ownershipDocuments: formData.compHouse.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "additionalBuildings") {
-  //       dispatch(saveAdditionalBuildings(formData));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.additionalBuildings,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.additionalBuildings.beforeWarImage,
-  //           afterWarImage: formData.additionalBuildings.afterWarImage,
-  //           ownershipDocuments: formData.additionalBuildings.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     console.log("success submitted");
-  //     onClose();
-  //   }
-  // };
+
   const onSubmit = (formData: any) => {
     setIsChangeToReviewPage(true);
     if (!isChangeToReviewPage) return;
@@ -321,8 +96,30 @@ const DamageAssessmentDialog = ({
       ownershipDocuments: formData[type]?.ownershipDocuments,
     });
     console.log("success submitted");
+
     onClose();
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    axiosClient
+      .get("/applications/my-application", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res: any) => {
+        const isCurrentLocation = res.data.data.locations.filter(
+          (location: any) => location.type === "CURRENT"
+        );
+        if (isCurrentLocation.length !== 0) {
+          setIsCurrentLocation(true);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }, []);
 
   useEffect(() => {
     resetBuildingTypeSelect();
