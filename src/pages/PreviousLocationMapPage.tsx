@@ -22,6 +22,7 @@ import axios from "axios";
 
 const PreviousLocationMapPage = () => {
   const [applications, setApplications] = useState([]);
+  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -70,111 +71,8 @@ const PreviousLocationMapPage = () => {
     setAddress("");
   };
 
-  // const handleConfirm = async () => {
-  //   // const token = localStorage.getItem("token");
-  //   const token =
-  //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgyLCJuYXRpb25hbF9pZCI6IjQxMDAzMTkzNCIsInR5cGUiOiJjaXRpemVuIiwiaWF0IjoxNzY2MDQ3Nzc2LCJleHAiOjE3NjY2NTI1NzZ9.pI0xW5SCevH21LVbaCBaX74YTt9RXMxJN9Taxrn7DL8";
-  //   const newFormData = new FormData();
-
-  //   if (applications.length !== 0) {
-  //     dispatch(
-  //       updatePreviousLocation({
-  //         previosLocations: applications,
-  //       })
-  //     );
-  //     applications.map((application: any) => {
-  //       // execute({
-  //       //   latitude: application.latitude.toString(),
-  //       //   longitude: application.longitude.toString(),
-  //       //   address: application.address,
-  //       //   extraData: JSON.stringify({
-  //       //     buildingType: application.buildingType,
-  //       //     [application.buildingType]: application.extraData,
-  //       //   }),
-  //       //   neighborhood: application.neighborhood,
-  //       //   beforeWarImage: application.beforeWarImage,
-  //       //   afterWarImage: application.afterWarImage,
-  //       //   ownershipDocuments: application.ownershipDocuments,
-  //       // });
-  //       // axiosClient.post(
-  //       //   "applications/add-previous-location",
-  //       //   {
-  //       //     latitude: application.latitude.toString(),
-  //       //     longitude: application.longitude.toString(),
-  //       //     address: application.address,
-  //       //     extraData: JSON.stringify({
-  //       //       buildingType: application.buildingType,
-  //       //       [application.buildingType]: application.extraData,
-  //       //     }),
-  //       //     neighborhood: application.neighborhood,
-  //       //     beforeWarImage: application.beforeWarImage,
-  //       //     afterWarImage: application.afterWarImage,
-  //       //     ownershipDocuments: application.ownershipDocuments,
-  //       //   },
-  //       //   {
-  //       //     header: {
-  //       //       Authorization: `Bearer ${token}`,
-  //       //     },
-  //       //   }
-  //       // );
-  //       // await axios
-  //       // .post('https://backend-5549.onrender.com/applications/add-previous-location', {
-  //       //     latitude: application.latitude.toString(),
-  //       //     longitude: application.longitude.toString(),
-  //       //     address: application.address,
-  //       //     extraData: JSON.stringify({
-  //       //       buildingType: application.buildingType,
-  //       //       [application.buildingType]: application.extraData,
-  //       //     }),
-  //       //     neighborhood: application.neighborhood,
-  //       //     beforeWarImage: application.beforeWarImage,
-  //       //     afterWarImage: application.afterWarImage,
-  //       //     ownershipDocuments: application.ownershipDocuments,
-  //       //   }, {
-  //       //   headers: {
-  //       //     Authorization: `Bearer ${token}`,
-  //       //   },
-  //       // })
-  //       // .then((res) => {
-  //       //   console.log(res.data.data);
-  //       // });
-  //       newFormData.append("latitude", application.latitude.toString());
-  //       newFormData.append("longitude", application.longitude.toString());
-  //       newFormData.append("address", application.address.toString());
-  //       newFormData.append("neighborhood", application.neighborhood.toString());
-  //       newFormData.append(
-  //         "extraData",
-  //         JSON.stringify({
-  //           buildingType: application.buildingType,
-  //           [application.buildingType]: application.extraData,
-  //         })
-  //       );
-  //       newFormData.append("beforeWarImage", application.beforeWarImage);
-  //       newFormData.append("afterWarImage", application.afterWarImage);
-  //       application.ownershipDocuments?.forEach((file: any) => {
-  //         newFormData.append("ownershipDocuments[]", file);
-  //       });
-  //       axios
-  //         .post(
-  //           "https://backend-5549.onrender.com/applications/add-previous-location",
-  //           newFormData,
-  //           {
-  //             headers: {
-  //               Authorization: `Bearer ${token}`,
-  //             },
-  //           }
-  //         )
-  //         .then((res) => {
-  //           console.log(res.data.data);
-  //         });
-  //     });
-  //   }
-  //   console.log(applications);
-  // };
-
   const handleConfirm = async () => {
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgyLCJuYXRpb25hbF9pZCI6IjQxMDAzMTkzNCIsInR5cGUiOiJjaXRpemVuIiwiaWF0IjoxNzY2MDQ3Nzc2LCJleHAiOjE3NjY2NTI1NzZ9.pI0xW5SCevH21LVbaCBaX74YTt9RXMxJN9Taxrn7DL8";
+    const token = localStorage.getItem("token");
 
     if (applications.length === 0) return;
 
@@ -219,16 +117,24 @@ const PreviousLocationMapPage = () => {
       const formData = createApplicationFormData(application);
 
       try {
-        const res = await axios.post(
-          "https://backend-5549.onrender.com/applications/add-previous-location",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(res.data.data);
+        await axios
+          .post(
+            "https://backend-5549.onrender.com/applications/add-previous-location",
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((res: any) => {
+            if (isCurrentLocation) {
+              navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+            } else {
+              navigate(`${ROUTES.CURRENT_LOCATION}`);
+            }
+            console.log(res.data.data);
+          });
       } catch (err) {
         console.error("Failed to send application:", err);
       }
@@ -285,6 +191,7 @@ const PreviousLocationMapPage = () => {
               {...{ setAddress }}
               {...{ setApplications }}
               location={{ position, address, neighborhood }}
+              {...{ setIsCurrentLocation }}
             />
           </Box>
 

@@ -22,13 +22,15 @@ import { AlertCircle } from "lucide-react";
 import { Button, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
+import { axiosClient } from "../api/baseUrl";
 
 interface DamageAssessmentDialogProps {
-  setApplications?: React.Dispatch<React.SetStateAction<any[]>>;
+  setApplications?: any;
   onClose: () => void;
   location: any;
   readOnly?: boolean;
   initialData?: any;
+  setIsCurrentLocation?: any;
 }
 
 const DamageAssessmentDialog = ({
@@ -37,6 +39,7 @@ const DamageAssessmentDialog = ({
   location,
   readOnly = false,
   initialData,
+  setIsCurrentLocation,
 }: DamageAssessmentDialogProps) => {
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
@@ -98,20 +101,18 @@ const DamageAssessmentDialog = ({
       ownershipDocuments?: File[];
     }
   ) => {
-    if (setApplications) {
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-          ...images,
-        },
-      ]);
-    }
+    setApplications((prev: any) => [
+      ...prev,
+      {
+        buildingType: type,
+        extraData,
+        latitude: location?.position[0],
+        longitude: location?.position[1],
+        address: location?.address,
+        neighborhood: location?.neighborhood,
+        ...images,
+      },
+    ]);
   };
 
   const onSubmit = (formData: any) => {
@@ -134,8 +135,30 @@ const DamageAssessmentDialog = ({
       ownershipDocuments: formData[type]?.ownershipDocuments,
     });
     console.log("success submitted");
+
     onClose();
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    axiosClient
+      .get("/applications/my-application", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res: any) => {
+        const isCurrentLocation = res.data.data.locations.filter(
+          (location: any) => location.type === "CURRENT"
+        );
+        if (isCurrentLocation.length !== 0) {
+          setIsCurrentLocation(true);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }, []);
 
   useEffect(() => {
     if (!initialData) {

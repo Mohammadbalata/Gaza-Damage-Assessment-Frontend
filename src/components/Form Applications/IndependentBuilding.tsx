@@ -222,6 +222,7 @@ const IndependentBuilding = ({
         </label>
         <input
           type="number"
+          min={0}
           {...register("IndependentBuilding.buildingAge", {
             required: t("common.required"),
             min: { value: 1, message: "الحد الأدنى سنة واحدة" },
