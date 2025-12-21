@@ -23,11 +23,21 @@ import { Button, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
 
+interface DamageAssessmentDialogProps {
+  setApplications?: React.Dispatch<React.SetStateAction<any[]>>;
+  onClose: () => void;
+  location: any;
+  readOnly?: boolean;
+  initialData?: any;
+}
+
 const DamageAssessmentDialog = ({
   setApplications,
   onClose,
   location,
-}: any) => {
+  readOnly = false,
+  initialData,
+}: DamageAssessmentDialogProps) => {
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
@@ -50,105 +60,35 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+
+  // Handle Initial Data for Edit/Review Mode
+  useEffect(() => {
+    if (initialData) {
+      // 1. Set Building Type
+      const type = initialData.buildingType;
+      dispatch(setBuildingType(type));
+      setValue("buildingType", type);
+
+      // 2. Populate specific building data
+      // Map extraData to the form structure for that building type
+      if (initialData.extraData) {
+        // e.g., setValue('IndependentBuilding', initialData.extraData)
+        // But we need to handle deep fields potentially if components use flat register calls
+        // For now assuming passed initialData matches store structure OR extraData is the sub-object
+        setValue(type as any, initialData.extraData);
+
+        // Dispatch to store so child components render correctly if they rely on Redux
+        dispatchByType(dispatch, type, { [type]: initialData.extraData });
+      }
+    }
+  }, [initialData, dispatch, setValue]);
+
   const resetBuildingTypeSelect = () => {
     setValue("buildingType", "");
     dispatch(setBuildingType(""));
     dispatch(resetAllBuildings()); // يرجع على <option value="">
   };
 
-  // const onSubmit = (formData: IDamageAssessmentState) => {
-  //   // dispatchBuildingType(dispatch, formData);
-  //   console.log(formData);
-  //   const type = formData.buildingType;
-  //   if (type === "IndependentBuilding") {
-  //     dispatch(saveIndependentBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.IndependentBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "ApartmentInsideBuilding") {
-  //     dispatch(saveApartmentInsideBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.ApartmentInsideBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "ResidentialBuilding") {
-  //     dispatch(saveResidentialBuilding(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.ResidentialBuilding,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-
-  //   if (type === "tower") {
-  //     dispatch(saveTower(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.tower,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "compHouse") {
-  //     dispatch(saveCompHouse(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.compHouse,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   if (type === "additionalBuildings") {
-  //     dispatch(saveAdditionalBuildings(formData));
-  //     setApplications((prev: any) => [
-  //       ...prev,
-  //       {
-  //         buildingType: type,
-  //         extraData: formData.additionalBuildings,
-  //         latitude: location?.position[0],
-  //         longitude: location?.position[1],
-  //         address: location?.address,
-  //         neighborhood: location?.neighborhood,
-  //       },
-  //     ]);
-  //   }
-  //   console.log("success submitted");
-  //   onClose();
-  //   // Reset form values
-  // };
   const addApplication = (
     type: string,
     extraData: any,
@@ -158,155 +98,28 @@ const DamageAssessmentDialog = ({
       ownershipDocuments?: File[];
     }
   ) => {
-    setApplications((prev: any) => [
-      ...prev,
-      {
-        buildingType: type,
-        extraData,
-        latitude: location?.position[0],
-        longitude: location?.position[1],
-        address: location?.address,
-        neighborhood: location?.neighborhood,
-        ...images,
-      },
-    ]);
+    if (setApplications) {
+      setApplications((prev: any) => [
+        ...prev,
+        {
+          buildingType: type,
+          extraData,
+          latitude: location?.position[0],
+          longitude: location?.position[1],
+          address: location?.address,
+          neighborhood: location?.neighborhood,
+          ...images,
+        },
+      ]);
+    }
   };
-  // const onSubmit = (formData: IDamageAssessmentState) => {
-  //   setIsChangeToReviewPage(true);
-  //   if (isChangeToReviewPage) {
-  //     const formDataWithoutImg: any = {
-  //       ...formData,
-  //       IndependentBuilding: {
-  //         ...formData.IndependentBuilding,
-  //       },
-  //       ApartmentInsideBuilding: {
-  //         ...formData.ApartmentInsideBuilding,
-  //       },
-  //       ResidentialBuilding: {
-  //         ...formData.ResidentialBuilding,
-  //       },
-  //       tower: {
-  //         ...formData.tower,
-  //       },
-  //       compHouse: {
-  //         ...formData.compHouse,
-  //       },
-  //       additionalBuildings: {
-  //         ...formData.additionalBuildings,
-  //       },
-  //     };
-  //     const type = formData.buildingType;
-  //     delete formDataWithoutImg[type]?.beforeWarImage;
-  //     delete formDataWithoutImg[type]?.afterWarImage;
-  //     delete formDataWithoutImg[type].ownershipDocuments;
-  //     if (type === "IndependentBuilding") {
-  //       dispatch(saveIndependentBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formDataWithoutImg.IndependentBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.IndependentBuilding.beforeWarImage,
-  //           afterWarImage: formData.IndependentBuilding.afterWarImage,
-  //           ownershipDocuments: formData.IndependentBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "ApartmentInsideBuilding") {
-  //       dispatch(saveApartmentInsideBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.ApartmentInsideBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.ApartmentInsideBuilding.beforeWarImage,
-  //           afterWarImage: formData.ApartmentInsideBuilding.afterWarImage,
-  //           ownershipDocuments:
-  //             formData.ApartmentInsideBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "ResidentialBuilding") {
-  //       dispatch(saveResidentialBuilding(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.ResidentialBuilding,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.ResidentialBuilding.beforeWarImage,
-  //           afterWarImage: formData.ResidentialBuilding.afterWarImage,
-  //           ownershipDocuments: formData.ResidentialBuilding.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "tower") {
-  //       dispatch(saveTower(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.tower,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.tower.beforeWarImage,
-  //           afterWarImage: formData.tower.afterWarImage,
-  //           ownershipDocuments: formData.tower.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "compHouse") {
-  //       dispatch(saveCompHouse(formDataWithoutImg));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.compHouse,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.compHouse.beforeWarImage,
-  //           afterWarImage: formData.compHouse.afterWarImage,
-  //           ownershipDocuments: formData.compHouse.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     if (type === "additionalBuildings") {
-  //       dispatch(saveAdditionalBuildings(formData));
-  //       setApplications((prev: any) => [
-  //         ...prev,
-  //         {
-  //           buildingType: type,
-  //           extraData: formData.additionalBuildings,
-  //           latitude: location?.position[0],
-  //           longitude: location?.position[1],
-  //           address: location?.address,
-  //           neighborhood: location?.neighborhood,
-  //           beforeWarImage: formData.additionalBuildings.beforeWarImage,
-  //           afterWarImage: formData.additionalBuildings.afterWarImage,
-  //           ownershipDocuments: formData.additionalBuildings.ownershipDocuments,
-  //         },
-  //       ]);
-  //     }
-  //     console.log("success submitted");
-  //     onClose();
-  //   }
-  // };
+
   const onSubmit = (formData: any) => {
+    if (readOnly) {
+      onClose();
+      return;
+    }
+
     setIsChangeToReviewPage(true);
     if (!isChangeToReviewPage) return;
 
@@ -325,73 +138,40 @@ const DamageAssessmentDialog = ({
   };
 
   useEffect(() => {
-    resetBuildingTypeSelect();
+    if (!initialData) {
+      resetBuildingTypeSelect();
+    }
   }, [onClose]);
 
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected = damageAssessmentInfo.buildingType;
+
+    // Pass readOnly/disabled state to children if they support it
+    // Using CSS pointer-events-none for a generic read-only mode wrapper could also work
+    const commonProps = {
+      register,
+      watch,
+      control,
+      errors,
+      isChangeToReviewPage: isChangeToReviewPage, // Keep existing review logic
+    };
+
     switch (selected) {
       case "IndependentBuilding":
-        return (
-          <IndependentBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <IndependentBuilding {...commonProps} />;
       case "ApartmentInsideBuilding":
-        return (
-          <ApartmentInsideBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <ApartmentInsideBuilding {...commonProps} />;
       case "ResidentialBuilding":
-        return (
-          <ResidentialBuilding
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <ResidentialBuilding {...commonProps} />;
       case "tower":
-        return (
-          <Tower
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <Tower {...commonProps} />;
       case "compHouse":
-        return (
-          <CampHousing
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <CampHousing {...commonProps} />;
       case "additionalBuildings":
-        return (
-          <AdditionalBuildings
-            {...{ register }}
-            {...{ watch }}
-            {...{ control }}
-            {...{ errors }}
-            {...{ isChangeToReviewPage }}
-          />
-        );
+        return <AdditionalBuildings {...commonProps} />;
+      default:
+        return null;
     }
   };
 
@@ -406,16 +186,22 @@ const DamageAssessmentDialog = ({
 
       <div
         className={classNames("card shadow-none hover:shadow-none", {
-          "bg-gray-200": isChangeToReviewPage,
+          "bg-gray-200": isChangeToReviewPage || readOnly,
         })}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Damage Assessment</h2>
+          <h2 className="text-2xl font-bold">
+            {readOnly ? t("common.reviewRequest") : "Damage Assessment"}
+          </h2>
         </div>
-        <form className="space-y-6">
+        <form
+          className={classNames("space-y-6", {
+            "pointer-events-none opacity-80": readOnly,
+          })}
+        >
           <div
             className={classNames({
-              "cursor-not-allowed": isChangeToReviewPage,
+              "cursor-not-allowed": isChangeToReviewPage || readOnly,
             })}
           >
             <label
@@ -428,13 +214,15 @@ const DamageAssessmentDialog = ({
               id="buildingType "
               {...register("buildingType", { required: t("common.required") })}
               className={classNames("input-field", {
-                " cursor-not-allowed bg-gray-200": isChangeToReviewPage,
+                " cursor-not-allowed bg-gray-200":
+                  isChangeToReviewPage || readOnly,
               })}
               onChange={(e) => {
                 // dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
                 dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
               }}
-              disabled={isChangeToReviewPage ? true : false}
+              disabled={isChangeToReviewPage || readOnly}
+              value={damageAssessmentInfo.buildingType} // Ensure controlled value from store/form match
             >
               <option value="">اختر مبنى</option>
               {buildingOptions.map((option) => (
@@ -450,32 +238,44 @@ const DamageAssessmentDialog = ({
             )}
           </div>
           <BuildingTypeView />
-          <DialogActions>
-            <Button
-              className="!text-[17px]"
-              onClick={() => {
-                dispatch(resetAllBuildings());
-                onClose();
-                setIsChangeToReviewPage(false);
-              }}
-            >
-              إلغاء
-            </Button>
-            <Button
-              className={classNames(
-                isChangeToReviewPage ? "!inline-block" : "!hidden"
-              )}
-              onClick={() => {
-                setIsChangeToReviewPage(false);
-              }}
-              variant="outlined"
-            >
-              تعديل الطلب
-            </Button>
-            <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-              {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
-            </Button>
-          </DialogActions>
+
+          {/* Actions Area - Hide/Modify based on ReadOnly */}
+          {!readOnly && (
+            <DialogActions>
+              <Button
+                className="!text-[17px]"
+                onClick={() => {
+                  dispatch(resetAllBuildings());
+                  onClose();
+                  setIsChangeToReviewPage(false);
+                }}
+              >
+                إلغاء
+              </Button>
+              <Button
+                className={classNames(
+                  isChangeToReviewPage ? "!inline-block" : "!hidden"
+                )}
+                onClick={() => {
+                  setIsChangeToReviewPage(false);
+                }}
+                variant="outlined"
+              >
+                تعديل الطلب
+              </Button>
+              <Button variant="contained" onClick={handleSubmit(onSubmit)}>
+                {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
+              </Button>
+            </DialogActions>
+          )}
+
+          {readOnly && (
+            <DialogActions>
+              <Button variant="contained" onClick={onClose}>
+                {t("common.close")}
+              </Button>
+            </DialogActions>
+          )}
         </form>
       </div>
     </div>

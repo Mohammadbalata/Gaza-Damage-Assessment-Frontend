@@ -86,12 +86,13 @@ const PasswordDisplayPage = () => {
           email: data.email,
           phoneNumber: data.phoneNumber,
           whatsappNumber: data.whatsappNumber,
+          familyMembersNumber: data.familyMembersNumber,
         })
       )
         .unwrap()
         .then((res) => {
           localStorage.setItem("token", res.token);
-          navigate(`${ROUTES.PREVIOUS_LOCATION}`);
+          navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
           console.log(data);
         })
         .catch((error) => {
@@ -249,6 +250,24 @@ const PasswordDisplayPage = () => {
           </Box>
         </Box>
         <Box>
+          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" }, my: 1 }}>
+            <FormInput
+              id="familyMembersNumber"
+              label={t("form.familyMembersNumber")}
+              placeholder={t("form.familyMembersNumberPlaceholder")}
+              register={register}
+              errors={errors}
+              validation={{
+                required: t("common.required"),
+                maxLength: { value: 100, message: "Maximum 100 characters" },
+                pattern: {
+                  value: /^[0-9]+$/,
+                  message: "Only numbers allowed",
+                },
+              }}
+              isRequired={true}
+            />
+          </Box>
           {/* Phone Numbers */}
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>

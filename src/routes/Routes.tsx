@@ -99,11 +99,7 @@ export const routes = [
   },
   {
     path: ROUTES.PASSWORD_DISPLAY,
-    element: (
-      <ProtectedRoutes>
-        <PasswordDisplayPage />
-      </ProtectedRoutes>
-    ),
+    element: <PasswordDisplayPage />,
   },
 
   {

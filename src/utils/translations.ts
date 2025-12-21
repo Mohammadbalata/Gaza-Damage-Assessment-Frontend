@@ -33,6 +33,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.goToPage": "Go to Page",
     "common.continue": "Continue",
     "common.retry": "Retry",
+    "common.editRequest": "Edit Request",
+    "common.reviewRequest": "Review Request",
     "common.comingSoonMessage": "This request type will be available soon",
     "common.damageRequest": "Damage Assessment Request",
     "common.reliefRequest": "Relief Request",
@@ -40,6 +42,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.housingRequest": "Housing Request",
     "common.infrastructureRequest": "Infrastructure Request",
     "common.copied": "Copied to clipboard",
+    "common.close": "Close",
     "validation.required": "Required",
     "validation.passwordMismatch": "Passwords do not match",
 
@@ -129,6 +132,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.success": "Verified",
     "form.successDescription":
       "Your identity has been verified, please fill in your personal information",
+    "form.familyMembersNumber": "Family Members Number",
+    "form.familyMembersNumberPlaceholder": "Enter Family Members Number",
 
     // Damage Assessment
     "form.damageLevel": "Damage Level",
@@ -471,12 +476,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.goToPage": "الذهاب إلى الصفحة",
     "common.copied": "تم النسخ إلى الحافظة",
     "common.retry": "إعادة المحاولة",
+    "common.editRequest": "تعديل الطلب",
+    "common.reviewRequest": "مراجعة الطلب",
     "common.comingSoonMessage": "هذا النوع من الطلبات سيكون متاحاً قريباً",
     "common.damageRequest": "طلبات حصر الأضرار",
     "common.reliefRequest": "طلبات الإغاثة",
     "common.compensationRequest": "طلبات التعويض",
     "common.housingRequest": "طلبات الإسكان",
     "common.infrastructureRequest": "طلبات البنية التحتية",
+    "common.close": "إغلاق",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -566,6 +574,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.success": "تم التحقق",
     "form.successDescription":
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
+    "form.familyMembersNumber": "عدد أفراد العائلة",
+    "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
 
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",

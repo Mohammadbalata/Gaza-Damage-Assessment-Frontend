@@ -15,6 +15,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Dialog,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -25,6 +26,8 @@ import {
   MonetizationOn as MonetizationOnIcon,
   MedicalServices as MedicalServicesIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -35,6 +38,7 @@ import { ROUTES } from "../routes/Routes";
 import { Application } from "../types/entities";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
+import DamageAssessmentDialog from "./DamageAssessmentDialog";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -44,6 +48,12 @@ const MyApplications = () => {
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  // Dialog State
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] =
+    useState<Application | null>(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   const {
     data: rawData,
@@ -83,8 +93,30 @@ const MyApplications = () => {
     }
   };
 
+  const handleAction = (app: Application) => {
+    const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
+    // Assuming status is returned from API.
+    // If status is "pending", allow edit. Else, read-only.
+    // NOTE: Check exact enum/string value for "pending" from backend. Usually "PENDING".
+
+    // For safety, checking case-insensitive
+    const status = app.status?.toUpperCase() || "PENDING";
+    const canEdit = status === "PENDING";
+
+    setSelectedApplication(app);
+    setIsReadOnly(!canEdit);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedApplication(null);
+    // Optional: Refresh list if edited?
+    // if (!isReadOnly) refresh(); // If we have refresh exposed
+  };
+
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case "APPROVED":
         return "success";
       case "REJECTED":
@@ -93,6 +125,8 @@ const MyApplications = () => {
         return "info";
       case "CLOSED":
         return "default";
+      case "PENDING":
+        return "warning";
       default:
         return "warning";
     }
@@ -304,113 +338,151 @@ const MyApplications = () => {
           </Paper>
         ) : (
           <Stack spacing={2}>
-            {applications.map((app) => (
-              <Fade in={true} key={app.id} style={{ transformOrigin: "0 0 0" }}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 3,
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      borderColor: "primary.main",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
+            {applications.map((app) => {
+              const status = app.status?.toUpperCase() || "PENDING";
+              const isPending = status === "PENDING";
+
+              return (
+                <Fade
+                  in={true}
+                  key={app.id}
+                  style={{ transformOrigin: "0 0 0" }}
                 >
-                  <CardContent
+                  <Card
+                    elevation={0}
                     sx={{
-                      p: 2,
-                      "&:last-child": { pb: 2 },
-                      display: "flex",
-                      flexDirection: { xs: "column", sm: "row" },
-                      alignItems: "center",
-                      gap: 2,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 3,
+                      transition: "all 0.2s ease-in-out",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                        transform: "translateY(-2px)",
+                      },
                     }}
                   >
-                    {/* Icon Box */}
-                    <Box
+                    <CardContent
                       sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 2,
-                        bgcolor: "primary.50",
-                        color: "primary.main",
+                        p: 2,
+                        "&:last-child": { pb: 2 },
                         display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
                         alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
+                        gap: 2,
                       }}
                     >
-                      <DescriptionIcon />
-                    </Box>
-
-                    {/* Content */}
-                    <Box
-                      sx={{
-                        flex: 1,
-                        width: "100%",
-                        textAlign: { xs: "center", sm: "start" },
-                      }}
-                    >
-                      <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        alignItems="center"
-                        spacing={1}
-                        sx={{ mb: 0.5 }}
-                        useFlexGap={true}
-                      >
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {t("citizen.applicationId")} #{app.id}
-                        </Typography>
-                        <Chip
-                          label={t(`status.${app.status.toLowerCase()}`)}
-                          color={getStatusColor(app.status)}
-                          size="small"
-                          sx={{ fontWeight: "bold", height: 24 }}
-                        />
-                      </Stack>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
+                      {/* Icon Box */}
+                      <Box
                         sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: 2,
+                          bgcolor: "primary.50",
+                          color: "primary.main",
                           display: "flex",
                           alignItems: "center",
-                          gap: 0.5,
-                          justifyContent: { xs: "center", sm: "flex-start" },
+                          justifyContent: "center",
+                          flexShrink: 0,
                         }}
                       >
-                        <EventIcon sx={{ fontSize: 16 }} />
-                        {t("citizen.submittedOn")}:{" "}
-                        {new Date(app.createdAt).toLocaleDateString(
-                          language === "ar" ? "ar-EG" : "en-US"
-                        )}
-                      </Typography>
-                    </Box>
+                        <DescriptionIcon />
+                      </Box>
 
-                    {/* Action */}
-                    {/* <Button
-                      variant="text"
-                      color="primary"
-                      endIcon={
-                        language === "ar" ? (
-                          <KeyboardArrowLeft />
-                        ) : (
-                          <ArrowForward />
-                        )
-                      }
-                      sx={{ whiteSpace: "nowrap" }}
-                    >
-                      {t("citizen.viewDetails")}
-                    </Button> */}
-                  </CardContent>
-                </Card>
-              </Fade>
-            ))}
+                      {/* Content */}
+                      <Box
+                        sx={{
+                          flex: 1,
+                          width: "100%",
+                          textAlign: { xs: "center", sm: "start" },
+                        }}
+                      >
+                        <Stack
+                          direction={{ xs: "column", sm: "row" }}
+                          alignItems="center"
+                          spacing={1}
+                          sx={{ mb: 0.5 }}
+                          useFlexGap={true}
+                        >
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {t("citizen.applicationId")} #{app.id}
+                          </Typography>
+                          <Chip
+                            label={
+                              t(`status.${app.status?.toLowerCase()}`) ||
+                              app.status
+                            }
+                            color={getStatusColor(app.status)}
+                            size="small"
+                            sx={{ fontWeight: "bold", height: 24 }}
+                          />
+                        </Stack>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            justifyContent: { xs: "center", sm: "flex-start" },
+                          }}
+                        >
+                          <EventIcon sx={{ fontSize: 16 }} />
+                          {t("citizen.submittedOn")}:{" "}
+                          {new Date(app.createdAt).toLocaleDateString(
+                            language === "ar" ? "ar-EG" : "en-US"
+                          )}
+                        </Typography>
+                      </Box>
+
+                      {/* Actions */}
+                      <Button
+                        variant={isPending ? "outlined" : "text"}
+                        color={isPending ? "primary" : "inherit"}
+                        startIcon={
+                          isPending ? (
+                            <EditIcon sx={{ mx: 1 }} />
+                          ) : (
+                            <VisibilityIcon sx={{ mx: 1 }} />
+                          )
+                        }
+                        onClick={() => handleAction(app)}
+                        sx={{
+                          whiteSpace: "nowrap",
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: "medium",
+                        }}
+                      >
+                        {isPending
+                          ? t("common.editRequest")
+                          : t("common.reviewRequest")}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Fade>
+              );
+            })}
           </Stack>
         )}
+
+        {/* Damage Assessment Dialog */}
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          maxWidth="md"
+          fullWidth
+          disableScrollLock
+        >
+          {selectedApplication && (
+            <DamageAssessmentDialog
+              onClose={handleDialogClose}
+              readOnly={isReadOnly}
+              initialData={selectedApplication}
+              location={null} // Location shouldn't be needed for existing applications unless used for display map
+            />
+          )}
+        </Dialog>
       </Container>
     </Fade>
   );

@@ -13,6 +13,7 @@ export interface IAuthState {
   fatherName?: string;
   grandfatherName?: string;
   familyName?: string;
+  familyMembersNumber?: number;
   phoneNumber?: string;
   email?: string;
   whatsappNumber?: string;
