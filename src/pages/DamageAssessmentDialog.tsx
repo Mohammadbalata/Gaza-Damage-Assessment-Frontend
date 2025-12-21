@@ -3,15 +3,13 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   resetAllBuildings,
-  saveAdditionalBuildings,
-  saveApartmentInsideBuilding,
-  saveCompHouse,
-  saveIndependentBuilding,
-  saveResidentialBuilding,
-  saveTower,
   setBuildingType,
 } from "../redux/slices/damageSlice";
-import { buildingOptions } from "../utils/DamageAssessment";
+import {
+  buildFormDataWithoutImages,
+  buildingOptions,
+  dispatchByType,
+} from "../utils/DamageAssessment";
 import { IDamageAssessmentState } from "../interfaces/store/IDamageAssessmentState";
 import IndependentBuilding from "../components/Form Applications/IndependentBuilding";
 import Tower from "../components/Form Applications/Tower";
@@ -55,7 +53,7 @@ const DamageAssessmentDialog = ({
   const resetBuildingTypeSelect = () => {
     setValue("buildingType", "");
     dispatch(setBuildingType(""));
-    dispatch(resetAllBuildings()) // يرجع على <option value="">
+    dispatch(resetAllBuildings()); // يرجع على <option value="">
   };
 
   // const onSubmit = (formData: IDamageAssessmentState) => {
@@ -151,104 +149,181 @@ const DamageAssessmentDialog = ({
   //   onClose();
   //   // Reset form values
   // };
-
-  const onSubmit = (formData: IDamageAssessmentState) => {
-    setIsChangeToReviewPage(true);
-    console.log(isChangeToReviewPage);
-    if (isChangeToReviewPage) {
-      // dispatchBuildingType(dispatch, formData);
-      console.log(formData);
-      const type = formData.buildingType;
-      if (type === "IndependentBuilding") {
-        dispatch(saveIndependentBuilding(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.IndependentBuilding,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-            
-          },
-        ]);
-      }
-      if (type === "ApartmentInsideBuilding") {
-        dispatch(saveApartmentInsideBuilding(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.ApartmentInsideBuilding,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-          },
-        ]);
-      }
-      if (type === "ResidentialBuilding") {
-        dispatch(saveResidentialBuilding(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.ResidentialBuilding,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-          },
-        ]);
-      }
-
-      if (type === "tower") {
-        dispatch(saveTower(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.tower,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-          },
-        ]);
-      }
-      if (type === "compHouse") {
-        dispatch(saveCompHouse(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.compHouse,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-          },
-        ]);
-      }
-      if (type === "additionalBuildings") {
-        dispatch(saveAdditionalBuildings(formData));
-        setApplications((prev: any) => [
-          ...prev,
-          {
-            buildingType: type,
-            extraData: formData.additionalBuildings,
-            latitude: location?.position[0],
-            longitude: location?.position[1],
-            address: location?.address,
-            neighborhood: location?.neighborhood,
-          },
-        ]);
-      }
-      console.log("success submitted");
-      onClose();
+  const addApplication = (
+    type: string,
+    extraData: any,
+    images: {
+      beforeWarImage?: File;
+      afterWarImage?: File;
+      ownershipDocuments?: File[];
     }
+  ) => {
+    setApplications((prev: any) => [
+      ...prev,
+      {
+        buildingType: type,
+        extraData,
+        latitude: location?.position[0],
+        longitude: location?.position[1],
+        address: location?.address,
+        neighborhood: location?.neighborhood,
+        ...images,
+      },
+    ]);
   };
+  // const onSubmit = (formData: IDamageAssessmentState) => {
+  //   setIsChangeToReviewPage(true);
+  //   if (isChangeToReviewPage) {
+  //     const formDataWithoutImg: any = {
+  //       ...formData,
+  //       IndependentBuilding: {
+  //         ...formData.IndependentBuilding,
+  //       },
+  //       ApartmentInsideBuilding: {
+  //         ...formData.ApartmentInsideBuilding,
+  //       },
+  //       ResidentialBuilding: {
+  //         ...formData.ResidentialBuilding,
+  //       },
+  //       tower: {
+  //         ...formData.tower,
+  //       },
+  //       compHouse: {
+  //         ...formData.compHouse,
+  //       },
+  //       additionalBuildings: {
+  //         ...formData.additionalBuildings,
+  //       },
+  //     };
+  //     const type = formData.buildingType;
+  //     delete formDataWithoutImg[type]?.beforeWarImage;
+  //     delete formDataWithoutImg[type]?.afterWarImage;
+  //     delete formDataWithoutImg[type].ownershipDocuments;
+  //     if (type === "IndependentBuilding") {
+  //       dispatch(saveIndependentBuilding(formDataWithoutImg));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formDataWithoutImg.IndependentBuilding,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.IndependentBuilding.beforeWarImage,
+  //           afterWarImage: formData.IndependentBuilding.afterWarImage,
+  //           ownershipDocuments: formData.IndependentBuilding.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     if (type === "ApartmentInsideBuilding") {
+  //       dispatch(saveApartmentInsideBuilding(formDataWithoutImg));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formData.ApartmentInsideBuilding,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.ApartmentInsideBuilding.beforeWarImage,
+  //           afterWarImage: formData.ApartmentInsideBuilding.afterWarImage,
+  //           ownershipDocuments:
+  //             formData.ApartmentInsideBuilding.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     if (type === "ResidentialBuilding") {
+  //       dispatch(saveResidentialBuilding(formDataWithoutImg));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formData.ResidentialBuilding,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.ResidentialBuilding.beforeWarImage,
+  //           afterWarImage: formData.ResidentialBuilding.afterWarImage,
+  //           ownershipDocuments: formData.ResidentialBuilding.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     if (type === "tower") {
+  //       dispatch(saveTower(formDataWithoutImg));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formData.tower,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.tower.beforeWarImage,
+  //           afterWarImage: formData.tower.afterWarImage,
+  //           ownershipDocuments: formData.tower.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     if (type === "compHouse") {
+  //       dispatch(saveCompHouse(formDataWithoutImg));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formData.compHouse,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.compHouse.beforeWarImage,
+  //           afterWarImage: formData.compHouse.afterWarImage,
+  //           ownershipDocuments: formData.compHouse.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     if (type === "additionalBuildings") {
+  //       dispatch(saveAdditionalBuildings(formData));
+  //       setApplications((prev: any) => [
+  //         ...prev,
+  //         {
+  //           buildingType: type,
+  //           extraData: formData.additionalBuildings,
+  //           latitude: location?.position[0],
+  //           longitude: location?.position[1],
+  //           address: location?.address,
+  //           neighborhood: location?.neighborhood,
+  //           beforeWarImage: formData.additionalBuildings.beforeWarImage,
+  //           afterWarImage: formData.additionalBuildings.afterWarImage,
+  //           ownershipDocuments: formData.additionalBuildings.ownershipDocuments,
+  //         },
+  //       ]);
+  //     }
+  //     console.log("success submitted");
+  //     onClose();
+  //   }
+  // };
+  const onSubmit = (formData: any) => {
+    setIsChangeToReviewPage(true);
+    if (!isChangeToReviewPage) return;
+
+    const type = formData.buildingType;
+    const formDataWithoutImg: any = buildFormDataWithoutImages(formData);
+
+    dispatchByType(dispatch, type, formDataWithoutImg);
+
+    addApplication(type, formDataWithoutImg[type], {
+      beforeWarImage: formData[type]?.beforeWarImage,
+      afterWarImage: formData[type]?.afterWarImage,
+      ownershipDocuments: formData[type]?.ownershipDocuments,
+    });
+    console.log("success submitted");
+    onClose();
+  };
+
   useEffect(() => {
     resetBuildingTypeSelect();
   }, [onClose]);

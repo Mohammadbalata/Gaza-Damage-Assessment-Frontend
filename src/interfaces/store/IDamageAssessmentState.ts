@@ -13,19 +13,19 @@ export interface IDamageAssessmentState {
   // damageType?: string; // done:
 }
 export interface IndependentBuilding {
-  numberOfFloors: number | null;
-  groundFloorArea: number | null;
-  commonFloorArea: number | null;
+  numberOfFloors?: number | null;
+  groundFloorArea?: number | null;
+  commonFloorArea?: number | null;
   propertyType?: string;
   propertyOwnerName?: string;
-  roofType: string;
-  wallType: string;
-  buildingAge: number | null;
-  damageType: string;
-  damageTypes: string[];
-  damagePercentage: string; // "25%" | "50%" | ...
-  isHabitable: string; // "نعم" | "لا"
-  additionalNotes: string;
+  roofType?: string;
+  wallType?: string;
+  buildingAge?: number | null;
+  damageType?: string;
+  damageTypes?: string[];
+  damagePercentage?: string; // "25%" | "50%" | ...
+  isHabitable?: string; // "نعم" | "لا"
+  additionalNotes?: string;
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
