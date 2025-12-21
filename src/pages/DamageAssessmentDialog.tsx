@@ -22,7 +22,8 @@ import AdditionalBuildings from "../components/Form Applications/AdditionalBuild
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
 import { Button, DialogActions } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import classNames from "classnames";
 
 const DamageAssessmentDialog = ({
   setApplications,
@@ -32,6 +33,7 @@ const DamageAssessmentDialog = ({
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
+  const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(false);
   const {
     register,
     handleSubmit,
@@ -52,101 +54,200 @@ const DamageAssessmentDialog = ({
   });
   const resetBuildingTypeSelect = () => {
     setValue("buildingType", "");
-    dispatch(setBuildingType("")); // يرجع على <option value="">
+    dispatch(setBuildingType(""));
+    dispatch(resetAllBuildings()) // يرجع على <option value="">
   };
 
-  const onSubmit = (formData: IDamageAssessmentState) => {
-    // dispatchBuildingType(dispatch, formData);
-    console.log(formData);
-    const type = formData.buildingType;
-    if (type === "IndependentBuilding") {
-      dispatch(saveIndependentBuilding(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.IndependentBuilding,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
-    }
-    if (type === "ApartmentInsideBuilding") {
-      dispatch(saveApartmentInsideBuilding(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.ApartmentInsideBuilding,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
-    }
-    if (type === "ResidentialBuilding") {
-      dispatch(saveResidentialBuilding(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.ResidentialBuilding,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
-    }
+  // const onSubmit = (formData: IDamageAssessmentState) => {
+  //   // dispatchBuildingType(dispatch, formData);
+  //   console.log(formData);
+  //   const type = formData.buildingType;
+  //   if (type === "IndependentBuilding") {
+  //     dispatch(saveIndependentBuilding(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.IndependentBuilding,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
+  //   if (type === "ApartmentInsideBuilding") {
+  //     dispatch(saveApartmentInsideBuilding(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.ApartmentInsideBuilding,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
+  //   if (type === "ResidentialBuilding") {
+  //     dispatch(saveResidentialBuilding(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.ResidentialBuilding,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
 
-    if (type === "tower") {
-      dispatch(saveTower(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.tower,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
+  //   if (type === "tower") {
+  //     dispatch(saveTower(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.tower,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
+  //   if (type === "compHouse") {
+  //     dispatch(saveCompHouse(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.compHouse,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
+  //   if (type === "additionalBuildings") {
+  //     dispatch(saveAdditionalBuildings(formData));
+  //     setApplications((prev: any) => [
+  //       ...prev,
+  //       {
+  //         buildingType: type,
+  //         extraData: formData.additionalBuildings,
+  //         latitude: location?.position[0],
+  //         longitude: location?.position[1],
+  //         address: location?.address,
+  //         neighborhood: location?.neighborhood,
+  //       },
+  //     ]);
+  //   }
+  //   console.log("success submitted");
+  //   onClose();
+  //   // Reset form values
+  // };
+
+  const onSubmit = (formData: IDamageAssessmentState) => {
+    setIsChangeToReviewPage(true);
+    console.log(isChangeToReviewPage);
+    if (isChangeToReviewPage) {
+      // dispatchBuildingType(dispatch, formData);
+      console.log(formData);
+      const type = formData.buildingType;
+      if (type === "IndependentBuilding") {
+        dispatch(saveIndependentBuilding(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.IndependentBuilding,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+            
+          },
+        ]);
+      }
+      if (type === "ApartmentInsideBuilding") {
+        dispatch(saveApartmentInsideBuilding(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.ApartmentInsideBuilding,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+          },
+        ]);
+      }
+      if (type === "ResidentialBuilding") {
+        dispatch(saveResidentialBuilding(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.ResidentialBuilding,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+          },
+        ]);
+      }
+
+      if (type === "tower") {
+        dispatch(saveTower(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.tower,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+          },
+        ]);
+      }
+      if (type === "compHouse") {
+        dispatch(saveCompHouse(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.compHouse,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+          },
+        ]);
+      }
+      if (type === "additionalBuildings") {
+        dispatch(saveAdditionalBuildings(formData));
+        setApplications((prev: any) => [
+          ...prev,
+          {
+            buildingType: type,
+            extraData: formData.additionalBuildings,
+            latitude: location?.position[0],
+            longitude: location?.position[1],
+            address: location?.address,
+            neighborhood: location?.neighborhood,
+          },
+        ]);
+      }
+      console.log("success submitted");
+      onClose();
     }
-    if (type === "compHouse") {
-      dispatch(saveCompHouse(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.compHouse,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
-    }
-    if (type === "additionalBuildings") {
-      dispatch(saveAdditionalBuildings(formData));
-      setApplications((prev: any) => [
-        ...prev,
-        {
-          buildingType: type,
-          extraData: formData.additionalBuildings,
-          latitude: location?.position[0],
-          longitude: location?.position[1],
-          address: location?.address,
-          neighborhood: location?.neighborhood,
-        },
-      ]);
-    }
-    console.log("success submitted");
-    onClose();
-    // Reset form values
   };
   useEffect(() => {
     resetBuildingTypeSelect();
@@ -163,6 +264,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
       case "ApartmentInsideBuilding":
@@ -172,6 +274,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
       case "ResidentialBuilding":
@@ -181,6 +284,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
       case "tower":
@@ -190,6 +294,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
       case "compHouse":
@@ -199,6 +304,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
       case "additionalBuildings":
@@ -208,6 +314,7 @@ const DamageAssessmentDialog = ({
             {...{ watch }}
             {...{ control }}
             {...{ errors }}
+            {...{ isChangeToReviewPage }}
           />
         );
     }
@@ -222,12 +329,20 @@ const DamageAssessmentDialog = ({
         </div>
       )}
 
-      <div className="card shadow-none hover:shadow-none">
+      <div
+        className={classNames("card shadow-none hover:shadow-none", {
+          "bg-gray-200": isChangeToReviewPage,
+        })}
+      >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Damage Assessment</h2>
         </div>
         <form className="space-y-6">
-          <div>
+          <div
+            className={classNames({
+              "cursor-not-allowed": isChangeToReviewPage,
+            })}
+          >
             <label
               htmlFor="buildingType"
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -235,13 +350,16 @@ const DamageAssessmentDialog = ({
               نوع المبنى <span className="text-red-500">*</span>
             </label>
             <select
-              id="buildingType"
+              id="buildingType "
               {...register("buildingType", { required: t("common.required") })}
-              className="input-field"
+              className={classNames("input-field", {
+                " cursor-not-allowed bg-gray-200": isChangeToReviewPage,
+              })}
               onChange={(e) => {
                 // dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
                 dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
               }}
+              disabled={isChangeToReviewPage ? true : false}
             >
               <option value="">اختر مبنى</option>
               {buildingOptions.map((option) => (
@@ -263,12 +381,24 @@ const DamageAssessmentDialog = ({
               onClick={() => {
                 dispatch(resetAllBuildings());
                 onClose();
+                setIsChangeToReviewPage(false);
               }}
             >
               إلغاء
             </Button>
+            <Button
+              className={classNames(
+                isChangeToReviewPage ? "!inline-block" : "!hidden"
+              )}
+              onClick={() => {
+                setIsChangeToReviewPage(false);
+              }}
+              variant="outlined"
+            >
+              تعديل الطلب
+            </Button>
             <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-              اعتماد الطلب
+              {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
             </Button>
           </DialogActions>
         </form>

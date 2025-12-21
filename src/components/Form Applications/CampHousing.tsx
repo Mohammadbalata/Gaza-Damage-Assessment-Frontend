@@ -2,11 +2,13 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import { DAMAGE_TYPE_CompHouse } from "../../utils/DamageAssessment";
+import classNames from "classnames";
 interface CampHousingProps {
   register: any;
   errors: any;
   watch: any;
   control: any;
+  isChangeToReviewPage: boolean;
 }
 
 const CampHousing = ({
@@ -14,6 +16,7 @@ const CampHousing = ({
   errors,
   watch,
   control,
+  isChangeToReviewPage,
 }: CampHousingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("compHouse.propertyType");
@@ -35,7 +38,11 @@ const CampHousing = ({
             max: { value: 2000, message: "الحد الأقصى 2000 م²" },
             valueAsNumber: true,
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         />
         {errors?.compHouse?.propertyArea && (
           <p className="text-red-600 text-sm">
@@ -52,7 +59,11 @@ const CampHousing = ({
           {...register("compHouse.propertyType", {
             required: t("common.required"),
           })}
-          className="input-field"
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
         >
           <option value="">لا يوجد</option>
           <option value="ملك">ملك</option>
@@ -72,12 +83,18 @@ const CampHousing = ({
           </label>
 
           <input
-            className="input-field"
             type="text"
             placeholder="أدخل اسم المالك الأساسي"
             {...register("compHouse.propertyOwnerName", {
               required: t("common.required"),
             })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           />
 
           {errors?.compHouse?.propertyOwnerName && (
@@ -97,7 +114,13 @@ const CampHousing = ({
             {...register("compHouse.damageType", {
               required: t("common.required"),
             })}
-            className="input-field mb-4"
+            className={classNames(
+              "input-field mb-4",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           >
             <option value="">اختر نوع الضرر</option>
             <option value="هدم كلي"> هدم كلي</option>
@@ -105,14 +128,23 @@ const CampHousing = ({
           </select>
           {showDamageValue &&
             DAMAGE_TYPE_CompHouse.map((item, index) => (
-              <div className="mr-3" key={index}>
+              <div
+                className={classNames("mr-3", {
+                  "cursor-not-allowed": isChangeToReviewPage,
+                })}
+                key={index}
+              >
                 <input
                   type="checkbox"
                   value={item.value}
                   {...register("compHouse.damageTypes", {
                     required: "اختر نوع ضرر واحد على الأقل",
                   })}
-                  className="accent-primary"
+                  className={classNames(
+                    "accent-primary",
+                    isChangeToReviewPage &&
+                      "pointer-events-none accent-gray-200"
+                  )}
                 />
                 <span className="mr-2">{item.label}</span>
               </div>
@@ -137,7 +169,13 @@ const CampHousing = ({
             {...register("compHouse.damagePercentage", {
               required: t("common.required"),
             })}
-            className="input-field"
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           >
             <option value="">0</option>
             <option value="25%">25%</option>
@@ -161,7 +199,13 @@ const CampHousing = ({
             {...register("compHouse.isHabitable", {
               required: t("common.required"),
             })}
-            className="input-field"
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           >
             <option value="">اختر نوع</option>
             <option value="نعم">نعم</option>
@@ -180,8 +224,14 @@ const CampHousing = ({
           </label>
           <textarea
             {...register("compHouse.additionalNotes")}
-            className="input-field min-h-[100px] resize-none"
             placeholder="اكتب أي تفاصيل إضافية..."
+            className={classNames(
+              "input-field min-h-[100px] resize-none",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
           ></textarea>
         </div>
         {/* صور ومستندات */}
@@ -190,18 +240,21 @@ const CampHousing = ({
             control={control}
             name="compHouse.beforeWarImage"
             label="صورة العقار قبل الحرب ( إن وجد )"
+            {...{ isChangeToReviewPage }}
           />
 
           <SingleImageInput
             control={control}
             name="compHouse.afterWarImage"
             label="صورة العقار بعد الحرب ( إن وجد )"
+            {...{ isChangeToReviewPage }}
           />
 
           <MultipleImagesInput
             control={control}
             name="compHouse.ownershipDocuments"
             label="مستندات الملكية ( إن وجد )"
+            {...{ isChangeToReviewPage }}
           />
         </div>
       </section>
