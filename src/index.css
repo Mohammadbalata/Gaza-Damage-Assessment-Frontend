@@ -76,3 +76,7 @@
   width: 100%;
   max-width: 670px !important;
 }
+
+.MuiListItemText-dense{
+  text-align: right;
+}

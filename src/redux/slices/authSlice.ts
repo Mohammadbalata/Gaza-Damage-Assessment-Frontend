@@ -79,6 +79,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = action.payload.data.success;
       state.messageSuccess = action.payload.data.message;
       state.verificationQuestion = action.payload.data.data.questions;
+      state.familyMembersNumber = action.payload.data.data.familyMembersNumber
     });
     builder.addCase(signUp.rejected, (state, action) => {
       state.loading = false;
@@ -140,6 +141,7 @@ export const signUp = createAsyncThunk(
         grandfatherName: payload.grandfatherName,
         familyName: payload.familyName,
         email: payload.email,
+        familyMembersNumber:payload.familyMembersNumber,
         phoneNumber: payload.phoneNumber,
         whatsappNumber: payload.whatsappNumber,
       });

@@ -44,7 +44,7 @@ const DamageAssessmentDialog = ({
   const { t } = useLanguage();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
-  const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(false);
+  const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
   const {
     register,
     handleSubmit,
@@ -64,24 +64,15 @@ const DamageAssessmentDialog = ({
     },
   });
 
-  // Handle Initial Data for Edit/Review Mode
   useEffect(() => {
     if (initialData) {
-      // 1. Set Building Type
-      const type = initialData.buildingType;
+      const type = initialData.extraData.buildingType;
       dispatch(setBuildingType(type));
       setValue("buildingType", type);
-
-      // 2. Populate specific building data
-      // Map extraData to the form structure for that building type
       if (initialData.extraData) {
-        // e.g., setValue('IndependentBuilding', initialData.extraData)
-        // But we need to handle deep fields potentially if components use flat register calls
-        // For now assuming passed initialData matches store structure OR extraData is the sub-object
-        setValue(type as any, initialData.extraData);
+        setValue(type as any, initialData.extraData[type]);
 
-        // Dispatch to store so child components render correctly if they rely on Redux
-        dispatchByType(dispatch, type, { [type]: initialData.extraData });
+        dispatchByType(dispatch, type, initialData.extraData);
       }
     }
   }, [initialData, dispatch, setValue]);
@@ -142,16 +133,15 @@ const DamageAssessmentDialog = ({
   useEffect(() => {
     const token = localStorage.getItem("token");
     axiosClient
-      .get("/applications/my-application", {
+      .get("/applications/my-applications", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res: any) => {
-        const isCurrentLocation = res.data.data.locations.filter(
-          (location: any) => location.type === "CURRENT"
-        );
-        if (isCurrentLocation.length !== 0) {
+        console.log(res.data.data.citizen.current_location);
+        const isCurrentLocation = res.data.data.citizen.current_location;
+        if (isCurrentLocation) {
           setIsCurrentLocation(true);
         }
       })
@@ -168,8 +158,8 @@ const DamageAssessmentDialog = ({
 
   const BuildingTypeView = () => {
     if (!damageAssessmentInfo.buildingType) return null;
-    const selected = damageAssessmentInfo.buildingType;
-
+    const selected =
+      damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
     // Pass readOnly/disabled state to children if they support it
     // Using CSS pointer-events-none for a generic read-only mode wrapper could also work
     const commonProps = {
