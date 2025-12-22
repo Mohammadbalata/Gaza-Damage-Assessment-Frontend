@@ -33,6 +33,7 @@ import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
+import { API } from "../../constants/ApiRoutes";
 
 interface CitizenFormData {
   national_id: string;
@@ -82,7 +83,7 @@ export function AdminCitizensPage() {
     loading,
     data: citizens,
     setData,
-  } = useGet<Citizen[]>("/citizens", {
+  } = useGet<Citizen[]>(API.admin.citizens.list, {
     immediate: true,
   });
 
@@ -101,7 +102,7 @@ export function AdminCitizensPage() {
   });
 
   const { loading: loadingCreateCitizen, execute: executeCreateCitizen } =
-    usePost("/citizens", {
+    usePost(API.admin.citizens.create, {
       onSuccess: (data) => {
         setData((prev) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.citizenCreated"));
@@ -159,7 +160,7 @@ export function AdminCitizensPage() {
   // Handle submit
   const onSubmit = async (data: CitizenFormData) => {
     if (editing) {
-      executeUpdateCitizen(`/citizens/${editing.id}`, {
+      executeUpdateCitizen(API.admin.citizens.update(editing.id.toString()), {
         ...data,
       });
     } else {
@@ -170,7 +171,7 @@ export function AdminCitizensPage() {
   };
 
   const handleExportData = () => {
-    fetch(`https://backend-5549.onrender.com/citizens/export-citizens`, {
+    fetch(`https://backend-5549.onrender.com/api/${API.admin.citizens.export}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -196,7 +197,7 @@ export function AdminCitizensPage() {
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
-    execute(`/citizens/${deleteConfirm.id}`);
+    execute(API.admin.citizens.delete(deleteConfirm.id.toString()));
   };
 
   const filteredCitizens = citizens?.filter(
