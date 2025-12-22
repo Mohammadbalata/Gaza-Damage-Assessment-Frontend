@@ -27,6 +27,7 @@ import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { UserRole } from "../../types/entities";
+import { API } from "../../constants/ApiRoutes";
 
 /**
  * Admin Dashboard Page
@@ -45,7 +46,7 @@ const AdminDashboard: React.FC = () => {
     banking:0
   });
 
-  const { loading, error } = useGet("admin-dashboard", {
+  const { loading, error } = useGet(API.stats.adminDashboard, {
     immediate: true,
     onSuccess: (data) => {
       setTotals({
