@@ -1,58 +1,81 @@
-export const API_PREFIX = "/api";
-
-export const ADMIN_AUTH_ROUTE_PREFIX = "auth/admin";
-export const CITIZEN_AUTH_ROUTE_PREFIX = "auth/citizen";
-export const ADMIN_USERS_ROUTE_PREFIX = "admin/users";
-export const ADMIN_CITIZENS_ROUTE_PREFIX = "admin/citizens";
-export const ADMIN_APPLICATIONS_ROUTE_PREFIX = "admin/applications";
-export const ADMIN_LOCATIONS_ROUTE_PREFIX = "admin/locations";
-export const CITIZEN_LOCATIONS_ROUTE_PREFIX = "citizen/locations";
-export const ADMIN_BANK_ACCOUNTS_ROUTE_PREFIX = "admin/bank-accounts";
-export const CITIZEN_APPLICATIONS_ROUTE_PREFIX = "citizen/applications";
-export const CITIZEN_BANK_ACCOUNTS_ROUTE_PREFIX = "citizen/bank-accounts";
-
-export const APPLICATION_ID_PARAM = "applicationId";
-export const CITIZEN_ID_PARAM = "citizenId";
-export const LOCATION_ID_PARAM = "locationId";
-export const ACCOUNT_ID_PARAM = "accountId";
-export const USER_ID_PARAM = "userId";
-
-export const ROUTES = {
-    ADMIN: {
-        AUTH: {
-            SIGNIN: "signin",
-            SIGNUP: "signup",
-            CHANGE_PASSWORD: "change-password",
-        },
-        ACTIONS: {
-            EXPORT: "export",
-        },
-        BANK_ACCOUNTS: {},
-        CITIZENS: {},
-        LOCATIONS: {},
+export const API = {
+  admin: {
+    auth: {
+      signin: `/auth/admin/signin`,
+      signup: `/auth/admin/signup`,
+      changePassword: `/auth/admin/change-password`,
     },
-    CITIZEN: {
-        AUTH: {
-            LOGIN: "login",
-            VERIFY_ID: "verify-id",
-            VERIFY_QUESTIONS: "verify-questions",
-            COMPLETE_SIGNUP: "complete-signup",
-            CHANGE_PASSWORD: "change-password",
-        },
-        APPLICATION: {
-            TRACK: "track",
-        },
 
-        LOCATIONS: {
-            CURRENT: "current",
-            PREVIOUS: "previous",
-        },
-        BANK_ACCOUNTS: {},
+    users: {
+      list: `/admin/users`,
+      create: `/admin/users`,
+      update: (id: string) => `/admin/users/${id}`,
+      delete: (id: string) => `/admin/users/${id}`,
+      export: `/admin/users/export`,
     },
-};
 
-export const STATS_ROUTES = {
-    PREFIX: "stats",
-    ADMIN_DASHBOARD: "admin-dashboard",
-    SUPERVISOR_DASHBOARD: "supervisor-dashboard",
+    citizens: {
+      list: `/admin/citizens`,
+      create: `/admin/citizens`,
+      update: (id: string) => `/admin/citizens/${id}`,
+      delete: (id: string) => `/admin/citizens/${id}`,
+      export: `/admin/citizens/export`,
+    },
+
+    applications: {
+      list: `/admin/applications`,
+      update: (id: string) => `/admin/applications/${id}`,
+      delete: (id: string) => `/admin/applications/${id}`,
+      export: `/admin/applications/export`,
+    },
+
+    locations: {
+      list: `/admin/locations`,
+      create: `/admin/locations`,
+      update: (id: string) => `/admin/locations/${id}`,
+      delete: (id: string) => `/admin/locations/${id}`,
+    },
+
+    bankAccounts: {
+      list: `/admin/bank-accounts`,
+      create: `/admin/bank-accounts`,
+      update: (id: string) => `/admin/bank-accounts/${id}`,
+      delete: (id: string) => `/admin/bank-accounts/${id}`,
+      export: `/admin/bank-accounts/export`,
+    },
+
+  },
+
+  citizen: {
+    auth:{
+      login: `/auth/citizen/login`,
+      verifyId: `/auth/citizen/verify-id`,
+      verifyQuestions: `/auth/citizen/verify-questions`,
+      completeSignup: `/auth/citizen/complete-signup`,
+      changePassword: `/auth/citizen/change-password`,
+    },
+    applications: {
+      list: `/citizen/applications`,
+      create: `/citizen/applications`,
+      details: (id: string) => `/citizen/applications/${id}`,
+      track: (id: string) => `/citizen/applications/${id}/track`,
+    },
+
+    locations: {
+      current: `/citizen/locations/current`,
+      previous: `/citizen/locations/previous`,
+    },
+
+    bankAccounts: {
+      list: `/citizen/bank-accounts`,
+      create: `/citizen/bank-accounts`,
+      update: (id: string) => `/citizen/bank-accounts/${id}`,
+      delete: (id: string) => `/citizen/bank-accounts/${id}`,
+    },
+  },
+  
+  stats: {
+    adminDashboard: `/stats/admin-dashboard`,
+    supervisorDashboard: `/stats/supervisor-dashboard`,
+  },
 };
