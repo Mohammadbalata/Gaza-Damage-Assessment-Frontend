@@ -64,9 +64,10 @@ const VerificationQuestionsPage = () => {
     } else {
       setQuestions(verificationQuestion);
       setLoading(loadingStore);
+      console.log(verificationQuestion);
     }
   }, [verificationQuestion, dispatch, id, loadingStore, navigate]);
-
+  console.log(questions);
   const onSubmit = async (formData: FormData) => {
     setLoadingInput(true);
     let answers: { [key: string]: string } = {};
@@ -149,31 +150,39 @@ const VerificationQuestionsPage = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
           {questions.map((question, index) => (
-            <TextField
-              key={question.key}
-              label={`${index + 1}. ${
-                language === "ar" ? question.question_ar : question.question
-              }`}
-              type={
-                question.key.toString().split("_").pop() === "bd"
-                  ? "date"
-                  : "text"
-              }
-              fullWidth
-              slotProps={{
-                inputLabel: {
-                  shrink: true,
-                },
-              }}
-              error={!!errors[question.key]}
-              helperText={errors[question.key]?.message as string}
-              {...register(question.key, {
-                required: t("common.required"),
-              })}
-              placeholder={
-                language === "ar" ? "أدخل الإجابة" : "Enter your answer"
-              }
-            />
+            <Box key={question.key}>
+              <Typography
+                variant="body2"
+                color="primary.light"
+                sx={{ mb: 1 }}
+                fontWeight={600}
+              >
+                {index + 1}.{" "}
+                {language === "ar" ? question.question : question.en_question}
+              </Typography>
+              <TextField
+                key={question.key}
+                type={
+                  question.key.toString().split("_").pop() === "bd"
+                    ? "date"
+                    : "text"
+                }
+                fullWidth
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+                error={!!errors[question.key]}
+                helperText={errors[question.key]?.message as string}
+                {...register(question.key, {
+                  required: t("common.required"),
+                })}
+                placeholder={
+                  language === "ar" ? "أدخل الإجابة" : "Enter your answer"
+                }
+              />
+            </Box>
           ))}
 
           <Stack direction="row" spacing={2} sx={{ mt: 2 }} useFlexGap={true}>

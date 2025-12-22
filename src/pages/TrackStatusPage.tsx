@@ -24,9 +24,11 @@ import {
   Schedule as ClockIcon,
   Cancel as CancelIcon,
   Verified as VerifiedIcon,
+  ArrowBack,
 } from "@mui/icons-material";
 import { axiosClient } from "../api/baseUrl";
 import BackButton from "../components/Shared/BackButton";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   trackingNumber: string;
@@ -46,6 +48,7 @@ const TrackStatusPage: React.FC = () => {
   const [application, setApplication] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const {
     register,
@@ -266,6 +269,35 @@ const TrackStatusPage: React.FC = () => {
             >
               {loading ? "" : t("auth.trackStatus")}
             </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              fullWidth
+              color="success"
+              size="large"
+              onClick={() => {
+                navigate("/");
+              }}
+              startIcon={
+                <ArrowBack
+                  sx={{
+                    transform: language === "ar" ? "rotate(180deg)" : "none",
+                    ml: language === "ar" ? 1 : 0,
+                  }}
+                />
+              }
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                borderWidth: 2,
+                "&:hover": {
+                  borderWidth: 2,
+                },
+              }}
+            >
+              {t("notFound.backToHome")}
+            </Button>
           </Stack>
         </form>
       </Paper>
@@ -427,9 +459,6 @@ const TrackStatusPage: React.FC = () => {
           </Box>
         </Paper>
       )}
-
-      {/* Back Button */}
-      <BackButton language={language} to="/" />
     </Container>
   );
 };

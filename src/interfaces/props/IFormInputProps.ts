@@ -1,3 +1,5 @@
+import { SxProps, Theme } from "@mui/material";
+
 export interface IFormInputProps {
   id: string;
   label?: string;
@@ -11,9 +13,10 @@ export interface IFormInputProps {
   isRequired?: boolean;
   isEye?: boolean;
   isCopyIcon?: boolean;
-  classNameParent?:string;
-  classNameLabel?:string;
-  setPassword?:any;
-  setIsTouchInput?:any
-  isNationalId ?: any;
+  classNameParent?: string;
+  classNameLabel?: string;
+  setPassword?: any;
+  setIsTouchInput?: any;
+  isNationalId?: any;
+  sx?: SxProps<Theme>;
 }

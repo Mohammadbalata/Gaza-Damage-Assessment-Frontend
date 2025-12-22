@@ -24,6 +24,7 @@ import {
   Visibility,
   VisibilityOff,
   Login as LoginIcon,
+  ArrowBack,
 } from "@mui/icons-material";
 import BackButton from "../../components/Shared/BackButton";
 
@@ -161,9 +162,11 @@ const AdminLoginPage: React.FC = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={3}>
               {/* Email Field */}
+              <Typography variant="subtitle2" color="text.secondary">
+                {t("auth.email")}
+              </Typography>
               <TextField
                 fullWidth
-                label={t("auth.email")}
                 type="email"
                 placeholder="admin@gaza.gov.ps"
                 {...register("email", {
@@ -178,13 +181,6 @@ const AdminLoginPage: React.FC = () => {
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     borderRadius: 2,
@@ -193,10 +189,13 @@ const AdminLoginPage: React.FC = () => {
               />
 
               {/* Password Field */}
+              <Typography variant="subtitle2" color="text.secondary">
+                {t("auth.password")}
+              </Typography>
               <TextField
                 fullWidth
-                label={t("auth.password")}
                 type={showPassword ? "text" : "password"}
+                placeholder="********"
                 {...register("password", {
                   required: t("common.required"),
                   minLength: {
@@ -210,11 +209,6 @@ const AdminLoginPage: React.FC = () => {
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon color="action" />
-                    </InputAdornment>
-                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
@@ -264,6 +258,35 @@ const AdminLoginPage: React.FC = () => {
               >
                 {loading ? "" : t("auth.login")}
               </Button>
+              <Button
+                type="button"
+                variant="outlined"
+                fullWidth
+                size="large"
+                color="inherit"
+                onClick={() => {
+                  navigate("/");
+                }}
+                startIcon={
+                  <ArrowBack
+                    sx={{
+                      transform: language === "ar" ? "rotate(180deg)" : "none",
+                      ml: language === "ar" ? 1 : 0,
+                    }}
+                  />
+                }
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  borderWidth: 2,
+                  "&:hover": {
+                    borderWidth: 2,
+                  },
+                }}
+              >
+                {t("notFound.backToHome")}
+              </Button>
             </Stack>
           </form>
 
@@ -291,7 +314,6 @@ const AdminLoginPage: React.FC = () => {
           </Box>
         </Box>
       </Paper>
-      <BackButton language={language} to="/" />
 
       {/* Footer Text */}
       <Typography

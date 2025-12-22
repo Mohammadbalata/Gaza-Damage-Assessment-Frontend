@@ -60,16 +60,6 @@ const CitizenDashboard: React.FC = () => {
   };
 
   /**
-   * Handle placeholder card clicks - shows coming soon message
-   */
-  const handlePlaceholderClick = (featureName: string) => {
-    enqueueSnackbar(`${featureName} - ${t("citizen.comingSoon")}`, {
-      variant: "info",
-      autoHideDuration: 2000,
-    });
-  };
-
-  /**
    * Dashboard card configuration
    */
   interface DashboardCardConfig {
@@ -104,7 +94,7 @@ const CitizenDashboard: React.FC = () => {
       description: t("citizen.bankInfoDesc"),
       icon: <BankIcon sx={{ fontSize: 40 }} />,
       color: "success",
-      onClick: () => handlePlaceholderClick(t("citizen.bankInfo")),
+      onClick: () => navigate(ROUTES.BANK_INFORMATION),
     },
     {
       key: "resetPassword",

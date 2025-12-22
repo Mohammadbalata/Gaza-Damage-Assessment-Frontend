@@ -20,7 +20,7 @@ const BackButton = ({ language, to, sx }: IBackButton) => {
         onClick={() => navigate(to)}
         sx={{ fontWeight: 600 }}
       >
-        {language === "ar" ? "العودة للصفحة الرئيسية" : "Back to Home"}
+        {language === "ar" ? "العودة إلى الصفحة الرئيسية" : "Back to Home"}
       </Button>
     </Box>
   );

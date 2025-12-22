@@ -18,8 +18,8 @@ import {
   ArrowForward,
   HowToReg as SignUpIcon,
 } from "@mui/icons-material";
-import { Building2 } from "lucide-react";
 import { ROUTES } from "../routes/Routes";
+import Logo from "../../public/logo.jpg";
 
 /**
  * Home Page - Main entry point
@@ -125,7 +125,7 @@ const HomePage: React.FC = () => {
               mb: 1,
             }}
           >
-            <Building2 size={48} />
+            <img src={Logo} alt="Logo" />
           </Box>
 
           {/* Title */}

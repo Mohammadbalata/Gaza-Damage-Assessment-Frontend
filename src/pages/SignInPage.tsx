@@ -64,39 +64,100 @@ const LoginPage = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
           {/* National ID Field */}
-          <FormInput
-            id="nationalId"
-            label={t("auth.nationalId")}
-            placeholder={t("auth.nationalIdPlaceholder")}
-            register={register}
-            errors={errors}
-            maxLength={9}
-            validation={{
-              required: t("common.required"),
-              pattern: {
-                value: /^\d{9}$/,
-                message: t("auth.nationalIdError"),
-              },
-            }}
-            isNationalId={true}
-          />
+          <Box>
+            <Typography
+              variant="body2"
+              color="primary.light"
+              sx={{ mb: 1 }}
+              fontWeight={600}
+            >
+              {t("auth.nationalId")}
+            </Typography>
+            <FormInput
+              id="nationalId"
+              placeholder={t("auth.nationalIdPlaceholder")}
+              register={register}
+              errors={errors}
+              maxLength={9}
+              validation={{
+                required: t("common.required"),
+                pattern: {
+                  value: /^\d{9}$/,
+                  message: t("auth.nationalIdError"),
+                },
+              }}
+              isNationalId={true}
+            />
+          </Box>
 
           {/* Password Field */}
-          <FormInput
-            id="password"
-            type="password"
-            label={t("auth.password")}
-            placeholder={t("auth.passwordPlaceholder")}
-            register={register}
-            validation={{
-              required: t("common.required"),
-            }}
-            errors={errors}
-            setPassword={null}
-          />
+          <Box>
+            <Typography
+              variant="body2"
+              color="primary.light"
+              sx={{ mb: 1 }}
+              fontWeight={600}
+            >
+              {t("auth.password")}
+            </Typography>
+            <FormInput
+              id="password"
+              type="password"
+              placeholder={t("auth.passwordPlaceholder")}
+              register={register}
+              validation={{
+                required: t("common.required"),
+              }}
+              errors={errors}
+              setPassword={null}
+            />
+          </Box>
+
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: -2 }}>
+            <Typography
+              variant="body2"
+              color="primary.light"
+              onClick={() => {
+                dispatch(setError(""));
+                navigate(`/${ROUTES.FORGOT_PASSWORD}`);
+              }}
+              sx={{
+                cursor: "pointer",
+                fontWeight: 600,
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              {t("auth.forgotPassword")}
+            </Typography>
+          </Box>
 
           {/* Action Buttons */}
-          <Stack direction="row" spacing={2} useFlexGap={true}>
+          <Stack direction="column" spacing={2} useFlexGap={true}>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              size="large"
+              disabled={loading}
+              startIcon={
+                loading ? (
+                  <CircularProgress sx={{ ml: 1 }} size={20} color="inherit" />
+                ) : (
+                  <LoginIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
+                )
+              }
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
+                "&:hover": {
+                  boxShadow: "0 6px 16px rgba(25, 118, 210, 0.4)",
+                },
+              }}
+            >
+              {loading ? "" : t("common.signIn")}
+            </Button>
             <Button
               type="button"
               variant="outlined"
@@ -124,32 +185,7 @@ const LoginPage = () => {
                 },
               }}
             >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              disabled={loading}
-              startIcon={
-                loading ? (
-                  <CircularProgress sx={{ ml: 1 }} size={20} color="inherit" />
-                ) : (
-                  <LoginIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
-                )
-              }
-              sx={{
-                py: 1.5,
-                borderRadius: 2,
-                fontWeight: 600,
-                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
-                "&:hover": {
-                  boxShadow: "0 6px 16px rgba(25, 118, 210, 0.4)",
-                },
-              }}
-            >
-              {loading ? "" : t("common.signIn")}
+              {t("notFound.backToHome")}
             </Button>
           </Stack>
 
