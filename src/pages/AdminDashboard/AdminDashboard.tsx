@@ -27,6 +27,8 @@ import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { UserRole } from "../../types/entities";
+import { LogOutIcon } from "lucide-react";
+import { enqueueSnackbar } from "notistack";
 
 /**
  * Admin Dashboard Page
@@ -34,7 +36,7 @@ import { UserRole } from "../../types/entities";
  */
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const { showError } = useNotification();
   const [totals, setTotals] = useState({
@@ -42,7 +44,7 @@ const AdminDashboard: React.FC = () => {
     applications: 0,
     citizens: 0,
     locations: 0,
-    banking:0
+    banking: 0,
   });
 
   const { loading, error } = useGet("admin-dashboard", {
@@ -53,10 +55,21 @@ const AdminDashboard: React.FC = () => {
         applications: data.applications?.length || 0,
         citizens: data.citizens?.length || 0,
         locations: data.locations?.length || 0,
-         banking:data.banking?.length || 0
+        banking: data.banking?.length || 0,
       });
     },
   });
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Navigate to sign in page
+    navigate(`/`);
+
+    // Show success notification
+    enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
+  };
 
   if (error) {
     showError(error);
@@ -285,6 +298,64 @@ const AdminDashboard: React.FC = () => {
           </Grid>
         </>
       )}
+      {/* Logout Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "error.light",
+          bgcolor: "error.50",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            borderColor: "error.main",
+            bgcolor: "rgba(244, 67, 54, 0.08)",
+          },
+        }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={2}
+        >
+          <Box>
+            <Typography
+              variant="h6"
+              color="error.dark"
+              sx={{ fontWeight: 600 }}
+            >
+              {t("common.logout")}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {language === "ar"
+                ? "تسجيل الخروج من حسابك بشكل آمن"
+                : "Securely sign out of your account"}
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="error"
+            size="large"
+            startIcon={<LogOutIcon style={{ marginLeft: "10px" }} />}
+            onClick={handleLogout}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              borderRadius: 2,
+              boxShadow: "0 4px 12px rgba(244, 67, 54, 0.3)",
+              "&:hover": {
+                boxShadow: "0 6px 16px rgba(244, 67, 54, 0.4)",
+                transform: "translateY(-2px)",
+              },
+            }}
+          >
+            {t("common.logout")}
+          </Button>
+        </Stack>
+      </Paper>
     </Container>
   );
 };
@@ -314,7 +385,11 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, onNavigate }) => {
     info: { bg: "info.light", text: "info.main", hover: "#e0f2f1" },
     success: { bg: "success.light", text: "success.main", hover: "#e8f5e9" },
     warning: { bg: "warning.light", text: "warning.main", hover: "#fff3e0" },
-    secondary: { bg: "secondary.light", text: "secondary.main", hover: "#fff3e0" },
+    secondary: {
+      bg: "secondary.light",
+      text: "secondary.main",
+      hover: "#fff3e0",
+    },
   };
 
   const color = colorMap[card.color];

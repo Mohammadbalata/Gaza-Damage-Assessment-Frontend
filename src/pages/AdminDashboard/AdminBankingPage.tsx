@@ -253,7 +253,7 @@ export function AdminBankingPage() {
   // Handle export
   const handleExportData = () => {
   fetch(
-    "https://backend-5549.onrender.com/bank-accounts/export",
+    "https://backend-5549.onrender.com/api/bank-accounts/export",
     {
       method: "GET",
       headers: {

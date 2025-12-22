@@ -656,7 +656,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackingNumber": "رقم التتبع",
     "success.password": "كلمة المرور الخاصة بك",
     "success.savePassword": "يرجى حفظ كلمة المرور هذه بشكل آمن",
-    "success.downloadReceipt": "تحميل PDF",
+    "success.downloadReceipt": "تصدير طلباتي PDF",
     "success.trackStatus": "تتبع حالة الطلب",
 
     // Status

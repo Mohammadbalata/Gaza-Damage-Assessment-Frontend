@@ -53,7 +53,7 @@ const CitizenDashboard: React.FC = () => {
     localStorage.removeItem("user");
 
     // Navigate to sign in page
-    navigate(`/${ROUTES.SIGNIN}`);
+    navigate(`/`);
 
     // Show success notification
     enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });

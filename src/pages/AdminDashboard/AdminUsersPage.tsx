@@ -172,7 +172,7 @@ export function AdminUsersPage() {
   };
 
   const handleExportData = () => {
-    fetch(`https://backend-5549.onrender.com/users/export-users`, {
+    fetch(`https://backend-5549.onrender.com/api/users/export-users`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,

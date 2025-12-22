@@ -225,7 +225,7 @@ export function AdminApplicationsPage() {
 
   const handleExportData = () => {
     fetch(
-      `https://backend-5549.onrender.com/applications/export-applications`,
+      `https://backend-5549.onrender.com/api/applications/export-applications`,
       {
         method: "GET",
         headers: {
