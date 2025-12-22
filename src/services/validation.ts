@@ -1,4 +1,11 @@
 import * as yup from "yup";
+import {
+  AccountStatus,
+  AccountType,
+  ApplicationStatus,
+  LocationType,
+  UserRole,
+} from "../types/entities";
 
 // Basic validation schemas
 export const emailSchema = yup
@@ -39,7 +46,7 @@ export const adminUserSchema = yup.object().shape({
   email: emailSchema,
   role: yup
     .string()
-    .oneOf(["admin", "supervisor"], "دور غير صالح")
+    .oneOf([UserRole.ADMIN, UserRole.SUPERVISOR], "دور غير صالح")
     .required("الدور مطلوب"),
   password: yup.string().when("isEditing", {
     is: false,
@@ -86,7 +93,13 @@ export const applicationSchema = yup.object({
     .string()
     .required("الحالة مطلوبة")
     .oneOf(
-      ["pending", "verified", "approved", "rejected", "closed"],
+      [
+        ApplicationStatus.APPROVED,
+        ApplicationStatus.PENDING,
+        ApplicationStatus.CLOSED,
+        ApplicationStatus.REJECTED,
+        ApplicationStatus.VERIFIED,
+      ],
       "حالة غير صحيحة"
     ),
 
@@ -95,47 +108,6 @@ export const applicationSchema = yup.object({
     .optional()
     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
 });
-
-
-// export const createLocationSchema = yup.object({
-//   citizenId: yup
-//     .number()
-//     .required("رقم المواطن مطلوب")
-//     .positive("يجب أن يكون رقم المواطن موجباً")
-//     .integer("يجب أن يكون رقم المواطن رقماً صحيحاً"),
-
-//   status: yup
-//     .string()
-//     .required("الحالة مطلوبة")
-//     .oneOf(
-//       ["pending", "verified", "approved", "rejected", "closed"],
-//       "حالة غير صحيحة"
-//     ),
-
-//   notes: yup
-//     .string()
-//     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
-// });
-
-
-// export const updateLocationSchema = yup.object().shape({
-//   citizenId: yup.number().notRequired(),
-//    status: yup
-//     .string()
-//     .required("الحالة مطلوبة")
-//     .oneOf(
-//       ["pending", "verified", "approved", "rejected", "closed"],
-//       "حالة غير صحيحة"
-//     ),
-
-//   notes: yup
-//     .string()
-//     .max(1000, "يجب أن تكون الملاحظات أقل من 1000 حرف"),
-// });
-
-// Location schema
-
-
 
 export const locationSchema = yup.object({
   citizenId: yup
@@ -148,7 +120,12 @@ export const locationSchema = yup.object({
     .string()
     .required("النوع مطلوب")
     .oneOf(
-      ["before_war", "after_war", "temporary", "current"],
+      [
+        LocationType.AFTER_WAR,
+        LocationType.TEMPORARY,
+        LocationType.BEFORE_WAR,
+        LocationType.CURRENT,
+      ],
       "نوع موقع غير صحيح"
     ),
 
@@ -188,7 +165,7 @@ export const userSchema = yup.object({
   role: yup
     .string()
     .required("الدور مطلوب")
-    .oneOf(["admin", "supervisor"], "دور غير صحيح"),
+    .oneOf([UserRole.SUPERVISOR, UserRole.ADMIN], "دور غير صحيح"),
 });
 
 export const bankAccountSchema = yup.object({
@@ -205,51 +182,17 @@ export const bankAccountSchema = yup.object({
   accountType: yup
     .string()
     .required("نوع الحساب مطلوب")
-    .oneOf(["SAVINGS", "CURRENT", "WALLET"], "نوع حساب غير صحيح"),
+    .oneOf(
+      [AccountType.CURRENT, AccountType.SAVINGS, AccountType.WALLET],
+      "نوع حساب غير صحيح"
+    ),
   currency: yup.string().required("العملة مطلوبة"),
   isPrimary: yup.boolean().optional(),
   status: yup
     .string()
     .optional()
-    .oneOf(["ACTIVE", "SUSPENDED", "CLOSED"], "حالة غير صحيحة"),
+    .oneOf(
+      [AccountStatus.ACTIVE, AccountStatus.CLOSED, AccountStatus.SUSPENDED],
+      "حالة غير صحيحة"
+    ),
 });
-
-
-
-// export const citizenSchema = yup.object({
-//   national_id: yup
-//     .string()
-//     .required("الرقم الوطني مطلوب")
-//     .min(9, "يجب أن يكون الرقم الوطني 9 أرقام على الأقل")
-//     .max(20, "يجب أن يكون الرقم الوطني أقل من 20 رقم"),
-
-//   first_name: yup
-//     .string()
-//     .required("الاسم الأول مطلوب")
-//     .min(2, "يجب أن يكون الاسم الأول حرفين على الأقل")
-//     .max(100, "يجب أن يكون الاسم الأول أقل من 100 حرف"),
-
-//   father_name: yup
-//     .string()
-//     .required("اسم الأب مطلوب")
-//     .min(2, "يجب أن يكون اسم الأب حرفين على الأقل")
-//     .max(100, "يجب أن يكون اسم الأب أقل من 100 حرف"),
-
-//   grandfather_name: yup
-//     .string()
-//     .required("اسم الجد مطلوب")
-//     .min(2, "يجب أن يكون اسم الجد حرفين على الأقل")
-//     .max(100, "يجب أن يكون اسم الجد أقل من 100 حرف"),
-
-//   family_name: yup
-//     .string()
-//     .required("اسم العائلة مطلوب")
-//     .min(2, "يجب أن يكون اسم العائلة حرفين على الأقل")
-//     .max(100, "يجب أن يكون اسم العائلة أقل من 100 حرف"),
-
-//   phone_number: yup
-//     .string()
-//     .required("رقم الهاتف مطلوب")
-//     .min(9, "يجب أن يكون رقم الهاتف 9 أرقام على الأقل")
-//     .max(15, "يجب أن يكون رقم الهاتف أقل من 15 رقم"),
-// });

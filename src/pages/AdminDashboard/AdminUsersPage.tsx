@@ -173,7 +173,7 @@ export function AdminUsersPage() {
   };
 
   const handleExportData = () => {
-    fetch(`https://backend-5549.onrender.com/api/${API.admin.users.export}`, {
+    fetch(`https://backend-5549.onrender.com/api${API.admin.users.export}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -418,8 +418,8 @@ export function AdminUsersPage() {
               label={t("admin.users.role")}
               select
             >
-              <MenuItem value="supervisor">{t("common.supervisor")}</MenuItem>
-              <MenuItem value="admin">{t("common.admin")}</MenuItem>
+              <MenuItem value={UserRole.SUPERVISOR}>{t("common.supervisor")}</MenuItem>
+              <MenuItem value={UserRole.ADMIN}>{t("common.admin")}</MenuItem>
             </FormTextField>
             <FormTextField
               control={control}

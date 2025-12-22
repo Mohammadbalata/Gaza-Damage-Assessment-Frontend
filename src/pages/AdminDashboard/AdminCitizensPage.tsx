@@ -171,7 +171,7 @@ export function AdminCitizensPage() {
   };
 
   const handleExportData = () => {
-    fetch(`https://backend-5549.onrender.com/api/${API.admin.citizens.export}`, {
+    fetch(`https://backend-5549.onrender.com/api${API.admin.citizens.export}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,

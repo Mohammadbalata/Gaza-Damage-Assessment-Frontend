@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes/Routes";
 import { api } from "../services/api";
 import { AdminUser,UserRole } from "../types/entities";
+import { API } from "../constants/ApiRoutes";
 
 
 
@@ -60,7 +61,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
 
     try {
       // Use shared API client so baseURL and interceptors are applied correctly
-      const response = await api.post("/auth/signin", credentials);
+      const response = await api.post(API.admin.auth.signin, credentials);
       const data = response.data?.data ?? response.data;
 
       if (data?.user && data?.access_token) {

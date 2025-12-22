@@ -226,7 +226,7 @@ export function AdminApplicationsPage() {
 
   const handleExportData = () => {
     fetch(
-      `https://backend-5549.onrender.com/api/${API.admin.applications.export}`,
+      `https://backend-5549.onrender.com/api${API.admin.applications.export}`,
       {
         method: "GET",
         headers: {
@@ -537,21 +537,7 @@ export function AdminApplicationsPage() {
               />
             )}
 
-            {/* Location Select */}
-            {/* <FormTextField
-              control={control}
-              name="locationId"
-              label={t("admin.applications.location")}
-              select
-            >
-              <MenuItem value="">{t("admin.applications.noLocation")}</MenuItem>
-              {locations?.map((loc) => (
-                <MenuItem key={loc.id} value={loc.id}>
-                  {loc.governorate || "-"} / {loc.town || "-"}{" "}
-                  {loc.street ? `- ${loc.street}` : ""} (#{loc.id})
-                </MenuItem>
-              ))}
-            </FormTextField> */}
+           
 
             {/* Status Select */}
             <FormTextField
@@ -560,11 +546,11 @@ export function AdminApplicationsPage() {
               label={t("admin.applications.status")}
               select
             >
-              <MenuItem value="pending">{t("status.submitted")}</MenuItem>
-              <MenuItem value="verified">{t("status.verified")}</MenuItem>
-              <MenuItem value="approved">{t("status.approved")}</MenuItem>
-              <MenuItem value="rejected">{t("status.rejected")}</MenuItem>
-              <MenuItem value="closed">
+              <MenuItem value={ApplicationStatus.PENDING}>{t("status.submitted")}</MenuItem>
+              <MenuItem value={ApplicationStatus.VERIFIED}>{t("status.verified")}</MenuItem>
+              <MenuItem value={ApplicationStatus.APPROVED}>{t("status.approved")}</MenuItem>
+              <MenuItem value={ApplicationStatus.REJECTED}>{t("status.rejected")}</MenuItem>
+              <MenuItem value={ApplicationStatus.CLOSED}>
                 {t("status.closed") || "Closed"}
               </MenuItem>
             </FormTextField>

@@ -112,10 +112,10 @@ export function AdminLocationsPage() {
   const center = position || defaultCenter;
 
   const locationTypes = [
-    { id: 1, value: "before_war", label: t("admin.locations.beforeWar") },
-    { id: 2, value: "after_war", label: t("admin.locations.afterWar") },
-    { id: 3, value: "temporary", label: t("admin.locations.temporary") },
-    { id: 4, value: "current", label: t("admin.locations.current") },
+    { id: 1, value: LocationType.BEFORE_WAR, label: t("admin.locations.beforeWar") },
+    { id: 2, value: LocationType.AFTER_WAR, label: t("admin.locations.afterWar") },
+    { id: 3, value: LocationType.TEMPORARY, label: t("admin.locations.temporary") },
+    { id: 4, value: LocationType.CURRENT, label: t("admin.locations.current") },
   ];
 
   // Form
@@ -243,9 +243,9 @@ export function AdminLocationsPage() {
     const payload = {
       citizenId: editing ? data.citizenId : selectedCitizen?.id,
       type: data.type,
-      governorate: address || null,
-      latitude: position ? position[0] : null,
-      longitude: position ? position[1] : null,
+      address: address || null,
+      latitude: position ? position[0].toString() : null,
+      longitude: position ? position[1].toString() : null,
       notes: data.notes || null,
     };
     if (editing) {
