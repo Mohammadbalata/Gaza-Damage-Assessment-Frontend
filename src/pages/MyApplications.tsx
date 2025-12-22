@@ -38,6 +38,7 @@ import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
+import { generatePDFReceipt } from "../utils/pdfGenerator";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -71,6 +72,13 @@ const MyApplications = () => {
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+  };
+
+  const handleGeneratePdf = () => {
+    generatePDFReceipt(rawData, t, language);
+    console.log(applications);
+    console.log(rawData);
+    console.log(language);
   };
 
   const handleMenuClose = () => {
@@ -132,7 +140,8 @@ const MyApplications = () => {
   };
   useEffect(() => {
     console.log(citizen);
-  }, [applications]);
+  }, [citizen]);
+
   if (loading) {
     return (
       <Box
@@ -207,6 +216,21 @@ const MyApplications = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={
+                <DescriptionIcon sx={{ fontSize: 40, marginLeft: 1 }} />
+              }
+              onClick={handleGeneratePdf}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: 2,
+              }}
+            >
+              {t("success.downloadReceipt")}
+            </Button>
             <BackButton
               sx={{ marginBottom: 3.5 }}
               language={language}
@@ -226,6 +250,7 @@ const MyApplications = () => {
             >
               {t("citizen.addDamageRequest")}
             </Button>
+
             <Menu
               anchorEl={anchorEl}
               open={open}

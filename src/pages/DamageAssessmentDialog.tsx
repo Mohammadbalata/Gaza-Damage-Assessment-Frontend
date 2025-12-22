@@ -66,7 +66,7 @@ const DamageAssessmentDialog = ({
 
   useEffect(() => {
     if (initialData) {
-      const type = initialData.extraData.buildingType;
+      const type = initialData?.extraData?.buildingType;
       dispatch(setBuildingType(type));
       setValue("buildingType", type);
       if (initialData.extraData) {
