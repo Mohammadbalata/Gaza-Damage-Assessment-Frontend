@@ -29,6 +29,7 @@ import { useAuth } from "../../contexts/AdminAuthContext";
 import { UserRole } from "../../types/entities";
 import { LogOutIcon } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
+import { API } from "../../constants/ApiRoutes";
 
 /**
  * Admin Dashboard Page
@@ -47,7 +48,7 @@ const AdminDashboard: React.FC = () => {
     banking: 0,
   });
 
-  const { loading, error } = useGet("admin-dashboard", {
+  const { loading, error } = useGet(API.stats.adminDashboard, {
     immediate: true,
     onSuccess: (data) => {
       setTotals({

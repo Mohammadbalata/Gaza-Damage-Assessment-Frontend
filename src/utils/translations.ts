@@ -320,6 +320,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "Admin Users",
     "admin.users.subtitle": "Manage administrator and supervisor accounts.",
+    "admin.users.id":"ID",
     "admin.users.name": "Name",
     "admin.users.email": "Email",
     "admin.users.role": "Role",
@@ -764,6 +765,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "مستخدمي النظام",
     "admin.users.subtitle": "إدارة حسابات المدراء والمشرفين.",
+    "admin.users.id":"الرقم",
     "admin.users.name": "الاسم",
     "admin.users.email": "البريد الإلكتروني",
     "admin.users.role": "الدور",

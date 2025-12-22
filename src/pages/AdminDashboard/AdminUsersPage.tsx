@@ -34,6 +34,7 @@ import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
+import { API } from "../../constants/ApiRoutes";
 
 interface UserFormData {
   name: string;
@@ -79,7 +80,7 @@ export function AdminUsersPage() {
     loading,
     data: users,
     setData,
-  } = useGet<AdminUser[]>("/users", {
+  } = useGet<AdminUser[]>(API.admin.users.list, {
     immediate: true,
   });
 
@@ -97,7 +98,7 @@ export function AdminUsersPage() {
   });
 
   const { loading: loadingCreateUser, execute: executeCreateUser } = usePost(
-    "/users",
+    API.admin.users.create,
     {
       onSuccess: (data) => {
         setData((prev) => (prev ? [data, ...prev] : [data]));
@@ -159,7 +160,7 @@ export function AdminUsersPage() {
     };
 
     if (editing) {
-      executeUpdateUser(`/users/${editing.id}`, payload);
+      executeUpdateUser(API.admin.users.update(editing.id.toString()), payload);
     } else {
       executeCreateUser(payload);
     }
@@ -168,11 +169,11 @@ export function AdminUsersPage() {
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
-    execute(`/users/${deleteConfirm.id}`);
+    execute(API.admin.users.delete(deleteConfirm.id.toString()));
   };
 
   const handleExportData = () => {
-    fetch(`https://backend-5549.onrender.com/api/users/export-users`, {
+    fetch(`https://backend-5549.onrender.com/api${API.admin.users.export}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -417,8 +418,8 @@ export function AdminUsersPage() {
               label={t("admin.users.role")}
               select
             >
-              <MenuItem value="supervisor">{t("common.supervisor")}</MenuItem>
-              <MenuItem value="admin">{t("common.admin")}</MenuItem>
+              <MenuItem value={UserRole.SUPERVISOR}>{t("common.supervisor")}</MenuItem>
+              <MenuItem value={UserRole.ADMIN}>{t("common.admin")}</MenuItem>
             </FormTextField>
             <FormTextField
               control={control}

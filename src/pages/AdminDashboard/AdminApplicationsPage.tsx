@@ -41,6 +41,7 @@ import {
   Citizen,
   UserRole,
 } from "../../types/entities";
+import { API } from "../../constants/ApiRoutes";
 
 interface ApplicationFormData {
   citizenId: number;
@@ -122,7 +123,7 @@ export function AdminApplicationsPage() {
     loading,
     data: applications,
     setData,
-  } = useGet<Application[]>("/applications", {
+  } = useGet<Application[]>(API.admin.applications.list, {
     immediate: true,
   });
 
@@ -146,7 +147,7 @@ export function AdminApplicationsPage() {
   const {
     loading: loadingCreateApplication,
     execute: executeCreateApplication,
-  } = usePost("/applications", {
+  } = usePost(API.admin.applications.create, {
     onSuccess: (data) => {
       setData((prev) => (prev ? [data, ...prev] : [data]));
       showSuccess(t("success.applicationCreated"));
@@ -180,7 +181,7 @@ export function AdminApplicationsPage() {
   });
 
   const { data: citizenOptions, loading: citizenLoading } = useGet(
-    `/citizens`,
+    API.admin.citizens.list,
     { immediate: true }
   );
 
@@ -213,7 +214,7 @@ export function AdminApplicationsPage() {
   // Handle submit
   const onSubmit = async (data: ApplicationFormData) => {
     if (editing) {
-      executeUpdateApplication(`/applications/${editing.id}`, {
+      executeUpdateApplication(API.admin.applications.update(editing.id.toString()), {
         ...data,
       });
     } else {
@@ -225,7 +226,7 @@ export function AdminApplicationsPage() {
 
   const handleExportData = () => {
     fetch(
-      `https://backend-5549.onrender.com/api/applications/export-applications`,
+      `https://backend-5549.onrender.com/api${API.admin.applications.export}`,
       {
         method: "GET",
         headers: {
@@ -253,7 +254,7 @@ export function AdminApplicationsPage() {
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
-    execute(`/applications/${deleteConfirm.id}`);
+    execute(API.admin.applications.delete(deleteConfirm.id.toString()));
   };
 
   const filteredApplications = applications?.filter(
@@ -536,21 +537,7 @@ export function AdminApplicationsPage() {
               />
             )}
 
-            {/* Location Select */}
-            {/* <FormTextField
-              control={control}
-              name="locationId"
-              label={t("admin.applications.location")}
-              select
-            >
-              <MenuItem value="">{t("admin.applications.noLocation")}</MenuItem>
-              {locations?.map((loc) => (
-                <MenuItem key={loc.id} value={loc.id}>
-                  {loc.governorate || "-"} / {loc.town || "-"}{" "}
-                  {loc.street ? `- ${loc.street}` : ""} (#{loc.id})
-                </MenuItem>
-              ))}
-            </FormTextField> */}
+           
 
             {/* Status Select */}
             <FormTextField
@@ -559,11 +546,11 @@ export function AdminApplicationsPage() {
               label={t("admin.applications.status")}
               select
             >
-              <MenuItem value="pending">{t("status.submitted")}</MenuItem>
-              <MenuItem value="verified">{t("status.verified")}</MenuItem>
-              <MenuItem value="approved">{t("status.approved")}</MenuItem>
-              <MenuItem value="rejected">{t("status.rejected")}</MenuItem>
-              <MenuItem value="closed">
+              <MenuItem value={ApplicationStatus.PENDING}>{t("status.submitted")}</MenuItem>
+              <MenuItem value={ApplicationStatus.VERIFIED}>{t("status.verified")}</MenuItem>
+              <MenuItem value={ApplicationStatus.APPROVED}>{t("status.approved")}</MenuItem>
+              <MenuItem value={ApplicationStatus.REJECTED}>{t("status.rejected")}</MenuItem>
+              <MenuItem value={ApplicationStatus.CLOSED}>
                 {t("status.closed") || "Closed"}
               </MenuItem>
             </FormTextField>

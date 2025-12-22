@@ -23,6 +23,7 @@ export const API = {
     },
 
     applications: {
+      create: `/admin/applications`,
       list: `/admin/applications`,
       update: (id: string) => `/admin/applications/${id}`,
       delete: (id: string) => `/admin/applications/${id}`,
@@ -78,4 +79,10 @@ export const API = {
     adminDashboard: `/stats/admin-dashboard`,
     supervisorDashboard: `/stats/supervisor-dashboard`,
   },
+
+  banks:{
+    list:`banks`
+  }
+
+
 };
