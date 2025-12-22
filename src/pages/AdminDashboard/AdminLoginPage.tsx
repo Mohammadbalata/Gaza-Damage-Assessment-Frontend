@@ -19,14 +19,11 @@ import {
 } from "@mui/material";
 import {
   AdminPanelSettings as AdminIcon,
-  Email as EmailIcon,
-  Lock as LockIcon,
   Visibility,
   VisibilityOff,
   Login as LoginIcon,
   ArrowBack,
 } from "@mui/icons-material";
-import BackButton from "../../components/Shared/BackButton";
 
 interface FormData {
   email: string;
