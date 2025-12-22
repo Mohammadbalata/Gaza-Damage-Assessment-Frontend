@@ -201,6 +201,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackStatus": "Track Application Status",
 
     // Status
+    status: "statusOfApplication",
+
     "status.submitted": "Submitted",
     "status.underReview": "Under Review",
     "status.verified": "Verified",
@@ -449,6 +451,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.comingSoon": "Coming Soon",
     "citizen.passwordChangeError": "Failed to change password.",
     "citizen.passwordChangedSuccess": "Password changed successfully.",
+    "citizen.currentLocation": "Current Location",
 
     // Not Found
     "notFound.title": "Page Not Found",
@@ -657,6 +660,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackStatus": "تتبع حالة الطلب",
 
     // Status
+    status: "حالة الطلب",
+
     "status.submitted": "تم الإرسال",
     "status.underReview": "قيد المراجعة",
     "status.verified": "تم التحقق",
@@ -889,6 +894,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.comingSoon": "قريباً",
     "citizen.passwordChangeError": "فشل في تغيير كلمة المرور.",
     "citizen.passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح.",
+    "citizen.currentLocation": "العنوان الحالي ",
 
     // Not Found
     "notFound.title": "الصفحة غير موجودة",

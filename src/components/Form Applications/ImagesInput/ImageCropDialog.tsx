@@ -82,9 +82,7 @@ export const ImageCropDialog = ({
             aspect={4 / 3}
             onCropChange={setCrop}
             onZoomChange={setZoom}
-            onCropComplete={(_, areaPixels) =>
-              setCroppedAreaPixels(areaPixels)
-            }
+            onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
           />
         </Box>
 
