@@ -1,6 +1,7 @@
 import { useAuth } from "../contexts/AdminAuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
-import { Building2, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import Logo from "../../public/logo.jpg";
 
 const Header = () => {
   const { t } = useLanguage();
@@ -10,7 +11,7 @@ const Header = () => {
     <header className="bg-primary text-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Building2 className="w-10 h-10 text-white drop-shadow" />
+          <img src={Logo} alt="Logo" />
           <div>
             <h1 className="text-xl font-bold tracking-wide">
               {t("app.title")}

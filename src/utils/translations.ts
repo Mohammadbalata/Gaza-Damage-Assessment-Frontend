@@ -50,6 +50,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
     "auth.nationalIdError": "National ID must be exactly 9 digits",
+    "auth.forgotPassword": "Forgot Password?",
+    "auth.dontHaveAccount": "Don't have an account?",
     "auth.login": "Login",
     "auth.adminLogin": "Admin Login",
     "auth.signUp": "Sign Up",
@@ -95,6 +97,19 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Password must include at least one number (0-9).",
     "citizen.passwordMissingSymbol":
       "Password must include at least one special symbol.",
+
+    // Forgot Password Page
+    "auth.forgotPasswordTitle": "Reset Password",
+    "auth.forgotPasswordDesc":
+      "Enter your email address to receive a verification code.",
+    "auth.sendResetCode": "Send Reset Code",
+    "auth.resetCodeSent": "A verification code has been sent to your email",
+    "auth.backToLogin": "Back to Login",
+
+    // Bank Information Page
+    "citizen.bankInfoTitle": "Bank Information",
+    "citizen.bankInfoComingSoon":
+      "Bank information registration will be available soon. This feature is currently under development.",
 
     // Personal Info
     "form.fullName": "Name",
@@ -492,6 +507,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.nationalId": "رقم الهوية الوطنية",
     "auth.nationalIdPlaceholder": "أدخل رقم الهوية المكون من 9 أرقام",
     "auth.nationalIdError": "يجب أن يكون رقم الهوية 9 أرقام بالضبط",
+    "auth.forgotPassword": "نسيت كلمة المرور؟",
+    "auth.dontHaveAccount": "ليس لديك حساب؟",
     "auth.login": "تسجيل الدخول",
     "auth.signUp": "تسجيل جديد",
     "auth.adminLogin": "تسجيل دخول المسؤول",
@@ -541,6 +558,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordError": "كلمة المرور خاطئة",
     "citizen.passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
     "citizen.confirmPassword": "تأكيد كلمة المرور الجديدة",
+
+    // Forgot Password Page
+    "auth.forgotPasswordTitle": "إعادة تعيين كلمة المرور",
+    "auth.forgotPasswordDesc": "أدخل بريدك الإلكتروني لاستلام رمز التحقق.",
+    "auth.sendResetCode": "إرسال رمز التحقق",
+    "auth.resetCodeSent": "تم إرسال رمز التحقق إلى بريدك الإلكتروني",
+    "auth.backToLogin": "العودة لتسجيل الدخول",
+
+    // Bank Information Page
+    "citizen.bankInfoTitle": "المعلومات البنكية",
+    "citizen.bankInfoComingSoon":
+      "ميزة تسجيل المعلومات البنكية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
 
     // Personal Info
     "form.fullName": "الاسم الكامل",
