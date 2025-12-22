@@ -39,6 +39,7 @@ import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import { generatePDFReceipt } from "../utils/pdfGenerator";
+import { API } from "../constants/ApiRoutes";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -58,7 +59,7 @@ const MyApplications = () => {
     data: rawData,
     loading,
     error,
-  } = useGet<any>("applications/my-applications", {
+  } = useGet<any>(`${API.citizen.applications.list}`, {
     immediate: true,
   });
 
@@ -215,27 +216,22 @@ const MyApplications = () => {
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Button
-              variant="contained"
-              size="medium"
-              startIcon={
-                <DescriptionIcon sx={{ fontSize: 40, marginLeft: 1 }} />
-              }
-              onClick={handleGeneratePdf}
-              sx={{
-                textTransform: "none",
-                fontWeight: "bold",
-                boxShadow: 2,
-              }}
-            >
-              {t("success.downloadReceipt")}
-            </Button>
+          <Box
+            sx={{
+              display: "flex",
+              ml: "0 !important",
+              flexWrap: "wrap",
+              gap: 2,
+              alignItems: "center",
+              justifyContent: "flex-end",
+            }}
+          >
             <BackButton
               sx={{ marginBottom: 3.5 }}
               language={language}
               to={ROUTES.CITIZEN_DASHBOARD}
             />
+
             <Button
               variant="contained"
               size="medium"
@@ -249,6 +245,23 @@ const MyApplications = () => {
               }}
             >
               {t("citizen.addDamageRequest")}
+            </Button>
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={
+                <DescriptionIcon
+                  sx={{ fontSize: 40, marginLeft: 1, flexBasis: "1" }}
+                />
+              }
+              onClick={handleGeneratePdf}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: 2,
+              }}
+            >
+              {t("success.downloadReceipt")}
             </Button>
 
             <Menu
@@ -363,21 +376,27 @@ const MyApplications = () => {
             </Button>
           </Paper>
         ) : (
-          <Stack spacing={2}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(2, 1fr)",
+              },
+              gap: 2,
+            }}
+          >
             {applications.map((app: any) => {
               const status = app.status?.toUpperCase() || "PENDING";
               const isPending = status === "PENDING";
-              // console.log(app);
 
               return (
-                <Fade
-                  in={true}
-                  key={app.id}
-                  style={{ transformOrigin: "0 0 0" }}
-                >
+                <Fade in={true} style={{ transformOrigin: "0 0 0" }}>
                   <Card
                     elevation={0}
                     sx={{
+                      height: "100%",
                       border: "1px solid",
                       borderColor: "divider",
                       borderRadius: 3,
@@ -394,12 +413,15 @@ const MyApplications = () => {
                         p: 2,
                         "&:last-child": { pb: 2 },
                         display: "flex",
-                        flexDirection: { xs: "column", sm: "row" },
+                        flexDirection: "column",
                         alignItems: "center",
+                        textAlign: "center",
                         gap: 2,
+                        height: "100%",
                       }}
                     >
-                      {/* Icon Box */}
+                      {/* 🔴 نفس محتوى الكرت اللي عندك بالزبط */}
+                      {/* Icon */}
                       <Box
                         sx={{
                           width: 50,
@@ -417,21 +439,37 @@ const MyApplications = () => {
                       </Box>
 
                       {/* Content */}
-                      <Box
-                        sx={{
-                          flex: 1,
-                          width: "100%",
-                          textAlign: { xs: "center", sm: "start" },
-                        }}
-                      >
+                      <Box sx={{ flex: 1, width: "100%" }}>
                         <Stack
                           direction={{ xs: "column", sm: "row" }}
                           alignItems="center"
                           spacing={1}
-                          sx={{ mb: 0.5 }}
-                          useFlexGap={true}
+                          sx={{
+                            mb: 0.5,
+                            justifyContent: "center",
+                            gap: {
+                              xs: 0, // موبايل
+                              sm: "10px", // ❌ ملغي على sm
+                              md: "10px", // ديسكتوب
+                              lg: "10px",
+                              xl: "10px",
+                            },
+                            flexWrap: "wrap",
+                          }}
                         >
-                          <Typography variant="subtitle1" fontWeight="bold">
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="bold"
+                            sx={{
+                              minWidth: {
+                                xs: "100%",
+                                sm: "100%",
+                                md: "auto",
+                                lg: "auto",
+                                xl: "auto",
+                              },
+                            }}
+                          >
                             {t("citizen.applicationId")} #{app.id}
                           </Typography>
                           <Chip
@@ -441,58 +479,34 @@ const MyApplications = () => {
                             }
                             color={getStatusColor(app.status)}
                             size="small"
-                            sx={{ fontWeight: "bold", height: 24 }}
+                            sx={{
+                              fontWeight: "bold",
+                              height: 24,
+                              textAlign: "right",
+                            }}
                           />
                         </Stack>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                            justifyContent: { xs: "center", sm: "flex-start" },
-                          }}
-                        >
+
+                        <Typography variant="body2" color="text.secondary">
                           <EventIcon sx={{ fontSize: 16 }} />
                           {t("citizen.submittedOn")}:{" "}
                           {new Date(app.createdAt).toLocaleDateString(
                             language === "ar" ? "ar-EG" : "en-US"
                           )}
                         </Typography>
-                        <Typography
-                          variant="h6"
-                          color="text.secondary"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                            justifyContent: { xs: "center", sm: "flex-start" },
-                            marginTop: "10px",
-                          }}
-                        >
+
+                        <Typography variant="h6" mt={1}>
                           العنوان : {app.location.address}
                         </Typography>
                       </Box>
 
-                      {/* Actions */}
+                      {/* Action */}
                       <Button
                         variant={isPending ? "outlined" : "text"}
-                        color={isPending ? "primary" : "inherit"}
                         startIcon={
-                          isPending ? (
-                            <EditIcon sx={{ mx: 1 }} />
-                          ) : (
-                            <VisibilityIcon sx={{ mx: 1 }} />
-                          )
+                          isPending ? <EditIcon /> : <VisibilityIcon />
                         }
                         onClick={() => handleAction(app)}
-                        sx={{
-                          whiteSpace: "nowrap",
-                          borderRadius: 2,
-                          textTransform: "none",
-                          fontWeight: "medium",
-                        }}
                       >
                         {isPending
                           ? t("common.editRequest")
@@ -503,7 +517,7 @@ const MyApplications = () => {
                 </Fade>
               );
             })}
-          </Stack>
+          </Box>
         )}
 
         {/* Damage Assessment Dialog */}

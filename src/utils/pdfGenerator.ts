@@ -16,7 +16,7 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
 
   const pdf = new jsPDF("p", "pt", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const itemsPerPage = 5;
+  const itemsPerPage = 4;
 
   // ================= الصفحة الأولى =================
   const firstPageElement = document.createElement("div");
