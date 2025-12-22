@@ -31,9 +31,7 @@ interface MapContainerProps {
   height?: string;
   width?: string;
   setAddress: any;
-  setApplication?: any;
   location?: any;
-  setIsCurrentLocation?: any;
 }
 
 function LocationMarker({
@@ -61,9 +59,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
   height = "100%",
   width = "100%",
   setAddress,
-  setApplication,
   location,
-  setIsCurrentLocation,
 }) => {
   const [openDialog, setOpenDialog] = React.useState(false);
 
@@ -96,9 +92,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
       </LeafletMap>
       {location?.address && (
         <FormDialog
-          {...{ setApplication }}
           {...{ location }}
-          {...{ setIsCurrentLocation }}
           open={openDialog}
           onClose={() => setOpenDialog(false)}
         />
