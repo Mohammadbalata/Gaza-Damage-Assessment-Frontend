@@ -8,7 +8,6 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import { Building2 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import Logo from "../../public/logo.jpg";
 
