@@ -22,29 +22,31 @@ import { AlertCircle } from "lucide-react";
 import { Button, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
+import { updatePreviousLocation } from "../redux/slices/locationSlice";
+import { ROUTES } from "../routes/Routes";
+import { useNavigate } from "react-router-dom";
 import { axiosClient } from "../api/baseUrl";
+import LoadingSpinner from "../components/Shared/LoadingSpinner";
 
 interface DamageAssessmentDialogProps {
-  setApplications?: any;
   onClose: () => void;
   location: any;
   readOnly?: boolean;
   initialData?: any;
-  setIsCurrentLocation?: any;
 }
 
 const DamageAssessmentDialog = ({
-  setApplications,
   onClose,
   location,
   readOnly = false,
   initialData,
-  setIsCurrentLocation,
 }: DamageAssessmentDialogProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
+  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -83,7 +85,36 @@ const DamageAssessmentDialog = ({
     dispatch(resetAllBuildings()); // يرجع على <option value="">
   };
 
-  const addApplication = (
+  // const addApplication = (
+  //   type: string,
+  //   extraData: any,
+  //   images: {
+  //     beforeWarImage?: File;
+  //     afterWarImage?: File;
+  //     ownershipDocuments?: File[];
+  //   }
+  // ) => {
+  //   setApplication({
+  //     buildingType: type,
+  //     extraData,
+  //     latitude: location?.position[0],
+  //     longitude: location?.position[1],
+  //     address: location?.address,
+  //     neighborhood: location?.neighborhood,
+  //     ...images,
+  //   });
+  //   console.log({
+  //     buildingType: type,
+  //     extraData,
+  //     latitude: location?.position[0],
+  //     longitude: location?.position[1],
+  //     address: location?.address,
+  //     neighborhood: location?.neighborhood,
+  //     ...images,
+  //   });
+  // };
+
+  const buildApplication = (
     type: string,
     extraData: any,
     images: {
@@ -91,43 +122,175 @@ const DamageAssessmentDialog = ({
       afterWarImage?: File;
       ownershipDocuments?: File[];
     }
-  ) => {
-    setApplications((prev: any) => [
-      ...prev,
-      {
-        buildingType: type,
-        extraData,
-        latitude: location?.position[0],
-        longitude: location?.position[1],
-        address: location?.address,
-        neighborhood: location?.neighborhood,
-        ...images,
-      },
-    ]);
-  };
+  ) => ({
+    buildingType: type,
+    extraData,
+    latitude: location?.position?.[0],
+    longitude: location?.position?.[1],
+    address: location?.address,
+    neighborhood: location?.neighborhood,
+    ...images,
+  });
 
-  const onSubmit = (formData: any) => {
-    if (readOnly) {
-      onClose();
-      return;
+  const createApplicationFormData = (application: any) => {
+    const formData = new FormData();
+
+    formData.append("latitude", application.latitude.toString());
+    formData.append("longitude", application.longitude.toString());
+    formData.append("address", application.address);
+    formData.append("neighborhood", application.neighborhood);
+
+    formData.append(
+      "extraData",
+      JSON.stringify({
+        buildingType: application.buildingType,
+        [application.buildingType]: application.extraData,
+      })
+    );
+
+    if (application.beforeWarImage) {
+      formData.append("beforeWarImage", application.beforeWarImage);
+    }
+    if (application.afterWarImage) {
+      formData.append("afterWarImage", application.afterWarImage);
+    }
+    if (application.ownershipDocuments?.length) {
+      application.ownershipDocuments.forEach((file: File) =>
+        formData.append("ownershipDocuments", file)
+      );
     }
 
+    return formData;
+  };
+  // const onSubmit = (data: any) => {
+  //   // if (readOnly) {
+  //   //   onClose();
+  //   //   return;
+  //   // }
+
+  //   setIsChangeToReviewPage(true);
+  //   if (isChangeToReviewPage) {
+
+  //     const type = data.buildingType;
+  //     const formDataWithoutImg: any = buildFormDataWithoutImages(data);
+
+  //     dispatchByType(dispatch, type, formDataWithoutImg);
+
+  //     addApplication(type, formDataWithoutImg[type], {
+  //       beforeWarImage: data[type]?.beforeWarImage,
+  //       afterWarImage: data[type]?.afterWarImage,
+  //       ownershipDocuments: data[type]?.ownershipDocuments,
+  //     });
+  //     console.log("success submitted");
+  //     console.log(application);
+
+  //     const token = localStorage.getItem("token");
+
+  //     dispatch(updatePreviousLocation({ previosLocation: application }));
+
+  //     const createApplicationFormData = (application: any) => {
+  //       const formData = new FormData();
+
+  //       formData.append("latitude", location.position[0].toString());
+  //       formData.append("longitude", location.position[1].toString());
+  //       formData.append("address", location.address.toString());
+  //       formData.append("neighborhood", location.neighborhood.toString());
+
+  //       formData.append(
+  //         "extraData",
+  //         JSON.stringify({
+  //           buildingType: application.buildingType,
+  //           [application.buildingType]: application.extraData,
+  //         })
+  //       );
+
+  //       if (application.beforeWarImage) {
+  //         formData.append("beforeWarImage", application.beforeWarImage);
+  //       }
+  //       if (application.afterWarImage) {
+  //         formData.append("afterWarImage", application.afterWarImage);
+  //       }
+  //       if (
+  //         application.ownershipDocuments &&
+  //         application.ownershipDocuments.length > 0
+  //       ) {
+  //         application.ownershipDocuments.forEach((file: any) =>
+  //           formData.append("ownershipDocuments", file)
+  //         );
+  //       }
+
+  //       return formData;
+  //     };
+
+  //     // إرسال كل تطبيق للباك اند بشكل متسلسل
+  //     const formData = createApplicationFormData(application);
+
+  //     console.log(application);
+  //     // try {
+  //     //   axios
+  //     //     .post(
+  //     //       "https://backend-5549.onrender.com/applications/add-previous-location",
+  //     //       formData,
+  //     //       {
+  //     //         headers: {
+  //     //           Authorization: `Bearer ${token}`,
+  //     //         },
+  //     //       }
+  //     //     )
+  //     //     .then((res: any) => {
+  //     //       if (isCurrentLocation) {
+  //     //         navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+  //     //       } else {
+  //     //         navigate(`${ROUTES.CURRENT_LOCATION}`);
+  //     //       }
+  //     //       console.log(res.data.data);
+  //     //     });
+  //     // } catch (err) {
+  //     //   console.error("Failed to send application:", err);
+  //     // }
+  //   }
+  // }
+
+  const onSubmit = async (data: any) => {
     setIsChangeToReviewPage(true);
     if (!isChangeToReviewPage) return;
 
-    const type = formData.buildingType;
-    const formDataWithoutImg: any = buildFormDataWithoutImages(formData);
+    const type = data.buildingType;
+    const formDataWithoutImg: any = buildFormDataWithoutImages(data);
 
     dispatchByType(dispatch, type, formDataWithoutImg);
 
-    addApplication(type, formDataWithoutImg[type], {
-      beforeWarImage: formData[type]?.beforeWarImage,
-      afterWarImage: formData[type]?.afterWarImage,
-      ownershipDocuments: formData[type]?.ownershipDocuments,
+    const application = buildApplication(type, formDataWithoutImg[type], {
+      beforeWarImage: data[type]?.beforeWarImage,
+      afterWarImage: data[type]?.afterWarImage,
+      ownershipDocuments: data[type]?.ownershipDocuments,
     });
-    console.log("success submitted");
 
-    onClose();
+    // ✅ يخزن من أول ضغطة
+    dispatch(updatePreviousLocation({ previosLocation: application }));
+
+    const token = localStorage.getItem("token");
+    const formData = createApplicationFormData(application);
+
+    try {
+      await axiosClient.post(
+        "/applications/add-previous-location",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      navigate(
+        isCurrentLocation
+          ? ROUTES.CITIZEN_DASHBOARD
+          : ROUTES.CURRENT_LOCATION
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -148,7 +311,7 @@ const DamageAssessmentDialog = ({
       .catch((error: any) => {
         console.log(error);
       });
-  }, []);
+  }, [isChangeToReviewPage]);
 
   useEffect(() => {
     if (!initialData) {
@@ -277,7 +440,7 @@ const DamageAssessmentDialog = ({
                 تعديل الطلب
               </Button>
               <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-                {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
+                {damageAssessmentInfo.loading ? <LoadingSpinner /> : isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
               </Button>
             </DialogActions>
           )}
@@ -296,3 +459,10 @@ const DamageAssessmentDialog = ({
 };
 
 export default DamageAssessmentDialog;
+
+
+
+/* -------------------- views -------------------- */
+
+
+
