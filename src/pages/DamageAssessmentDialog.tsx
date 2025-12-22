@@ -25,7 +25,7 @@ import classNames from "classnames";
 import { axiosClient } from "../api/baseUrl";
 
 interface DamageAssessmentDialogProps {
-  setApplications?: any;
+  setApplication?: any;
   onClose: () => void;
   location: any;
   readOnly?: boolean;
@@ -34,7 +34,7 @@ interface DamageAssessmentDialogProps {
 }
 
 const DamageAssessmentDialog = ({
-  setApplications,
+  setApplication,
   onClose,
   location,
   readOnly = false,
@@ -92,18 +92,15 @@ const DamageAssessmentDialog = ({
       ownershipDocuments?: File[];
     }
   ) => {
-    setApplications((prev: any) => [
-      ...prev,
-      {
-        buildingType: type,
-        extraData,
-        latitude: location?.position[0],
-        longitude: location?.position[1],
-        address: location?.address,
-        neighborhood: location?.neighborhood,
-        ...images,
-      },
-    ]);
+    setApplication({
+      buildingType: type,
+      extraData,
+      latitude: location?.position[0],
+      longitude: location?.position[1],
+      address: location?.address,
+      neighborhood: location?.neighborhood,
+      ...images,
+    });
   };
 
   const onSubmit = (formData: any) => {
@@ -126,29 +123,11 @@ const DamageAssessmentDialog = ({
       ownershipDocuments: formData[type]?.ownershipDocuments,
     });
     console.log("success submitted");
-
+    console.log();
     onClose();
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    axiosClient
-      .get("/applications/my-applications", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res: any) => {
-        console.log(res.data.data.citizen.current_location);
-        const isCurrentLocation = res.data.data.citizen.current_location;
-        if (isCurrentLocation) {
-          setIsCurrentLocation(true);
-        }
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }, []);
+  
 
   useEffect(() => {
     if (!initialData) {

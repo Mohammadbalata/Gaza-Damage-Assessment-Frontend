@@ -19,9 +19,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from "axios";
+import { axiosClient } from "../api/baseUrl";
 
 const PreviousLocationMapPage = () => {
-  const [applications, setApplications] = useState([]);
+  const [application, setApplication] = useState({});
   const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -74,9 +75,7 @@ const PreviousLocationMapPage = () => {
   const handleConfirm = async () => {
     const token = localStorage.getItem("token");
 
-    if (applications.length === 0) return;
-
-    dispatch(updatePreviousLocation({ previosLocations: applications }));
+    dispatch(updatePreviousLocation({ previosLocation: application }));
 
     const createApplicationFormData = (application: any) => {
       const formData = new FormData();
@@ -113,35 +112,53 @@ const PreviousLocationMapPage = () => {
     };
 
     // إرسال كل تطبيق للباك اند بشكل متسلسل
-    for (const application of applications) {
-      const formData = createApplicationFormData(application);
+    const formData = createApplicationFormData(application);
 
-      try {
-        await axios
-          .post(
-            "https://backend-5549.onrender.com/applications/add-previous-location",
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((res: any) => {
-            if (isCurrentLocation) {
-              navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
-            } else {
-              navigate(`${ROUTES.CURRENT_LOCATION}`);
-            }
-            console.log(res.data.data);
-          });
-      } catch (err) {
-        console.error("Failed to send application:", err);
-      }
+    try {
+      await axios
+        .post(
+          "https://backend-5549.onrender.com/applications/add-previous-location",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((res: any) => {
+          if (isCurrentLocation) {
+            navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+          } else {
+            navigate(`${ROUTES.CURRENT_LOCATION}`);
+          }
+          console.log(res.data.data);
+        });
+    } catch (err) {
+      console.error("Failed to send application:", err);
     }
 
-    console.log(applications);
+    console.log(application);
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    axiosClient
+      .get("/applications/my-applications", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res: any) => {
+        console.log(res.data.data.citizen.current_location);
+        const isCurrentLocation = res.data.data.citizen.current_location;
+        if (isCurrentLocation) {
+          setIsCurrentLocation(true);
+        }
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -189,7 +206,7 @@ const PreviousLocationMapPage = () => {
               height="100%"
               width="100%"
               {...{ setAddress }}
-              {...{ setApplications }}
+              {...{ setApplication }}
               location={{ position, address, neighborhood }}
               {...{ setIsCurrentLocation }}
             />

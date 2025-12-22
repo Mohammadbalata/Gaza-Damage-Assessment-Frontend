@@ -354,7 +354,7 @@ const PasswordDisplayPage = () => {
               </Box>
 
               {isTouchInput && (
-                <List dense sx={{ mt: 1, textAlign:'right' }}>
+                <List dense sx={{ mt: 1, textAlign: "right" }}>
                   {[
                     { key: "tooShort", label: t("auth.passwordTooShort") },
                     {
@@ -376,7 +376,11 @@ const PasswordDisplayPage = () => {
                   ].map((rule) => {
                     const isMet = !rules[rule.key as keyof typeof rules];
                     return (
-                      <ListItem key={rule.key} disablePadding className="text-right">
+                      <ListItem
+                        key={rule.key}
+                        disablePadding
+                        className="text-right"
+                      >
                         <ListItemIcon sx={{ minWidth: 30 }}>
                           {isMet ? (
                             <Check fontSize="small" color="success" />
@@ -410,7 +414,7 @@ const PasswordDisplayPage = () => {
                   size="small"
                   startIcon={<Refresh sx={{ mx: 1 }} />}
                   onClick={handleGeneratePassword}
-                  sx={{ textTransform: "none" }}
+                  sx={{ textDecoration: "underline" }}
                 >
                   {t("auth.generatePassword")}
                 </Button>

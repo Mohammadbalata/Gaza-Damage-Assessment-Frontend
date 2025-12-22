@@ -31,7 +31,7 @@ interface MapContainerProps {
   height?: string;
   width?: string;
   setAddress: any;
-  setApplications?: any;
+  setApplication?: any;
   location?: any;
   setIsCurrentLocation?: any;
 }
@@ -61,7 +61,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
   height = "100%",
   width = "100%",
   setAddress,
-  setApplications,
+  setApplication,
   location,
   setIsCurrentLocation,
 }) => {
@@ -96,7 +96,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
       </LeafletMap>
       {location?.address && (
         <FormDialog
-          {...{ setApplications }}
+          {...{ setApplication }}
           {...{ location }}
           {...{ setIsCurrentLocation }}
           open={openDialog}

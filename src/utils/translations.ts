@@ -510,7 +510,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل",
     "auth.verify": "التحقق",
     "auth.trackStatus": "تتبع حالة الطلب",
-    "auth.generatePassword": "إنشاء كلمة مرور",
+    "auth.generatePassword": "اقترح كلمة مرور",
     "auth.verifyQuesTitle": "التحقق من الهوية",
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",

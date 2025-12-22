@@ -5,7 +5,7 @@ import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
 interface FormDialogProps {
   open: boolean;
   onClose: () => void;
-  setApplications: any;
+  setApplication: any;
   location?: any;
   setIsCurrentLocation?: any;
 }
@@ -13,14 +13,14 @@ interface FormDialogProps {
 const FormDialog: React.FC<FormDialogProps> = ({
   open,
   onClose,
-  setApplications,
+  setApplication,
   location,
   setIsCurrentLocation,
 }) => {
   return (
     <Dialog className="" open={open} onClose={onClose}>
       <DamageAssessmentDialog
-        {...{ setApplications }}
+        {...{ setApplication }}
         {...{ onClose }}
         {...{ location }}
         {...{ setIsCurrentLocation }}
