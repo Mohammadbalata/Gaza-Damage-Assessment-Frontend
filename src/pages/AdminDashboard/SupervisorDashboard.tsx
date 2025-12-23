@@ -25,6 +25,8 @@ import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { API } from "../../constants/ApiRoutes";
+import { LogOutIcon } from "lucide-react";
+import { enqueueSnackbar } from "notistack";
 
 /**
  * Supervisor Dashboard Page
@@ -32,7 +34,7 @@ import { API } from "../../constants/ApiRoutes";
  */
 const SupervisorDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const { showError } = useNotification();
   const [totals, setTotals] = useState({
@@ -51,6 +53,18 @@ const SupervisorDashboard: React.FC = () => {
       });
     },
   });
+
+  const handleLogout = () => {
+      // Clear localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+  
+      // Navigate to sign in page
+      navigate(`/`);
+  
+      // Show success notification
+      enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
+    };
 
   if (error) {
     showError(error);
