@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-import { RotateCcw, } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
-// import { useAppDispatch } from "../hooks/redux";
+import { useAppDispatch } from "../hooks/redux";
 // import { updatePreviousLocation } from "../redux/slices/locationSlice";
-// import { ROUTES } from "../routes/Routes";  
+// import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 // import { usePost } from "../hooks/api/useApi";
 import SelectLocations, { locations } from "../components/SelectLocations";
@@ -16,8 +16,10 @@ import {
   Box,
   Button,
   Stack,
-
 } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { setError } from "../redux/slices/damageSlice";
+import { ROUTES } from "../routes/Routes";
 // import axios from "axios";
 // import { axiosClient } from "../api/baseUrl";
 
@@ -25,10 +27,10 @@ const PreviousLocationMapPage = () => {
   // const [application, setApplication] = useState({});
   // const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
 
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
@@ -71,7 +73,6 @@ const PreviousLocationMapPage = () => {
     setPosition(null);
     setAddress("");
   };
-
 
   // const handleConfirm = async () => {
   //   const token = localStorage.getItem("token");
@@ -261,6 +262,34 @@ const PreviousLocationMapPage = () => {
             useFlexGap={true}
           >
             <Button
+              type="button"
+              variant="outlined"
+              size="large"
+              onClick={() => {
+                dispatch(setError(""));
+                navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+              }}
+              startIcon={
+                <ArrowBack
+                  sx={{
+                    transform: language === "ar" ? "rotate(180deg)" : "none",
+                    ml: language === "ar" ? 1 : 0,
+                  }}
+                />
+              }
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                borderWidth: 2,
+                "&:hover": {
+                  borderWidth: 2,
+                },
+              }}
+            >
+              {t("notFound.backToHome")}
+            </Button>
+            <Button
               variant="outlined"
               color="inherit"
               onClick={handleReset}
@@ -281,7 +310,7 @@ const PreviousLocationMapPage = () => {
                 {...{ handleReset }}
                 {...{ setNeighborhood }}
                 setCenter={setCenter}
-              // className is passed to FullWidth FormControl in SelectLocations
+                // className is passed to FullWidth FormControl in SelectLocations
               />
             </Box>
 

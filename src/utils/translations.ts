@@ -635,9 +635,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
     "map.showonmap": "عرض على الخريطة",
-    "map.previousLocation": " اختر موقعك السابق (قبل الحرب)",
+    "map.previousLocation": " حدد الممتلك المتضرر" ,
     "map.previousLocationDescription":
-      "يرجى النقر على الخريطة لتحديد موقع ممتلكاتك قبل الحرب.",
+      "يرجى النقر على الخريطة لتحديد موقع ممتلكك قبل الحرب.",
     "map.currentLocation": " اختر موقعك الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",

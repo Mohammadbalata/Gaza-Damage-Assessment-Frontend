@@ -4,7 +4,7 @@ import axios, { AxiosInstance, AxiosError } from "axios";
 const PROD_URL = "https://backend-5549.onrender.com/api";
 
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || PROD_URL,
+  baseURL: PROD_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
