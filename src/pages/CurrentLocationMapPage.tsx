@@ -18,6 +18,7 @@ import {
   Stack,
   CircularProgress,
 } from "@mui/material";
+import { API } from "../constants/ApiRoutes";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -39,7 +40,7 @@ const CurrentLocationMapPage = () => {
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
-  const { loading, execute } = usePost(`applications/add-current-location`, {
+  const { loading, execute } = usePost(`${API.citizen.locations.current}`, {
     onSuccess: () => {
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },

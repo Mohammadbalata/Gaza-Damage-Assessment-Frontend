@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
+import { API } from "../../constants/ApiRoutes";
 
 const initialState: IAuthState = {
   nationalId: "",
@@ -79,7 +80,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = action.payload.data.success;
       state.messageSuccess = action.payload.data.message;
       state.verificationQuestion = action.payload.data.data.questions;
-      state.familyMembersNumber = action.payload.data.data.familyMembersNumber
+      state.familyMembersNumber = action.payload.data.data.familyMembersNumber;
     });
     builder.addCase(signUp.rejected, (state, action) => {
       state.loading = false;
@@ -98,7 +99,7 @@ export const signIn = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await axiosClient.post("/auth/citizen-login", {
+      const res = await axiosClient.post(`${API.citizen.auth.login}`, {
         nationalId: payload.nationalId,
         password: payload.password,
       });
@@ -133,7 +134,7 @@ export const signUp = createAsyncThunk(
   "auth/signUp",
   async (payload: IAuthState, { rejectWithValue }) => {
     try {
-      const res = await axiosClient.post(`/auth/${payload.pathSignUp}`, {
+      const res = await axiosClient.post(`${payload.pathSignUp}`, {
         nationalId: payload.nationalId,
         password: payload.password, // include if backend expects it
         firstName: payload.firstName,
@@ -141,7 +142,7 @@ export const signUp = createAsyncThunk(
         grandfatherName: payload.grandfatherName,
         familyName: payload.familyName,
         email: payload.email,
-        familyMembersNumber:payload.familyMembersNumber,
+        familyMembersNumber: payload.familyMembersNumber,
         phoneNumber: payload.phoneNumber,
         whatsappNumber: payload.whatsappNumber,
       });

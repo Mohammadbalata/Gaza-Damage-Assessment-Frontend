@@ -29,6 +29,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -57,7 +58,11 @@ const PasswordDisplayPage = () => {
 
   useEffect(() => {
     dispatch(
-      signUp({ nationalId: id ?? "", password: "", pathSignUp: "verify-id" })
+      signUp({
+        nationalId: id ?? "",
+        password: "",
+        pathSignUp: `${API.citizen.auth.verifyId}`,
+      })
     )
       .unwrap()
       .then((res) => {
@@ -78,7 +83,7 @@ const PasswordDisplayPage = () => {
         signUp({
           nationalId: id,
           password: data.password,
-          pathSignUp: "complete-signup",
+          pathSignUp: `${API.citizen.auth.completeSignup}`,
           firstName: data.firstName,
           fatherName: data.fatherName,
           grandfatherName: data.grandfatherName,

@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ArrowBack, CheckCircle } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 interface FormData {
   [key: string]: string;
@@ -54,7 +55,7 @@ const VerificationQuestionsPage = () => {
         signUp({
           nationalId: id ?? "",
           password: "",
-          pathSignUp: "verify-questions",
+          pathSignUp: `${API.citizen.auth.verifyQuestions}`,
         })
       )
         .unwrap()
@@ -86,7 +87,7 @@ const VerificationQuestionsPage = () => {
     console.log(questions);
 
     try {
-      await axiosClient.post("/auth/verify-questions", {
+      await axiosClient.post(`${API.citizen.auth.verifyQuestions}`, {
         nationalId: id,
         answers: answers,
       });

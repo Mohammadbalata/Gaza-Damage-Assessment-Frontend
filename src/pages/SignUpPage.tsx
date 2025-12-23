@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const SignUpPage = () => {
       signUp({
         nationalId: data.nationalId,
         password: "",
-        pathSignUp: "verify-id",
+        pathSignUp: `${API.citizen.auth.verifyId}`,
       })
     )
       .unwrap()

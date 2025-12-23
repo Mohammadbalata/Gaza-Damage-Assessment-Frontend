@@ -5,8 +5,8 @@ import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-import ReviewPage from "../pages/ReviewPage";
-import SuccessPage from "../pages/SuccessPage";
+// import ReviewPage from "../pages/ReviewPage";
+// import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
@@ -143,22 +143,22 @@ export const routes = [
     ),
   },
 
-  {
-    path: ROUTES.REVIEW,
-    element: (
-      <ProtectedRoutes>
-        <ReviewPage />
-      </ProtectedRoutes>
-    ),
-  },
-  {
-    path: ROUTES.SUCCESS,
-    element: (
-      <ProtectedRoutes>
-        <SuccessPage />
-      </ProtectedRoutes>
-    ),
-  },
+  // {
+  //   path: ROUTES.REVIEW,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <ReviewPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
+  // {
+  //   path: ROUTES.SUCCESS,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <SuccessPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
   {
     path: ROUTES.TRACK_STATUS,
     element: <TrackStatusPage />,

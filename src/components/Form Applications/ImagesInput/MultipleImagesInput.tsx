@@ -32,10 +32,10 @@ const MultipleImagesInput = ({
     defaultValue={[]}
     rules={{
       validate: (files: File[]) => {
-        if (files.length > 5) {
+        if (files?.length > 5) {
           return "لا يمكن رفع أكثر من 5 صور";
         }
-        if (files.some((f) => f.size > MAX_SIZE)) {
+        if (files?.some((f) => f.size > MAX_SIZE)) {
           return "كل صورة يجب أن لا تتجاوز 2MB";
         }
         return true;

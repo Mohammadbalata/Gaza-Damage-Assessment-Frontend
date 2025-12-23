@@ -30,7 +30,7 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useGet } from "../hooks/api/useApi";
@@ -40,6 +40,7 @@ import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import { generatePDFReceipt } from "../utils/pdfGenerator";
 import { API } from "../constants/ApiRoutes";
+import { formatDate } from "../utils/helpers";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -108,6 +109,7 @@ const MyApplications = () => {
     // NOTE: Check exact enum/string value for "pending" from backend. Usually "PENDING".
 
     // For safety, checking case-insensitive
+    // console.log(app)
     const status = app.status?.toUpperCase() || "PENDING";
     const canEdit = status === "PENDING";
 
@@ -116,6 +118,9 @@ const MyApplications = () => {
     setDialogOpen(true);
   };
 
+  // useEffect(()=> {
+  //   console.log(selectedApplication)
+  // },[dialogOpen])
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedApplication(null);
@@ -139,9 +144,6 @@ const MyApplications = () => {
         return "warning";
     }
   };
-  useEffect(() => {
-    console.log(citizen);
-  }, [citizen]);
 
   if (loading) {
     return (
@@ -392,7 +394,7 @@ const MyApplications = () => {
               const isPending = status === "PENDING";
 
               return (
-                <Fade in={true} style={{ transformOrigin: "0 0 0" }}>
+                <Fade in={true} style={{ transformOrigin: "0 0 0" }} key={app.key}>
                   <Card
                     elevation={0}
                     sx={{
@@ -506,6 +508,7 @@ const MyApplications = () => {
                         startIcon={
                           isPending ? <EditIcon /> : <VisibilityIcon />
                         }
+                        sx={{display:'flex', gap:1}}
                         onClick={() => handleAction(app)}
                       >
                         {isPending
@@ -548,70 +551,46 @@ const MyApplications = () => {
             marginTop: "50px",
           }}
         >
-          <Box
-            sx={{
-              width: 50,
-              height: 50,
-              borderRadius: 2,
-              bgcolor: "primary.50",
-              color: "primary.main",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <DescriptionIcon />
-          </Box>
-
           {/* Content */}
           <Box
             sx={{
               width: "100%",
             }}
           >
-            <Stack alignItems="right" sx={{ mb: 0.5 }}>
-              <Typography
-                variant="h4"
-                color="text.secondary"
-                sx={{
-                  display: "block",
-                  alignItems: "text-rignt",
-                  gap: 0.5,
-                  justifyContent: { xs: "center", sm: "flex-start" },
-                }}
-              >
-                العنوان الحالي :
-              </Typography>
-              <Typography
-                variant="h6"
-                color="text.secondary"
-                sx={{
-                  display: "block",
-                  alignItems: "center",
-                  gap: 0.5,
-                  justifyContent: { xs: "center", sm: "flex-start" },
-                }}
-              >
-                {citizen.current_location?.address}
-              </Typography>
-            </Stack>
-            <Typography
-              variant="body2"
-              color="text.secondary"
+            <Stack
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                justifyContent: { xs: "center", sm: "flex-start" },
+                padding: "20px",
+                borderRadius: "12px",
+                backgroundColor: "#ECFDF5",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.04)",
+                borderRight: "6px solid #10B981",
+                mb: 2,
               }}
             >
-              <EventIcon sx={{ fontSize: 16 }} />
-              {t("citizen.submittedOn")}:{" "}
-              {new Date(citizen.createdAt).toLocaleDateString(
-                language === "ar" ? "ar-EG" : "en-US"
-              )}
-            </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontSize: "25px",
+                  fontWeight: "bold",
+                  color: "#047857",
+                  mb: 2,
+                }}
+              >
+                العنوان الحالي:
+              </Typography>
+
+              <Typography sx={{ mb: 1 }}>
+                <strong>العنوان:</strong>{" "}
+                {citizen.current_location?.address || "-"}
+              </Typography>
+
+              <Typography>
+                <strong>تاريخ الإضافة:</strong>{" "}
+                {citizen.current_location
+                  ? formatDate(new Date(citizen.current_location.createdAt))
+                  : "-"}
+              </Typography>
+            </Stack>
           </Box>
         </CardContent>
       </Container>

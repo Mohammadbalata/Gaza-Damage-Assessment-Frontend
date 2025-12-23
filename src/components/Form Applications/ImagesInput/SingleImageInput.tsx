@@ -176,11 +176,13 @@ const SingleImageInput = ({
   name,
   label,
   isChangeToReviewPage,
+  previewAPI
 }: {
   control: any;
   name: string;
   label: string;
   isChangeToReviewPage?: boolean;
+  previewAPI?:any
 }) => (
   <Controller
     name={name}
@@ -196,7 +198,7 @@ const SingleImageInput = ({
     }}
     render={({ field, fieldState }) => {
       const inputRef = useRef<HTMLInputElement | null>(null);
-      const [preview, setPreview] = useState<string | null>(null);
+      const [preview, setPreview] = useState<string | null>(previewAPI);
       const [openCrop, setOpenCrop] = useState(false);
 
       // ✅ مزامنة preview مع قيمة الفورم
@@ -222,7 +224,9 @@ const SingleImageInput = ({
         if (isChangeToReviewPage) return;
         field.onChange(file);
       };
-
+      useEffect(() => {
+        console.log(preview)
+      },[])
       return (
         <Box>
           <label className="block text-sm font-medium mb-2">
