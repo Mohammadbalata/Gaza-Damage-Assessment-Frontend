@@ -1,3 +1,9 @@
+// const Settings = () => {
+//   return <div>Settings</div>;
+// };
+
+// export default Settings;
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,18 +26,19 @@ import {
   Logout as LogoutIcon,
   Person as PersonIcon,
   ArrowBack,
-  Settings,
+  //   Settings,
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppSelector } from "../hooks/redux";
 import { ROUTES } from "../routes/Routes";
 import { useSnackbar } from "notistack";
+import BackButton from "../components/Shared/BackButton";
 
 /**
  * Citizen Dashboard Page
  * لوحة تحكم المواطن
  */
-const CitizenDashboard: React.FC = () => {
+const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { enqueueSnackbar } = useSnackbar();
@@ -84,12 +91,12 @@ const CitizenDashboard: React.FC = () => {
 
   const dashboardCards: DashboardCardConfig[] = [
     {
-      key: "addRequest",
-      title: t("citizen.addDamageRequest"),
-      description: t("citizen.addDamageRequestDesc"),
-      icon: <AddIcon sx={{ fontSize: 40 }} />,
-      color: "primary",
-      onClick: () => navigate(ROUTES.PREVIOUS_LOCATION),
+      key: "resetPassword",
+      title: t("citizen.resetPassword"),
+      description: t("citizen.resetPasswordDesc"),
+      icon: <LockIcon sx={{ fontSize: 40 }} />,
+      color: "warning",
+      onClick: () => navigate(ROUTES.CHANGE_PASSWORD),
     },
     {
       key: "myRequests",
@@ -111,7 +118,7 @@ const CitizenDashboard: React.FC = () => {
       key: "electronicServices",
       title: t("citizen.electronicServices"),
       description: t("citizen.electronicServicesDesc"),
-      icon: <Settings sx={{ fontSize: 40 }} />,
+      icon: <LockIcon sx={{ fontSize: 40 }} />,
       color: "warning",
       onClick: () => navigate(ROUTES.SETTINGS),
     },
@@ -134,7 +141,7 @@ const CitizenDashboard: React.FC = () => {
           mb: 4,
           p: 4,
           borderRadius: 3,
-          background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+          background: "linear-gradient(135deg, #3f7bb8 0%, #6aa8db 100%)",
           color: "white",
           position: "relative",
           overflow: "hidden",
@@ -174,33 +181,19 @@ const CitizenDashboard: React.FC = () => {
           sx={{ position: "relative", zIndex: 1 }}
         >
           <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar
-              sx={{
-                width: 64,
-                height: 64,
-                bgcolor: "rgba(255,255,255,0.2)",
-                border: "2px solid rgba(255,255,255,0.3)",
-              }}
-            >
-              <PersonIcon sx={{ fontSize: 36 }} />
-            </Avatar>
             <Box>
               <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {t("citizen.welcome")}
-              </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
-                {citizenName}
+                {t("citizen.electronicServices")}
               </Typography>
             </Box>
           </Stack>
-          <Chip
-            label={t("citizen.dashboard")}
+          <BackButton
             sx={{
-              bgcolor: "rgba(255,255,255,0.2)",
-              color: "white",
-              fontWeight: 600,
-              px: 1,
+              background: "white",
+              borderRadius: "10px",
             }}
+            language={language}
+            to={ROUTES.CITIZEN_DASHBOARD}
           />
         </Stack>
       </Paper>
@@ -442,4 +435,4 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, language }) => {
   );
 };
 
-export default CitizenDashboard;
+export default Settings;

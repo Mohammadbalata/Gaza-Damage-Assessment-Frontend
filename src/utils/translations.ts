@@ -437,6 +437,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "Failed to change password.",
     "citizen.passwordChangedSuccess": "Password changed successfully.",
     "citizen.currentLocation": "Current Location",
+    "citizen.electronicServices": "Electronic services",
+    "citizen.electronicServicesDesc": "Go to electronic services",
+    "citizen.welcomeForElectronicServices": "welcome for electronic services",
 
     // Not Found
     "notFound.title": "Page Not Found",
@@ -866,6 +869,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "فشل في تغيير كلمة المرور.",
     "citizen.passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح.",
     "citizen.currentLocation": "العنوان الحالي ",
+    "citizen.electronicServices": "الخدمات الالكترونية",
+    "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
+    "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
 
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
