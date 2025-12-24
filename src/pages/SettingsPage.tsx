@@ -59,7 +59,7 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 0);
+    }, 3000);
   }, []);
 
   return (

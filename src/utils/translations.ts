@@ -43,6 +43,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.infrastructureRequest": "Infrastructure Request",
     "common.copied": "Copied to clipboard",
     "common.close": "Close",
+    "common.male": "Male",
+    "common.female": "Female",
+    "common.other": "other",
+    "common.savedSuccessfully": "data saved Successfully",
+
+    "common.single": "single",
+    "common.married": "married",
+    "common.divorced": "divorced",
+    "common.widowed": "widowed",
+
     "validation.required": "Required",
     "validation.passwordMismatch": "Passwords do not match",
 
@@ -160,7 +170,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.no": "No",
     "form.additionalNotes": "Additional Notes",
     "form.submissionDate": "submissionDate",
-
+    "form.placeOfBirth": "Place Of Birth",
+    "form.country": "Country",
+    "form.gender": "Gender",
+    "form.maritalStatus": "Marital Status",
     // Documents
     "form.uploadDocuments": "Upload Documents",
     "form.dragDrop": "Click to upload or drag and drop",
@@ -509,6 +522,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.housingRequest": "طلبات الإسكان",
     "common.infrastructureRequest": "طلبات البنية التحتية",
     "common.close": "إغلاق",
+    "common.male": "ذكر",
+    "common.female": "أنثى",
+    "common.other": "أخرى",
+    "common.savedSuccessfully": "تم حفظ بياناتك بنجاح",
+    "common.single": "أعزب / عزباء",
+    "common.married": "متزوج/ ـة",
+    "common.divorced": "مطلق/ ـة",
+    "common.widowed": "أرملة",
+
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -614,7 +636,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
     "form.familyMembersNumber": "عدد أفراد العائلة",
     "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
-
+    "form.placeOfBirth": "مكان الولادة",
+    "form.country": "الدولة",
+    "form.gender": "الجنس",
+    "form.maritalStatus": "الحالة الاجتماعية",
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
     "form.propertyType": "نوع العقار",

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { setError, signIn } from "../redux/slices/authSlice";
+import { setCitizenInfo, setError, signIn } from "../redux/slices/authSlice";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
@@ -35,7 +35,13 @@ const LoginPage = () => {
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
-      .then(() => {
+      .then((data) => {
+        console.log("data data", data.citizenData.data.user);
+
+        localStorage.setItem(
+          "citizenInfo",
+          JSON.stringify(data.citizenData.data.user)
+        );
         navigate(ROUTES.CITIZEN_DASHBOARD);
       })
       .catch((error) => {
