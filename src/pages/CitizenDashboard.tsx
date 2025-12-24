@@ -16,7 +16,6 @@ import {
   AddCircleOutline as AddIcon,
   ListAlt as ListIcon,
   AccountBalance as BankIcon,
-  LockReset as LockIcon,
   Logout as LogoutIcon,
   Person as PersonIcon,
   ArrowBack,
@@ -54,20 +53,10 @@ const CitizenDashboard: React.FC = () => {
     localStorage.removeItem("user");
 
     // Navigate to sign in page
-    navigate(`/${ROUTES.SIGNIN}`);
+    navigate(`/`);
 
     // Show success notification
     enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
-  };
-
-  /**
-   * Handle placeholder card clicks - shows coming soon message
-   */
-  const handlePlaceholderClick = (featureName: string) => {
-    enqueueSnackbar(`${featureName} - ${t("citizen.comingSoon")}`, {
-      variant: "info",
-      autoHideDuration: 2000,
-    });
   };
 
   /**
@@ -105,7 +94,7 @@ const CitizenDashboard: React.FC = () => {
       description: t("citizen.bankInfoDesc"),
       icon: <BankIcon sx={{ fontSize: 40 }} />,
       color: "success",
-      onClick: () => handlePlaceholderClick(t("citizen.bankInfo")),
+      onClick: () => navigate(ROUTES.BANK_INFORMATION),
     },
     {
       key: "electronicServices",
@@ -115,14 +104,6 @@ const CitizenDashboard: React.FC = () => {
       color: "warning",
       onClick: () => navigate(ROUTES.SETTINGS),
     },
-    //     {
-    //   key: "resetPassword",
-    //   title: t("citizen.resetPassword"),
-    //   description: t("citizen.resetPasswordDesc"),
-    //   icon: <LockIcon sx={{ fontSize: 40 }} />,
-    //   color: "warning",
-    //   onClick: () => navigate(ROUTES.CHANGE_PASSWORD),
-    // },
   ];
 
   return (

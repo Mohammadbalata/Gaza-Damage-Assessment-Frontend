@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -32,16 +32,19 @@ import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import {
-  useDelete,
-  useGet,
-  usePatch,
-  usePost,
-} from "../../hooks/api/useApi";
+import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
-import { BankAccount, Citizen, Bank, UserRole, AccountType, AccountStatus } from "../../types/entities";
+import {
+  BankAccount,
+  Citizen,
+  Bank,
+  UserRole,
+  AccountType,
+  AccountStatus,
+} from "../../types/entities";
 import { titleCase } from "../../utils/helpers";
+import { API } from "../../constants/ApiRoutes";
 
 interface BankAccountFormData {
   bankId: string;
@@ -131,16 +134,16 @@ export function AdminBankingPage() {
     loading,
     data: bankAccounts,
     setData,
-  } = useGet<BankAccount[]>("/bank-accounts", {
+  } = useGet<BankAccount[]>(API.admin.bankAccounts.list, {
     immediate: true,
   });
 
-  const { data: banks } = useGet<Bank[]>("/banks", {
+  const { data: banks } = useGet<Bank[]>(API.banks.list, {
     immediate: true,
   });
 
   const { data: citizenOptions, loading: citizenLoading } = useGet<Citizen[]>(
-    `/citizens`,
+    API.admin.citizens.list,
     { immediate: true }
   );
 
@@ -166,7 +169,7 @@ export function AdminBankingPage() {
   });
 
   const { loading: loadingCreateAccount, execute: executeCreateAccount } =
-    usePost(`/bank-accounts/citizens/${selectedCitizen?.id}`, {
+    usePost(API.admin.bankAccounts.create, {
       onSuccess: (data) => {
         setData((prev) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.bankAccountCreated"));
@@ -240,63 +243,62 @@ export function AdminBankingPage() {
   const onSubmit = async (data: BankAccountFormData) => {
     if (editing) {
       executeUpdateAccount(
-        `/bank-accounts/${editing.id}/citizens/${editing.citizenId}`,
-        data
+        API.admin.bankAccounts.update(editing.id.toString()),
+        { ...data, citizenId: editing.citizenId }
       );
     } else {
-      executeCreateAccount(data);
+      if (selectedCitizen) {
+        executeCreateAccount({ ...data, citizenId: selectedCitizen.id });
+      }
     }
   };
 
-
-
   // Handle export
   const handleExportData = () => {
-  fetch(
-    "https://backend-5549.onrender.com/bank-accounts/export",
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  )
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error("Server error while downloading Excel");
+    fetch(
+      `https://backend-5549.onrender.com/api${API.admin.bankAccounts.export}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
-      return res.blob();
-    })
-    .then((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "bank-accounts.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    })
-    .catch((err) => {
-      console.error(err);
-      alert("Failed to download Excel file");
-    });
-};
+    )
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Server error while downloading Excel");
+        }
+        return res.blob();
+      })
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "bank-accounts.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Failed to download Excel file");
+      });
+  };
 
-  
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.citizenId || !deleteConfirm.accountId) return;
-    execute(
-      `/bank-accounts/${deleteConfirm.accountId}/citizens/${deleteConfirm.citizenId}`
-    );
+    execute(API.admin.bankAccounts.delete(deleteConfirm.accountId));
   };
 
   const filteredAccounts = bankAccounts?.filter(
     (account) =>
       account.accountNumber.includes(search) ||
       account.accountHolderName.toLowerCase().includes(search.toLowerCase()) ||
-      account.citizen?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      account.citizen?.full_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase()) ||
       account.citizen?.national_id?.includes(search)
   );
 
@@ -449,7 +451,9 @@ export function AdminBankingPage() {
                     )}
                   </TableCell>
                   <TableCell align="center">
-                    {language == "ar" ? account?.bank?.arName : titleCase(account?.bank?.enName || "----") }
+                    {language == "ar"
+                      ? account?.bank?.arName
+                      : titleCase(account?.bank?.enName || "----")}
                   </TableCell>
                   <TableCell align="center">
                     {accountTypeTranslations[account.accountType]?.[language] ||
@@ -583,7 +587,9 @@ export function AdminBankingPage() {
             >
               {banks?.map((bank) => (
                 <MenuItem key={bank.id} value={bank.id}>
-                  {language == "ar" ? bank.arName : bank.enName.toLocaleLowerCase()}
+                  {language == "ar"
+                    ? bank.arName
+                    : bank.enName.toLocaleLowerCase()}
                 </MenuItem>
               ))}
             </FormTextField>

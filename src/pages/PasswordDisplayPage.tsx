@@ -29,6 +29,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -57,7 +58,11 @@ const PasswordDisplayPage = () => {
 
   useEffect(() => {
     dispatch(
-      signUp({ nationalId: id ?? "", password: "", pathSignUp: "verify-id" })
+      signUp({
+        nationalId: id ?? "",
+        password: "",
+        pathSignUp: `${API.citizen.auth.verifyId}`,
+      })
     )
       .unwrap()
       .then((res) => {
@@ -78,7 +83,7 @@ const PasswordDisplayPage = () => {
         signUp({
           nationalId: id,
           password: data.password,
-          pathSignUp: "complete-signup",
+          pathSignUp: `${API.citizen.auth.completeSignup}`,
           firstName: data.firstName,
           fatherName: data.fatherName,
           grandfatherName: data.grandfatherName,
@@ -354,7 +359,7 @@ const PasswordDisplayPage = () => {
               </Box>
 
               {isTouchInput && (
-                <List dense sx={{ mt: 1, textAlign:'right' }}>
+                <List dense sx={{ mt: 1, textAlign: "right" }}>
                   {[
                     { key: "tooShort", label: t("auth.passwordTooShort") },
                     {
@@ -376,7 +381,11 @@ const PasswordDisplayPage = () => {
                   ].map((rule) => {
                     const isMet = !rules[rule.key as keyof typeof rules];
                     return (
-                      <ListItem key={rule.key} disablePadding className="text-right">
+                      <ListItem
+                        key={rule.key}
+                        disablePadding
+                        className="text-right"
+                      >
                         <ListItemIcon sx={{ minWidth: 30 }}>
                           {isMet ? (
                             <Check fontSize="small" color="success" />
@@ -410,7 +419,7 @@ const PasswordDisplayPage = () => {
                   size="small"
                   startIcon={<Refresh sx={{ mx: 1 }} />}
                   onClick={handleGeneratePassword}
-                  sx={{ textTransform: "none" }}
+                  sx={{ textDecoration: "underline" }}
                 >
                   {t("auth.generatePassword")}
                 </Button>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { RotateCcw, Check } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
-import { updatePreviousLocation } from "../redux/slices/locationSlice";
-import { ROUTES } from "../routes/Routes";
+// import { updatePreviousLocation } from "../redux/slices/locationSlice";
+// import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-import { usePost } from "../hooks/api/useApi";
+// import { usePost } from "../hooks/api/useApi";
 import SelectLocations, { locations } from "../components/SelectLocations";
 import {
   Container,
@@ -16,13 +16,16 @@ import {
   Box,
   Button,
   Stack,
-  CircularProgress,
 } from "@mui/material";
-import axios from "axios";
+import { ArrowBack } from "@mui/icons-material";
+import { setError } from "../redux/slices/damageSlice";
+import { ROUTES } from "../routes/Routes";
+// import axios from "axios";
+// import { axiosClient } from "../api/baseUrl";
 
 const PreviousLocationMapPage = () => {
-  const [applications, setApplications] = useState([]);
-  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
+  // const [application, setApplication] = useState({});
+  // const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -37,14 +40,14 @@ const PreviousLocationMapPage = () => {
 
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
-  const { loading } = usePost(`applications/add-previous-location`, {
-    onSuccess: () => {
-      navigate(`${ROUTES.CURRENT_LOCATION}`);
-    },
-    onError: (err) => {
-      console.log(err);
-    },
-  });
+  // const { loading } = usePost(`applications/add-previous-location`, {
+  //   onSuccess: () => {
+
+  //   },
+  //   onError: (err) => {
+  //     console.log(err);
+  //   },
+  // });
 
   useEffect(() => {
     if (position) {
@@ -71,77 +74,93 @@ const PreviousLocationMapPage = () => {
     setAddress("");
   };
 
-  const handleConfirm = async () => {
-    const token = localStorage.getItem("token");
+  // const handleConfirm = async () => {
+  //   const token = localStorage.getItem("token");
 
-    if (applications.length === 0) return;
+  //   dispatch(updatePreviousLocation({ previosLocation: application }));
 
-    dispatch(updatePreviousLocation({ previosLocations: applications }));
+  //   const createApplicationFormData = (application: any) => {
+  //     const formData = new FormData();
 
-    const createApplicationFormData = (application: any) => {
-      const formData = new FormData();
+  //     formData.append("latitude", application.latitude.toString());
+  //     formData.append("longitude", application.longitude.toString());
+  //     formData.append("address", application.address.toString());
+  //     formData.append("neighborhood", application.neighborhood.toString());
 
-      formData.append("latitude", application.latitude.toString());
-      formData.append("longitude", application.longitude.toString());
-      formData.append("address", application.address.toString());
-      formData.append("neighborhood", application.neighborhood.toString());
+  //     formData.append(
+  //       "extraData",
+  //       JSON.stringify({
+  //         buildingType: application.buildingType,
+  //         [application.buildingType]: application.extraData,
+  //       })
+  //     );
 
-      formData.append(
-        "extraData",
-        JSON.stringify({
-          buildingType: application.buildingType,
-          [application.buildingType]: application.extraData,
-        })
-      );
+  //     if (application.beforeWarImage) {
+  //       formData.append("beforeWarImage", application.beforeWarImage);
+  //     }
+  //     if (application.afterWarImage) {
+  //       formData.append("afterWarImage", application.afterWarImage);
+  //     }
+  //     if (
+  //       application.ownershipDocuments &&
+  //       application.ownershipDocuments.length > 0
+  //     ) {
+  //       application.ownershipDocuments.forEach((file: any) =>
+  //         formData.append("ownershipDocuments", file)
+  //       );
+  //     }
 
-      if (application.beforeWarImage) {
-        formData.append("beforeWarImage", application.beforeWarImage);
-      }
-      if (application.afterWarImage) {
-        formData.append("afterWarImage", application.afterWarImage);
-      }
-      if (
-        application.ownershipDocuments &&
-        application.ownershipDocuments.length > 0
-      ) {
-        application.ownershipDocuments.forEach((file: any) =>
-          formData.append("ownershipDocuments", file)
-        );
-      }
+  //     return formData;
+  //   };
 
-      return formData;
-    };
+  //   // إرسال كل تطبيق للباك اند بشكل متسلسل
+  //   const formData = createApplicationFormData(application);
 
-    // إرسال كل تطبيق للباك اند بشكل متسلسل
-    for (const application of applications) {
-      const formData = createApplicationFormData(application);
+  //   try {
+  //     await axios
+  //       .post(
+  //         "https://backend-5549.onrender.com/applications/add-previous-location",
+  //         formData,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       )
+  //       .then((res: any) => {
+  //         if (isCurrentLocation) {
+  //           navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+  //         } else {
+  //           navigate(`${ROUTES.CURRENT_LOCATION}`);
+  //         }
+  //         console.log(res.data.data);
+  //       });
+  //   } catch (err) {
+  //     console.error("Failed to send application:", err);
+  //   }
 
-      try {
-        await axios
-          .post(
-            "https://backend-5549.onrender.com/applications/add-previous-location",
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((res: any) => {
-            if (isCurrentLocation) {
-              navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
-            } else {
-              navigate(`${ROUTES.CURRENT_LOCATION}`);
-            }
-            console.log(res.data.data);
-          });
-      } catch (err) {
-        console.error("Failed to send application:", err);
-      }
-    }
+  //   console.log(application);
+  // };
 
-    console.log(applications);
-  };
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   axiosClient
+  //     .get("/applications/my-applications", {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     })
+  //     .then((res: any) => {
+  //       console.log(res.data.data.citizen.current_location);
+  //       const isCurrentLocation = res.data.data.citizen.current_location;
+  //       if (isCurrentLocation) {
+  //         setIsCurrentLocation(true);
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.log(error);
+  //     });
+  // }, []);
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -189,9 +208,7 @@ const PreviousLocationMapPage = () => {
               height="100%"
               width="100%"
               {...{ setAddress }}
-              {...{ setApplications }}
               location={{ position, address, neighborhood }}
-              {...{ setIsCurrentLocation }}
             />
           </Box>
 
@@ -245,6 +262,34 @@ const PreviousLocationMapPage = () => {
             useFlexGap={true}
           >
             <Button
+              type="button"
+              variant="outlined"
+              size="large"
+              onClick={() => {
+                dispatch(setError(""));
+                navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+              }}
+              startIcon={
+                <ArrowBack
+                  sx={{
+                    transform: language === "ar" ? "rotate(180deg)" : "none",
+                    ml: language === "ar" ? 1 : 0,
+                  }}
+                />
+              }
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                borderWidth: 2,
+                "&:hover": {
+                  borderWidth: 2,
+                },
+              }}
+            >
+              {t("notFound.backToHome")}
+            </Button>
+            <Button
               variant="outlined"
               color="inherit"
               onClick={handleReset}
@@ -269,7 +314,7 @@ const PreviousLocationMapPage = () => {
               />
             </Box>
 
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={handleConfirm}
@@ -294,7 +339,7 @@ const PreviousLocationMapPage = () => {
               ) : (
                 t("map.confirm")
               )}
-            </Button>
+            </Button> */}
           </Stack>
         </CardContent>
       </Card>

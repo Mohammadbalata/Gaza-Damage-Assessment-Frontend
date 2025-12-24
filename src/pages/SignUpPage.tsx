@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const SignUpPage = () => {
       signUp({
         nationalId: data.nationalId,
         password: "",
-        pathSignUp: "verify-id",
+        pathSignUp: `${API.citizen.auth.verifyId}`,
       })
     )
       .unwrap()
@@ -66,74 +67,60 @@ const SignUpPage = () => {
           {error}
         </Alert>
       )}
-
+      {/* Instructions */}
+      <Box
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          bgcolor: "primary.light",
+          border: "1px solid",
+          borderColor: "primary.main",
+          mb: 4,
+        }}
+      >
+        <Typography variant="body2" color="white">
+          {language === "ar"
+            ? "أدخل رقمك الوطني للتحقق من هويتك والبدء في عملية التسجيل"
+            : "Enter your National ID to verify your identity and start the registration process"}
+        </Typography>
+      </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
-          {/* Instructions */}
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 2,
-              bgcolor: "info.50",
-              border: "1px solid",
-              borderColor: "info.light",
-            }}
-          >
-            <Typography variant="body2" color="info.dark">
-              {language === "ar"
-                ? "أدخل رقمك الوطني للتحقق من هويتك والبدء في عملية التسجيل"
-                : "Enter your National ID to verify your identity and start the registration process"}
-            </Typography>
-          </Box>
-
           {/* National ID Field */}
-          <FormInput
-            id="nationalId"
-            type="text"
-            label={t("auth.nationalId")}
-            placeholder={t("auth.nationalIdPlaceholder")}
-            register={register}
-            errors={errors}
-            maxLength={9}
-            validation={{
-              required: t("common.required"),
-              pattern: {
-                value: /^\d{9}$/,
-                message: t("auth.nationalIdError"),
-              },
-            }}
-            isNationalId={true}
-          />
-
-          {/* Action Buttons */}
-          <Stack direction="row" spacing={2} sx={{ mt: 1 }} useFlexGap={true}>
-            <Button
-              type="button"
-              variant="outlined"
-              fullWidth
-              size="large"
-              onClick={() => navigate("/")}
-              startIcon={
-                <ArrowBack
-                  sx={{
-                    transform: language === "ar" ? "rotate(180deg)" : "none",
-                    ml: language === "ar" ? 1 : 0,
-                  }}
-                />
-              }
-              sx={{
-                py: 1.5,
-                borderRadius: 2,
-                fontWeight: 600,
-                borderWidth: 2,
-                "&:hover": {
-                  borderWidth: 2,
+          <Box>
+            <Typography
+              variant="body2"
+              color="primary.light"
+              fontWeight={600}
+              sx={{ mb: 1 }}
+            >
+              {t("auth.nationalId")}
+            </Typography>
+            <FormInput
+              id="nationalId"
+              type="text"
+              placeholder={t("auth.nationalIdPlaceholder")}
+              register={register}
+              errors={errors}
+              maxLength={9}
+              validation={{
+                required: t("common.required"),
+                pattern: {
+                  value: /^\d{9}$/,
+                  message: t("auth.nationalIdError"),
                 },
               }}
-            >
-              {t("common.cancel")}
-            </Button>
+              isNationalId={true}
+            />
+          </Box>
 
+          {/* Action Buttons */}
+          <Stack
+            direction="column"
+            spacing={2}
+            sx={{ mt: 1 }}
+            useFlexGap={true}
+          >
             <Button
               type="submit"
               variant="contained"
@@ -162,7 +149,33 @@ const SignUpPage = () => {
                 },
               }}
             >
-              {loading ? t("common.loading") : t("common.next")}
+              {loading ? "" : t("common.next")}
+            </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              fullWidth
+              size="large"
+              onClick={() => navigate("/")}
+              startIcon={
+                <ArrowBack
+                  sx={{
+                    transform: language === "ar" ? "rotate(180deg)" : "none",
+                    ml: language === "ar" ? 1 : 0,
+                  }}
+                />
+              }
+              sx={{
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                borderWidth: 2,
+                "&:hover": {
+                  borderWidth: 2,
+                },
+              }}
+            >
+              {t("notFound.backToHome")}
             </Button>
           </Stack>
 

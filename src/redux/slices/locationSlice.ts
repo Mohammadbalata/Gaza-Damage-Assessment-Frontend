@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ILocationState } from "../../interfaces/store/ILocationState";
 
 const initialState: ILocationState = {
-  previosLocations: [],
+  previosLocation: {},
   currentLocation: {},
   loading: false,
   error: null,
@@ -21,7 +21,7 @@ export const locationSlice = createSlice({
       })
       .addCase(updatePreviousLocation.fulfilled, (state, action) => {
         state.loading = false;
-        state.previosLocations = action.payload.previosLocations;
+        state.previosLocation = action.payload.previosLocation;
       })
       .addCase(updatePreviousLocation.rejected, (state, action) => {
         state.loading = false;

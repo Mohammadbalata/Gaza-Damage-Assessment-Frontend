@@ -1,11 +1,20 @@
 import React from "react";
-import { Box, Container, Paper, Typography, Stack } from "@mui/material";
-import { Building2 } from "lucide-react";
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Stack,
+  SxProps,
+  Theme,
+} from "@mui/material";
 import { useLanguage } from "../contexts/LanguageContext";
+import Logo from "../../public/logo.jpg";
 
 interface AuthCompProps {
   title?: string;
   children: React.ReactNode;
+  sx?: SxProps<Theme>;
 }
 
 /**
@@ -20,7 +29,13 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
   const displayTitle = title ? t("common.signIn") : t("auth.nationalId");
 
   return (
-    <Container maxWidth="sm" sx={{ py: { xs: 2, md: 4 } }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        py: { xs: 2, md: 4 },
+        mt: 10,
+      }}
+    >
       {/* Main Card */}
       <Paper
         elevation={0}
@@ -77,18 +92,8 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
             alignItems="center"
             sx={{ position: "relative", zIndex: 1 }}
           >
-            <Box
-              sx={{
-                p: 1.5,
-                borderRadius: 2,
-                bgcolor: "rgba(255,255,255,0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Building2 size={28} />
-            </Box>
+            <img src={Logo} alt="Logo" style={{ width: 50, height: 50 }} />
+
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, mr: 1 }}>
                 {displayTitle}

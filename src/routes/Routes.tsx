@@ -5,8 +5,8 @@ import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-import ReviewPage from "../pages/ReviewPage";
-import SuccessPage from "../pages/SuccessPage";
+// import ReviewPage from "../pages/ReviewPage";
+// import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
@@ -27,7 +27,10 @@ import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
 import MyApplications from "../pages/MyApplications";
 import { UserRole } from "../types/entities";
 import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
-import Settings from "../pages/Settings";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import BankInformationPage from "../pages/BankInformationPage";
+import EditProfilePage from "../pages/Settings/EditProfilePage";
+import SettingsPage from "../pages/SettingsPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -62,6 +65,7 @@ export const ROUTES: IRoutes = {
   PASSWORD_DISPLAY: "/password-display",
   CHANGE_PASSWORD: "/citizen/settings/change-password",
   SETTINGS: "/citizen/settings",
+  EDIT_PROFILE: "/citizen/settings/edit-profile",
   MY_APPLICATIONS: "/my-applications",
   // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
   PREVIOUS_LOCATION: "/previous-location",
@@ -80,6 +84,8 @@ export const ROUTES: IRoutes = {
   ADMIN_LOCATION_MAP: "/admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   ADMIN_BANKING: "admin/banking",
+  FORGOT_PASSWORD: "auth/forgot-password",
+  BANK_INFORMATION: "/citizen/bank-information",
 };
 
 export const routes = [
@@ -124,7 +130,15 @@ export const routes = [
     path: ROUTES.SETTINGS,
     element: (
       <ProtectedRoutes>
-        <Settings />
+        <SettingsPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.EDIT_PROFILE,
+    element: (
+      <ProtectedRoutes>
+        <EditProfilePage />
       </ProtectedRoutes>
     ),
   },
@@ -149,22 +163,22 @@ export const routes = [
     ),
   },
 
-  {
-    path: ROUTES.REVIEW,
-    element: (
-      <ProtectedRoutes>
-        <ReviewPage />
-      </ProtectedRoutes>
-    ),
-  },
-  {
-    path: ROUTES.SUCCESS,
-    element: (
-      <ProtectedRoutes>
-        <SuccessPage />
-      </ProtectedRoutes>
-    ),
-  },
+  // {
+  //   path: ROUTES.REVIEW,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <ReviewPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
+  // {
+  //   path: ROUTES.SUCCESS,
+  //   element: (
+  //     <ProtectedRoutes>
+  //       <SuccessPage />
+  //     </ProtectedRoutes>
+  //   ),
+  // },
   {
     path: ROUTES.TRACK_STATUS,
     element: <TrackStatusPage />,
@@ -235,6 +249,18 @@ export const routes = [
       <ProtectedRoute>
         <AdminBankingPage />
       </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.FORGOT_PASSWORD,
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: ROUTES.BANK_INFORMATION,
+    element: (
+      <ProtectedRoutes>
+        <BankInformationPage />
+      </ProtectedRoutes>
     ),
   },
   { path: "*", element: <NotFoundPage /> },

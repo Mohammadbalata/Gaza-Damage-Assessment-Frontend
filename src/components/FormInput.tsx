@@ -1,8 +1,6 @@
-// components/FormInput.jsx
 import { useState } from "react";
-import { Copy, Eye, EyeOff } from "lucide-react"; // or any icon library
-import classNames from "classnames";
-import { useLanguage } from "../contexts/LanguageContext";
+import { TextField, InputAdornment, IconButton } from "@mui/material";
+import { Visibility, VisibilityOff, ContentCopy } from "@mui/icons-material";
 import { IFormInputProps } from "../interfaces/props/IFormInputProps";
 
 export default function FormInput({
@@ -22,13 +20,9 @@ export default function FormInput({
   setPassword,
   setIsTouchInput,
   isNationalId,
-  classNameLabel,
 }: IFormInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { language } = useLanguage();
-  const inputType =
-    type === "password" ? (showPassword ? "text" : "password") : type;
 
   const handleCopy = () => {
     const inputElement = document.getElementById(id) as HTMLInputElement;
@@ -39,109 +33,96 @@ export default function FormInput({
     }
   };
 
-  const setClassName = () => {
-    if (language === "ar") {
-      if (isCopyIcon) {
-        return "left-8";
-      } else {
-        return "left-4";
-      }
-    } else {
-      if (isCopyIcon) {
-        return "right-8";
-      } else {
-        return "right-4";
-      }
-    }
-  };
   const handleChangeInput = (e: any) => {
     const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
     if (isNationalId) {
       let value = e.target.value;
 
-      // استبدال الأرقام العربية بالإنجليزية
+      // Replace Arabic numbers with English
       arabicNumbers.forEach((num, idx) => {
         value = value.replaceAll(num, idx.toString());
       });
 
-      // منع أي شيء غير أرقام إنجليزية فقط
+      // Remove non-numeric characters
       value = value.replace(/[^0-9]/g, "");
 
       e.target.value = value;
     }
+
     if (type === "password") {
-      if (setPassword !== null) {
+      if (setPassword) {
         setPassword(e.target.value);
+      }
+      if (setIsTouchInput) {
         setIsTouchInput(true);
       }
     }
   };
 
-  return (
-    <div className={classNames("relative", classNameParent)}>
-      {isRequired && (
-        <label
-          htmlFor={id}
-          className={classNames(
-            "block text-sm font-medium text-gray-700 mb-2",
-            classNameLabel
-          )}
-        >
-          {label} <span className="text-red-500">*</span>
-        </label>
-      )}
-      <input
-        id={id}
-        type={inputType}
-        {...register(id, validation)}
-        placeholder={placeholder}
-        className={`input-field pr-10 !rounded-lg `} // padding for the eye icon
-        maxLength={maxLength}
-        {...{ defaultValue }}
-        onChange={handleChangeInput}
-        required={isRequired}
-      />
-      <div
-        className={classNames(
-          "absolute",
-          language === "ar" ? "left-2" : "right-2"
-        )}
-      >
-        {type === "password" && isEye === true && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className={classNames(
-              "absolute bottom-2 transform -translate-y-1/2 text-gray-500",
-              setClassName()
-            )}
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        )}
-        {isCopyIcon && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            title="Copy"
-            className={classNames(
-              "absolute bottom-[0.65rem] transform -translate-y-1/2 text-gray-600 hover:text-primary text-4",
-              language == "ar" ? "left-2" : "right-2"
-            )}
-          >
-            <Copy className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+  const inputType =
+    type === "password" ? (showPassword ? "text" : "password") : type;
 
-      {errors[id] && (
-        <p className="mt-1 text-sm text-left text-red-600">
-          {errors[id].message}
-        </p>
-      )}
-      {copied && (
-        <p className="text-sm text-green-600 mt-2">Copied to clipboard!</p>
-      )}
-    </div>
+  // Destructure register props to handle onChange composition and ref
+  const { ref, onChange, ...restRegisterProps } = register(id, validation);
+
+  return (
+    <TextField
+      id={id}
+      label={
+        <span>
+          {label} {isRequired && <span className="text-red-500">*</span>}
+        </span>
+      }
+      placeholder={placeholder}
+      type={inputType}
+      fullWidth
+      variant="outlined"
+      error={!!errors[id]}
+      helperText={errors[id]?.message || (copied ? "Copied to clipboard!" : "")}
+      defaultValue={defaultValue}
+      className={classNameParent}
+      inputRef={ref}
+      name={restRegisterProps.name}
+      onBlur={restRegisterProps.onBlur}
+      onChange={(e) => {
+        // Call our custom handler first
+        handleChangeInput(e);
+        // Then call react-hook-form's handler
+        onChange(e);
+      }}
+      inputProps={{
+        maxLength: maxLength,
+      }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            {type === "password" && isEye && (
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            )}
+            {isCopyIcon && (
+              <IconButton
+                aria-label="copy text"
+                onClick={handleCopy}
+                edge="end"
+                color={copied ? "success" : "default"}
+              >
+                <ContentCopy fontSize="small" />
+              </IconButton>
+            )}
+          </InputAdornment>
+        ),
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          borderRadius: 2,
+        },
+      }}
+    />
   );
 }

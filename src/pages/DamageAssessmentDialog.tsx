@@ -19,32 +19,38 @@ import CampHousing from "../components/Form Applications/CampHousing";
 import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
-import { Button, DialogActions } from "@mui/material";
+import { Button, CircularProgress, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
+import { updatePreviousLocation } from "../redux/slices/locationSlice";
+import { ROUTES } from "../routes/Routes";
+import { useNavigate } from "react-router-dom";
 import { axiosClient } from "../api/baseUrl";
+import { Login as LoginIcon } from "@mui/icons-material";
+import { API } from "../constants/ApiRoutes";
 
 interface DamageAssessmentDialogProps {
-  setApplications?: any;
   onClose: () => void;
   location: any;
   readOnly?: boolean;
   initialData?: any;
-  setIsCurrentLocation?: any;
 }
 
 const DamageAssessmentDialog = ({
-  setApplications,
   onClose,
   location,
   readOnly = false,
   initialData,
-  setIsCurrentLocation,
 }: DamageAssessmentDialogProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
+  const { loading } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
+  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
+  // const locationPage = useLocation();
+
   const {
     register,
     handleSubmit,
@@ -74,7 +80,10 @@ const DamageAssessmentDialog = ({
 
         dispatchByType(dispatch, type, initialData.extraData);
       }
+      dispatch(updatePreviousLocation({ previosLocation: initialData }));
     }
+    console.log("initialData", initialData);
+    // console.log(locationPage.pathname);
   }, [initialData, dispatch, setValue]);
 
   const resetBuildingTypeSelect = () => {
@@ -83,57 +92,131 @@ const DamageAssessmentDialog = ({
     dispatch(resetAllBuildings()); // يرجع على <option value="">
   };
 
-  const addApplication = (
-    type: string,
-    extraData: any,
-    images: {
-      beforeWarImage?: File;
-      afterWarImage?: File;
-      ownershipDocuments?: File[];
+  const buildApplication = (data: any) => ({
+    buildingType: data.buildingType,
+    extraData: data.extraData,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    address: data.address,
+    neighborhood: data.neighborhood,
+    beforeWarImage: data.beforeWarImage,
+    afterWarImage: data.beforeWarImage,
+    ownershipDocuments: data.ownershipDocuments,
+  });
+
+  const createApplicationFormData = (application: any) => {
+    const formData = new FormData();
+
+    formData.append("latitude", application.latitude?.toString());
+    formData.append("longitude", application.longitude?.toString());
+    formData.append("address", application?.address);
+    formData.append("neighborhood", application?.neighborhood);
+
+    formData.append(
+      "extraData",
+      JSON.stringify({
+        buildingType: application.buildingType,
+        [application.buildingType]: application.extraData,
+      })
+    );
+
+    if (application.beforeWarImage) {
+      formData.append("beforeWarImage", application.beforeWarImage);
     }
-  ) => {
-    setApplications((prev: any) => [
-      ...prev,
-      {
-        buildingType: type,
-        extraData,
-        latitude: location?.position[0],
-        longitude: location?.position[1],
-        address: location?.address,
-        neighborhood: location?.neighborhood,
-        ...images,
-      },
-    ]);
+    if (application.afterWarImage) {
+      formData.append("afterWarImage", application.afterWarImage);
+    }
+    if (application.ownershipDocuments?.length) {
+      application.ownershipDocuments.forEach((file: File) =>
+        formData.append("ownershipDocuments", file)
+      );
+    }
+
+    return formData;
   };
 
-  const onSubmit = (formData: any) => {
-    if (readOnly) {
-      onClose();
-      return;
-    }
+  const onSubmit = async (data: any) => {
+    // if (locationPage.pathname === "/my-applications") {
+    //   console.log(loading);
+    //   setIsChangeToReviewPage(true);
+    //   if (!isChangeToReviewPage) return;
+    //   console.log("data", data);
+    //   const type = data.buildingType;
+    //   const formDataWithoutImg: any = buildFormDataWithoutImages(data);
 
+    //   dispatchByType(dispatch, type, formDataWithoutImg);
+    //   const reBuildData = {
+    //     buildingType: type,
+    //     extraData: formDataWithoutImg[type],
+    //     beforeWarImage: initialData.extraData.beforeWarImage,
+    //     afterWarImage: initialData.extraData.beforeWarImage,
+    //     ownershipDocuments: initialData.extraData.ownershipDocuments,
+    //     latitude: initialData.location.latitude,
+    //     longitude: initialData.location.longitude,
+    //     neighborhood: initialData.location.neighborhood,
+    //     address: initialData.location.address,
+    //   };
+    //   const application = buildApplication(reBuildData);
+    //   console.log("application", application);
+    //   // ✅ يخزن من أول ضغطة
+    //   // dispatch(updatePreviousLocation({ previosLocation: application }));
+
+    //   const token = localStorage.getItem("token");
+    //   const formData = createApplicationFormData(application);
+    //   console.log('formData',formData)
+    //   // try {
+    //   //   await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
+    //   //     headers: {
+    //   //       Authorization: `Bearer ${token}`,
+    //   //     },
+    //   //   });
+    //   //   navigate(`${ROUTES.MY_APPLICATIONS}`);
+    //   // } catch (err) {
+    //   //   console.error(err);
+    //   // }
+
+    console.log(loading);
     setIsChangeToReviewPage(true);
     if (!isChangeToReviewPage) return;
-
-    const type = formData.buildingType;
-    const formDataWithoutImg: any = buildFormDataWithoutImages(formData);
-
+    const type = data.buildingType;
+    const formDataWithoutImg: any = buildFormDataWithoutImages(data);
+    console.log("data", data);
+    console.log('building type',type)
     dispatchByType(dispatch, type, formDataWithoutImg);
-
-    addApplication(type, formDataWithoutImg[type], {
-      beforeWarImage: formData[type]?.beforeWarImage,
-      afterWarImage: formData[type]?.afterWarImage,
-      ownershipDocuments: formData[type]?.ownershipDocuments,
-    });
-    console.log("success submitted");
-
-    onClose();
+    const reBuildData = {
+      buildingType: type,
+      extraData: formDataWithoutImg[type],
+      beforeWarImage: data[type]?.beforeWarImage,
+      afterWarImage: data[type]?.afterWarImage,
+      ownershipDocuments: data[type]?.ownershipDocuments,
+      latitude: location?.position?.[0],
+      longitude: location?.position?.[1],
+      neighborhood: location?.neighborhood,
+      address: location?.address,
+    };
+    const application = buildApplication(reBuildData);
+    // ✅ يخزن من أول ضغطة
+    dispatch(updatePreviousLocation({ previosLocation: application }));
+    const token = localStorage.getItem("token");
+    const formData = createApplicationFormData(application);
+    try {
+      await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      navigate(
+        isCurrentLocation ? ROUTES.CITIZEN_DASHBOARD : ROUTES.CURRENT_LOCATION
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     axiosClient
-      .get("/applications/my-applications", {
+      .get(`${API.citizen.applications.list}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -148,7 +231,7 @@ const DamageAssessmentDialog = ({
       .catch((error: any) => {
         console.log(error);
       });
-  }, []);
+  }, [isChangeToReviewPage]);
 
   useEffect(() => {
     if (!initialData) {
@@ -276,8 +359,27 @@ const DamageAssessmentDialog = ({
               >
                 تعديل الطلب
               </Button>
-              <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-                {isChangeToReviewPage ? "اعتماد الطلب" : "مراجعة الطلب"}
+              <Button
+                variant="contained"
+                onClick={handleSubmit(onSubmit)}
+                disabled={loading}
+                startIcon={
+                  loading ? (
+                    <CircularProgress
+                      sx={{ ml: 1 }}
+                      size={20}
+                      color="inherit"
+                    />
+                  ) : (
+                    <LoginIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
+                  )
+                }
+              >
+                {loading
+                  ? ""
+                  : isChangeToReviewPage
+                  ? "اعتماد الطلب"
+                  : "مراجعة الطلب"}
               </Button>
             </DialogActions>
           )}

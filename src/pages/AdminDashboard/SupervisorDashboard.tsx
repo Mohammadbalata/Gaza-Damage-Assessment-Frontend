@@ -24,6 +24,7 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
+import { API } from "../../constants/ApiRoutes";
 
 /**
  * Supervisor Dashboard Page
@@ -40,7 +41,7 @@ const SupervisorDashboard: React.FC = () => {
     locations: 0,
   });
 
-  const { loading, error } = useGet("supervisor-dashboard", {
+  const { loading, error } = useGet(API.stats.supervisorDashboard, {
     immediate: true,
     onSuccess: (data) => {
       setTotals({

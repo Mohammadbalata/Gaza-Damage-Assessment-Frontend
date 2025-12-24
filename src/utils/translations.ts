@@ -50,6 +50,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.nationalId": "National ID",
     "auth.nationalIdPlaceholder": "Enter 9-digit national ID",
     "auth.nationalIdError": "National ID must be exactly 9 digits",
+    "auth.forgotPassword": "Forgot Password?",
+    "auth.dontHaveAccount": "Don't have an account?",
     "auth.login": "Login",
     "auth.adminLogin": "Admin Login",
     "auth.signUp": "Sign Up",
@@ -95,6 +97,19 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Password must include at least one number (0-9).",
     "citizen.passwordMissingSymbol":
       "Password must include at least one special symbol.",
+
+    // Forgot Password Page
+    "auth.forgotPasswordTitle": "Reset Password",
+    "auth.forgotPasswordDesc":
+      "Enter your email address to receive a verification code.",
+    "auth.sendResetCode": "Send Reset Code",
+    "auth.resetCodeSent": "A verification code has been sent to your email",
+    "auth.backToLogin": "Back to Login",
+
+    // Bank Information Page
+    "citizen.bankInfoTitle": "Bank Information",
+    "citizen.bankInfoComingSoon":
+      "Bank information registration will be available soon. This feature is currently under development.",
 
     // Personal Info
     "form.fullName": "Name",
@@ -305,6 +320,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "Admin Users",
     "admin.users.subtitle": "Manage administrator and supervisor accounts.",
+    "admin.users.id": "ID",
     "admin.users.name": "Name",
     "admin.users.email": "Email",
     "admin.users.role": "Role",
@@ -440,7 +456,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.electronicServices": "Electronic services",
     "citizen.electronicServicesDesc": "Go to electronic services",
     "citizen.welcomeForElectronicServices": "welcome for electronic services",
-
+    "citizen.editProfile": "Edit Profile",
+    "citizen.editProfileDesc":
+      "This page allows you to edit and update your personal information",
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -498,6 +516,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.nationalId": "رقم الهوية الوطنية",
     "auth.nationalIdPlaceholder": "أدخل رقم الهوية المكون من 9 أرقام",
     "auth.nationalIdError": "يجب أن يكون رقم الهوية 9 أرقام بالضبط",
+    "auth.forgotPassword": "نسيت كلمة المرور؟",
+    "auth.dontHaveAccount": "ليس لديك حساب؟",
     "auth.login": "تسجيل الدخول",
     "auth.signUp": "تسجيل جديد",
     "auth.adminLogin": "تسجيل دخول المسؤول",
@@ -516,7 +536,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل",
     "auth.verify": "التحقق",
     "auth.trackStatus": "تتبع حالة الطلب",
-    "auth.generatePassword": "إنشاء كلمة مرور",
+    "auth.generatePassword": "اقترح كلمة مرور",
     "auth.verifyQuesTitle": "التحقق من الهوية",
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
@@ -547,6 +567,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordError": "كلمة المرور خاطئة",
     "citizen.passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
     "citizen.confirmPassword": "تأكيد كلمة المرور الجديدة",
+
+    // Forgot Password Page
+    "auth.forgotPasswordTitle": "إعادة تعيين كلمة المرور",
+    "auth.forgotPasswordDesc": "أدخل بريدك الإلكتروني لاستلام رمز التحقق.",
+    "auth.sendResetCode": "إرسال رمز التحقق",
+    "auth.resetCodeSent": "تم إرسال رمز التحقق إلى بريدك الإلكتروني",
+    "auth.backToLogin": "العودة لتسجيل الدخول",
+
+    // Bank Information Page
+    "citizen.bankInfoTitle": "المعلومات البنكية",
+    "citizen.bankInfoComingSoon":
+      "ميزة تسجيل المعلومات البنكية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
 
     // Personal Info
     "form.fullName": "الاسم الكامل",
@@ -608,9 +640,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
     "map.showonmap": "عرض على الخريطة",
-    "map.previousLocation": " اختر موقعك السابق (قبل الحرب)",
+    "map.previousLocation": " حدد الممتلك المتضرر",
     "map.previousLocationDescription":
-      "يرجى النقر على الخريطة لتحديد موقع ممتلكاتك قبل الحرب.",
+      "يرجى النقر على الخريطة لتحديد موقع ممتلكك قبل الحرب.",
     "map.currentLocation": " اختر موقعك الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
@@ -630,7 +662,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackingNumber": "رقم التتبع",
     "success.password": "كلمة المرور الخاصة بك",
     "success.savePassword": "يرجى حفظ كلمة المرور هذه بشكل آمن",
-    "success.downloadReceipt": "تحميل PDF",
+    "success.downloadReceipt": "تصدير طلباتي PDF",
     "success.trackStatus": "تتبع حالة الطلب",
 
     // Status
@@ -738,6 +770,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "مستخدمي النظام",
     "admin.users.subtitle": "إدارة حسابات المدراء والمشرفين.",
+    "admin.users.id": "الرقم",
     "admin.users.name": "الاسم",
     "admin.users.email": "البريد الإلكتروني",
     "admin.users.role": "الدور",
@@ -872,7 +905,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.electronicServices": "الخدمات الالكترونية",
     "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
     "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
-
+    "citizen.editProfile": "تعديل البيانات الشخصية",
+    "citizen.editProfileDesc":
+      "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",

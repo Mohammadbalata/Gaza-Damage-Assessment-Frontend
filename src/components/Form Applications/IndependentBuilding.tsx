@@ -374,6 +374,8 @@ const IndependentBuilding = ({
           name="IndependentBuilding.beforeWarImage"
           label="صورة العقار قبل الحرب ( إن وجد )"
           {...{ isChangeToReviewPage }}
+          previewAPI="https://oufjobpdjqlveupjciuj.supabase.co/storage/v1/object/public/damageassessment/after_war_image/f73477de-589f-4402-9ee6-281ee8868432.jpeg"
+
         />
 
         <SingleImageInput

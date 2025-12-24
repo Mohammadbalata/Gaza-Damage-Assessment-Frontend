@@ -41,6 +41,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
+import { API } from "../../constants/ApiRoutes";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -111,10 +112,10 @@ export function AdminLocationsPage() {
   const center = position || defaultCenter;
 
   const locationTypes = [
-    { id: 1, value: "before_war", label: t("admin.locations.beforeWar") },
-    { id: 2, value: "after_war", label: t("admin.locations.afterWar") },
-    { id: 3, value: "temporary", label: t("admin.locations.temporary") },
-    { id: 4, value: "current", label: t("admin.locations.current") },
+    { id: 1, value: LocationType.BEFORE_WAR, label: t("admin.locations.beforeWar") },
+    { id: 2, value: LocationType.AFTER_WAR, label: t("admin.locations.afterWar") },
+    { id: 3, value: LocationType.TEMPORARY, label: t("admin.locations.temporary") },
+    { id: 4, value: LocationType.CURRENT, label: t("admin.locations.current") },
   ];
 
   // Form
@@ -139,7 +140,7 @@ export function AdminLocationsPage() {
     loading,
     data: locations,
     setData,
-  } = useGet<Location[]>("/locations", {
+  } = useGet<Location[]>(API.admin.locations.list, {
     immediate: true,
   });
 
@@ -157,12 +158,12 @@ export function AdminLocationsPage() {
   });
 
   const { data: citizenOptions, loading: citizenLoading } = useGet(
-    `/citizens`,
+    API.admin.citizens.list,
     { immediate: true }
   );
 
   const { loading: loadingCreateLocation, execute: executeCreateLocation } =
-    usePost("/locations", {
+    usePost(API.admin.locations.create, {
       onSuccess: (data) => {
         setData((prev) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.locationCreated"));
@@ -242,13 +243,13 @@ export function AdminLocationsPage() {
     const payload = {
       citizenId: editing ? data.citizenId : selectedCitizen?.id,
       type: data.type,
-      governorate: address || null,
-      latitude: position ? position[0] : null,
-      longitude: position ? position[1] : null,
+      address: address || null,
+      latitude: position ? position[0].toString() : null,
+      longitude: position ? position[1].toString() : null,
       notes: data.notes || null,
     };
     if (editing) {
-      executeUpdateLocation(`/locations/${editing.id}`, payload);
+      executeUpdateLocation(API.admin.locations.update(editing.id.toString()), payload);
     } else {
       executeCreateLocation(payload);
     }
@@ -257,7 +258,7 @@ export function AdminLocationsPage() {
   // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
-    execute(`/locations/${deleteConfirm.id}`);
+    execute(API.admin.locations.delete(deleteConfirm.id.toString()));
   };
 
   const filteredLocations = locations?.filter(
