@@ -49,7 +49,7 @@ export const updatePreviousLocation = createAsyncThunk<
   ILocationState
 >("location/updatePreviousLocation", async (data, { rejectWithValue }) => {
   try {
-    console.log(data)
+    console.log(data);
     return data;
   } catch {
     return rejectWithValue("Failed to update previous location");

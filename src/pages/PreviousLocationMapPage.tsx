@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
-// import { updatePreviousLocation } from "../redux/slices/locationSlice";
-// import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-// import { usePost } from "../hooks/api/useApi";
 import SelectLocations, { locations } from "../components/SelectLocations";
 import {
   Container,
@@ -16,28 +13,28 @@ import {
   Box,
   Button,
   Stack,
+  Dialog,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
-// import axios from "axios";
-// import { axiosClient } from "../api/baseUrl";
+import DamageAssessmentDialog from "./DamageAssessmentDialog";
 
 const PreviousLocationMapPage = () => {
-  // const [application, setApplication] = useState({});
-  // const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
-
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-
   const dispatch = useAppDispatch();
+
+  // Map States
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
 
+  // Dialog State
+  const [openDialog, setOpenDialog] = useState(false);
+
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.349013, 34.292483];
-
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   // const { loading } = usePost(`applications/add-previous-location`, {
@@ -73,7 +70,6 @@ const PreviousLocationMapPage = () => {
     setPosition(null);
     setAddress("");
   };
-
   // const handleConfirm = async () => {
   //   const token = localStorage.getItem("token");
 
@@ -161,6 +157,15 @@ const PreviousLocationMapPage = () => {
   //       console.log(error);
   //     });
   // }, []);
+  const handleConfirm = () => {
+    if (position) {
+      setOpenDialog(true);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -310,39 +315,49 @@ const PreviousLocationMapPage = () => {
                 {...{ handleReset }}
                 {...{ setNeighborhood }}
                 setCenter={setCenter}
-                // className is passed to FullWidth FormControl in SelectLocations
               />
             </Box>
 
-            {/* <Button
+            <Button
               variant="contained"
               color="primary"
               onClick={handleConfirm}
               disabled={
-                !position ||
-                loading ||
-                !address ||
-                address === "لا يوجد اتصال في الانترنت"
+                !position || !address || address === "لا يوجد اتصال في الانترنت"
               }
               startIcon={
-                !loading && (
-                  <Check
-                    className={language === "ar" ? "ml-2" : "mr-2"}
-                    size={18}
-                  />
-                )
+                <Check
+                  className={language === "ar" ? "ml-2" : "mr-2"}
+                  size={18}
+                />
               }
               sx={{ flex: 1, height: 48 }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                t("map.confirm")
-              )}
-            </Button> */}
+              {t("common.continue")}
+            </Button>
           </Stack>
         </CardContent>
       </Card>
+
+      {/* Damage Assessment Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+        disableEscapeKeyDown
+      >
+        {position && (
+          <DamageAssessmentDialog
+            onClose={handleCloseDialog}
+            location={{
+              position,
+              address,
+              neighborhood,
+            }}
+          />
+        )}
+      </Dialog>
     </Container>
   );
 };

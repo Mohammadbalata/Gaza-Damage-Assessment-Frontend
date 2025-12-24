@@ -141,6 +141,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.wifeNamePlaceholder": "Enter Wife's Name",
     "form.wifeNationalIdPlaceholder": "Enter Wife's National ID",
     "form.firstNamePlaceholder": "Enter First Name",
+    "form.buildingType": "Building Type",
     "form.email": "Email",
     "form.emailPlaceholder": "Enter Email",
     "form.invalidEmail": "Invalid Email",
@@ -320,7 +321,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "Admin Users",
     "admin.users.subtitle": "Manage administrator and supervisor accounts.",
-    "admin.users.id":"ID",
+    "admin.users.id": "ID",
     "admin.users.name": "Name",
     "admin.users.email": "Email",
     "admin.users.role": "Role",
@@ -453,6 +454,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "Failed to change password.",
     "citizen.passwordChangedSuccess": "Password changed successfully.",
     "citizen.currentLocation": "Current Location",
+    "citizen.address": "Address",
+    "citizen.addedDate": "Added Date",
 
     // Not Found
     "notFound.title": "Page Not Found",
@@ -600,6 +603,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.fatherNamePlaceholder": "أدخل اسم الأب",
     "form.grandfatherNamePlaceholder": "أدخل اسم الجد",
     "form.familyNamePlaceholder": "أدخل اسم العائلة",
+    "form.buildingType": "نوع المبنى",
     "form.emailPlaceholder": "أدخل البريد الالكتروني",
     "form.email": "البريد الالكتروني",
     "form.whatsappNumber": "رقم واتساب",
@@ -635,7 +639,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
     "map.showonmap": "عرض على الخريطة",
-    "map.previousLocation": " حدد الممتلك المتضرر" ,
+    "map.previousLocation": " حدد الممتلك المتضرر",
     "map.previousLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقع ممتلكك قبل الحرب.",
     "map.currentLocation": " اختر موقعك الحالي (بعد الحرب)",
@@ -765,7 +769,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Admin - forms / labels
     "admin.users.title": "مستخدمي النظام",
     "admin.users.subtitle": "إدارة حسابات المدراء والمشرفين.",
-    "admin.users.id":"الرقم",
+    "admin.users.id": "الرقم",
     "admin.users.name": "الاسم",
     "admin.users.email": "البريد الإلكتروني",
     "admin.users.role": "الدور",
@@ -897,6 +901,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "فشل في تغيير كلمة المرور.",
     "citizen.passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح.",
     "citizen.currentLocation": "العنوان الحالي ",
+    "citizen.address": "العنوان",
+    "citizen.addedDate": "تاريخ الإضافة",
 
     // Not Found
     "notFound.title": "الصفحة غير موجودة",

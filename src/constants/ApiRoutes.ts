@@ -44,11 +44,10 @@ export const API = {
       delete: (id: string) => `/admin/bank-accounts/${id}`,
       export: `/admin/bank-accounts/export`,
     },
-
   },
 
   citizen: {
-    auth:{
+    auth: {
       login: `/auth/citizen/login`,
       verifyId: `/auth/citizen/verify-id`,
       verifyQuestions: `/auth/citizen/verify-questions`,
@@ -58,6 +57,7 @@ export const API = {
     applications: {
       list: `/citizen/applications`,
       create: `/citizen/applications`,
+      update: (id: string) => `/citizen/applications/${id}`,
       details: (id: string) => `/citizen/applications/${id}`,
       track: (id: string) => `/citizen/applications/${id}/track`,
     },
@@ -74,15 +74,13 @@ export const API = {
       delete: (id: string) => `/citizen/bank-accounts/${id}`,
     },
   },
-  
+
   stats: {
     adminDashboard: `/stats/admin-dashboard`,
     supervisorDashboard: `/stats/supervisor-dashboard`,
   },
 
-  banks:{
-    list:`banks`
-  }
-
-
+  banks: {
+    list: `banks`,
+  },
 };

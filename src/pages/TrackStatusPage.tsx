@@ -60,7 +60,7 @@ const TrackStatusPage: React.FC = () => {
     setError("");
     try {
       const res = await axiosClient.get(
-        `/track-application/${data.trackingNumber}`
+        `citizen/applications/track/${data.trackingNumber}`
       );
 
       if (res) {

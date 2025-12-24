@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosClient } from "../api/baseUrl";
 import { Login as LoginIcon } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
+import { useSnackbar } from "notistack";
 
 interface DamageAssessmentDialogProps {
   onClose: () => void;
@@ -45,11 +46,12 @@ const DamageAssessmentDialog = ({
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
-  const { loading } = useAppSelector((state) => state.location);
+  // Use a local loading state to strictly control the button
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
   const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
-  // const locationPage = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
 
   const {
     register,
@@ -82,14 +84,12 @@ const DamageAssessmentDialog = ({
       }
       dispatch(updatePreviousLocation({ previosLocation: initialData }));
     }
-    console.log("initialData", initialData);
-    // console.log(locationPage.pathname);
   }, [initialData, dispatch, setValue]);
 
   const resetBuildingTypeSelect = () => {
     setValue("buildingType", "");
     dispatch(setBuildingType(""));
-    dispatch(resetAllBuildings()); // يرجع على <option value="">
+    dispatch(resetAllBuildings());
   };
 
   const buildApplication = (data: any) => ({
@@ -107,10 +107,26 @@ const DamageAssessmentDialog = ({
   const createApplicationFormData = (application: any) => {
     const formData = new FormData();
 
-    formData.append("latitude", application.latitude?.toString());
-    formData.append("longitude", application.longitude?.toString());
-    formData.append("address", application?.address);
-    formData.append("neighborhood", application?.neighborhood);
+    // Safety check for numeric values
+    if (application.latitude !== undefined && application.latitude !== null) {
+      formData.append("latitude", application.latitude.toString());
+      // Also send as nested location object in case backend expects it
+      formData.append("location[latitude]", application.latitude.toString());
+    }
+    if (application.longitude !== undefined && application.longitude !== null) {
+      formData.append("longitude", application.longitude.toString());
+      formData.append("location[longitude]", application.longitude.toString());
+    }
+
+    const address = application?.address || "";
+    const neighborhood = application?.neighborhood || "";
+
+    formData.append("address", address);
+    formData.append("neighborhood", neighborhood);
+
+    // Nested fallbacks
+    formData.append("location[address]", address);
+    formData.append("location[neighborhood]", neighborhood);
 
     formData.append(
       "extraData",
@@ -120,101 +136,132 @@ const DamageAssessmentDialog = ({
       })
     );
 
-    if (application.beforeWarImage) {
+    if (application.beforeWarImage instanceof File) {
       formData.append("beforeWarImage", application.beforeWarImage);
     }
-    if (application.afterWarImage) {
+    if (application.afterWarImage instanceof File) {
       formData.append("afterWarImage", application.afterWarImage);
     }
-    if (application.ownershipDocuments?.length) {
-      application.ownershipDocuments.forEach((file: File) =>
-        formData.append("ownershipDocuments", file)
-      );
+
+    if (Array.isArray(application.ownershipDocuments)) {
+      application.ownershipDocuments.forEach((file: any) => {
+        // Only append actual File objects.
+        // If backend updates files by replacement, verify if we need to send existing string URLs.
+        // Usually FormData for file upload expects Files. Sending strings might break it.
+        // We assume backend keeps existing files if not sent, or we deal with new files only.
+        if (file instanceof File) {
+          formData.append("ownershipDocuments", file);
+        }
+      });
     }
 
     return formData;
   };
 
   const onSubmit = async (data: any) => {
-    // if (locationPage.pathname === "/my-applications") {
-    //   console.log(loading);
-    //   setIsChangeToReviewPage(true);
-    //   if (!isChangeToReviewPage) return;
-    //   console.log("data", data);
-    //   const type = data.buildingType;
-    //   const formDataWithoutImg: any = buildFormDataWithoutImages(data);
+    // Phase 1: Review
+    if (!isChangeToReviewPage) {
+      setIsChangeToReviewPage(true);
+      return;
+    }
 
-    //   dispatchByType(dispatch, type, formDataWithoutImg);
-    //   const reBuildData = {
-    //     buildingType: type,
-    //     extraData: formDataWithoutImg[type],
-    //     beforeWarImage: initialData.extraData.beforeWarImage,
-    //     afterWarImage: initialData.extraData.beforeWarImage,
-    //     ownershipDocuments: initialData.extraData.ownershipDocuments,
-    //     latitude: initialData.location.latitude,
-    //     longitude: initialData.location.longitude,
-    //     neighborhood: initialData.location.neighborhood,
-    //     address: initialData.location.address,
-    //   };
-    //   const application = buildApplication(reBuildData);
-    //   console.log("application", application);
-    //   // ✅ يخزن من أول ضغطة
-    //   // dispatch(updatePreviousLocation({ previosLocation: application }));
+    // Phase 2: Submission
+    if (isSubmitting) return;
 
-    //   const token = localStorage.getItem("token");
-    //   const formData = createApplicationFormData(application);
-    //   console.log('formData',formData)
-    //   // try {
-    //   //   await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-    //   //     headers: {
-    //   //       Authorization: `Bearer ${token}`,
-    //   //     },
-    //   //   });
-    //   //   navigate(`${ROUTES.MY_APPLICATIONS}`);
-    //   // } catch (err) {
-    //   //   console.error(err);
-    //   // }
-
-    console.log(loading);
-    setIsChangeToReviewPage(true);
-    if (!isChangeToReviewPage) return;
-    const type = data.buildingType;
-    const formDataWithoutImg: any = buildFormDataWithoutImages(data);
-    console.log("data", data);
-    console.log('building type',type)
-    dispatchByType(dispatch, type, formDataWithoutImg);
-    const reBuildData = {
-      buildingType: type,
-      extraData: formDataWithoutImg[type],
-      beforeWarImage: data[type]?.beforeWarImage,
-      afterWarImage: data[type]?.afterWarImage,
-      ownershipDocuments: data[type]?.ownershipDocuments,
-      latitude: location?.position?.[0],
-      longitude: location?.position?.[1],
-      neighborhood: location?.neighborhood,
-      address: location?.address,
-    };
-    const application = buildApplication(reBuildData);
-    // ✅ يخزن من أول ضغطة
-    dispatch(updatePreviousLocation({ previosLocation: application }));
-    const token = localStorage.getItem("token");
-    const formData = createApplicationFormData(application);
     try {
-      await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      navigate(
-        isCurrentLocation ? ROUTES.CITIZEN_DASHBOARD : ROUTES.CURRENT_LOCATION
-      );
+      setIsSubmitting(true);
+
+      const type = data.buildingType;
+      const formDataWithoutImg: any = buildFormDataWithoutImages(data);
+
+      dispatchByType(dispatch, type, formDataWithoutImg);
+
+      // Use existing location from initialData if new location prop is not provided (Edit Mode)
+      // Or use new location from prop (New Application Mode)
+      // Robust fallback: Check strict location object first, then root properties
+      const initLoc = initialData?.location || initialData;
+
+      // Try to find coordinates in multiple possible locations
+      const latitude =
+        location?.position?.[0] ?? initLoc?.latitude ?? initLoc?.lat;
+      const longitude =
+        location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
+      const address = location?.address ?? initLoc?.address;
+      const neighborhood = location?.neighborhood ?? initLoc?.neighborhood;
+
+      console.log("Submitting Data - Coords:", { latitude, longitude });
+
+      const reBuildData = {
+        buildingType: type,
+        extraData: formDataWithoutImg[type],
+        beforeWarImage: data[type]?.beforeWarImage,
+        afterWarImage: data[type]?.afterWarImage,
+        ownershipDocuments: data[type]?.ownershipDocuments,
+        latitude,
+        longitude,
+        neighborhood,
+        address,
+      };
+
+      const application = buildApplication(reBuildData);
+
+      // Update Redux state
+      dispatch(updatePreviousLocation({ previosLocation: application }));
+
+      // API Call
+      const token = localStorage.getItem("token");
+      const formData = createApplicationFormData(application);
+
+      if (initialData?.id) {
+        // Update existing application
+        await axiosClient.put(
+          API.citizen.applications.update(initialData.id),
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        // Create new application
+        await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
+      // Success feedback
+      enqueueSnackbar(t("common.success"), { variant: "success" });
+
+      // Navigation / Refresh
+      // If closing dialog inside MyApplications, we might want to reload or just close
+      // Simple approach: reload to refresh table if updating existing
+      setTimeout(() => {
+        if (initialData) {
+          // Edit mode -> Reload window or navigate to My Apps (force refresh)
+          window.location.reload();
+        } else {
+          // New mode -> Navigate normally
+          navigate(
+            isCurrentLocation
+              ? ROUTES.CITIZEN_DASHBOARD
+              : ROUTES.CURRENT_LOCATION
+          );
+        }
+      }, 1000);
     } catch (err) {
       console.error(err);
+      enqueueSnackbar(t("common.error"), { variant: "error" });
+      setIsSubmitting(false); // Re-enable if error occurred
     }
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) return;
+
     axiosClient
       .get(`${API.citizen.applications.list}`, {
         headers: {
@@ -222,16 +269,15 @@ const DamageAssessmentDialog = ({
         },
       })
       .then((res: any) => {
-        console.log(res.data.data.citizen.current_location);
-        const isCurrentLocation = res.data.data.citizen.current_location;
-        if (isCurrentLocation) {
+        const isCurrent = res.data.data.citizen.current_location;
+        if (isCurrent) {
           setIsCurrentLocation(true);
         }
       })
       .catch((error: any) => {
         console.log(error);
       });
-  }, [isChangeToReviewPage]);
+  }, []);
 
   useEffect(() => {
     if (!initialData) {
@@ -243,14 +289,13 @@ const DamageAssessmentDialog = ({
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
       damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
-    // Pass readOnly/disabled state to children if they support it
-    // Using CSS pointer-events-none for a generic read-only mode wrapper could also work
+
     const commonProps = {
       register,
       watch,
       control,
       errors,
-      isChangeToReviewPage: isChangeToReviewPage, // Keep existing review logic
+      isChangeToReviewPage: isChangeToReviewPage,
     };
 
     switch (selected) {
@@ -271,6 +316,8 @@ const DamageAssessmentDialog = ({
     }
   };
 
+  const isViewMode = readOnly || isChangeToReviewPage;
+
   return (
     <div className="w-full mx-auto">
       {damageAssessmentInfo.error && (
@@ -282,111 +329,108 @@ const DamageAssessmentDialog = ({
 
       <div
         className={classNames("card shadow-none hover:shadow-none", {
-          "bg-gray-200": isChangeToReviewPage || readOnly,
+          "bg-gray-50": isViewMode,
         })}
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">
-            {readOnly ? t("common.reviewRequest") : "Damage Assessment"}
+            {readOnly ? t("common.reviewRequest") : t("common.damageRequest")}
           </h2>
         </div>
-        <form
-          className={classNames("space-y-6", {
-            "pointer-events-none opacity-80": readOnly,
-          })}
-        >
+
+        <form className="space-y-6">
           <div
-            className={classNames({
-              "cursor-not-allowed": isChangeToReviewPage || readOnly,
+            className={classNames("space-y-6", {
+              "pointer-events-none opacity-90": readOnly,
             })}
           >
-            <label
-              htmlFor="buildingType"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              نوع المبنى <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="buildingType "
-              {...register("buildingType", { required: t("common.required") })}
-              className={classNames("input-field", {
-                " cursor-not-allowed bg-gray-200":
-                  isChangeToReviewPage || readOnly,
+            <div
+              className={classNames({
+                "cursor-not-allowed": isViewMode,
               })}
-              onChange={(e) => {
-                // dispatch(resetAllBuildings()); // امسح بيانات المباني السابقة
-                dispatch(setBuildingType(e.target.value)); // احفظ النوع الجديد
-              }}
-              disabled={isChangeToReviewPage || readOnly}
-              value={damageAssessmentInfo.buildingType} // Ensure controlled value from store/form match
             >
-              <option value="">اختر مبنى</option>
-              {buildingOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {errors.buildingType && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.buildingType.message}
-              </p>
-            )}
-          </div>
-          <BuildingTypeView />
+              <label
+                htmlFor="buildingType"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                {t("form.buildingType")} <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="buildingType"
+                {...register("buildingType", {
+                  required: t("common.required"),
+                })}
+                className={classNames("input-field w-full p-2 border rounded", {
+                  "bg-gray-200 cursor-not-allowed": isViewMode,
+                })}
+                onChange={(e) => {
+                  dispatch(setBuildingType(e.target.value));
+                }}
+                disabled={isViewMode}
+                value={damageAssessmentInfo.buildingType}
+              >
+                <option value="">{t("common.select")}</option>
+                {buildingOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {errors.buildingType && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.buildingType.message}
+                </p>
+              )}
+            </div>
 
-          {/* Actions Area - Hide/Modify based on ReadOnly */}
+            <BuildingTypeView />
+          </div>
+
+          {/* Actions Area */}
           {!readOnly && (
-            <DialogActions>
+            <DialogActions sx={{ mt: 4, px: 0 }}>
               <Button
-                className="!text-[17px]"
+                size="large"
                 onClick={() => {
-                  dispatch(resetAllBuildings());
-                  onClose();
-                  setIsChangeToReviewPage(false);
+                  if (isChangeToReviewPage) {
+                    setIsChangeToReviewPage(false);
+                  } else {
+                    dispatch(resetAllBuildings());
+                    onClose();
+                  }
                 }}
+                sx={{ mr: 1 }}
+                disabled={isSubmitting}
               >
-                إلغاء
+                {isChangeToReviewPage ? t("common.edit") : t("common.cancel")}
               </Button>
-              <Button
-                className={classNames(
-                  isChangeToReviewPage ? "!inline-block" : "!hidden"
-                )}
-                onClick={() => {
-                  setIsChangeToReviewPage(false);
-                }}
-                variant="outlined"
-              >
-                تعديل الطلب
-              </Button>
+
               <Button
                 variant="contained"
                 onClick={handleSubmit(onSubmit)}
-                disabled={loading}
+                disabled={isSubmitting}
+                size="large"
                 startIcon={
-                  loading ? (
-                    <CircularProgress
-                      sx={{ ml: 1 }}
-                      size={20}
-                      color="inherit"
-                    />
+                  isSubmitting ? (
+                    <CircularProgress size={20} color="inherit" />
                   ) : (
                     <LoginIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
                   )
                 }
+                sx={{ px: 4 }}
               >
-                {loading
+                {isSubmitting
                   ? ""
                   : isChangeToReviewPage
-                  ? "اعتماد الطلب"
-                  : "مراجعة الطلب"}
+                  ? t("common.submit")
+                  : t("common.reviewRequest")}
               </Button>
             </DialogActions>
           )}
 
           {readOnly && (
-            <DialogActions>
-              <Button variant="contained" onClick={onClose}>
+            <DialogActions sx={{ mt: 4, px: 0 }}>
+              <Button variant="contained" onClick={onClose} size="large">
                 {t("common.close")}
               </Button>
             </DialogActions>
