@@ -212,6 +212,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.savePassword": "Please save this password securely",
     "success.downloadReceipt": "Download PDF ",
     "success.trackStatus": "Track Application Status",
+    "form.enterTrackingNumber": "enter TrackingNumber for search",
 
     // Status
     status: "statusOfApplication",
@@ -650,7 +651,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.no": "لا",
     "form.additionalNotes": "ملاحظات إضافية",
     "form.submissionDate": "تاريخ إرسال الطلب",
-
+    "form.enterTrackingNumber": "أدخل رقم التتبع للبحث",
     // Documents
     "form.uploadDocuments": "رفع المستندات",
     "form.dragDrop": "انقر للرفع أو اسحب وأفلت",
