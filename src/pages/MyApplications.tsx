@@ -550,7 +550,7 @@ const MyApplications = () => {
                         </Typography>
 
                         <Typography variant="h6" mt={1}>
-                          العنوان : {app.location.address}
+                          {t("citizen.address")} : {app.location.address}
                         </Typography>
                       </Box>
 
@@ -582,6 +582,7 @@ const MyApplications = () => {
           maxWidth="md"
           fullWidth
           disableScrollLock
+          disableEscapeKeyDown
         >
           {selectedApplication && (
             <DamageAssessmentDialog
@@ -628,16 +629,16 @@ const MyApplications = () => {
                   mb: 2,
                 }}
               >
-                العنوان الحالي:
+                {t("citizen.currentLocation")}
               </Typography>
 
               <Typography sx={{ mb: 1 }}>
-                <strong>العنوان:</strong>{" "}
+                <strong>{t("citizen.address")}:</strong>{" "}
                 {citizen.current_location?.address || "-"}
               </Typography>
 
               <Typography>
-                <strong>تاريخ الإضافة:</strong>{" "}
+                <strong>{t("citizen.addedDate")}:</strong>{" "}
                 {citizen.current_location
                   ? formatDate(new Date(citizen.current_location.createdAt))
                   : "-"}

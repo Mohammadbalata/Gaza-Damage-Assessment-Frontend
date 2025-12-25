@@ -151,6 +151,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.wifeNamePlaceholder": "Enter Wife's Name",
     "form.wifeNationalIdPlaceholder": "Enter Wife's National ID",
     "form.firstNamePlaceholder": "Enter First Name",
+    "form.buildingType": "Building Type",
     "form.email": "Email",
     "form.emailPlaceholder": "Enter Email",
     "form.invalidEmail": "Invalid Email",
@@ -473,6 +474,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.editProfile": "Edit Profile",
     "citizen.editProfileDesc":
       "This page allows you to edit and update your personal information",
+    "citizen.address": "Address",
+    "citizen.addedDate": "Added Date",
+
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -628,6 +632,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.fatherNamePlaceholder": "أدخل اسم الأب",
     "form.grandfatherNamePlaceholder": "أدخل اسم الجد",
     "form.familyNamePlaceholder": "أدخل اسم العائلة",
+    "form.buildingType": "نوع المبنى",
     "form.emailPlaceholder": "أدخل البريد الالكتروني",
     "form.email": "البريد الالكتروني",
     "form.whatsappNumber": "رقم واتساب",
@@ -934,6 +939,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.editProfile": "تعديل البيانات الشخصية",
     "citizen.editProfileDesc":
       "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
+    "citizen.address": "العنوان",
+    "citizen.addedDate": "تاريخ الإضافة",
+
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",

@@ -36,12 +36,12 @@ const CitizenDashboard: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store
-  const authState = useAppSelector((state) => state.auth);
-  const citizenName = authState.firstName
-    ? `${authState.firstName} ${authState.fatherName || ""} ${
-        authState.familyName || ""
+  const authState: any = useAppSelector((state) => state.auth);
+  const citizenName = authState.first_name
+    ? `${authState.first_name} ${authState.father_name || ""} ${
+        authState.family_name || ""
       }`.trim()
-    : authState.nationalId || t("citizen.welcome");
+    : authState.national_id || t("citizen.welcome");
   console.log(authState);
 
   /**
