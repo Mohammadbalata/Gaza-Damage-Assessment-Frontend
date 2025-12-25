@@ -17,7 +17,6 @@ import {
   Divider,
   Dialog,
   TextField,
-  InputAdornment,
   Link as MuiLink,
   Tooltip,
 } from "@mui/material";
@@ -49,8 +48,6 @@ import {
 } from "../utils/pdfGenerator";
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
-import { useForm } from "react-hook-form";
-import { SearchIcon } from "lucide-react";
 import { Search } from "lucide-react";
 
 const MyApplications = () => {
@@ -67,17 +64,6 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const {
-    register,
-    watch,
-    formState: { errors },
-  } = useForm<any>({
-    defaultValues: {
-      id: "",
-    },
-  });
-
-  const id = watch("id");
 
   const {
     data: rawData,
@@ -118,10 +104,6 @@ const MyApplications = () => {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-
-  const filterdApplications = id
-    ? applications?.filter((item: any) => item.id === id)
-    : applications;
 
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
@@ -379,35 +361,6 @@ const MyApplications = () => {
           </Box>
         </Stack>
 
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 4,
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <TextField
-            placeholder={t("form.enterTrackingNumber")}
-            fullWidth
-            {...register("id")}
-            InputProps={{
-              sx: {
-                height: 56,
-                fontSize: 16,
-              },
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon size={20} color="#9CA3AF" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Paper>
-
         {/* Search */}
         <Box sx={{ mb: 3 }}>
           <TextField
@@ -481,7 +434,7 @@ const MyApplications = () => {
               gap: 2,
             }}
           >
-            {filterdApplications?.map((app: any) => {
+            {filteredApplications.map((app: any) => {
               const status = app.status?.toUpperCase() || "PENDING";
               const isPending = status === "PENDING";
 
