@@ -19,13 +19,11 @@ import SignUpPage from "../pages/SignUpPage";
 import CitizenDashboard from "../pages/CitizenDashboard";
 import { useAuth } from "../contexts/AdminAuthContext";
 import { Navigate } from "react-router-dom";
-import SupervisorDashboard from "../pages/AdminDashboard/SupervisorDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
 import MyApplications from "../pages/MyApplications";
-import { UserRole } from "../types/entities";
 import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
@@ -41,20 +39,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RoleBasedRoute() {
-  const { user } = useAuth();
 
-  if (!user) return <Navigate to={ROUTES.ADMIN_LOGIN} />;
-
-  switch (user.role) {
-    case UserRole.SUPERVISOR:
-      return <SupervisorDashboard />;
-    case UserRole.ADMIN:
-      return <AdminDashboard />;
-    default:
-      return <Navigate to={ROUTES.ADMIN_LOGIN} />;
-  }
-}
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -191,7 +176,7 @@ export const routes = [
     path: ROUTES.ADMIN_DASHBOARD,
     element: (
       <ProtectedRoute>
-        <RoleBasedRoute />
+        <AdminDashboard />
       </ProtectedRoute>
     ),
   },

@@ -42,6 +42,7 @@ import {
   UserRole,
 } from "../../types/entities";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 interface ApplicationFormData {
   citizenId: number;
@@ -82,13 +83,13 @@ const applicationTypesColors: Record<string, object> = {
 
 export function AdminApplicationsPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
+  const { hasPermission } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
-  const canEditApplication = hasRole(UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.application.create);
+  const canView = hasPermission(permissions.application.view);
+  const canEditApplication = hasPermission(permissions.application.update);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
@@ -310,7 +311,7 @@ export function AdminApplicationsPage() {
             {t("admin.applications.subtitle")}
           </Typography>
         </Box>
-        {canManage && (
+        {hasPermission(permissions.application.export) && (
           <span className="flex justify-center items-center gap-3">
             <Button
               variant="contained"

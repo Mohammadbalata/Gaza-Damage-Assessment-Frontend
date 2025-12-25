@@ -26,10 +26,10 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { UserRole } from "../../types/entities";
 import { LogOutIcon } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 /**
  * Admin Dashboard Page
@@ -38,7 +38,7 @@ import { API } from "../../constants/ApiRoutes";
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const { showError } = useNotification();
   const [totals, setTotals] = useState({
     users: 0,
@@ -72,6 +72,12 @@ const AdminDashboard: React.FC = () => {
     enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
   };
 
+  const canViewUsers = hasPermission(permissions.user.view);
+  const canViewApplicatios = hasPermission(permissions.application.view);
+  const canViewCitizens = hasPermission(permissions.citizen.view);
+  const canViewlocatios = hasPermission(permissions.location.view);
+  const canViewbankAccounts = hasPermission(permissions.bank_account.view);
+
   if (error) {
     showError(error);
   }
@@ -85,6 +91,7 @@ const AdminDashboard: React.FC = () => {
     icon: React.ReactNode;
     color: "primary" | "info" | "success" | "warning";
     value: number;
+    hasPermission: boolean;
     route: string;
   }
 
@@ -96,6 +103,7 @@ const AdminDashboard: React.FC = () => {
       icon: <UsersIcon sx={{ fontSize: 40 }} />,
       color: "primary",
       value: totals.users,
+      hasPermission: canViewUsers,
       route: "/admin/users",
     },
     {
@@ -105,6 +113,7 @@ const AdminDashboard: React.FC = () => {
       icon: <ApplicationsIcon sx={{ fontSize: 40 }} />,
       color: "info",
       value: totals.applications,
+      hasPermission: canViewApplicatios,
       route: "/admin/applications",
     },
     {
@@ -114,6 +123,7 @@ const AdminDashboard: React.FC = () => {
       icon: <CitizensIcon sx={{ fontSize: 40 }} />,
       color: "success",
       value: totals.citizens,
+      hasPermission: canViewCitizens,
       route: "/admin/citizens",
     },
     {
@@ -123,6 +133,7 @@ const AdminDashboard: React.FC = () => {
       icon: <LocationsIcon sx={{ fontSize: 40 }} />,
       color: "warning",
       value: totals.locations,
+      hasPermission: canViewlocatios,
       route: "/admin/locations",
     },
     {
@@ -132,6 +143,7 @@ const AdminDashboard: React.FC = () => {
       icon: <Money sx={{ fontSize: 40 }} />,
       color: "info",
       value: totals.banking,
+      hasPermission: canViewbankAccounts,
       route: "/admin/banking",
     },
   ];
@@ -176,9 +188,13 @@ const AdminDashboard: React.FC = () => {
           {/* Dashboard Cards Grid */}
           <Grid container spacing={3} sx={{ mb: 5 }}>
             {dashboardCards.map((card) => (
-              <Grid key={card.key}>
-                <DashboardCard card={card} onNavigate={navigate} />
-              </Grid>
+              <>
+                {card.hasPermission && (
+                  <Grid key={card.key}>
+                    <DashboardCard card={card} onNavigate={navigate} />
+                  </Grid>
+                )}
+              </>
             ))}
           </Grid>
 
@@ -217,7 +233,7 @@ const AdminDashboard: React.FC = () => {
                 >
                   {t("admin.reviewApplications")}
                 </Button>
-                {user?.role === UserRole.ADMIN && (
+                {hasPermission(permissions.user.create) && (
                   <Button
                     variant="contained"
                     color="inherit"
@@ -233,7 +249,7 @@ const AdminDashboard: React.FC = () => {
                     {t("admin.addUser")}
                   </Button>
                 )}
-                {user?.role === UserRole.ADMIN && (
+                {hasPermission(permissions.citizen.create) && (
                   <Button
                     variant="contained"
                     color="inherit"
@@ -255,47 +271,60 @@ const AdminDashboard: React.FC = () => {
 
           {/* Statistics Summary */}
           <Grid container spacing={2}>
-            <Grid>
-              <StatisticCard
-                label={t("admin.totalUsers")}
-                value={totals.users}
-                icon={<UsersIcon />}
-                color="primary"
-              />
-            </Grid>
-            <Grid>
-              <StatisticCard
-                label={t("admin.totalApplications")}
-                value={totals.applications}
-                icon={<ApplicationsIcon />}
-                color="info"
-              />
-            </Grid>
-            <Grid>
-              <StatisticCard
-                label={t("admin.totalCitizens")}
-                value={totals.citizens}
-                icon={<CitizensIcon />}
-                color="success"
-              />
-            </Grid>
-            <Grid>
-              <StatisticCard
-                label={t("admin.totalLocations")}
-                value={totals.locations}
-                icon={<LocationsIcon />}
-                color="warning"
-              />
-            </Grid>
+            {canViewUsers && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalUsers")}
+                  value={totals.users}
+                  icon={<UsersIcon />}
+                  color="primary"
+                />
+              </Grid>
+            )}
 
-            <Grid>
-              <StatisticCard
-                label={t("admin.totalBanking")}
-                value={totals.banking}
-                icon={<Money />}
-                color="info"
-              />
-            </Grid>
+            {canViewApplicatios && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalApplications")}
+                  value={totals.applications}
+                  icon={<ApplicationsIcon />}
+                  color="info"
+                />
+              </Grid>
+            )}
+
+            {canViewCitizens && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalCitizens")}
+                  value={totals.citizens}
+                  icon={<CitizensIcon />}
+                  color="success"
+                />
+              </Grid>
+            )}
+
+            {canViewlocatios && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalLocations")}
+                  value={totals.locations}
+                  icon={<LocationsIcon />}
+                  color="warning"
+                />
+              </Grid>
+            )}
+
+            {canViewbankAccounts && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalBanking")}
+                  value={totals.banking}
+                  icon={<Money />}
+                  color="info"
+                />
+              </Grid>
+            )}
           </Grid>
         </>
       )}

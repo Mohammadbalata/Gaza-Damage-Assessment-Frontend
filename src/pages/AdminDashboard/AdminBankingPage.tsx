@@ -39,12 +39,12 @@ import {
   BankAccount,
   Citizen,
   Bank,
-  UserRole,
   AccountType,
   AccountStatus,
 } from "../../types/entities";
 import { titleCase } from "../../utils/helpers";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 interface BankAccountFormData {
   bankId: string;
@@ -89,12 +89,12 @@ const currencyTranslations: Record<string, { en: string; ar: string }> = {
 
 export function AdminBankingPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
+  const { hasPermission } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.bank_account.create);
+  const canView = hasPermission(permissions.bank_account.view);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<BankAccount | null>(null);
@@ -341,7 +341,7 @@ export function AdminBankingPage() {
             {t("admin.banking.subtitle")}
           </Typography>
         </Box>
-        {canManage && (
+        {hasPermission(permissions.bank_account.export) && (
           <span className="flex justify-center items-center gap-3">
             <Button
               variant="contained"

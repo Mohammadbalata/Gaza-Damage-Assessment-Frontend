@@ -162,10 +162,7 @@ export const userSchema = yup.object({
         .max(100, "يجب أن تكون كلمة المرور أقل من 100 حرف"),
   }),
 
-  role: yup
-    .string()
-    .required("الدور مطلوب")
-    .oneOf([UserRole.SUPERVISOR, UserRole.ADMIN], "دور غير صحيح"),
+  roleId: yup.number().required("رقم الدور مطلوب"),
 });
 
 export const bankAccountSchema = yup.object({

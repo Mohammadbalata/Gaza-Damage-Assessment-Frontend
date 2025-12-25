@@ -24,7 +24,7 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Citizen, UserRole } from "../../types/entities";
+import { Citizen } from "../../types/entities";
 import { citizenSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
@@ -34,6 +34,7 @@ import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { useNavigate } from "react-router-dom";
 import { ArrowBack } from "@mui/icons-material";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 interface CitizenFormData {
   national_id: string;
@@ -46,12 +47,12 @@ interface CitizenFormData {
 
 export function AdminCitizensPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
+  const { hasPermission } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.citizen.create);
+  const canView = hasPermission(permissions.citizen.view);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Citizen | null>(null);
@@ -249,7 +250,7 @@ export function AdminCitizensPage() {
             {t("admin.citizens.subtitle")}
           </Typography>
         </Box>
-        {canManage && (
+        {hasPermission(permissions.citizen.export) && (
           <span className="flex justify-center items-center gap-3">
             <Button
               variant="contained"

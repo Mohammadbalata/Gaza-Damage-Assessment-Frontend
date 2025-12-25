@@ -1,8 +1,3 @@
-export enum UserRole {
-  ADMIN = "ADMIN",
-  SUPERVISOR = "SUPERVISOR",
-}
-
 export enum Gender {
   MALE = "MALE",
   FEMALE = "FEMALE",
@@ -51,9 +46,31 @@ export interface AdminUser {
   id: number;
   name: string;
   email: string;
-  role: UserRole;
+  role: Role;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Permission {
+  id: number;
+  key: string;            // "user.create"
+  description?: string;
+  createdAt: string;
+}
+
+
+export interface Role {
+  id: number;
+  name: string;           // "SUPER_ADMIN"
+  description?: string;
+  permissions: RolePermission[];
+  createdAt: string;
+}
+
+export interface RolePermission {
+  roleId: number;
+  permissionId: number;
+  permission: Permission;
 }
 
 export interface Citizen {
@@ -160,17 +177,6 @@ export interface PaginatedResult<T> {
   page: number;
   pageSize: number;
 }
-
-export type CreateUserDto = {
-  name: string;
-  email: string;
-  password: string;
-  role: UserRole;
-};
-
-export type UpdateUserDto = Partial<Omit<CreateUserDto, "password">> & {
-  password?: string;
-};
 
 export type CreateApplicationDto = {
   citizenId: number;

@@ -47,6 +47,7 @@ import { ArrowBack } from "@mui/icons-material";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -91,12 +92,12 @@ const locationColors: Record<string, object> = {
 
 export function AdminLocationsPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
+  const { hasPermission } = useAuth();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.location.create);
+  const canView = hasPermission(permissions.location.view);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);

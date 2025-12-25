@@ -4,15 +4,14 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useMemo,
 } from "react";
 import type { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes/Routes";
 import { api } from "../services/api";
-import { AdminUser,UserRole } from "../types/entities";
+import { AdminUser } from "../types/entities";
 import { API } from "../constants/ApiRoutes";
-
-
 
 interface AdminAuthContextType {
   user: AdminUser | null;
@@ -21,7 +20,7 @@ interface AdminAuthContextType {
   logout: () => void;
   refreshProfile: () => Promise<void>;
   isAuthenticated: boolean;
-  hasRole: (...roles: UserRole[]) => boolean;
+  hasPermission: (...permissions: string[]) => boolean;
   error: string | null;
   loading: boolean;
 }
@@ -121,14 +120,25 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     navigate(`${ROUTES.LAYOUT}`);
   };
 
-  const hasRole = useCallback(
-    (...roles: UserRole[]) => {
-      if (!user) return false;
-      return roles.includes(user.role as UserRole);
-    },
+  const isSuperAdmin = user?.role?.name === "SUPER_ADMIN";
+
+  const permissionKeys = useMemo(
+    () => new Set(user?.role.permissions.map((p) => p.permission.key)),
     [user]
   );
 
+  const hasPermission = useCallback(
+    (...permissions: string[]) => {
+      if (!user) return false;
+      if (isSuperAdmin) return true;
+
+      return permissions.every((p) => permissionKeys?.has(p));
+    },
+    [user, isSuperAdmin, permissionKeys]
+  );
+
+
+  
   return (
     <AdminAuthContext.Provider
       value={{
@@ -137,10 +147,10 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
         login,
         logout,
         refreshProfile,
-        hasRole,
         isAuthenticated: !!user,
         error,
         loading,
+        hasPermission,
       }}
     >
       {children}
