@@ -30,7 +30,7 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import {  useState } from "react";
+import { useState } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useGet } from "../hooks/api/useApi";
@@ -394,7 +394,11 @@ const MyApplications = () => {
               const isPending = status === "PENDING";
 
               return (
-                <Fade in={true} style={{ transformOrigin: "0 0 0" }} key={app.key}>
+                <Fade
+                  in={true}
+                  style={{ transformOrigin: "0 0 0" }}
+                  key={app.key}
+                >
                   <Card
                     elevation={0}
                     sx={{
@@ -498,7 +502,7 @@ const MyApplications = () => {
                         </Typography>
 
                         <Typography variant="h6" mt={1}>
-                          العنوان : {app.location.address}
+                          {t("citizen.address")} : {app.location.address}
                         </Typography>
                       </Box>
 
@@ -508,7 +512,7 @@ const MyApplications = () => {
                         startIcon={
                           isPending ? <EditIcon /> : <VisibilityIcon />
                         }
-                        sx={{display:'flex', gap:1}}
+                        sx={{ display: "flex", gap: 1 }}
                         onClick={() => handleAction(app)}
                       >
                         {isPending
@@ -530,6 +534,7 @@ const MyApplications = () => {
           maxWidth="md"
           fullWidth
           disableScrollLock
+          disableEscapeKeyDown
         >
           {selectedApplication && (
             <DamageAssessmentDialog
@@ -576,16 +581,16 @@ const MyApplications = () => {
                   mb: 2,
                 }}
               >
-                العنوان الحالي:
+                {t("citizen.currentLocation")}
               </Typography>
 
               <Typography sx={{ mb: 1 }}>
-                <strong>العنوان:</strong>{" "}
+                <strong>{t("citizen.address")}:</strong>{" "}
                 {citizen.current_location?.address || "-"}
               </Typography>
 
               <Typography>
-                <strong>تاريخ الإضافة:</strong>{" "}
+                <strong>{t("citizen.addedDate")}:</strong>{" "}
                 {citizen.current_location
                   ? formatDate(new Date(citizen.current_location.createdAt))
                   : "-"}

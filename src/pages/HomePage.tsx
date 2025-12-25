@@ -19,8 +19,7 @@ import {
   HowToReg as SignUpIcon,
 } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
-import Logo from "../../public/logo.jpg";
-
+import Logo from "../../src/assets/logo.jpg";
 /**
  * Home Page - Main entry point
  * الصفحة الرئيسية - نقطة الدخول الرئيسية
