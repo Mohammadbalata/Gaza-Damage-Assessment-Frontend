@@ -197,3 +197,100 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
   // ================= حفظ الملف =================
   pdf.save(`Application-Receipt-${citizen?.national_id}.pdf`);
 };
+
+export const generateApplicationPDF = async (
+  citizen: any,
+  application: any,
+  t: any,
+  language: any
+) => {
+  const pdf = new jsPDF("p", "pt", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+
+  const element = document.createElement("div");
+  element.style.width = "800px";
+  element.style.fontFamily = "'Amiri', Arial, sans-serif";
+  element.style.direction = language === "en" ? "ltr" : "rtl";
+  element.style.padding = "40px";
+  element.style.background = "#fdfdfd";
+  element.style.color = "#333";
+  element.style.lineHeight = "1.8";
+  element.style.boxSizing = "border-box";
+
+  element.innerHTML = `
+    <div style="text-align:center; margin-bottom:30px;">
+      <h1 style="margin:0; font-size:28px; color:#1E3A8A; font-weight:bold;">
+        ${t("app.title")}
+      </h1>
+      <p style="margin:5px 0; font-size:20px; color:#374151; font-weight:bold;">
+        ${t("common.damageRequest")}
+      </p>
+    </div>
+
+    <hr style="border:none; border-top:2px solid #eee; margin-bottom:30px;" />
+
+    <section style="margin-bottom:30px;">
+      <h3 style="font-size:25px; color:#1E3A8A; font-weight:bold; margin-bottom:15px;">
+        ${t("review.identityInfo")}
+      </h3>
+      <p><strong>${t("auth.nationalId")}:</strong> ${
+    citizen?.national_id || "-"
+  }</p>
+      <p><strong>${t("form.fullName")}:</strong> ${
+    citizen?.full_name || "-"
+  }</p>
+      <p><strong>${t("auth.email")}:</strong> ${citizen?.email || "-"}</p>
+      <p><strong>${t("form.phoneNumber")}:</strong> ${
+    citizen?.phone_number || "-"
+  }</p>
+    </section>
+
+    <section>
+      <h3 style="font-size:25px; color:#1E3A8A; font-weight:bold; margin-bottom:20px;">
+        ${t("review.damageInfo")}
+      </h3>
+
+      <div style="
+        margin-bottom:20px;
+        padding:20px;
+        border-radius:12px;
+        background:#EFF6FF;
+        box-shadow:0 4px 8px rgba(0,0,0,0.05);
+        border-right:6px solid #1E3A8A;
+      ">
+        <h4 style="margin-top:0; color:#1E3A8A;">
+          ${t("citizen.applicationId")} #${application.id}
+        </h4>
+        <p><strong>${t("success.trackingNumber")}:</strong> ${
+    application.id
+  }</p>
+        <p><strong>${t("form.submissionDate")}:</strong>
+          ${formatDate(new Date(application.createdAt))}
+        </p>
+        <p><strong>${t("status")}:</strong>
+          ${t(`status.${application.status?.toLowerCase()}`)}
+        </p>
+        <p><strong>${t("map.address")}:</strong>
+          ${application.location?.address || "-"}
+        </p>
+        <p><strong>${t("form.damageLevel")}:</strong>
+           ${application.damage_level || "-"}
+        </p>
+        <p><strong>${t("form.propertyType")}:</strong>
+           ${application.property_type || "-"}
+        </p>
+      </div>
+    </section>
+  `;
+
+  document.body.appendChild(element);
+  const canvas = await html2canvas(element, { scale: 2 });
+  const img = canvas.toDataURL("image/jpeg");
+  const props = pdf.getImageProperties(img);
+  const height = (props.height * pageWidth) / props.width;
+
+  pdf.addImage(img, "JPEG", 0, 0, pageWidth, height);
+  document.body.removeChild(element);
+
+  pdf.save(`Application-${application.id}.pdf`);
+};

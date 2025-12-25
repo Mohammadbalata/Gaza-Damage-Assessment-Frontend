@@ -35,6 +35,7 @@ interface DamageAssessmentDialogProps {
   location: any;
   readOnly?: boolean;
   initialData?: any;
+  onSuccess?: () => void;
 }
 
 const DamageAssessmentDialog = ({
@@ -42,6 +43,7 @@ const DamageAssessmentDialog = ({
   location,
   readOnly = false,
   initialData,
+  onSuccess,
 }: DamageAssessmentDialogProps) => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
@@ -235,22 +237,27 @@ const DamageAssessmentDialog = ({
       // Success feedback
       enqueueSnackbar(t("common.success"), { variant: "success" });
 
-      // Navigation / Refresh
-      // If closing dialog inside MyApplications, we might want to reload or just close
-      // Simple approach: reload to refresh table if updating existing
-      setTimeout(() => {
-        if (initialData) {
-          // Edit mode -> Reload window or navigate to My Apps (force refresh)
-          window.location.reload();
-        } else {
-          // New mode -> Navigate normally
-          navigate(
-            isCurrentLocation
-              ? ROUTES.CITIZEN_DASHBOARD
-              : ROUTES.CURRENT_LOCATION
-          );
-        }
-      }, 1000);
+      if (onSuccess) {
+        onSuccess();
+        onClose();
+      } else {
+        // Navigation / Refresh
+        // If closing dialog inside MyApplications, we might want to reload or just close
+        // Simple approach: reload to refresh table if updating existing
+        setTimeout(() => {
+          if (initialData) {
+            // Edit mode -> Reload window or navigate to My Apps (force refresh)
+            window.location.reload();
+          } else {
+            // New mode -> Navigate normally
+            navigate(
+              isCurrentLocation
+                ? ROUTES.CITIZEN_DASHBOARD
+                : ROUTES.CURRENT_LOCATION
+            );
+          }
+        }, 1000);
+      }
     } catch (err) {
       console.error(err);
       enqueueSnackbar(t("common.error"), { variant: "error" });

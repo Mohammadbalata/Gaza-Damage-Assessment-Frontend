@@ -16,7 +16,11 @@ import {
   ListItemText,
   Divider,
   Dialog,
+  TextField,
+  Link as MuiLink,
+  Tooltip,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import {
   Add as AddIcon,
   Description as DescriptionIcon,
@@ -38,9 +42,13 @@ import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
-import { generatePDFReceipt } from "../utils/pdfGenerator";
+import {
+  generatePDFReceipt,
+  generateApplicationPDF,
+} from "../utils/pdfGenerator";
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
+import { Search } from "lucide-react";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -50,6 +58,7 @@ const MyApplications = () => {
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [search, setSearch] = useState("");
 
   // Dialog State
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -60,17 +69,37 @@ const MyApplications = () => {
     data: rawData,
     loading,
     error,
+    execute: refreshApplications,
   } = useGet<any>(`${API.citizen.applications.list}`, {
     immediate: true,
   });
 
   // Robust data handling
-  const applications: any = Array.isArray(rawData)
+  const applications: any[] = Array.isArray(rawData)
     ? rawData
     : rawData
-    ? rawData.applications
+    ? (rawData as any).applications
     : [];
   const citizen: any = rawData?.citizen;
+
+  // Filter applications
+  const filteredApplications = applications.filter((app: any) => {
+    if (!search) return true;
+    const lowerSearch = search.toLowerCase();
+
+    // Search by ID
+    const idMatch = app.id?.toString().includes(lowerSearch);
+
+    // Search by Address/Neighborhood
+    const locationMatch =
+      app.location?.address?.toLowerCase().includes(lowerSearch) ||
+      app.location?.neighborhood?.toLowerCase().includes(lowerSearch);
+
+    // Search by Status
+    const statusMatch = app.status?.toLowerCase().includes(lowerSearch);
+
+    return idMatch || locationMatch || statusMatch;
+  });
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -120,7 +149,10 @@ const MyApplications = () => {
 
   // useEffect(()=> {
   //   console.log(selectedApplication)
-  // },[dialogOpen])
+  const handleDownloadAppPdf = (app: any) => {
+    generateApplicationPDF(citizen, app, t, language);
+  };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedApplication(null);
@@ -329,6 +361,19 @@ const MyApplications = () => {
           </Box>
         </Stack>
 
+        {/* Search */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder={t("common.searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+            }}
+            size="small"
+          />
+        </Box>
         {/* Applications List */}
         {!applications || applications.length === 0 ? (
           /* Empty State */
@@ -389,7 +434,7 @@ const MyApplications = () => {
               gap: 2,
             }}
           >
-            {applications.map((app: any) => {
+            {filteredApplications.map((app: any) => {
               const status = app.status?.toUpperCase() || "PENDING";
               const isPending = status === "PENDING";
 
@@ -426,7 +471,6 @@ const MyApplications = () => {
                         height: "100%",
                       }}
                     >
-                      {/* 🔴 نفس محتوى الكرت اللي عندك بالزبط */}
                       {/* Icon */}
                       <Box
                         sx={{
@@ -454,9 +498,9 @@ const MyApplications = () => {
                             mb: 0.5,
                             justifyContent: "center",
                             gap: {
-                              xs: 0, // موبايل
-                              sm: "10px", // ❌ ملغي على sm
-                              md: "10px", // ديسكتوب
+                              xs: 0,
+                              sm: "10px",
+                              md: "10px",
                               lg: "10px",
                               xl: "10px",
                             },
@@ -478,19 +522,30 @@ const MyApplications = () => {
                           >
                             {t("citizen.applicationId")} #{app.id}
                           </Typography>
-                          <Chip
-                            label={
-                              t(`status.${app.status?.toLowerCase()}`) ||
-                              app.status
+                          <Tooltip
+                            title={
+                              t(
+                                `status.tooltip.${app.status?.toLowerCase()}`
+                              ) || ""
                             }
-                            color={getStatusColor(app.status)}
-                            size="small"
-                            sx={{
-                              fontWeight: "bold",
-                              height: 24,
-                              textAlign: "right",
-                            }}
-                          />
+                            arrow
+                            placement="top"
+                          >
+                            <Chip
+                              label={
+                                t(`status.${app.status?.toLowerCase()}`) ||
+                                app.status
+                              }
+                              color={getStatusColor(app.status)}
+                              size="small"
+                              sx={{
+                                fontWeight: "bold",
+                                height: 24,
+                                textAlign: "right",
+                                cursor: "help",
+                              }}
+                            />
+                          </Tooltip>
                         </Stack>
 
                         <Typography variant="body2" color="text.secondary">
@@ -507,18 +562,63 @@ const MyApplications = () => {
                       </Box>
 
                       {/* Action */}
-                      <Button
-                        variant={isPending ? "outlined" : "text"}
-                        startIcon={
-                          isPending ? <EditIcon /> : <VisibilityIcon />
-                        }
-                        sx={{ display: "flex", gap: 1 }}
-                        onClick={() => handleAction(app)}
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="center"
+                        width="100%"
                       >
-                        {isPending
-                          ? t("common.editRequest")
-                          : t("common.reviewRequest")}
-                      </Button>
+                        <Button
+                          variant={isPending ? "outlined" : "text"}
+                          startIcon={
+                            isPending ? <EditIcon /> : <VisibilityIcon />
+                          }
+                          sx={{
+                            display: "flex",
+                            gap: 1,
+                            minWidth: "auto",
+                            flex: 1,
+                          }}
+                          onClick={() => handleAction(app)}
+                        >
+                          {isPending
+                            ? t("common.editRequest")
+                            : t("common.reviewRequest")}
+                        </Button>
+                        {app.location?.latitude && app.location?.longitude && (
+                          <MuiLink
+                            component={Link}
+                            to={`/admin/locations/map?lat=${app.location.latitude}&lng=${app.location.longitude}`}
+                            variant="caption"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flex: 1,
+                              textDecoration: "none",
+                              color: "primary.main",
+                              fontWeight: "medium",
+                              "&:hover": { textDecoration: "underline" },
+                            }}
+                          >
+                            {t("map.showonmap")}
+                          </MuiLink>
+                        )}
+                        <Button
+                          variant="text"
+                          color="primary"
+                          startIcon={<DescriptionIcon />}
+                          sx={{
+                            display: "flex",
+                            gap: 1,
+                            minWidth: "auto",
+                            flex: 1,
+                          }}
+                          onClick={() => handleDownloadAppPdf(app)}
+                        >
+                          {t("app.receipt")}
+                        </Button>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </Fade>
@@ -542,6 +642,7 @@ const MyApplications = () => {
               readOnly={isReadOnly}
               initialData={selectedApplication}
               location={null}
+              onSuccess={refreshApplications}
             />
           )}
         </Dialog>

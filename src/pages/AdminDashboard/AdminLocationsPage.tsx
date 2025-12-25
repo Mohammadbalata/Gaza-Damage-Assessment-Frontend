@@ -31,7 +31,12 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { Citizen, Location, LocationType, UserRole } from "../../types/entities";
+import {
+  Citizen,
+  Location,
+  LocationType,
+  UserRole,
+} from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
@@ -91,7 +96,7 @@ export function AdminLocationsPage() {
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN,UserRole.SUPERVISOR);
+  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
@@ -112,9 +117,21 @@ export function AdminLocationsPage() {
   const center = position || defaultCenter;
 
   const locationTypes = [
-    { id: 1, value: LocationType.BEFORE_WAR, label: t("admin.locations.beforeWar") },
-    { id: 2, value: LocationType.AFTER_WAR, label: t("admin.locations.afterWar") },
-    { id: 3, value: LocationType.TEMPORARY, label: t("admin.locations.temporary") },
+    {
+      id: 1,
+      value: LocationType.BEFORE_WAR,
+      label: t("admin.locations.beforeWar"),
+    },
+    {
+      id: 2,
+      value: LocationType.AFTER_WAR,
+      label: t("admin.locations.afterWar"),
+    },
+    {
+      id: 3,
+      value: LocationType.TEMPORARY,
+      label: t("admin.locations.temporary"),
+    },
     { id: 4, value: LocationType.CURRENT, label: t("admin.locations.current") },
   ];
 
@@ -249,7 +266,10 @@ export function AdminLocationsPage() {
       notes: data.notes || null,
     };
     if (editing) {
-      executeUpdateLocation(API.admin.locations.update(editing.id.toString()), payload);
+      executeUpdateLocation(
+        API.admin.locations.update(editing.id.toString()),
+        payload
+      );
     } else {
       executeCreateLocation(payload);
     }
@@ -384,7 +404,9 @@ export function AdminLocationsPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Chip
-                      label={location.type.replace("_", " ").toLocaleLowerCase()}
+                      label={location.type
+                        .replace("_", " ")
+                        .toLocaleLowerCase()}
                       sx={{
                         ...locationColors[location.type],
                         textTransform: "capitalize",

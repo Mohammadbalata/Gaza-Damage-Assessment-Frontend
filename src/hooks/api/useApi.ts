@@ -72,7 +72,7 @@ export function useApi<T = any>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [immediate]);
 
-  return { data, loading, error, execute, reset,setData };
+  return { data, loading, error, execute, reset, setData };
 }
 
 /**
@@ -93,7 +93,10 @@ export function usePost<T = any>(url: string, options: UseApiOptions = {}) {
  * Hook for PUT requests
  */
 export function usePut<T = any>(options: UseApiOptions = {}) {
-  return useApi<T>((url: string,payload: any) => api.put(url, payload), options);
+  return useApi<T>(
+    (url: string, payload: any) => api.put(url, payload),
+    options
+  );
 }
 
 /**
@@ -107,7 +110,10 @@ export function useDelete<T = any>(options: UseApiOptions = {}) {
  * Hook for PATCH requests
  */
 export function usePatch<T = any>(options: UseApiOptions = {}) {
-  return useApi<T>((url: string,payload: any) => api.patch(url, payload), options);
+  return useApi<T>(
+    (url: string, payload: any) => api.patch(url, payload),
+    options
+  );
 }
 
 export default useApi;

@@ -107,7 +107,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.backToLogin": "Back to Login",
 
     // Bank Information Page
-    "citizen.bankInfoTitle": "Bank Information",
+    "citizen.bankInfoTitle": "Bank Data",
     "citizen.bankInfoComingSoon":
       "Bank information registration will be available soon. This feature is currently under development.",
 
@@ -179,7 +179,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.previousLocation": "Previous Location (Before War)",
     "map.previousLocationDescription":
       "Please select the location of your property before the war.",
-    "map.currentLocation": "Current Location (After War)",
+    "map.currentLocation":
+      "Choose your place of origin/current residence (post-war)",
     "map.currentLocationDescription":
       "Please select the location of your property after the war. (Where are you staying now?)",
 
@@ -211,6 +212,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "status.rejected": "Rejected",
     "status.closed": "Closed",
     "status.pending": "Pending",
+
+    "status.tooltip.pending":
+      "Your request is under review and has not been processed yet.",
+    "status.tooltip.verified":
+      "Your request has been verified and is awaiting final approval.",
+    "status.tooltip.approved": "Your request has been approved and accepted.",
+    "status.tooltip.rejected":
+      "Your request has been rejected. Please review comments or contact support.",
+    "status.tooltip.closed":
+      "This request is closed and no further actions can be taken.",
+    "statue.tooltip.submitted": "Your request has been submitted successfully.",
+    "status.tooltip.underreview": "Your request is currently being reviewed.",
 
     // Admin - common
     "admin.dashboard": "Dashboard",
@@ -434,7 +447,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     // Citizen Dashboard
     "citizen.dashboard": "Citizen Dashboard",
-    "citizen.welcome": "Welcome back",
+    "citizen.welcome": "Welcome",
     "citizen.addDamageRequest": "Add New Damage Application",
     "citizen.addDamageRequestDesc":
       "Register a new damage assessment application",
@@ -446,7 +459,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.submittedOn": "Submitted on",
     "citizen.viewDetails": "View Details",
     "citizen.status": "Status",
-    "citizen.bankInfo": "Bank Information",
+    "citizen.bankInfo": "Bank Data",
     "citizen.bankInfoDesc": "Register your bank account details",
     "citizen.resetPassword": "Reset Password",
     "citizen.resetPasswordDesc": "Change your account password",
@@ -574,7 +587,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.backToLogin": "العودة لتسجيل الدخول",
 
     // Bank Information Page
-    "citizen.bankInfoTitle": "المعلومات البنكية",
+    "citizen.bankInfoTitle": "البيانات البنكية",
     "citizen.bankInfoComingSoon":
       "ميزة تسجيل المعلومات البنكية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
 
@@ -642,7 +655,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.previousLocation": " حدد الممتلك المتضرر",
     "map.previousLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقع ممتلكك قبل الحرب.",
-    "map.currentLocation": " اختر موقعك الحالي (بعد الحرب)",
+    "map.currentLocation": "اختر موقع النزوح / الإقامة الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
 
@@ -674,6 +687,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "status.rejected": "تم الرفض",
     "status.closed": "مغلق",
     "status.pending": "قيد الانتظار",
+
+    "status.tooltip.pending": "طلبك قيد المراجعة ولم يتم معالجته بعد.",
+    "status.tooltip.verified":
+      "تم التحقق من طلبك وهو في انتظار الموافقة النهائية.",
+    "status.tooltip.approved": "تمت الموافقة على طلبك وقبوله.",
+    "status.tooltip.rejected":
+      "تم رفض طلبك. يرجى مراجعة الملاحظات أو التواصل مع الدعم.",
+    "status.tooltip.closed": "هذا الطلب مغلق ولا يمكن اتخاذ كزيد من الإجراءات.",
+    "status.tooltip.submitted": "تم إرسال طلبك بنجاح.",
+    "status.tooltip.underreview": "طلبك قيد المراجعة حالياً.",
 
     // Admin - common
     "admin.dashboard": "لوحة التحكم",
@@ -882,7 +905,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     // Citizen Dashboard
     "citizen.dashboard": "لوحة تحكم المواطن",
-    "citizen.welcome": "مرحباً بعودتك",
+    "citizen.welcome": "مرحباً",
     "citizen.addDamageRequest": "إضافة طلب ضرر جديد",
     "citizen.addDamageRequestDesc": "تسجيل تقييم أضرار جديد للممتلكات",
     "citizen.myRequests": "طلباتي",
@@ -893,7 +916,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.submittedOn": "تاريخ التقديم",
     "citizen.viewDetails": "عرض التفاصيل",
     "citizen.status": "الحالة",
-    "citizen.bankInfo": "معلومات البنك",
+    "citizen.bankInfo": "البيانات البنكية",
     "citizen.bankInfoDesc": "تسجيل تفاصيل حسابك المصرفي",
     "citizen.resetPassword": "إعادة تعيين كلمة المرور",
     "citizen.resetPasswordDesc": "تغيير كلمة مرور حسابك",

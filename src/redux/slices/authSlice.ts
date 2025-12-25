@@ -3,11 +3,22 @@ import { IAuthState } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
 import { API } from "../../constants/ApiRoutes";
 
+const getStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem("citizen_user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const storedUser = getStoredUser();
+
 const initialState: IAuthState = {
-  nationalId: "",
-  password: "",
-  user: null,
-  isAuthenticated: false,
+  nationalId: storedUser?.nationalId || "",
+  password: storedUser?.password || "",
+  user: storedUser || null,
+  isAuthenticated: !!storedUser,
   loading: false,
   error: null,
   messageSuccess: "",
@@ -48,6 +59,14 @@ export const authSlice = createSlice({
     },
     setPhoneNumber: (state, action) => {
       state.phoneNumber = action.payload;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.nationalId = "";
+      state.password = "";
+      localStorage.removeItem("citizen_user");
+      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
@@ -114,13 +133,21 @@ export const signIn = createAsyncThunk(
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
-      return {
+
+      const userProfile = {
         nationalId: payload.nationalId,
         password: payload.password,
         name: res.data?.data?.name || "User",
+        first_name: res.data?.data?.user?.first_name || "User",
+        father_name: res.data?.data?.user?.father_name || "User",
+        family_name: res.data?.data?.user?.family_name || "User",
         extraData,
         locations,
       };
+
+      localStorage.setItem("citizen_user", JSON.stringify(userProfile));
+
+      return userProfile;
     } catch (error: any) {
       console.log(error);
       return rejectWithValue(error.response?.data?.message || "Login failed");
