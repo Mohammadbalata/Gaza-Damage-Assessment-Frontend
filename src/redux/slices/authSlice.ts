@@ -30,7 +30,6 @@ const initialState: IAuthState = {
   phoneNumber: "",
   email: "",
   whatsappNumber: "",
-  citizenInfo: JSON.parse(localStorage.getItem("citizenInfo") || "{}"),
 };
 
 export const authSlice = createSlice({
@@ -61,16 +60,14 @@ export const authSlice = createSlice({
     setPhoneNumber: (state, action) => {
       state.phoneNumber = action.payload;
     },
-    setCitizenInfo: (state, action) => {
-      state.citizenInfo = action.payload;
-    },
-                                     logout: (state) => {
+    logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.nationalId = "";
       state.password = "";
       localStorage.removeItem("citizen_user");
       localStorage.removeItem("token");
+    },
   },
   extraReducers: (builder) => {
     //---- sign in ----//
@@ -136,8 +133,6 @@ export const signIn = createAsyncThunk(
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
-      return {
-        citizenData: res?.data,
 
       const userProfile = {
         nationalId: payload.nationalId,
@@ -197,6 +192,5 @@ export const {
   setFamilyName,
   setEmail,
   setPhoneNumber,
-  setCitizenInfo,
 } = authSlice.actions;
 export default authSlice.reducer;

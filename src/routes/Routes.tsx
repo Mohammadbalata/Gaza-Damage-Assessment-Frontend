@@ -29,7 +29,6 @@ import { UserRole } from "../types/entities";
 import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
-import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
@@ -134,14 +133,7 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  {
-    path: ROUTES.EDIT_PROFILE,
-    element: (
-      <ProtectedRoutes>
-        <EditProfilePage />
-      </ProtectedRoutes>
-    ),
-  },
+
   // MyApplications
 
   // {
