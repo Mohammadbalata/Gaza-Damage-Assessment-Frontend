@@ -29,6 +29,8 @@ import { UserRole } from "../types/entities";
 import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
+import EditProfilePage from "../pages/Settings/EditProfilePage";
+import SettingsPage from "../pages/SettingsPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -61,7 +63,9 @@ export const ROUTES: IRoutes = {
   SIGNUP: "auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
   PASSWORD_DISPLAY: "/password-display",
-  CHANGE_PASSWORD: "/citizen/change-password",
+  CHANGE_PASSWORD: "/citizen/settings/change-password",
+  SETTINGS: "/citizen/settings",
+  EDIT_PROFILE: "/citizen/settings/edit-profile",
   MY_APPLICATIONS: "/my-applications",
   // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
   PREVIOUS_LOCATION: "/previous-location",
@@ -119,6 +123,22 @@ export const routes = [
     element: (
       <ProtectedRoutes>
         <ResetPasswordPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.SETTINGS,
+    element: (
+      <ProtectedRoutes>
+        <SettingsPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.EDIT_PROFILE,
+    element: (
+      <ProtectedRoutes>
+        <EditProfilePage />
       </ProtectedRoutes>
     ),
   },
