@@ -70,7 +70,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      roleId: 2,
+      roleId: 0,
     },
   });
 
@@ -135,7 +135,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      roleId: 1,
+      roleId: 0,
     });
     setIsDialogOpen(true);
   };
@@ -407,7 +407,7 @@ export function AdminUsersPage() {
             />
             <FormTextField
               control={control}
-              name="role"
+              name="roleId"
               label={t("admin.users.role")}
               select
             >

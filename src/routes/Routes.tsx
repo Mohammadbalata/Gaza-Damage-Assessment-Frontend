@@ -24,6 +24,7 @@ import { adminRoutes } from "./admin.routes";
 import { PermissionGuard } from "./PermissionGuard";
 import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
+import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 
 
 
@@ -55,6 +56,7 @@ export const ROUTES: IRoutes = {
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
   ADMIN_DASHBOARD: "/admin",
+  ADMIN_LOCATION_MAP:"admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
@@ -179,6 +181,15 @@ export const routes = [
         route.element
       ),
     })),
+  },
+
+  {
+    path: ROUTES.ADMIN_LOCATION_MAP,
+    element: (
+      <ProtectedRoute>
+      <AdminLocationMapPage />
+      </ProtectedRoute>
+    ),
   },
 
   { path: "*", element: <NotFoundPage /> },

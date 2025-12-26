@@ -437,24 +437,6 @@ export function AdminApplicationsPage() {
                       </Box>
                     </TableCell>
                   )}
-                  {canEditApplication && (
-                    <TableCell align="center">
-                      <Box>
-                        <Button
-                          size="small"
-                          startIcon={
-                            <Edit2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() => openEditDialog(application)}
-                        >
-                          {t("common.edit")}
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  )}
                 </TableRow>
               ))}
             </TableBody>

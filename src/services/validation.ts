@@ -156,8 +156,6 @@ export const userSchema = yup.object({
     otherwise: (schema) =>
       schema
         .optional()
-        .min(6, "يجب أن تكون كلمة المرور 6 أحرف على الأقل")
-        .max(100, "يجب أن تكون كلمة المرور أقل من 100 حرف"),
   }),
 
   roleId: yup.number().required("رقم الدور مطلوب"),

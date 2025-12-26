@@ -74,4 +74,6 @@ export const adminRoutes = [
     icon: <LockIcon size={20} />,
     permission: permissions.permission.view,
   },
+  
+  
 ];

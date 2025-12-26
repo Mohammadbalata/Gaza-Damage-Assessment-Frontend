@@ -45,9 +45,6 @@ interface RoleFormData {
   description?: string;
 }
 
-
-
-
 // Helper function to group permissions by category
 const groupPermissionsByCategory = (permissions: Permission[]) => {
   const grouped: Record<string, Permission[]> = {};
@@ -110,7 +107,6 @@ export function AdminRolesPage() {
     loading,
     data: roles,
     setData,
-    reset:refetch,
   } = useGet<Role[]>(API.admin.roles.list, {
     immediate: true,
   });
@@ -164,19 +160,23 @@ export function AdminRolesPage() {
     },
   });
 
-  const { loading: loadingAssignPermissions, execute: executeAssignPermissions } =
-    usePost("", {
+  const {
+    loading: loadingAssignPermissions,
+    execute: executeAssignPermissions,
+  } = usePost(
+    API.admin.roles.assignPermissions(selectedRole?.id.toString() || ""),
+    {
       onSuccess: () => {
         showSuccess(t("success.permissionsAssigned"));
         setIsPermissionsDialogOpen(false);
         setSelectedRole(null);
         setSelectedPermissions([]);
-        refetch();
       },
       onError: (error) => {
         showError(error || t("error.assignPermissions"));
       },
-    });
+    }
+  );
 
   // Open create dialog
   const openCreateDialog = () => {
@@ -226,10 +226,7 @@ export function AdminRolesPage() {
   // Handle assign permissions
   const handleAssignPermissions = () => {
     if (!selectedRole) return;
-    executeAssignPermissions(
-      API.admin.roles.assignPermissions(selectedRole.id.toString()),
-      { permissionIds: selectedPermissions }
-    );
+    executeAssignPermissions({ permissionIds: selectedPermissions });
   };
 
   // Handle delete
@@ -237,7 +234,6 @@ export function AdminRolesPage() {
     if (!deleteConfirm.id) return;
     execute(API.admin.roles.delete(deleteConfirm.id.toString()));
   };
-
 
   const filteredRoles = roles?.filter(
     (role) =>
