@@ -6,11 +6,12 @@ export interface IRoutes {
   PREVIOUS_LOCATION: string;
   PASSWORD_DISPLAY: string;
   CHANGE_PASSWORD: string;
+  EDIT_PROFILE: string;
   MY_APPLICATIONS: string;
   // DAMAGE_ASSESSMENT_DIALOG: string;
   CURRENT_LOCATION: string;
   PERSONAL_INFO: string;
-
+  SETTINGS: string;
   FAMILY_INFO: string;
   // DAMAGE_ASSESSMENT: string;
   // DOCUMENTS: string;

@@ -16,6 +16,8 @@ import {
   ListItemText,
   Divider,
   Dialog,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -30,7 +32,7 @@ import {
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import {  useState } from "react";
+import { useState } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useGet } from "../hooks/api/useApi";
@@ -41,6 +43,8 @@ import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import { generatePDFReceipt } from "../utils/pdfGenerator";
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
+import { useForm } from "react-hook-form";
+import { SearchIcon } from "lucide-react";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -55,6 +59,17 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = useForm<any>({
+    defaultValues: {
+      id: "",
+    },
+  });
+
+  const id = watch("id");
 
   const {
     data: rawData,
@@ -75,6 +90,10 @@ const MyApplications = () => {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const filterdApplications = id
+    ? applications?.filter((item: any) => item.id === id)
+    : applications;
 
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
@@ -329,6 +348,35 @@ const MyApplications = () => {
           </Box>
         </Stack>
 
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.paper",
+          }}
+        >
+          <TextField
+            placeholder={t("form.enterTrackingNumber")}
+            fullWidth
+            {...register("id")}
+            InputProps={{
+              sx: {
+                height: 56,
+                fontSize: 16,
+              },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon size={20} color="#9CA3AF" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Paper>
+
         {/* Applications List */}
         {!applications || applications.length === 0 ? (
           /* Empty State */
@@ -389,12 +437,16 @@ const MyApplications = () => {
               gap: 2,
             }}
           >
-            {applications.map((app: any) => {
+            {filterdApplications?.map((app: any) => {
               const status = app.status?.toUpperCase() || "PENDING";
               const isPending = status === "PENDING";
 
               return (
-                <Fade in={true} style={{ transformOrigin: "0 0 0" }} key={app.key}>
+                <Fade
+                  in={true}
+                  style={{ transformOrigin: "0 0 0" }}
+                  key={app.key}
+                >
                   <Card
                     elevation={0}
                     sx={{
@@ -508,7 +560,7 @@ const MyApplications = () => {
                         startIcon={
                           isPending ? <EditIcon /> : <VisibilityIcon />
                         }
-                        sx={{display:'flex', gap:1}}
+                        sx={{ display: "flex", gap: 1 }}
                         onClick={() => handleAction(app)}
                       >
                         {isPending

@@ -16,10 +16,10 @@ import {
   AddCircleOutline as AddIcon,
   ListAlt as ListIcon,
   AccountBalance as BankIcon,
-  LockReset as LockIcon,
   Logout as LogoutIcon,
   Person as PersonIcon,
   ArrowBack,
+  Settings,
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppSelector } from "../hooks/redux";
@@ -51,6 +51,7 @@ const CitizenDashboard: React.FC = () => {
     // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("citizenInfo");
 
     // Navigate to sign in page
     navigate(`/`);
@@ -97,12 +98,12 @@ const CitizenDashboard: React.FC = () => {
       onClick: () => navigate(ROUTES.BANK_INFORMATION),
     },
     {
-      key: "resetPassword",
-      title: t("citizen.resetPassword"),
-      description: t("citizen.resetPasswordDesc"),
-      icon: <LockIcon sx={{ fontSize: 40 }} />,
+      key: "electronicServices",
+      title: t("citizen.electronicServices"),
+      description: t("citizen.electronicServicesDesc"),
+      icon: <Settings sx={{ fontSize: 40 }} />,
       color: "warning",
-      onClick: () => navigate(ROUTES.CHANGE_PASSWORD),
+      onClick: () => navigate(ROUTES.SETTINGS),
     },
   ];
 

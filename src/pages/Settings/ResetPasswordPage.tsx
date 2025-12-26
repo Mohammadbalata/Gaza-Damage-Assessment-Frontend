@@ -314,7 +314,7 @@ const ResetPasswordPage = () => {
                       <ArrowBack sx={{ mx: 1 }} />
                     )
                   }
-                  onClick={() => navigate(ROUTES.CITIZEN_DASHBOARD)}
+                  onClick={() => navigate(ROUTES.SETTINGS)}
                   sx={{ py: 1.5 }}
                 >
                   {t("common.back")}
