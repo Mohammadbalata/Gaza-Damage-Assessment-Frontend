@@ -4,6 +4,7 @@ import { IndependentBuildingProps } from "../../interfaces/props/IImageUploadInp
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import classNames from "classnames";
+import { useState } from "react";
 
 const IndependentBuilding = ({
   register,
@@ -13,6 +14,7 @@ const IndependentBuilding = ({
   isChangeToReviewPage,
 }: IndependentBuildingProps) => {
   const { t } = useLanguage();
+  const [textLength, setTextLength] = useState(0);
 
   const propertyType = watch("IndependentBuilding.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
@@ -266,7 +268,12 @@ const IndependentBuilding = ({
           DAMAGE_TYPES.map(
             (item, index) =>
               item.buildingType !== "بناية" && (
-                <div className={classNames('mr-3',{'cursor-not-allowed':isChangeToReviewPage})} key={index}>
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
                   <input
                     type="checkbox"
                     value={item.value}
@@ -275,7 +282,8 @@ const IndependentBuilding = ({
                     })}
                     className={classNames(
                       "accent-primary",
-                      isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
@@ -354,14 +362,24 @@ const IndependentBuilding = ({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           ملاحظات إضافية
         </label>
-        <textarea
-          {...register("IndependentBuilding.additionalNotes")}
-          className={classNames(
-            "input-field min-h-[100px] resize-none",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
-          )}
-          disabled={isChangeToReviewPage ? true : false}
-        ></textarea>
+        <div className="relative">
+          <textarea
+            {...register("IndependentBuilding.additionalNotes")}
+            placeholder="اكتب أي تفاصيل إضافية..."
+            className={classNames(
+              "input-field min-h-[100px] resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-100" : ""
+            )}
+            maxLength={300}
+            disabled={isChangeToReviewPage}
+            onChange={(e) => setTextLength(e.target.value.length)}
+          ></textarea>
+
+          {/* عداد الحروف المتبقية */}
+          <div className={`text-sm text-gray-500 absolute bottom-3 right-2 `}>
+            {300 - textLength} {t("common.lettersRemaining")}
+          </div>
+        </div>
       </div>
       {/* صور ومستندات */}
       <div
@@ -375,7 +393,6 @@ const IndependentBuilding = ({
           label="صورة العقار قبل الحرب ( إن وجد )"
           {...{ isChangeToReviewPage }}
           previewAPI="https://oufjobpdjqlveupjciuj.supabase.co/storage/v1/object/public/damageassessment/after_war_image/f73477de-589f-4402-9ee6-281ee8868432.jpeg"
-
         />
 
         <SingleImageInput

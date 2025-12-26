@@ -47,7 +47,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.female": "Female",
     "common.other": "other",
     "common.savedSuccessfully": "data saved Successfully",
-
+    "common.lettersRemaining": "letters remaining",
     "common.single": "single",
     "common.married": "married",
     "common.divorced": "divorced",
@@ -531,6 +531,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.married": "متزوج/ ـة",
     "common.divorced": "مطلق/ ـة",
     "common.widowed": "أرملة",
+    "common.lettersRemaining": "عدد الحروف المتبقية",
 
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",

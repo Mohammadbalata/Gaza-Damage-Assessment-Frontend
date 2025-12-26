@@ -3,6 +3,7 @@ import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import { DAMAGE_TYPE_CompHouse } from "../../utils/DamageAssessment";
 import classNames from "classnames";
+import { useState } from "react";
 interface CampHousingProps {
   register: any;
   errors: any;
@@ -23,6 +24,8 @@ const CampHousing = ({
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("compHouse.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
+  const [textLength, setTextLength] = useState(0);
+
   return (
     <div className="space-y-6">
       {/* مساحة المسكن */}
@@ -222,17 +225,24 @@ const CampHousing = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             ملاحظات إضافية
           </label>
-          <textarea
-            {...register("compHouse.additionalNotes")}
-            placeholder="اكتب أي تفاصيل إضافية..."
-            className={classNames(
-              "input-field min-h-[100px] resize-none",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : ""
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          ></textarea>
+          <div className="relative">
+            <textarea
+              {...register("IndependentBuilding.additionalNotes")}
+              placeholder="اكتب أي تفاصيل إضافية..."
+              className={classNames(
+                "input-field min-h-[100px] resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-100" : ""
+              )}
+              maxLength={300}
+              disabled={isChangeToReviewPage}
+              onChange={(e) => setTextLength(e.target.value.length)}
+            ></textarea>
+
+            {/* عداد الحروف المتبقية */}
+            <div className={`text-sm text-gray-500 absolute bottom-3 right-2 `}>
+              {300 - textLength} {t("common.lettersRemaining")}
+            </div>
+          </div>
         </div>
         {/* صور ومستندات */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
