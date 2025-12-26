@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -101,7 +101,6 @@ export function AdminApplicationsPage() {
   const [search, setSearch] = useState("");
   const [citizenSearch, setCitizenSearch] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
-
 
   // Form
   const {
@@ -214,9 +213,12 @@ export function AdminApplicationsPage() {
   // Handle submit
   const onSubmit = async (data: ApplicationFormData) => {
     if (editing) {
-      executeUpdateApplication(API.admin.applications.update(editing.id.toString()), {
-        ...data,
-      });
+      executeUpdateApplication(
+        API.admin.applications.update(editing.id.toString()),
+        {
+          ...data,
+        }
+      );
     } else {
       executeCreateApplication({
         ...data,
@@ -400,7 +402,9 @@ export function AdminApplicationsPage() {
                     sx={{ textTransform: "capitalize" }}
                   >
                     <Chip
-                      label={application.status.replace("_", " ").toLocaleLowerCase()}
+                      label={application.status
+                        .replace("_", " ")
+                        .toLocaleLowerCase()}
                       sx={{
                         ...applicationTypesColors[application.status],
                         textTransform: "capitalize",
@@ -537,8 +541,6 @@ export function AdminApplicationsPage() {
               />
             )}
 
-           
-
             {/* Status Select */}
             <FormTextField
               control={control}
@@ -546,10 +548,18 @@ export function AdminApplicationsPage() {
               label={t("admin.applications.status")}
               select
             >
-              <MenuItem value={ApplicationStatus.PENDING}>{t("status.submitted")}</MenuItem>
-              <MenuItem value={ApplicationStatus.VERIFIED}>{t("status.verified")}</MenuItem>
-              <MenuItem value={ApplicationStatus.APPROVED}>{t("status.approved")}</MenuItem>
-              <MenuItem value={ApplicationStatus.REJECTED}>{t("status.rejected")}</MenuItem>
+              <MenuItem value={ApplicationStatus.PENDING}>
+                {t("status.submitted")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.VERIFIED}>
+                {t("status.verified")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.APPROVED}>
+                {t("status.approved")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.REJECTED}>
+                {t("status.rejected")}
+              </MenuItem>
               <MenuItem value={ApplicationStatus.CLOSED}>
                 {t("status.closed") || "Closed"}
               </MenuItem>

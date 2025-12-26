@@ -9,7 +9,7 @@ import {
   Theme,
 } from "@mui/material";
 import { useLanguage } from "../contexts/LanguageContext";
-import Logo from "../../public/logo.jpg";
+import Logo from "../../src/assets/logo.jpg";
 
 interface AuthCompProps {
   title?: string;

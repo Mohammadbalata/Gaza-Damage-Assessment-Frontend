@@ -36,13 +36,12 @@ const CitizenDashboard: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store
-  const authState = useAppSelector((state) => state.auth);
-  const citizenName = authState.firstName
-    ? `${authState.firstName} ${authState.fatherName || ""} ${
-        authState.familyName || ""
+  const authState: any = useAppSelector((state) => state.auth);
+  const citizenName = authState.user?.first_name
+    ? `${authState.user?.first_name} ${authState.user?.father_name || ""} ${
+        authState.user?.family_name || ""
       }`.trim()
     : authState.nationalId || t("citizen.welcome");
-  console.log(authState);
 
   /**
    * Handle logout - clears auth state and redirects to sign in
@@ -51,6 +50,7 @@ const CitizenDashboard: React.FC = () => {
     // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("citizen_user");
     localStorage.removeItem("citizenInfo");
 
     // Navigate to sign in page
