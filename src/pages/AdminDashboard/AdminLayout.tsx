@@ -6,7 +6,7 @@ const AdminLayout = () => {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AdminSidebar />
-      <Box component="main" className="!pt-20" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" className="flex flex-grow !pt-20">
         <Outlet />
       </Box>
     </Box>

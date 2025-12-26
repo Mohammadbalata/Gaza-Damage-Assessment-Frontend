@@ -26,8 +26,6 @@ import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 
-
-
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? (
@@ -55,8 +53,8 @@ export const ROUTES: IRoutes = {
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
-  ADMIN_DASHBOARD: "/admin",
-  ADMIN_LOCATION_MAP:"admin/locations/map",
+  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_LOCATION_MAP: "admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
@@ -187,7 +185,7 @@ export const routes = [
     path: ROUTES.ADMIN_LOCATION_MAP,
     element: (
       <ProtectedRoute>
-      <AdminLocationMapPage />
+        <AdminLocationMapPage />
       </ProtectedRoute>
     ),
   },

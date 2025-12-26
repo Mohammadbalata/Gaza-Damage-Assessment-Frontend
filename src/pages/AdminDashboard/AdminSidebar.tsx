@@ -35,8 +35,8 @@ const AdminSidebar = () => {
       variant="permanent"
       anchor={isRTL ? "right" : "left"}
       sx={{
-        width: drawerWidth,
         flexShrink: 0,
+        marginLeft: 20,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
@@ -59,7 +59,7 @@ const AdminSidebar = () => {
 
       {/* Menu */}
       <List sx={{ flexGrow: 1 }}>
-        {adminRoutes.map(route => {
+        {adminRoutes.map((route) => {
           if (route.permission && !hasPermission(route.permission)) return null;
 
           const fullPath = `/admin/${route.path}`;
@@ -91,7 +91,10 @@ const AdminSidebar = () => {
               >
                 {route.icon}
               </ListItemIcon>
-              <ListItemText className={`${language === "ar" ? "text-right" :""}`} primary={t(route.label)} />
+              <ListItemText
+                className={`${language === "ar" ? "text-right" : ""}`}
+                primary={t(route.label)}
+              />
             </ListItemButton>
           );
         })}
