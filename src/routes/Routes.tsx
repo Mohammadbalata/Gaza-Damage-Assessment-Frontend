@@ -53,7 +53,7 @@ export const ROUTES: IRoutes = {
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
-  ADMIN_DASHBOARD: "/admin/dashboard",
+  ADMIN_DASHBOARD: "/admin",
   ADMIN_LOCATION_MAP: "admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   FORGOT_PASSWORD: "auth/forgot-password",
