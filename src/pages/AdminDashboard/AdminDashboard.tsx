@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDashboard.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,7 +8,6 @@ import {
   Card,
   Typography,
   Stack,
-  Chip,
   Button,
   Paper,
 } from "@mui/material";
@@ -18,25 +18,25 @@ import {
   LocationOn as LocationsIcon,
   Money,
 } from "@mui/icons-material";
+import { Group as GroupIcon, Lock as LockIcon } from "@mui/icons-material";
 import { useGet } from "../../hooks/api/useApi";
 import { useNotification } from "../../hooks/useNotifications";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { GroupIcon, LockIcon } from "lucide-react";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
 
 /**
  * Admin Dashboard Page
- * الصفحة الرئيسية لوحة التحكم
  */
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, hasPermission } = useAuth();
   const { showError } = useNotification();
+
   const [totals, setTotals] = useState({
     users: 0,
     applications: 0,
@@ -62,24 +62,21 @@ const AdminDashboard: React.FC = () => {
     },
   });
 
-  const canViewUsers = hasPermission(permissions.user.view);
-  const canViewApplicatios = hasPermission(permissions.application.view);
-  const canViewCitizens = hasPermission(permissions.citizen.view);
-  const canViewlocatios = hasPermission(permissions.location.view);
-  const canViewbankAccounts = hasPermission(permissions.bank_account.view);
-  const canViewPermissions = hasPermission(permissions.permission.view);
-  const canViewRoles = hasPermission(permissions.role.view);
-
   if (error) {
     showError(error);
   }
-  /**
-   * Dashboard card configuration
-   */
+
+  const canViewUsers = hasPermission(permissions.user.view);
+  const canViewApplications = hasPermission(permissions.application.view);
+  const canViewCitizens = hasPermission(permissions.citizen.view);
+  const canViewLocations = hasPermission(permissions.location.view);
+  const canViewBankAccounts = hasPermission(permissions.bank_account.view);
+  const canViewRoles = hasPermission(permissions.role.view);
+  const canViewPermissions = hasPermission(permissions.permission.view);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header Section */}
+      {/* Header */}
       <Box sx={{ mb: 5 }}>
         <Stack
           direction={{ xs: "column", md: "row" }}
@@ -95,58 +92,36 @@ const AdminDashboard: React.FC = () => {
               {t("admin.welcomeBack")}, {user?.name}
             </Typography>
           </Box>
-          <Chip
-            label={t("common.admin")}
-            color="primary"
-            variant="outlined"
-            size="small"
-          />
         </Stack>
       </Box>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
         <Box sx={{ py: 8 }}>
-          <LoadingSpinner message="جاري تحميل بيانات لوحة التحكم..." />
+          <LoadingSpinner message={t("admin.loadingDashboard")} />
         </Box>
       )}
 
-      {/* Dashboard Content */}
       {!loading && (
         <>
-          {/* Dashboard Cards Grid */}
-          {/* <Grid container spacing={3} sx={{ mb: 5 }}>
-            {dashboardCards.map((card) => (
-              <>
-                {card.hasPermission && (
-                  <Grid key={card.key}>
-                    <DashboardCard card={card} onNavigate={navigate} />
-                  </Grid>
-                )}
-              </>
-            ))}
-          </Grid> */}
-
-          {/* Statistics Summary */}
-          <Grid container spacing={2}>
+          {/* Statistics Cards */}
+          <Grid container spacing={2} sx={{ mb: 4 }}>
             {canViewUsers && (
               <Grid>
                 <StatisticCard
                   label={t("admin.totalUsers")}
                   value={totals.users}
                   icon={<UsersIcon />}
-                  color="primary"
                 />
               </Grid>
             )}
 
-            {canViewApplicatios && (
+            {canViewApplications && (
               <Grid>
                 <StatisticCard
                   label={t("admin.totalApplications")}
                   value={totals.applications}
                   icon={<ApplicationsIcon />}
-                  color="info"
                 />
               </Grid>
             )}
@@ -157,118 +132,98 @@ const AdminDashboard: React.FC = () => {
                   label={t("admin.totalCitizens")}
                   value={totals.citizens}
                   icon={<CitizensIcon />}
-                  color="success"
                 />
               </Grid>
             )}
 
-            {canViewlocatios && (
+            {canViewLocations && (
               <Grid>
                 <StatisticCard
                   label={t("admin.totalLocations")}
                   value={totals.locations}
                   icon={<LocationsIcon />}
-                  color="warning"
                 />
               </Grid>
             )}
 
-            {canViewbankAccounts && (
+            {canViewBankAccounts && (
               <Grid>
                 <StatisticCard
                   label={t("admin.totalBanking")}
                   value={totals.banking}
                   icon={<Money />}
-                  color="info"
                 />
               </Grid>
             )}
+
+             {canViewPermissions && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalPermissions")}
+                  value={totals.permissions}
+                  icon={<LockIcon />}
+                />
+              </Grid>
+            )}
+
             {canViewRoles && (
               <Grid>
                 <StatisticCard
                   label={t("admin.totalRoles")}
                   value={totals.roles}
                   icon={<GroupIcon />}
-                  color="info"
                 />
               </Grid>
             )}
 
-            {canViewPermissions && (
-              <Grid>
-                <StatisticCard
-                  label={t("admin.totalPermissions")}
-                  value={totals.permissions}
-                  icon={<LockIcon />}
-                  color="info"
-                />
-              </Grid>
-            )}
           </Grid>
 
-          {/* Quick Access Section */}
+          {/* Quick Access */}
           <Paper
-            elevation={1}
             sx={{
-              p: 3,
+              p: 2.5,
               borderRadius: 2,
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              color: "white",
-              mt: 3,
+              border: "1px solid",
+              borderColor: "divider",
             }}
           >
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  {t("admin.mostImportantTasks")}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  {t("admin.mostImportantTasksDescription")}
-                </Typography>
-              </Box>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              alignItems={{ md: "center" }}
+              justifyContent="space-between"
+            >
+              <Typography variant="subtitle1" fontWeight={600}>
+                {t("admin.mostImportantTasks")}
+              </Typography>
+
               <Box className="flex justify-start items-center gap-4">
                 <Button
-                  variant="contained"
-                  color="inherit"
                   size="small"
+                  variant="outlined"
                   startIcon={<ApplicationsIcon />}
                   onClick={() => navigate("/admin/applications")}
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: 600,
-                    "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-                  }}
                 >
                   {t("admin.reviewApplications")}
                 </Button>
+
                 {hasPermission(permissions.user.create) && (
                   <Button
-                    variant="contained"
-                    color="inherit"
                     size="small"
+                    variant="outlined"
                     startIcon={<UsersIcon />}
                     onClick={() => navigate("/admin/users")}
-                    sx={{
-                      color: "primary.main",
-                      fontWeight: 600,
-                      "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-                    }}
                   >
                     {t("admin.addUser")}
                   </Button>
                 )}
+
                 {hasPermission(permissions.citizen.create) && (
                   <Button
-                    variant="contained"
-                    color="inherit"
                     size="small"
+                    variant="outlined"
                     startIcon={<CitizensIcon />}
                     onClick={() => navigate("/admin/citizens")}
-                    sx={{
-                      color: "primary.main",
-                      fontWeight: 600,
-                      "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-                    }}
                   >
                     {t("admin.addCitizen")}
                   </Button>
@@ -283,46 +238,35 @@ const AdminDashboard: React.FC = () => {
 };
 
 /**
- * Dashboard Card Component
- * مكون بطاقة لوحة التحكم
- */
-
-/**
  * Statistic Card Component
- * مكون بطاقة الإحصائيات
  */
 interface StatisticCardProps {
   label: string;
   value: number;
   icon: React.ReactNode;
-  color: "primary" | "info" | "success" | "warning";
 }
 
 const StatisticCard: React.FC<StatisticCardProps> = ({
   label,
   value,
   icon,
-  color,
 }) => {
   return (
     <Card
       sx={{
-        textAlign: "center",
-        p: 2,
-        border: "1px solid #f0f0f0",
-        transition: "all 0.3s",
-        "&:hover": {
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-        },
+        p: 2.5,
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
-      <Stack spacing={1.5} alignItems="center">
+      <Box className="flex justify-start items-center gap-4">
         <Box
           sx={{
-            color: `${color}.main`,
-            p: 1,
-            borderRadius: 1,
-            backgroundColor: `${color}.light`,
+            width: 44,
+            height: 44,
+            borderRadius: 1.5,
+            bgcolor: "action.hover",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -330,13 +274,16 @@ const StatisticCard: React.FC<StatisticCardProps> = ({
         >
           {icon}
         </Box>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {formatNumber(value)}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {label}
-        </Typography>
-      </Stack>
+
+        <Box>
+          <Typography variant="h6" fontWeight={700}>
+            {formatNumber(value)}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {label}
+          </Typography>
+        </Box>
+      </Box>
     </Card>
   );
 };

@@ -33,13 +33,10 @@ import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import {
   Application,
   ApplicationStatus,
   Citizen,
-  UserRole,
 } from "../../types/entities";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
@@ -84,7 +81,6 @@ const applicationTypesColors: Record<string, object> = {
 export function AdminApplicationsPage() {
   const { t, language } = useLanguage();
   const { hasPermission } = useAuth();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasPermission(permissions.application.create);

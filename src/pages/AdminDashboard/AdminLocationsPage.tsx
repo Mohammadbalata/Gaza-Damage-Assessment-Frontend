@@ -35,15 +35,12 @@ import {
   Citizen,
   Location,
   LocationType,
-  UserRole,
 } from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 import { API } from "../../constants/ApiRoutes";
@@ -93,7 +90,6 @@ const locationColors: Record<string, object> = {
 export function AdminLocationsPage() {
   const { t, language } = useLanguage();
   const { hasPermission } = useAuth();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasPermission(permissions.location.create);

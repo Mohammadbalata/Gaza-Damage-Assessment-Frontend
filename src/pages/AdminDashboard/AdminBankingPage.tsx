@@ -33,8 +33,6 @@ import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import {
   BankAccount,
   Citizen,
@@ -90,7 +88,6 @@ const currencyTranslations: Record<string, { en: string; ar: string }> = {
 export function AdminBankingPage() {
   const { t, language } = useLanguage();
   const { hasPermission } = useAuth();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasPermission(permissions.bank_account.create);

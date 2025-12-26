@@ -32,8 +32,6 @@ import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
 
@@ -47,7 +45,6 @@ interface UserFormData {
 export function AdminUsersPage() {
   const { t, language } = useLanguage();
   const { user: authUser, hasPermission } = useAuth();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
   const canManage = hasPermission(permissions.user.create);
