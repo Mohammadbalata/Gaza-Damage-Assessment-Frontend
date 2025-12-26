@@ -43,6 +43,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.infrastructureRequest": "Infrastructure Request",
     "common.copied": "Copied to clipboard",
     "common.close": "Close",
+    "common.male": "Male",
+    "common.female": "Female",
+    "common.other": "other",
+    "common.savedSuccessfully": "data saved Successfully",
+    "common.lettersRemaining": "letters remaining",
+    "common.single": "single",
+    "common.married": "married",
+    "common.divorced": "divorced",
+    "common.widowed": "widowed",
+
     "validation.required": "Required",
     "validation.passwordMismatch": "Passwords do not match",
 
@@ -161,7 +171,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.no": "No",
     "form.additionalNotes": "Additional Notes",
     "form.submissionDate": "submissionDate",
-
+    "form.placeOfBirth": "Place Of Birth",
+    "form.country": "Country",
+    "form.gender": "Gender",
+    "form.maritalStatus": "Marital Status",
     // Documents
     "form.uploadDocuments": "Upload Documents",
     "form.dragDrop": "Click to upload or drag and drop",
@@ -201,6 +214,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.savePassword": "Please save this password securely",
     "success.downloadReceipt": "Download PDF ",
     "success.trackStatus": "Track Application Status",
+    "form.enterTrackingNumber": "enter TrackingNumber for search",
 
     // Status
     status: "statusOfApplication",
@@ -470,6 +484,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.address": "Address",
     "citizen.addedDate": "Added Date",
 
+    "citizen.electronicServices": "Electronic services",
+    "citizen.electronicServicesDesc": "Go to electronic services",
+    "citizen.welcomeForElectronicServices": "welcome for electronic services",
+    "citizen.editProfile": "Edit Profile",
+    "citizen.editProfileDesc":
+      "This page allows you to edit and update your personal information",
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -520,6 +540,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.housingRequest": "طلبات الإسكان",
     "common.infrastructureRequest": "طلبات البنية التحتية",
     "common.close": "إغلاق",
+    "common.male": "ذكر",
+    "common.female": "أنثى",
+    "common.other": "أخرى",
+    "common.savedSuccessfully": "تم حفظ بياناتك بنجاح",
+    "common.single": "أعزب / عزباء",
+    "common.married": "متزوج/ ـة",
+    "common.divorced": "مطلق/ ـة",
+    "common.widowed": "أرملة",
+    "common.lettersRemaining": "عدد الحروف المتبقية",
+
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -626,7 +656,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
     "form.familyMembersNumber": "عدد أفراد العائلة",
     "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
-
+    "form.placeOfBirth": "مكان الولادة",
+    "form.country": "الدولة",
+    "form.gender": "الجنس",
+    "form.maritalStatus": "الحالة الاجتماعية",
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
     "form.propertyType": "نوع العقار",
@@ -637,7 +670,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.no": "لا",
     "form.additionalNotes": "ملاحظات إضافية",
     "form.submissionDate": "تاريخ إرسال الطلب",
-
+    "form.enterTrackingNumber": "أدخل رقم التتبع للبحث",
     // Documents
     "form.uploadDocuments": "رفع المستندات",
     "form.dragDrop": "انقر للرفع أو اسحب وأفلت",
@@ -927,6 +960,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.address": "العنوان",
     "citizen.addedDate": "تاريخ الإضافة",
 
+    "citizen.electronicServices": "الخدمات الالكترونية",
+    "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
+    "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
+    "citizen.editProfile": "تعديل البيانات الشخصية",
+    "citizen.editProfileDesc":
+      "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",

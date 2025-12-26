@@ -19,6 +19,7 @@ import {
   TextField,
   Link as MuiLink,
   Tooltip,
+  InputAdornment,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
@@ -49,6 +50,8 @@ import {
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
 import { Search } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { SearchIcon } from "lucide-react";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -64,6 +67,17 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = useForm<any>({
+    defaultValues: {
+      id: "",
+    },
+  });
+
+  const id = watch("id");
 
   const {
     data: rawData,
@@ -104,6 +118,10 @@ const MyApplications = () => {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const filterdApplications = id
+    ? applications?.filter((item: any) => item.id === id)
+    : applications;
 
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
@@ -374,6 +392,35 @@ const MyApplications = () => {
             size="small"
           />
         </Box>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.paper",
+          }}
+        >
+          <TextField
+            placeholder={t("form.enterTrackingNumber")}
+            fullWidth
+            {...register("id")}
+            InputProps={{
+              sx: {
+                height: 56,
+                fontSize: 16,
+              },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon size={20} color="#9CA3AF" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Paper>
+
         {/* Applications List */}
         {!applications || applications.length === 0 ? (
           /* Empty State */

@@ -3,6 +3,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { useState } from "react";
 
 const AdditionalBuildings = ({
   register,
@@ -21,6 +22,8 @@ const AdditionalBuildings = ({
   const showUsageType = roomTypeWatch === "أخرى";
   const floorsCountWatch = watch("additionalBuildings.floorsCount");
   const showfloorsCount = floorsCountWatch > 0;
+  const [textLength, setTextLength] = useState(0);
+
   return (
     <div className="space-y-10">
       <section className="space-y-6">
@@ -371,17 +374,24 @@ const AdditionalBuildings = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             ملاحظات إضافية
           </label>
-          <textarea
-            {...register("additionalBuildings.additionalNotes")}
-            placeholder="اكتب أي تفاصيل إضافية..."
-            className={classNames(
-              "input-field min-h-[100px] resize-none",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : ""
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          ></textarea>
+          <div className="relative">
+            <textarea
+              {...register("IndependentBuilding.additionalNotes")}
+              placeholder="اكتب أي تفاصيل إضافية..."
+              className={classNames(
+                "input-field min-h-[100px] resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-100" : ""
+              )}
+              maxLength={300}
+              disabled={isChangeToReviewPage}
+              onChange={(e) => setTextLength(e.target.value.length)}
+            ></textarea>
+
+            {/* عداد الحروف المتبقية */}
+            <div className={`text-sm text-gray-500 absolute bottom-3 right-2 `}>
+              {300 - textLength} {t("common.lettersRemaining")}
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
           <SingleImageInput
