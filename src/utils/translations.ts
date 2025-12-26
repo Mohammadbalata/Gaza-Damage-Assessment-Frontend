@@ -470,7 +470,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "error.updatePermission": "Failed to update permission",
     "error.deletePermission": "Failed to delete permission",
     // ENGLISH
-    "admin.welcomeBack": "Welcome back",
+    "admin.welcomeBack": "Welcome",
     "admin.supervisorApplicationsDescription":
       "View applications with limited permissions.",
     "admin.supervisorCitizensDescription":
@@ -1000,7 +1000,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "error.deletePermission": "فشل حذف الصلاحية",
 
     // ARABIC
-    "admin.welcomeBack": "مرحباً بعودتك",
+    "admin.welcomeBack": "مرحباً",
     "admin.supervisorApplicationsDescription": "عرض الطلبات بصلاحيات محدودة.",
     "admin.supervisorCitizensDescription": "عرض سجلات المواطنين فقط.",
     "admin.supervisorLocationsDescription": "عرض مواقع المواطنين فقط.",

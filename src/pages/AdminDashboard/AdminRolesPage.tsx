@@ -264,15 +264,6 @@ export function AdminRolesPage() {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box
-        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
-        onClick={() => navigate("/admin/dashboard")}
-      >
-        <span className="hover:underline text-blue-800 cursor-pointer">
-          {t("common.backToDashboard")}
-        </span>
-        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
-      </Box>
-      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",

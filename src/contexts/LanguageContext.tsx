@@ -33,6 +33,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === "en" ? "ar" : "en"));
+    console.log(language);
+    
   };
 
   const t = (key: string): string => {

@@ -9,11 +9,6 @@ import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
 // import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
-import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
-import AdminApplicationsPage from "../pages/AdminDashboard/AdminApplicationsPage";
-import AdminCitizensPage from "../pages/AdminDashboard/AdminCitizensPage";
-import AdminLocationsPage from "../pages/AdminDashboard/AdminLocationsPage";
-import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
 import CitizenDashboard from "../pages/CitizenDashboard";
@@ -24,12 +19,12 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
 import MyApplications from "../pages/MyApplications";
-import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
 import SettingsPage from "../pages/SettingsPage";
-import AdminPermissionsPage from "../pages/AdminDashboard/AdminPermissionsPage";
-import AdminRolesPage from "../pages/AdminDashboard/AdminRolesPage";
+import AdminLayout from "../pages/AdminDashboard/AdminLayout";
+import { adminRoutes } from "./admin.routes";
+import { PermissionGuard } from "./PermissionGuard";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -40,8 +35,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     <Navigate to={ROUTES.ADMIN_LOGIN} />
   );
 }
-
-
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -62,18 +55,18 @@ export const ROUTES: IRoutes = {
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
-  ADMIN_DASHBOARD: "/admin/dashboard",
-  ADMIN_USERS: "/admin/users",
-  ADMIN_APPLICATIONS: "/admin/applications",
-  ADMIN_CITIZENS: "/admin/citizens",
-  ADMIN_LOCATIONS: "/admin/locations",
-  ADMIN_LOCATION_MAP: "/admin/locations/map",
+  ADMIN_DASHBOARD: "/admin",
+  // ADMIN_USERS: "/admin/users",
+  // ADMIN_APPLICATIONS: "/admin/applications",
+  // ADMIN_CITIZENS: "/admin/citizens",
+  // ADMIN_LOCATIONS: "/admin/locations",
+  // ADMIN_LOCATION_MAP: "/admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
-  ADMIN_BANKING: "admin/banking",
+  // ADMIN_BANKING: "admin/banking",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
-  ADMIN_PERMISSIONS:"admin/permissions",
-  ADMIN_ROLES:"admin/roles",
+  // ADMIN_PERMISSIONS:"admin/permissions",
+  // ADMIN_ROLES:"admin/roles",
 };
 
 export const routes = [
@@ -144,22 +137,6 @@ export const routes = [
     ),
   },
 
-  // {
-  //   path: ROUTES.REVIEW,
-  //   element: (
-  //     <ProtectedRoutes>
-  //       <ReviewPage />
-  //     </ProtectedRoutes>
-  //   ),
-  // },
-  // {
-  //   path: ROUTES.SUCCESS,
-  //   element: (
-  //     <ProtectedRoutes>
-  //       <SuccessPage />
-  //     </ProtectedRoutes>
-  //   ),
-  // },
   {
     path: ROUTES.TRACK_STATUS,
     element: <TrackStatusPage />,
@@ -185,54 +162,6 @@ export const routes = [
     ),
   },
   {
-    path: ROUTES.ADMIN_USERS,
-    element: (
-      <ProtectedRoute>
-        <AdminUsersPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.ADMIN_APPLICATIONS,
-    element: (
-      <ProtectedRoute>
-        <AdminApplicationsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.ADMIN_CITIZENS,
-    element: (
-      <ProtectedRoute>
-        <AdminCitizensPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.ADMIN_LOCATIONS,
-    element: (
-      <ProtectedRoute>
-        <AdminLocationsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.ADMIN_LOCATION_MAP,
-    element: (
-      <ProtectedRoutes>
-        <AdminLocationMapPage />
-      </ProtectedRoutes>
-    ),
-  },
-  {
-    path: ROUTES.ADMIN_BANKING,
-    element: (
-      <ProtectedRoute>
-        <AdminBankingPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: ROUTES.FORGOT_PASSWORD,
     element: <ForgotPasswordPage />,
   },
@@ -244,21 +173,26 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
+
   {
-    path: ROUTES.ADMIN_PERMISSIONS,
+    path: "/admin",
     element: (
       <ProtectedRoute>
-        <AdminPermissionsPage />
+        <AdminLayout />
       </ProtectedRoute>
     ),
+    children: adminRoutes.map((route) => ({
+      index: route.path === "",
+      path: route.path || undefined,
+      element: route.permission ? (
+        <PermissionGuard permission={route.permission}>
+          {route.element}
+        </PermissionGuard>
+      ) : (
+        route.element
+      ),
+    })),
   },
-  {
-    path: ROUTES.ADMIN_ROLES,
-    element: (
-      <ProtectedRoute>
-        <AdminRolesPage />
-      </ProtectedRoute>
-    ),
-  },
+
   { path: "*", element: <NotFoundPage /> },
 ];
