@@ -33,18 +33,16 @@ import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import {
   BankAccount,
   Citizen,
   Bank,
-  UserRole,
   AccountType,
   AccountStatus,
 } from "../../types/entities";
 import { titleCase } from "../../utils/helpers";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 interface BankAccountFormData {
   bankId: string;
@@ -89,12 +87,11 @@ const currencyTranslations: Record<string, { en: string; ar: string }> = {
 
 export function AdminBankingPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
-  const navigate = useNavigate();
+  const { hasPermission } = useAuth();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.bank_account.create);
+  const canView = hasPermission(permissions.bank_account.view);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<BankAccount | null>(null);
@@ -317,15 +314,6 @@ export function AdminBankingPage() {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box
-        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
-        onClick={() => navigate("/admin/dashboard")}
-      >
-        <span className="hover:underline text-blue-800 cursor-pointer">
-          {t("common.backToDashboard")}
-        </span>
-        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
-      </Box>
-      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -341,7 +329,7 @@ export function AdminBankingPage() {
             {t("admin.banking.subtitle")}
           </Typography>
         </Box>
-        {canManage && (
+        {hasPermission(permissions.bank_account.export) && (
           <span className="flex justify-center items-center gap-3">
             <Button
               variant="contained"

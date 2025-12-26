@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
 
 // const LOCAL_URL = 'http://localhost:3000/api'
-const PROD_URL = "https://backend-5549.onrender.com/api";
+const PROD_URL = "http://localhost:3000/api";
 
 const api: AxiosInstance = axios.create({
   baseURL: PROD_URL,

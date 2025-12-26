@@ -4,10 +4,11 @@ import { Fab, Tooltip } from "@mui/material";
 
 const LanguageToggle = () => {
   const { language, toggleLanguage } = useLanguage();
+  const isLTR = language === "ar";
 
   return (
     <Tooltip
-      title={language === "en" ? "Switch to Arabic" : "Switch to English"}
+      title={isLTR ? "Switch to Arabic" : "Switch to English"}
       placement="left"
     >
       <Fab
@@ -17,7 +18,8 @@ const LanguageToggle = () => {
         sx={{
           position: "fixed",
           bottom: 24,
-          right: 24,
+          right: isLTR ? "auto" : 24,
+          left: isLTR ? 24 : "auto",
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
           "&:hover": {

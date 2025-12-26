@@ -25,32 +25,30 @@ import {
 import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import {  AdminUser, UserRole } from "../../types/entities";
+import { AdminUser, Role } from "../../types/entities";
 import { userSchema } from "../../services/validation";
 import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 interface UserFormData {
   name: string;
   email: string;
   password?: string;
-  role: UserRole;
+  roleId: number;
 }
 
 export function AdminUsersPage() {
   const { t, language } = useLanguage();
-  const { user: authUser, hasRole } = useAuth();
-  const navigate = useNavigate();
+  const { user: authUser, hasPermission } = useAuth();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN);
+  const canManage = hasPermission(permissions.user.create);
+  const canView = hasPermission(permissions.user.create);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUser | null>(null);
@@ -72,7 +70,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      role: UserRole.SUPERVISOR,
+      roleId: 2,
     },
   });
 
@@ -81,6 +79,10 @@ export function AdminUsersPage() {
     data: users,
     setData,
   } = useGet<AdminUser[]>(API.admin.users.list, {
+    immediate: true,
+  });
+
+  const { data: roles } = useGet<Role[]>(API.admin.roles.list, {
     immediate: true,
   });
 
@@ -133,7 +135,7 @@ export function AdminUsersPage() {
       name: "",
       email: "",
       password: "",
-      role: UserRole.SUPERVISOR,
+      roleId: 1,
     });
     setIsDialogOpen(true);
   };
@@ -145,7 +147,7 @@ export function AdminUsersPage() {
       name: user.name,
       email: user.email,
       password: "",
-      role: user.role,
+      roleId: user.role.id,
     });
     setIsDialogOpen(true);
   };
@@ -155,7 +157,7 @@ export function AdminUsersPage() {
     const payload = {
       name: data.name,
       email: data.email,
-      role: data.role,
+      roleId: data.roleId,
       ...(data.password && { password: data.password }),
     };
 
@@ -214,18 +216,6 @@ export function AdminUsersPage() {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box
-        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
-        onClick={() => navigate("/admin/dashboard")}
-      >
-        <span
-          className="hover:underline text-blue-800 cursor-pointer"
-          onClick={() => navigate("/admin/dashboard")}
-        >
-          {t("common.backToDashboard")}
-        </span>
-        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
-      </Box>
-      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -241,7 +231,7 @@ export function AdminUsersPage() {
             {t("admin.users.subtitle")}
           </Typography>
         </Box>
-        {canManage && (
+        {hasPermission(permissions.user.export) && (
           <span className="flex justify-center items-center gap-3">
             <Button
               variant="contained"
@@ -317,7 +307,7 @@ export function AdminUsersPage() {
                 <TableCell align="center">{authUser?.id}</TableCell>
                 <TableCell align="center">{authUser?.name}</TableCell>
                 <TableCell align="center">{authUser?.email}</TableCell>
-                <TableCell align="center">{authUser?.role}</TableCell>
+                <TableCell align="center">{authUser?.role.name}</TableCell>
                 <TableCell align="center">
                   {new Date(authUser?.createdAt || "").toDateString()}
                 </TableCell>
@@ -327,62 +317,65 @@ export function AdminUsersPage() {
                 ?.sort((a, b) => a.id - b.id)
                 ?.map((user: AdminUser) => (
                   <>
-                  {authUser?.id !== user.id && 
-                  <TableRow
-                    key={user.id}
-                    hover
-                    sx={{ "&:last-child td": { border: 0 } }}
-                  >
-                    <TableCell align="center">{user.id}</TableCell>
-                    <TableCell align="center">{user.name}</TableCell>
-                    <TableCell align="center">{user.email}</TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ textTransform: "capitalize" }}
-                    >
-                      {user.role}
-                    </TableCell>
-                    <TableCell align="center">
-                      {new Date(user.createdAt).toDateString()}
-                    </TableCell>
+                    {authUser?.id !== user.id && (
+                      <TableRow
+                        key={user.id}
+                        hover
+                        sx={{ "&:last-child td": { border: 0 } }}
+                      >
+                        <TableCell align="center">{user.id}</TableCell>
+                        <TableCell align="center">{user.name}</TableCell>
+                        <TableCell align="center">{user.email}</TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{ textTransform: "capitalize" }}
+                        >
+                          {user.role.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {new Date(user.createdAt).toDateString()}
+                        </TableCell>
 
-                    {canManage && (
-                      <TableCell align="center">
-                        <Box>
-                          <Button
-                            size="small"
-                            startIcon={
-                              <Edit2
-                                className={`${language == "ar" ? "ml-2" : ""}`}
-                                size={16}
-                              />
-                            }
-                            onClick={() => openEditDialog(user)}
-                          >
-                            {t("common.edit")}
-                          </Button>
-                          <Button
-                            size="small"
-                            color="error"
-                            startIcon={
-                              <Trash2
-                                className={`${language == "ar" ? "ml-2" : ""}`}
-                                size={16}
-                              />
-                            }
-                            onClick={() =>
-                              setDeleteConfirm({ open: true, id: user.id })
-                            }
-                          >
-                            {t("common.delete")}
-                          </Button>
-                        </Box>
-                      </TableCell>
+                        {canManage && (
+                          <TableCell align="center">
+                            <Box>
+                              <Button
+                                size="small"
+                                startIcon={
+                                  <Edit2
+                                    className={`${
+                                      language == "ar" ? "ml-2" : ""
+                                    }`}
+                                    size={16}
+                                  />
+                                }
+                                onClick={() => openEditDialog(user)}
+                              >
+                                {t("common.edit")}
+                              </Button>
+                              <Button
+                                size="small"
+                                color="error"
+                                startIcon={
+                                  <Trash2
+                                    className={`${
+                                      language == "ar" ? "ml-2" : ""
+                                    }`}
+                                    size={16}
+                                  />
+                                }
+                                onClick={() =>
+                                  setDeleteConfirm({ open: true, id: user.id })
+                                }
+                              >
+                                {t("common.delete")}
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        )}
+                      </TableRow>
                     )}
-                  </TableRow>
-                  }
                   </>
-                  
                 ))}
             </TableBody>
           </Table>
@@ -418,8 +411,11 @@ export function AdminUsersPage() {
               label={t("admin.users.role")}
               select
             >
-              <MenuItem value={UserRole.SUPERVISOR}>{t("common.supervisor")}</MenuItem>
-              <MenuItem value={UserRole.ADMIN}>{t("common.admin")}</MenuItem>
+              {roles?.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.name}
+                </MenuItem>
+              ))}
             </FormTextField>
             <FormTextField
               control={control}

@@ -21,13 +21,16 @@ export interface IRoutes {
   TRACK_STATUS: string;
   ADMIN_LOGIN: string;
   ADMIN_DASHBOARD: string;
-  ADMIN_USERS: string;
-  ADMIN_APPLICATIONS: string;
-  ADMIN_CITIZENS: string;
-  ADMIN_LOCATIONS: string;
-  ADMIN_LOCATION_MAP: string;
+  // ADMIN_USERS: string;
+  // ADMIN_APPLICATIONS: string;
+  // ADMIN_CITIZENS: string;
+  // ADMIN_LOCATIONS: string;
+  // ADMIN_LOCATION_MAP: string;
   CITIZEN_DASHBOARD: string;
-  ADMIN_BANKING: string;
+  // ADMIN_BANKING: string;
   FORGOT_PASSWORD: string;
   BANK_INFORMATION: string;
+  // ADMIN_PERMISSIONS:string
+  // ADMIN_ROLES:string
+
 }
