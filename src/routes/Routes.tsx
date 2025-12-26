@@ -25,6 +25,8 @@ import SettingsPage from "../pages/SettingsPage";
 import AdminLayout from "../pages/AdminDashboard/AdminLayout";
 import { adminRoutes } from "./admin.routes";
 import { PermissionGuard } from "./PermissionGuard";
+import EditProfilePage from "../pages/Settings/EditProfilePage";
+import SettingsPage from "../pages/SettingsPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -115,7 +117,14 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-
+  {
+    path: ROUTES.EDIT_PROFILE,
+    element: (
+      <ProtectedRoutes>
+        <EditProfilePage />
+      </ProtectedRoutes>
+    ),
+  },
   // MyApplications
 
   // {

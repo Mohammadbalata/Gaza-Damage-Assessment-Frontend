@@ -49,6 +49,7 @@ import {
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
 import { Search } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -64,6 +65,14 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const {
+  } = useForm<any>({
+    defaultValues: {
+      id: "",
+    },
+  });
+
+  // const id = watch("id");
 
   const {
     data: rawData,
@@ -104,6 +113,10 @@ const MyApplications = () => {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  // const filterdApplications = id
+  //   ? applications?.filter((item: any) => item.id === id)
+  //   : applications;
 
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
@@ -365,7 +378,7 @@ const MyApplications = () => {
         <Box sx={{ mb: 3 }}>
           <TextField
             fullWidth
-            placeholder={t("common.searchPlaceholder")}
+            placeholder={t("form.enterTrackingNumber")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{

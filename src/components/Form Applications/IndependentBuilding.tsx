@@ -4,6 +4,7 @@ import { IndependentBuildingProps } from "../../interfaces/props/IImageUploadInp
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import classNames from "classnames";
+import { useState } from "react";
 
 const IndependentBuilding = ({
   register,
@@ -13,12 +14,13 @@ const IndependentBuilding = ({
   isChangeToReviewPage,
 }: IndependentBuildingProps) => {
   const { t } = useLanguage();
+  const [textLength, setTextLength] = useState(0);
 
   const propertyType = watch("IndependentBuilding.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("IndependentBuilding.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
-
+  console.log(isChangeToReviewPage);
   return (
     <div className="space-y-6">
       {/* عدد الطوابق */}
@@ -266,7 +268,12 @@ const IndependentBuilding = ({
           DAMAGE_TYPES.map(
             (item, index) =>
               item.buildingType !== "بناية" && (
-                <div className={classNames('mr-3',{'cursor-not-allowed':isChangeToReviewPage})} key={index}>
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
                   <input
                     type="checkbox"
                     value={item.value}
@@ -275,7 +282,8 @@ const IndependentBuilding = ({
                     })}
                     className={classNames(
                       "accent-primary",
-                      isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
@@ -349,20 +357,110 @@ const IndependentBuilding = ({
         )}
       </div>
 
+      {/* أقرب معلم */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          أقرب معلم <span className="text-red-500">*</span>
+        </label>
+
+        <select
+          {...register("IndependentBuilding.nearestLandmark", {
+            required: t("common.required"),
+          })}
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage}
+        >
+          <option value="">اختر أقرب معلم</option>
+          <option value="school">مدرسة</option>
+          <option value="mosque">مسجد</option>
+          <option value="hospital">مستشفى</option>
+          <option value="market">سوق</option>
+          <option value="street">شارع رئيسي</option>
+          <option value="other">أخرى</option>
+        </select>
+
+        {errors?.IndependentBuilding?.nearestLandmark && (
+          <p className="text-red-600 text-sm">
+            {errors.IndependentBuilding.nearestLandmark.message}
+          </p>
+        )}
+      </div>
+
+      {/* اسم الشارع  */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          اسم الشارع <span className="text-gray-400">(اختياري)</span>
+        </label>
+        <input
+          type="text"
+          {...register("IndependentBuilding.nameOfStreet")}
+          className={classNames(
+            "input-field mt-2",
+            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage}
+        />
+      </div>
+      {errors?.IndependentBuilding?.nameOfStreet && (
+        <p className="text-red-600 text-sm">
+          {errors.IndependentBuilding.nameOfStreet.message}
+        </p>
+      )}
+
+      {/*  رقم المبنى */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          رقم المبنى <span className="text-gray-400">(اختياري)</span>
+        </label>
+
+        <input
+          type="text"
+          {...register("IndependentBuilding.buildingNumber")}
+          className={classNames(
+            "input-field mt-2",
+            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage}
+        />
+      </div>
+      {errors?.IndependentBuilding?.buildingNumber && (
+        <p className="text-red-600 text-sm">
+          {errors.IndependentBuilding.buildingNumber.message}
+        </p>
+      )}
+
       {/* ملاحظات إضافية */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          ملاحظات إضافية
+        <label className=" text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+          <span>ملاحظات إضافية</span>
+          {/* عداد الحروف ضمن اللابل */}
+          <span
+            className={`text-sm text-gray-500 ${
+              isChangeToReviewPage ? `bg-gray-200` : `bg-white`
+            }  px-1 pointer-events-none`}
+          >
+            300 / {textLength}
+          </span>
         </label>
-        <textarea
-          {...register("IndependentBuilding.additionalNotes")}
-          className={classNames(
-            "input-field min-h-[100px] resize-none",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
-          )}
-          disabled={isChangeToReviewPage ? true : false}
-        ></textarea>
+
+        <div className="relative">
+          <textarea
+            {...register("IndependentBuilding.additionalNotes")}
+            className={classNames(
+              "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            maxLength={300}
+            disabled={isChangeToReviewPage}
+            onChange={(e) => setTextLength(e.target.value.length)}
+            placeholder="اكتب أي تفاصيل إضافية (إن وجدت)..."
+          ></textarea>
+        </div>
       </div>
+
       {/* صور ومستندات */}
       <div
         className={classNames("grid grid-cols-1 md:grid-cols-3 gap-4", {
@@ -375,7 +473,6 @@ const IndependentBuilding = ({
           label="صورة العقار قبل الحرب ( إن وجد )"
           {...{ isChangeToReviewPage }}
           previewAPI="https://oufjobpdjqlveupjciuj.supabase.co/storage/v1/object/public/damageassessment/after_war_image/f73477de-589f-4402-9ee6-281ee8868432.jpeg"
-
         />
 
         <SingleImageInput

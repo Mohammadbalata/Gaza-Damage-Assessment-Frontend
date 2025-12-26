@@ -52,6 +52,7 @@ const CitizenDashboard: React.FC = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("citizenInfo");
     localStorage.removeItem("citizen_user");
+    localStorage.removeItem("citizenInfo");
 
     // Navigate to sign in page
     navigate(`/`);

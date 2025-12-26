@@ -35,7 +35,13 @@ const LoginPage = () => {
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
       .unwrap()
-      .then(() => {
+      .then((data) => {
+        console.log("data data", data.citizenData.data.user);
+
+        localStorage.setItem(
+          "citizenInfo",
+          JSON.stringify(data.citizenData.data.user)
+        );
         navigate(ROUTES.CITIZEN_DASHBOARD);
       })
       .catch((error) => {

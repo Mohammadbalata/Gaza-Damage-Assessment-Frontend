@@ -3,6 +3,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { useState } from "react";
 
 const AdditionalBuildings = ({
   register,
@@ -21,6 +22,8 @@ const AdditionalBuildings = ({
   const showUsageType = roomTypeWatch === "أخرى";
   const floorsCountWatch = watch("additionalBuildings.floorsCount");
   const showfloorsCount = floorsCountWatch > 0;
+  const [textLength, setTextLength] = useState(0);
+
   return (
     <div className="space-y-10">
       <section className="space-y-6">
@@ -366,23 +369,114 @@ const AdditionalBuildings = ({
             </p>
           )}
         </div>
+
+        {/* أقرب معلم */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            أقرب معلم <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            {...register("additionalBuildings.nearestLandmark", {
+              required: t("common.required"),
+            })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          >
+            <option value="">اختر معلم</option>
+            <option value="school">مدرسة</option>
+            <option value="mosque">مسجد</option>
+            <option value="hospital">مستشفى</option>
+            <option value="market">سوق</option>
+            <option value="street">شارع رئيسي</option>
+            <option value="other">أخرى</option>
+          </select>
+
+          {errors?.additionalBuildings?.nearestLandmark && (
+            <p className="text-red-600 text-sm">
+              {errors.additionalBuildings.nearestLandmark.message}
+            </p>
+          )}
+        </div>
+
+        {/* اسم الشارع (إن وُجد) */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            اسم الشارع <span className="text-gray-400">(اختياري)</span>
+          </label>
+
+          <input
+            type="text"
+            {...register("additionalBuildings.nameOfStreet")}
+            className={classNames(
+              "input-field mt-2",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          />
+        </div>
+        {errors?.additionalBuildings?.nameOfStreet && (
+          <p className="text-red-600 text-sm">
+            {errors.additionalBuildings.nameOfStreet.message}
+          </p>
+        )}
+
+        {/*  رقم المبنى */}
+        {/* رقم المبنى (إن وُجد) */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            رقم المبنى <span className="text-gray-400">(اختياري)</span>
+          </label>
+
+          <input
+            type="text"
+            {...register("additionalBuildings.buildingNumber")}
+            className={classNames(
+              "input-field mt-2",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          />
+        </div>
+
+        {errors?.additionalBuildings?.buildingNumber && (
+          <p className="text-red-600 text-sm">
+            {errors.additionalBuildings.buildingNumber.message}
+          </p>
+        )}
+
         {/* ملاحظات إضافية */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            ملاحظات إضافية
+          <label className=" text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+            <span>ملاحظات إضافية</span>
+            {/* عداد الحروف ضمن اللابل */}
+            <span
+              className={`text-sm text-gray-500 ${
+                isChangeToReviewPage ? `bg-gray-200` : `bg-white`
+              }  px-1 pointer-events-none`}
+            >
+              300 / {textLength}
+            </span>
           </label>
-          <textarea
-            {...register("additionalBuildings.additionalNotes")}
-            placeholder="اكتب أي تفاصيل إضافية..."
-            className={classNames(
-              "input-field min-h-[100px] resize-none",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : ""
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          ></textarea>
+
+          <div className="relative">
+            <textarea
+              {...register("additionalBuildings.additionalNotes")}
+              className={classNames(
+                "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              )}
+              maxLength={300}
+              disabled={isChangeToReviewPage}
+              onChange={(e) => setTextLength(e.target.value.length)}
+              placeholder="اكتب أي تفاصيل إضافية (إن وجدت)..."
+            ></textarea>
+          </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
           <SingleImageInput
             control={control}

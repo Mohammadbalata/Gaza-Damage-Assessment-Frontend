@@ -47,7 +47,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.female": "Female",
     "common.other": "other",
     "common.savedSuccessfully": "data saved Successfully",
-
+    "common.lettersRemaining": "letters remaining",
     "common.single": "single",
     "common.married": "married",
     "common.divorced": "divorced",
@@ -544,6 +544,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.address": "Address",
     "citizen.addedDate": "Added Date",
 
+    "citizen.electronicServices": "Electronic services",
+    "citizen.electronicServicesDesc": "Go to electronic services",
+    "citizen.welcomeForElectronicServices": "welcome for electronic services",
+    "citizen.editProfile": "Edit Profile",
+    "citizen.editProfileDesc":
+      "This page allows you to edit and update your personal information",
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -602,6 +608,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.married": "متزوج/ ـة",
     "common.divorced": "مطلق/ ـة",
     "common.widowed": "أرملة",
+    "common.lettersRemaining": "عدد الحروف المتبقية",
 
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
@@ -1072,6 +1079,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.address": "العنوان",
     "citizen.addedDate": "تاريخ الإضافة",
 
+    "citizen.electronicServices": "الخدمات الالكترونية",
+    "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
+    "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
+    "citizen.editProfile": "تعديل البيانات الشخصية",
+    "citizen.editProfileDesc":
+      "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
