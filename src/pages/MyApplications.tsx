@@ -69,15 +69,14 @@ const MyApplications = () => {
   const [isReadOnly, setIsReadOnly] = useState(false);
   const {
     register,
-    watch,
-    formState: { errors },
+    // watch,
   } = useForm<any>({
     defaultValues: {
       id: "",
     },
   });
 
-  const id = watch("id");
+  // const id = watch("id");
 
   const {
     data: rawData,
@@ -119,9 +118,9 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const filterdApplications = id
-    ? applications?.filter((item: any) => item.id === id)
-    : applications;
+  // const filterdApplications = id
+  //   ? applications?.filter((item: any) => item.id === id)
+  //   : applications;
 
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
@@ -383,7 +382,7 @@ const MyApplications = () => {
         <Box sx={{ mb: 3 }}>
           <TextField
             fullWidth
-            placeholder={t("common.searchPlaceholder")}
+            placeholder={t("form.enterTrackingNumber")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -392,35 +391,6 @@ const MyApplications = () => {
             size="small"
           />
         </Box>
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 4,
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <TextField
-            placeholder={t("form.enterTrackingNumber")}
-            fullWidth
-            {...register("id")}
-            InputProps={{
-              sx: {
-                height: 56,
-                fontSize: 16,
-              },
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon size={20} color="#9CA3AF" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Paper>
-
         {/* Applications List */}
         {!applications || applications.length === 0 ? (
           /* Empty State */
