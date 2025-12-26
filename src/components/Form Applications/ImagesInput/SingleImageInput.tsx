@@ -224,9 +224,9 @@ const SingleImageInput = ({
         if (isChangeToReviewPage) return;
         field.onChange(file);
       };
-      useEffect(() => {
-        console.log(preview)
-      },[])
+      // useEffect(() => {
+      //   console.log(preview)
+      // },[])
       return (
         <Box>
           <label className="block text-sm font-medium mb-2">

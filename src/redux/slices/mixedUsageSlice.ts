@@ -1,4 +1,4 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 // interface Unit {
 //   usage: "" | "سكني" | "تجاري" | "خدماتي";
@@ -41,14 +41,13 @@ const mixedUsageSlice = createSlice({
     },
     addUnit(state, action) {
       state.units[action.payload].push({
-        id: nanoid(),
         usage: "",
         activity: "",
       });
     },
     updateUnit(state, action) {
-      const { floor, id, field, value } = action.payload;
-      state.units[floor][id][field] = value;
+      const { floor, index, field, value } = action.payload;
+      state.units[floor][index][field] = value;
     },
     removeUnit(state, action) {
       const { floor, index } = action.payload;

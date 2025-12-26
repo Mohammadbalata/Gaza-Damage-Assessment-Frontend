@@ -132,7 +132,7 @@ const MixedUsageComponent = ({
               {/* الوحدات */}
               {units[floorKey].map((unit: any, index: any) => (
                 <div
-                  key={unit.id}
+                  key={index}
                   className="mt-3 mr-4 space-y-2 border p-3 rounded-md relative"
                 >
                   {!isChangeToReviewPage && (
@@ -165,17 +165,21 @@ const MixedUsageComponent = ({
                   {(unit.usage === "تجاري" || unit.usage === "خدماتي") && (
                     <input
                       type="text"
-                    //   value={unit.activity}
+                      value={unit.activity}
+                      disabled={isChangeToReviewPage}
                       onChange={(e) =>
                         handleUpdateUnit(
                           floorKey,
-                          unit.id,
+                          index,
                           "activity",
                           e.target.value
                         )
                       }
-                      className="input-field"
                       placeholder="اسم النشاط"
+                      className={classNames(
+                        "input-field",
+                        isChangeToReviewPage && "cursor-not-allowed bg-gray-200"
+                      )}
                     />
                   )}
                 </div>

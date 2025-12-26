@@ -59,6 +59,7 @@ const DamageAssessmentDialog = ({
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     control,
     formState: { errors },
@@ -321,6 +322,8 @@ const DamageAssessmentDialog = ({
       control,
       errors,
       isChangeToReviewPage: isChangeToReviewPage,
+      setValue,
+      getValues
     };
 
     switch (selected) {

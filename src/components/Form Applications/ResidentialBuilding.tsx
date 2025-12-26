@@ -1,20 +1,12 @@
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import classNames from "classnames";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MixedUsageComponent from "./MixedUsageComponent";
+import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
 
-interface ResidentialBuildingProps {
-  register: UseFormRegister<IDamageAssessmentState>;
-  errors: FieldErrors<IDamageAssessmentState>;
-  watch: any;
-  control: any;
-  isChangeToReviewPage: boolean;
-}
 
 const ResidentialBuilding = ({
   register,
@@ -22,7 +14,9 @@ const ResidentialBuilding = ({
   watch,
   control,
   isChangeToReviewPage,
-}: ResidentialBuildingProps) => {
+  getValues,
+  setValue
+}: IBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("ResidentialBuilding.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
@@ -31,6 +25,23 @@ const ResidentialBuilding = ({
   const damageTypeWatch = watch("ResidentialBuilding.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
   const [textLength, setTextLength] = useState(0);
+  const BuildingContentWatch = watch("ResidentialBuilding.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
+
+  useEffect(() => {
+  const currentDamage = getValues("ResidentialBuilding.damagePercentage");
+  const currentHabitable = getValues("ResidentialBuilding.isHabitable");
+
+  if (damageTypeWatch === "هدم كلي") {
+    if (currentDamage !== "100%") setValue("ResidentialBuilding.damagePercentage", "100%");
+    if (currentHabitable !== "لا") setValue("ResidentialBuilding.isHabitable", "لا");
+  }
+
+  if (damageTypeWatch === "هدم جزئي") {
+    if (currentDamage !== "") setValue("ResidentialBuilding.damagePercentage", "");
+    if (currentHabitable !== "") setValue("ResidentialBuilding.isHabitable", "");
+  }
+}, [damageTypeWatch, setValue, getValues]);
 
   return (
     <div className="space-y-6">
@@ -479,6 +490,37 @@ const ResidentialBuilding = ({
           <p className="text-red-600 text-sm">
             {errors.ResidentialBuilding.isHabitable.message}
           </p>
+        )}
+        {showBuildingContent && (
+          <div className="mt-5">
+            {BuildingContent?.map((item, index) => (
+              <div
+                className={classNames("mr-3", {
+                  "cursor-not-allowed": isChangeToReviewPage,
+                })}
+                key={index}
+              >
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("ResidentialBuilding.BuildingContent", {
+                    required: "اختر واحد على الأقل",
+                  })}
+                  className={classNames(
+                    "accent-primary",
+                    isChangeToReviewPage &&
+                      "pointer-events-none accent-gray-200"
+                  )}
+                />
+                <span className="mr-2">{item.label}</span>
+              </div>
+            ))}
+            {errors?.ResidentialBuilding?.BuildingContent && (
+              <p className="text-red-600 text-sm">
+                {errors.ResidentialBuilding.BuildingContent.message}
+              </p>
+            )}
+          </div>
         )}
       </div>
       {/* ملاحظات */}

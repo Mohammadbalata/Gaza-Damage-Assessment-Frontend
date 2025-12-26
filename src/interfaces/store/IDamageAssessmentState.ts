@@ -29,6 +29,7 @@ export interface IndependentBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ApartmentInsideBuilding {
@@ -52,6 +53,7 @@ export interface ApartmentInsideBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ResidentialBuilding {
@@ -65,9 +67,8 @@ export interface ResidentialBuilding {
 
   usageType?: string;
   otherUsageType?: string;
-  floors?:any
-  units?:any[]
-
+  floors?: any;
+  units?: any[];
 
   collapsedFloors?: number | null;
   partialCollapses?: number | null;
@@ -87,6 +88,7 @@ export interface ResidentialBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ITower {
@@ -120,6 +122,7 @@ export interface ITower {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ICompHouse {
@@ -138,6 +141,7 @@ export interface ICompHouse {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface IAdditionalBuildings {
@@ -163,4 +167,5 @@ export interface IAdditionalBuildings {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
