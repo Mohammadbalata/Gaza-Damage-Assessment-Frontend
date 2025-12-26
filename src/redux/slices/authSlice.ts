@@ -95,7 +95,7 @@ export const authSlice = createSlice({
 });
 
 //--- sign in dispatch ---//
-
+// test
 export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
@@ -160,7 +160,7 @@ export const signUp = createAsyncThunk(
     }
   }
 );
-// 410031934
+// 41003193
 export const {
   setError,
   setNationalId,
