@@ -65,6 +65,9 @@ export interface ResidentialBuilding {
 
   usageType?: string;
   otherUsageType?: string;
+  floors?:any
+  units?:any[]
+
 
   collapsedFloors?: number | null;
   partialCollapses?: number | null;

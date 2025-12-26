@@ -6,6 +6,7 @@ import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useState } from "react";
+import MixedUsageComponent from "./MixedUsageComponent";
 
 interface ResidentialBuildingProps {
   register: UseFormRegister<IDamageAssessmentState>;
@@ -191,7 +192,7 @@ const ResidentialBuilding = ({
       </div>
 
       {/* نوع الاستخدام */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           نوع الاستخدام <span className="text-red-500">*</span>
         </label>
@@ -239,7 +240,14 @@ const ResidentialBuilding = ({
             {errors.ResidentialBuilding.usageType.message}
           </p>
         )}
-      </div>
+      </div> */}
+      <MixedUsageComponent
+        {...{ register }}
+        {...{ isChangeToReviewPage }}
+        {...{ showUsageType }}
+        {...{ watch }}
+        {...{ errors }}
+      />
       {/* ====== الأضرار الإنشائية ====== */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold">الأضرار الإنشائية</h3>

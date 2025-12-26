@@ -73,6 +73,7 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+  const { floors, units } = useAppSelector((state) => state.mixedUsage);
 
   useEffect(() => {
     if (initialData) {
@@ -161,6 +162,22 @@ const DamageAssessmentDialog = ({
   };
 
   const onSubmit = async (data: any) => {
+    if (
+      data.buildingType === "ResidentialBuilding" ||
+      data.buildingType === "tower"
+    ) {
+      const payload = {
+        ...data,
+        ResidentialBuilding: {
+          ...data.ResidentialBuilding,
+          mixedUsage: {
+            floors,
+            units,
+          },
+        },
+      };
+      console.log("final payload", payload);
+    }
     // Phase 1: Review
     if (!isChangeToReviewPage) {
       setIsChangeToReviewPage(true);
@@ -211,6 +228,7 @@ const DamageAssessmentDialog = ({
       dispatch(updatePreviousLocation({ previosLocation: application }));
 
       // API Call
+      console.log(application);
       const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
 
@@ -227,11 +245,11 @@ const DamageAssessmentDialog = ({
         );
       } else {
         // Create new application
-        await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        // await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
       }
 
       // Success feedback
@@ -376,7 +394,9 @@ const DamageAssessmentDialog = ({
                 disabled={isViewMode}
                 value={damageAssessmentInfo.buildingType}
               >
-                <option value="">{t("common.select")}</option>
+                <option value="" disabled>
+                  اختر مبنى
+                </option>
                 {buildingOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -389,10 +409,8 @@ const DamageAssessmentDialog = ({
                 </p>
               )}
             </div>
-
             <BuildingTypeView />
           </div>
-
           {/* Actions Area */}
           {!readOnly && (
             <DialogActions sx={{ mt: 4, px: 0 }}>
