@@ -26,7 +26,7 @@ import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { formatNumber } from "../../utils/formatters";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import { LogOutIcon } from "lucide-react";
+import { GroupIcon, LockIcon, LogOutIcon } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
@@ -46,6 +46,8 @@ const AdminDashboard: React.FC = () => {
     citizens: 0,
     locations: 0,
     banking: 0,
+    roles: 0,
+    permissions: 0,
   });
 
   const { loading, error } = useGet(API.stats.adminDashboard, {
@@ -57,6 +59,8 @@ const AdminDashboard: React.FC = () => {
         citizens: data.citizens?.length || 0,
         locations: data.locations?.length || 0,
         banking: data.banking?.length || 0,
+        roles: data.roles?.length || 0,
+        permissions: data.permissions?.length || 0,
       });
     },
   });
@@ -77,6 +81,8 @@ const AdminDashboard: React.FC = () => {
   const canViewCitizens = hasPermission(permissions.citizen.view);
   const canViewlocatios = hasPermission(permissions.location.view);
   const canViewbankAccounts = hasPermission(permissions.bank_account.view);
+  const canViewPermissions = hasPermission(permissions.permission.view);
+  const canViewRoles = hasPermission(permissions.role.view);
 
   if (error) {
     showError(error);
@@ -145,6 +151,26 @@ const AdminDashboard: React.FC = () => {
       value: totals.banking,
       hasPermission: canViewbankAccounts,
       route: "/admin/banking",
+    },
+    {
+      key: "roles",
+      title: t("admin.manageRoles"),
+      description: t("admin.rolesDescription"),
+      icon: <GroupIcon />,
+      color: "info",
+      value: totals.roles,
+      hasPermission: canViewRoles,
+      route: "/admin/roles",
+    },
+    {
+      key: "permissions",
+      title: t("admin.managePermissions"),
+      description: t("admin.permissionsDescription"),
+      icon: <LockIcon />,
+      color: "info",
+      value: totals.permissions,
+      hasPermission: canViewPermissions,
+      route: "/admin/permissions",
     },
   ];
 
@@ -321,6 +347,27 @@ const AdminDashboard: React.FC = () => {
                   label={t("admin.totalBanking")}
                   value={totals.banking}
                   icon={<Money />}
+                  color="info"
+                />
+              </Grid>
+            )}
+            {canViewRoles && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalRoles")}
+                  value={totals.roles}
+                  icon={<GroupIcon />}
+                  color="info"
+                />
+              </Grid>
+            )}
+
+            {canViewPermissions && (
+              <Grid>
+                <StatisticCard
+                  label={t("admin.totalPermissions")}
+                  value={totals.permissions}
+                  icon={<LockIcon />}
                   color="info"
                 />
               </Grid>

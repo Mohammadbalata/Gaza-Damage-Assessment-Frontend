@@ -55,7 +55,6 @@ export interface Permission {
   id: number;
   key: string;            // "user.create"
   description?: string;
-  createdAt: string;
 }
 
 

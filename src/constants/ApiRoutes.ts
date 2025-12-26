@@ -50,7 +50,7 @@ export const API = {
       create: `/admin/roles`,
       update: (id: string) => `/admin/roles/${id}`,
       delete: (id: string) => `/admin/roles/${id}`,
-      assignPermision: (id: string) => `/admin/roles/${id}/permissions`,
+      assignPermissions: (id: string) => `/admin/roles/${id}/permissions`,
     },
 
     permissions: {

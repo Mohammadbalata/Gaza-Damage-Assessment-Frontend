@@ -28,6 +28,8 @@ import AdminBankingPage from "../pages/AdminDashboard/AdminBankingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
 import SettingsPage from "../pages/SettingsPage";
+import AdminPermissionsPage from "../pages/AdminDashboard/AdminPermissionsPage";
+import AdminRolesPage from "../pages/AdminDashboard/AdminRolesPage";
 // import PersonalInfoPage from "../pages/PersonalInfoPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -70,6 +72,8 @@ export const ROUTES: IRoutes = {
   ADMIN_BANKING: "admin/banking",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
+  ADMIN_PERMISSIONS:"admin/permissions",
+  ADMIN_ROLES:"admin/roles",
 };
 
 export const routes = [
@@ -238,6 +242,22 @@ export const routes = [
       <ProtectedRoutes>
         <BankInformationPage />
       </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_PERMISSIONS,
+    element: (
+      <ProtectedRoute>
+        <AdminPermissionsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.ADMIN_ROLES,
+    element: (
+      <ProtectedRoute>
+        <AdminRolesPage />
+      </ProtectedRoute>
     ),
   },
   { path: "*", element: <NotFoundPage /> },
