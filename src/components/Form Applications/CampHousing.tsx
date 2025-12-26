@@ -220,28 +220,109 @@ const CampHousing = ({
             </p>
           )}
         </div>
+
+        {/* أقرب معلم */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            أقرب معلم <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            {...register("compHouse.nearestLandmark", {
+              required: t("common.required"),
+            })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          >
+            <option value="">اختر معلم</option>
+            <option value="school">مدرسة</option>
+            <option value="mosque">مسجد</option>
+            <option value="hospital">مستشفى</option>
+            <option value="market">سوق</option>
+            <option value="street">شارع رئيسي</option>
+            <option value="other">أخرى</option>
+          </select>
+
+          {errors?.compHouse?.nearestLandmark && (
+            <p className="text-red-600 text-sm">
+              {errors.compHouse.nearestLandmark.message}
+            </p>
+          )}
+        </div>
+
+        {/* اسم الشارع  */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            اسم الشارع <span className="text-gray-400">(اختياري)</span>
+          </label>
+
+          <input
+            type="text"
+            {...register("compHouse.nameOfStreet")}
+            className={classNames(
+              "input-field mt-2",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          />
+        </div>
+        {errors?.compHouse?.nameOfStreet && (
+          <p className="text-red-600 text-sm">
+            {errors.compHouse.nameOfStreet.message}
+          </p>
+        )}
+
+        {/*  رقم المبنى */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            رقم المبنى <span className="text-gray-400">(اختياري)</span>
+          </label>
+
+          <input
+            type="text"
+            {...register("compHouse.buildingNumber")}
+            className={classNames(
+              "input-field mt-2",
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage}
+          />
+        </div>
+        {errors?.compHouse?.buildingNumber && (
+          <p className="text-red-600 text-sm">
+            {errors.compHouse.buildingNumber.message}
+          </p>
+        )}
+
         {/* ملاحظات إضافية */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            ملاحظات إضافية
+          <label className=" text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+            <span>ملاحظات إضافية</span>
+            {/* عداد الحروف ضمن اللابل */}
+            <span
+              className={`text-sm text-gray-500 ${
+                isChangeToReviewPage ? `bg-gray-200` : `bg-white`
+              }  px-1 pointer-events-none`}
+            >
+              300 / {textLength}
+            </span>
           </label>
+
           <div className="relative">
             <textarea
-              {...register("IndependentBuilding.additionalNotes")}
-              placeholder="اكتب أي تفاصيل إضافية..."
+              {...register("compHouse.additionalNotes")}
               className={classNames(
-                "input-field min-h-[100px] resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
-                isChangeToReviewPage ? "cursor-not-allowed bg-gray-100" : ""
+                "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
               )}
               maxLength={300}
               disabled={isChangeToReviewPage}
               onChange={(e) => setTextLength(e.target.value.length)}
+              placeholder="اكتب أي تفاصيل إضافية (إن وجدت)..."
             ></textarea>
-
-            {/* عداد الحروف المتبقية */}
-            <div className={`text-sm text-gray-500 absolute bottom-3 right-2 `}>
-              {300 - textLength} {t("common.lettersRemaining")}
-            </div>
           </div>
         </div>
         {/* صور ومستندات */}

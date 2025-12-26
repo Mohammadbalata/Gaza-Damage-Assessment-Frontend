@@ -24,6 +24,9 @@ export interface IndependentBuilding {
   damageType?: string;
   damageTypes?: string[];
   damagePercentage?: string; // "25%" | "50%" | ...
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   isHabitable?: string; // "نعم" | "لا"
   additionalNotes?: string;
   beforeWarImage?: any;
@@ -41,7 +44,9 @@ export interface ApartmentInsideBuilding {
   usageType?: string;
 
   mainBuildingDamage?: string;
-
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   damageType?: string;
   damageTypes: string[];
   damagePercentage?: string;
@@ -62,7 +67,9 @@ export interface ResidentialBuilding {
 
   propertyType?: string;
   propertyOwnerName?: string;
-
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   usageType?: string;
   otherUsageType?: string;
 
@@ -94,7 +101,9 @@ export interface ITower {
 
   propertyType?: string;
   propertyOwnerName?: string;
-
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   usageType?: string;
   otherUsageType?: string;
 
@@ -128,7 +137,9 @@ export interface ICompHouse {
   damageType?: string;
   damageTypes: string[];
   damagePercentage?: string;
-
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   isHabitable?: string;
   additionalNotes?: string;
 
@@ -144,7 +155,9 @@ export interface IAdditionalBuildings {
   propertyArea?: number | null;
   floorsCount?: number | null;
   commonFloorArea?: number | null;
-
+  nearestLandmark?: string;
+  buildingNumber?: string;
+  nameOfStreet?: string;
   constructionType?: string;
 
   propertyType?: string;
