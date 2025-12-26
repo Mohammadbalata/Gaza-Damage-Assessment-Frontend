@@ -19,7 +19,6 @@ import {
   TextField,
   Link as MuiLink,
   Tooltip,
-  InputAdornment,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
@@ -51,7 +50,6 @@ import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
 import { Search } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { SearchIcon } from "lucide-react";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -68,8 +66,6 @@ const MyApplications = () => {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const {
-    register,
-    // watch,
   } = useForm<any>({
     defaultValues: {
       id: "",
