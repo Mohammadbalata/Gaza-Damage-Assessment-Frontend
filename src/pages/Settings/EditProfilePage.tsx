@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
-import {  useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
 

@@ -77,7 +77,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
           attribution="&copy; Esri"
         />
 
-        {setMarkerPosition && (
+        {setMarkerPosition ? (
           <LocationMarker
             position={markerPosition ?? null}
             setPosition={(pos) => {
@@ -85,6 +85,8 @@ const MapContainer: React.FC<MapContainerProps> = ({
               setOpenDialog(true); // ✅ افتح الفورم
             }}
           />
+        ) : (
+          markerPosition && <Marker position={markerPosition} />
         )}
 
         <FlyToLocation target={center} />
