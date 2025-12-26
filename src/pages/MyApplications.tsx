@@ -59,11 +59,7 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const {
-    register,
-    watch,
-    formState: { errors },
-  } = useForm<any>({
+  const { register, watch } = useForm<any>({
     defaultValues: {
       id: "",
     },

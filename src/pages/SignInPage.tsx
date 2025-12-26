@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { setCitizenInfo, setError, signIn } from "../redux/slices/authSlice";
+import { setError, signIn } from "../redux/slices/authSlice";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";

@@ -18,9 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { string } from "yup";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
 
 interface EditProfileForm {
