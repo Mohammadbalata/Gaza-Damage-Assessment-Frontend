@@ -543,13 +543,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "This page allows you to edit and update your personal information",
     "citizen.address": "Address",
     "citizen.addedDate": "Added Date",
-
-    "citizen.electronicServices": "Electronic services",
-    "citizen.electronicServicesDesc": "Go to electronic services",
-    "citizen.welcomeForElectronicServices": "welcome for electronic services",
-    "citizen.editProfile": "Edit Profile",
-    "citizen.editProfileDesc":
-      "This page allows you to edit and update your personal information",
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -1078,13 +1071,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     "citizen.address": "العنوان",
     "citizen.addedDate": "تاريخ الإضافة",
-
-    "citizen.electronicServices": "الخدمات الالكترونية",
-    "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
-    "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
-    "citizen.editProfile": "تعديل البيانات الشخصية",
-    "citizen.editProfileDesc":
-      "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",

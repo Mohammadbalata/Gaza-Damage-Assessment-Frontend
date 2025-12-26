@@ -5,8 +5,6 @@ import VerificationQuestionsPage from "../pages/VerificationQuestionsPage";
 import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
-// import ReviewPage from "../pages/ReviewPage";
-// import SuccessPage from "../pages/SuccessPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import SignInPage from "../pages/SignInPage";
@@ -21,13 +19,13 @@ import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
 import MyApplications from "../pages/MyApplications";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
-import SettingsPage from "../pages/SettingsPage";
 import AdminLayout from "../pages/AdminDashboard/AdminLayout";
 import { adminRoutes } from "./admin.routes";
 import { PermissionGuard } from "./PermissionGuard";
 import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
-// import PersonalInfoPage from "../pages/PersonalInfoPage";
+
+
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -48,7 +46,6 @@ export const ROUTES: IRoutes = {
   SETTINGS: "/citizen/settings",
   EDIT_PROFILE: "/citizen/settings/edit-profile",
   MY_APPLICATIONS: "/my-applications",
-  // DAMAGE_ASSESSMENT_DIALOG: "/damage-assessment-dialog",
   PREVIOUS_LOCATION: "/previous-location",
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
@@ -58,17 +55,9 @@ export const ROUTES: IRoutes = {
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "/admin/login",
   ADMIN_DASHBOARD: "/admin",
-  // ADMIN_USERS: "/admin/users",
-  // ADMIN_APPLICATIONS: "/admin/applications",
-  // ADMIN_CITIZENS: "/admin/citizens",
-  // ADMIN_LOCATIONS: "/admin/locations",
-  // ADMIN_LOCATION_MAP: "/admin/locations/map",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
-  // ADMIN_BANKING: "admin/banking",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
-  // ADMIN_PERMISSIONS:"admin/permissions",
-  // ADMIN_ROLES:"admin/roles",
 };
 
 export const routes = [
@@ -125,17 +114,6 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  // MyApplications
-
-  // {
-  //   path: ROUTES.DAMAGE_ASSESSMENT_DIALOG,
-
-  //   element: (
-  //     <ProtectedRoutes>
-  //       <DamageAssessmentDialog />
-  //     </ProtectedRoutes>
-  //   ),
-  // },
 
   {
     path: ROUTES.CURRENT_LOCATION,
@@ -184,7 +162,7 @@ export const routes = [
   },
 
   {
-    path: "/admin",
+    path: ROUTES.ADMIN_DASHBOARD,
     element: (
       <ProtectedRoute>
         <AdminLayout />
