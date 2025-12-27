@@ -13,7 +13,7 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import { Person, ArrowBack, Save as SaveIcon } from "@mui/icons-material";
+import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
@@ -21,6 +21,7 @@ import { axiosClient } from "../../api/baseUrl";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
+import AvatarEditOverlay from "../../components/AvatarEditOverlay";
 
 interface EditProfileForm {
   first_name: string;
@@ -42,6 +43,10 @@ const EditProfilePage = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Avatar state for new image
+  const [newAvatar, setNewAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   const dispatch = useAppDispatch();
@@ -71,16 +76,46 @@ const EditProfilePage = () => {
   const selectedGender = watch("gender");
   const selectedMaritalStatus = watch("marital_status");
 
+  // Handle avatar file selection
+  const handleAvatarChange = (file: File) => {
+    setNewAvatar(file);
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+  };
+
   const onSubmit = async (data: EditProfileForm) => {
     const token = localStorage.getItem("token");
     setIsLoading(true);
 
     try {
-      const res = await axiosClient.put("/citizen/update-profile", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      let requestData: FormData | EditProfileForm;
+      let headers: any = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      // If avatar changed, use FormData
+      if (newAvatar) {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            formData.append(key, String(value));
+          }
+        });
+        formData.append("avatar", newAvatar);
+        requestData = formData;
+      } else {
+        // No avatar change, use regular JSON
+        requestData = data;
+      }
+      const res = await axiosClient.put(
+        "/citizen/update-profile",
+        requestData,
+        {
+          headers,
+        }
+      );
+
       if (res) {
         setIsLoading(false);
         enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
@@ -92,6 +127,7 @@ const EditProfilePage = () => {
         );
       }
     } catch (err: any) {
+      setIsLoading(false);
       console.error(err);
       enqueueSnackbar(
         err?.response?.data?.message || t("common.errorOccurred"),
@@ -135,19 +171,14 @@ const EditProfilePage = () => {
             alignItems="center"
             spacing={2}
             sx={{ position: "relative", zIndex: 1 }}
+            useFlexGap={true}
           >
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: "50%",
-                bgcolor: "rgba(255,255,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Person sx={{ fontSize: 40 }} />
-            </Box>
+            <AvatarEditOverlay
+              currentAvatar={citizenInfo?.avatar}
+              onAvatarChange={handleAvatarChange}
+              previewUrl={avatarPreview}
+              size={80}
+            />
 
             <Box
               sx={{
@@ -423,7 +454,7 @@ const EditProfilePage = () => {
                     boxShadow: "0 4px 12px rgba(2, 115, 237, 0.3)",
                   }}
                 >
-                  {isLoading ? t("common.loading") : t("common.save")}
+                  {isLoading ? "" : t("common.save")}
                 </Button>
               </Stack>
             </Stack>

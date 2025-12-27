@@ -25,6 +25,7 @@ import { PermissionGuard } from "./PermissionGuard";
 import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
+import BiometricDataPage from "../pages/Settings/BiometricDataPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -58,6 +59,7 @@ export const ROUTES: IRoutes = {
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
+  BIOMETRIC_DATA: "/citizen/settings/biometric-data",
 };
 
 export const routes = [
@@ -103,6 +105,14 @@ export const routes = [
     element: (
       <ProtectedRoutes>
         <SettingsPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.BIOMETRIC_DATA,
+    element: (
+      <ProtectedRoutes>
+        <BiometricDataPage />
       </ProtectedRoutes>
     ),
   },

@@ -16,6 +16,7 @@ import {
   ArrowBack,
   Person,
   Settings,
+  Fingerprint as FingerprintIcon,
   //   Settings,
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -51,6 +52,14 @@ const SettingsPage: React.FC = () => {
       icon: <LockIcon sx={{ fontSize: 40 }} />,
       color: "warning",
       onClick: () => navigate(ROUTES.CHANGE_PASSWORD),
+    },
+    {
+      key: "biometricData",
+      title: t("citizen.biometricData"),
+      description: t("citizen.biometricDataDesc"),
+      icon: <FingerprintIcon sx={{ fontSize: 40 }} />,
+      color: "success",
+      onClick: () => navigate(ROUTES.BIOMETRIC_DATA),
     },
   ];
 

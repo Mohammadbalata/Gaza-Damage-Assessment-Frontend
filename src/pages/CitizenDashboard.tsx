@@ -37,11 +37,13 @@ const CitizenDashboard: React.FC = () => {
 
   // Get user info from Redux store
   const authState: any = useAppSelector((state) => state.auth);
+  const citizenInfo = authState.citizenInfo;
   const citizenName = authState.user?.first_name
-    ? `${authState.user?.first_name} ${authState.user?.father_name || ""} ${
-        authState.user?.family_name || ""
-      }`.trim()
-    : authState.nationalId || t("citizen.welcome");
+    ? ` ${authState.user?.first_name || ""}`.trim()
+    : authState.nationalId;
+
+  // Get avatar URL from citizenInfo (can be from API or local upload)
+  const avatarUrl = citizenInfo?.avatar || null;
 
   /**
    * Handle logout - clears auth state and redirects to sign in
@@ -52,7 +54,6 @@ const CitizenDashboard: React.FC = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("citizenInfo");
     localStorage.removeItem("citizen_user");
-    localStorage.removeItem("citizenInfo");
 
     // Navigate to sign in page
     navigate(`/`);
@@ -156,22 +157,32 @@ const CitizenDashboard: React.FC = () => {
           spacing={2}
           sx={{ position: "relative", zIndex: 1 }}
         >
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            useFlexGap={true}
+          >
             <Avatar
+              src={avatarUrl || undefined}
               sx={{
                 width: 64,
                 height: 64,
                 bgcolor: "rgba(255,255,255,0.2)",
                 border: "2px solid rgba(255,255,255,0.3)",
+                "& img": {
+                  objectFit: "cover",
+                },
               }}
             >
+              {/* Fallback when no avatar */}
               <PersonIcon sx={{ fontSize: 36 }} />
             </Avatar>
-            <Box>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
                 {t("citizen.welcome")}
               </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
                 {citizenName}
               </Typography>
             </Box>

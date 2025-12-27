@@ -27,9 +27,11 @@ import {
   ListItemText,
   Stack,
   Typography,
+  Paper,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
+import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -76,22 +78,26 @@ const PasswordDisplayPage = () => {
       });
   }, [navigate, dispatch, id]);
 
-  const onSubmit = async (data: FormDataCustom) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
+    formData.append("nationalId", id ?? "");
+    formData.append("password", data.password);
+    formData.append("firstName", data.firstName);
+    formData.append("fatherName", data.fatherName);
+    formData.append("grandfatherName", data.grandfatherName);
+    formData.append("familyName", data.familyName);
+    formData.append("email", data.email);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("whatsappNumber", data.whatsappNumber);
+    formData.append("familyMembersNumber", data.familyMembersNumber);
+    formData.append("avatar", data.avatar);
+    formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
+    console.log(formData);
     if (id) {
       await dispatch(
         signUp({
-          nationalId: id,
-          password: data.password,
           pathSignUp: `${API.citizen.auth.completeSignup}`,
-          firstName: data.firstName,
-          fatherName: data.fatherName,
-          grandfatherName: data.grandfatherName,
-          familyName: data.familyName,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          whatsappNumber: data.whatsappNumber,
-          familyMembersNumber: Number(data.familyMembersNumber),
+          formData,
         })
       )
         .unwrap()
@@ -147,6 +153,29 @@ const PasswordDisplayPage = () => {
       </Box>
 
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Optional Avatar Upload Section */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            bgcolor: "grey.50",
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            fontWeight="medium"
+            gutterBottom
+            sx={{ mb: 2 }}
+          >
+            {t("imageUpload.avatarOptional")}
+          </Typography>
+          <SingleImageInput control={control} name="avatar" isOptional={true} />
+        </Paper>
+
         <Box
           sx={{
             display: "grid",
@@ -171,6 +200,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              fixedLabel={true}
             />
           </Box>
           <Box>
@@ -192,6 +222,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              fixedLabel={true}
             />
           </Box>
 
@@ -212,6 +243,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              fixedLabel={true}
             />
           </Box>
           <Box>
@@ -230,6 +262,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              fixedLabel={true}
             />
           </Box>
 
@@ -251,6 +284,7 @@ const PasswordDisplayPage = () => {
                 },
               }}
               isRequired={true}
+              fixedLabel={true}
             />
           </Box>
         </Box>
@@ -272,6 +306,7 @@ const PasswordDisplayPage = () => {
               }}
               isRequired={true}
               isNationalId={true}
+              fixedLabel={true}
             />
           </Box>
           {/* Phone Numbers */}
@@ -355,6 +390,7 @@ const PasswordDisplayPage = () => {
                   isCopyIcon={true}
                   {...{ setPassword }}
                   {...{ setIsTouchInput }}
+                  fixedLabel={true}
                 />
               </Box>
 

@@ -30,6 +30,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.supervisor": "Supervisor",
     "common.searchPlaceholder": "Search ....",
     "common.backToDashboard": "Back to Dashboard",
+    "common.backToSettings": "Back to Settings Page",
     "common.goToPage": "Go to Page",
     "common.continue": "Continue",
     "common.retry": "Retry",
@@ -142,6 +143,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.numberOfChildren": "Number of Children",
     "form.wifeName": "Wife's Name",
     "form.wifeNationalId": "Wife's National ID",
+    "citizen.biometricData": "Biometric Data",
+    "citizen.biometricDataDesc": "Manage your biometric data",
+    "citizen.biometricDataTitle": "Biometric Data",
+    "citizen.biometricDataComingSoon":
+      "Biometric data management will be available soon. This feature is currently under development.",
     "from.firstNamePlaceholder": "Enter First Name",
     "form.fatherNamePlaceholder": "Enter Father's Name",
     "form.grandfatherNamePlaceholder": "Enter Grandfather's Name",
@@ -574,8 +580,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "Failed to change password.",
     "citizen.passwordChangedSuccess": "Password changed successfully.",
     "citizen.currentLocation": "Current Location",
-    "citizen.electronicServices": "Electronic services",
-    "citizen.electronicServicesDesc": "Go to electronic services",
+    "citizen.electronicServices": "Electronic services and settings",
+    "citizen.electronicServicesDesc": "Go to electronic services and settings",
     "citizen.welcomeForElectronicServices": "welcome for electronic services",
     "citizen.editProfile": "Edit Profile",
     "citizen.editProfileDesc":
@@ -587,6 +593,13 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.description":
       "The page you are looking for does not exist or has been moved.",
     "notFound.backToHome": "Back to Home",
+
+    "imageUpload.clickOrDrag": "Click or drag image here",
+    "imageUpload.sizeError": "Image size must not exceed 2MB",
+    "imageUpload.avatar": "Profile Picture",
+    "imageUpload.avatarOptional": "Profile Picture (Optional)",
+    "imageUpload.editPhoto": "Edit photo",
+    "imageUpload.tapToEdit": "Tap to edit",
   },
   ar: {
     // Common
@@ -620,6 +633,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.supervisor": "مشرف",
     "common.searchPlaceholder": "ابحث ....",
     "common.backToDashboard": "العودة إلى لوحة التحكم",
+    "common.backToSettings": "العودة إلى صفحة الإعدادات",
     "common.goToPage": "الذهاب إلى الصفحة",
     "common.copied": "تم النسخ إلى الحافظة",
     "common.retry": "إعادة المحاولة",
@@ -733,6 +747,11 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.numberOfChildrenPlaceholder": "أدخل عدد الأطفال",
     "form.wifeNamePlaceholder": "أدخل اسم الزوجة",
     "form.wifeNationalIdPlaceholder": "أدخل رقم هوية الزوجة",
+    "citizen.biometricData": "البيانات البيومترية",
+    "citizen.biometricDataDesc": "إدارة البيانات البيومترية الخاصة بك",
+    "citizen.biometricDataTitle": "البيانات البيومترية",
+    "citizen.biometricDataComingSoon":
+      "ميزة إدارة البيانات البيومترية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
     "form.whatsappNumberPlaceholder": "أدخل رقم واتساب",
     "form.firstNamePlaceholder": "أدخل الاسم الأول",
     "form.fatherNamePlaceholder": "أدخل اسم الأب",
@@ -1142,8 +1161,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.passwordChangeError": "فشل في تغيير كلمة المرور.",
     "citizen.passwordChangedSuccess": "تم تغيير كلمة المرور بنجاح.",
     "citizen.currentLocation": "العنوان الحالي ",
-    "citizen.electronicServices": "الخدمات الالكترونية",
-    "citizen.electronicServicesDesc": "الذهاب إلى الخدمات الاكترونية",
+    "citizen.electronicServices": "الخدمات الالكترونية والإعدادات",
+    "citizen.electronicServicesDesc":
+      "الذهاب إلى الخدمات الاكترونية والإعدادات",
     "citizen.welcomeForElectronicServices": "مرحبا بك في الخدمات الالكترونية",
     "citizen.editProfile": "تعديل البيانات الشخصية",
     "citizen.editProfileDesc":
@@ -1154,5 +1174,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     "notFound.backToHome": "العودة إلى الصفحة الرئيسية",
+
+    "imageUpload.clickOrDrag": "اضغط أو اسحب الصورة هنا",
+    "imageUpload.sizeError": "حجم الصورة يجب أن لا يتجاوز 2MB",
+    "imageUpload.avatar": "الصورة الشخصية",
+    "imageUpload.avatarOptional": "الصورة الشخصية (اختياري)",
+    "imageUpload.editPhoto": "تعديل الصورة",
+    "imageUpload.tapToEdit": "اضغط للتعديل",
   },
 };
