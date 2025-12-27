@@ -50,6 +50,7 @@ const CitizenDashboard: React.FC = () => {
     // Clear localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("citizenInfo");
     localStorage.removeItem("citizen_user");
     localStorage.removeItem("citizenInfo");
 

@@ -35,18 +35,16 @@ import {
   Citizen,
   Location,
   LocationType,
-  UserRole,
 } from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import { useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 import { API } from "../../constants/ApiRoutes";
+import { permissions } from "../../constants/permissions";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -91,12 +89,11 @@ const locationColors: Record<string, object> = {
 
 export function AdminLocationsPage() {
   const { t, language } = useLanguage();
-  const { hasRole } = useAuth();
-  const navigate = useNavigate();
+  const { hasPermission } = useAuth();
   const { showSuccess, showError } = useNotification();
 
-  const canManage = hasRole(UserRole.ADMIN);
-  const canView = hasRole(UserRole.ADMIN, UserRole.SUPERVISOR);
+  const canManage = hasPermission(permissions.location.create);
+  const canView = hasPermission(permissions.location.view);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
@@ -307,18 +304,6 @@ export function AdminLocationsPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
-      <Box
-        className="mb-4 flex items-center gap-2 cursor-pointer text-blue-800 max-w-fit"
-        onClick={() => navigate("/admin/dashboard")}
-      >
-        <span
-          className="hover:underline text-blue-800 cursor-pointer"
-          onClick={() => navigate("/admin/dashboard")}
-        >
-          {t("common.backToDashboard")}
-        </span>
-        <ArrowBack className={`${language == "en" ? "rotate-180" : ""}`} />
-      </Box>
       <Box
         sx={{
           display: "flex",

@@ -23,9 +23,9 @@ function App() {
       ];
       if (userObj && a.includes(window.location.pathname)) {
         if (userObj?.role) {
-          window.location.href = "/admin/dashboard";
+          window.location.href = "/admin";
         } else {
-          window.location.href = "/review";
+          window.location.href = "/citizen/dashboard";
         }
       }
     }

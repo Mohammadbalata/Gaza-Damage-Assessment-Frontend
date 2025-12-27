@@ -44,6 +44,21 @@ export const API = {
       delete: (id: string) => `/admin/bank-accounts/${id}`,
       export: `/admin/bank-accounts/export`,
     },
+
+    roles: {
+      list: `/admin/roles`,
+      create: `/admin/roles`,
+      update: (id: string) => `/admin/roles/${id}`,
+      delete: (id: string) => `/admin/roles/${id}`,
+      assignPermissions: (id: string) => `/admin/roles/${id}/permissions`,
+    },
+
+    permissions: {
+      list: `/admin/permissions`,
+      create: `/admin/permissions`,
+      update: (id: string) => `/admin/permissions/${id}`,
+      delete: (id: string) => `/admin/permissions/${id}`,
+    },
   },
 
   citizen: {

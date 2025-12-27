@@ -4,7 +4,6 @@ import {
   AccountType,
   ApplicationStatus,
   LocationType,
-  UserRole,
 } from "../types/entities";
 
 // Basic validation schemas
@@ -44,9 +43,8 @@ export const loginSchema = yup.object().shape({
 export const adminUserSchema = yup.object().shape({
   name: nameSchema,
   email: emailSchema,
-  role: yup
-    .string()
-    .oneOf([UserRole.ADMIN, UserRole.SUPERVISOR], "دور غير صالح")
+  roleId: yup
+    .number()
     .required("الدور مطلوب"),
   password: yup.string().when("isEditing", {
     is: false,
@@ -158,14 +156,9 @@ export const userSchema = yup.object({
     otherwise: (schema) =>
       schema
         .optional()
-        .min(6, "يجب أن تكون كلمة المرور 6 أحرف على الأقل")
-        .max(100, "يجب أن تكون كلمة المرور أقل من 100 حرف"),
   }),
 
-  role: yup
-    .string()
-    .required("الدور مطلوب")
-    .oneOf([UserRole.SUPERVISOR, UserRole.ADMIN], "دور غير صحيح"),
+  roleId: yup.number().required("رقم الدور مطلوب"),
 });
 
 export const bankAccountSchema = yup.object({
@@ -195,4 +188,33 @@ export const bankAccountSchema = yup.object({
       [AccountStatus.ACTIVE, AccountStatus.CLOSED, AccountStatus.SUSPENDED],
       "حالة غير صحيحة"
     ),
+});
+
+
+export const permissionSchema = yup.object({
+  key: yup
+    .string()
+    .required("اسم الصلاحية مطلوب")
+    .matches(
+      /^[a-z]+:[a-z]+$/,
+      "يجب أن يكون التنسيق: resource:action (مثل user:create)"
+    )
+    .min(3, "يجب أن يكون اسم الصلاحية 3 أحرف على الأقل"),
+  description: yup
+    .string()
+    .optional()
+    .max(500, "يجب أن يكون الوصف أقل من 500 حرف"),
+});
+
+
+export const roleSchema = yup.object({
+  name: yup
+    .string()
+    .required("اسم الدور مطلوب")
+    .min(2, "يجب أن يكون اسم الدور حرفين على الأقل")
+    .max(50, "يجب أن يكون اسم الدور أقل من 50 حرف"),
+  description: yup
+    .string()
+    .optional()
+    .max(500, "يجب أن يكون الوصف أقل من 500 حرف"),
 });
