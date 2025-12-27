@@ -19,4 +19,6 @@ export interface IAuthState {
   whatsappNumber?: string;
   pathSignUp?: string;
   citizenInfo?: any;
+  avatar?: File | null;
+  formData?: any;
 }

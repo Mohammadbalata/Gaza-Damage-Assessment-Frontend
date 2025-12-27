@@ -30,7 +30,7 @@ export interface IRoutes {
   // ADMIN_BANKING: string;
   FORGOT_PASSWORD: string;
   BANK_INFORMATION: string;
+  BIOMETRIC_DATA: string;
   // ADMIN_PERMISSIONS:string
   // ADMIN_ROLES:string
-
 }

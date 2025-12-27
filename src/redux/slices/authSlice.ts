@@ -68,8 +68,8 @@ export const authSlice = createSlice({
       state.password = "";
       localStorage.removeItem("citizen_user");
       localStorage.removeItem("token");
-},
-setCitizenInfo: (state, action) => {
+    },
+    setCitizenInfo: (state, action) => {
       state.citizenInfo = action.payload;
     },
   },
@@ -165,25 +165,40 @@ export const signIn = createAsyncThunk(
 export const signUp = createAsyncThunk(
   "auth/signUp",
   async (payload: IAuthState, { rejectWithValue }) => {
-    try {
-      const res = await axiosClient.post(`${payload.pathSignUp}`, {
-        nationalId: payload.nationalId,
-        password: payload.password, // include if backend expects it
-        firstName: payload.firstName,
-        fatherName: payload.fatherName,
-        grandfatherName: payload.grandfatherName,
-        familyName: payload.familyName,
-        email: payload.email,
-        familyMembersNumber: payload.familyMembersNumber,
-        phoneNumber: payload.phoneNumber,
-        whatsappNumber: payload.whatsappNumber,
-      });
-      const token = res.data?.data?.token;
-      console.log(res.data);
-      return { payload, data: res.data, token };
-    } catch (err: any) {
-      console.log(err);
-      return rejectWithValue(err.response?.data?.message || "Sign up failed");
+    if (payload.pathSignUp === API.citizen.auth.completeSignup) {
+      try {
+        const res = await axiosClient.post(
+          `${payload.pathSignUp}`,
+          payload.formData
+        );
+        const token = res.data?.data?.token;
+        console.log(res.data);
+        return { payload, data: res.data, token };
+      } catch (err: any) {
+        console.log(err);
+        return rejectWithValue(err.response?.data?.message || "Sign up failed");
+      }
+    } else {
+      try {
+        const res = await axiosClient.post(`${payload.pathSignUp}`, {
+          nationalId: payload.nationalId,
+          password: payload.password, // include if backend expects it
+          firstName: payload.firstName,
+          fatherName: payload.fatherName,
+          grandfatherName: payload.grandfatherName,
+          familyName: payload.familyName,
+          email: payload.email,
+          familyMembersNumber: payload.familyMembersNumber,
+          phoneNumber: payload.phoneNumber,
+          whatsappNumber: payload.whatsappNumber,
+        });
+        const token = res.data?.data?.token;
+        console.log(res.data);
+        return { payload, data: res.data, token };
+      } catch (err: any) {
+        console.log(err);
+        return rejectWithValue(err.response?.data?.message || "Sign up failed");
+      }
     }
   }
 );
