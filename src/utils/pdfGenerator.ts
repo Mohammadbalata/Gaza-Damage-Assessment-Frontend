@@ -341,7 +341,6 @@ export const generateApplicationPDF = async (
   let position = 0;
 
   while (remainingHeight > 0) {
-    const sliceHeight = Math.min(remainingHeight, pageHeight);
     const yOffset = -position;
 
     pdf.addImage(imgData, "JPEG", 0, yOffset, imgWidth, imgHeight);
