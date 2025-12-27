@@ -71,11 +71,11 @@ const PreviousLocationMapPage = () => {
     setAddress("");
   };
 
-  const handleConfirm = () => {
-    if (position) {
-      setOpenDialog(true);
-    }
-  };
+  // const handleConfirm = () => {
+  //   if (position) {
+  //     setOpenDialog(true);
+  //   }
+  // };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);

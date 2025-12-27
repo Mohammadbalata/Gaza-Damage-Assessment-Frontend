@@ -234,12 +234,6 @@ const SingleImageInput = ({
           field.onChange(file);
         };
       
-      return (
-        <Box>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-
         return (
           <Box>
             {label && (
