@@ -1,9 +1,11 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { DAMAGE_TYPES, nearestLandmark } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES , nearestLandmark} from "../../utils/DamageAssessment";
 import classNames from "classnames";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
+import MixedUsageComponent from "./MixedUsageComponent";
 
 const Tower = ({
   register,
@@ -11,7 +13,9 @@ const Tower = ({
   watch,
   control,
   isChangeToReviewPage,
-}: any) => {
+  getValues,
+  setValue,
+}: IBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("tower.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
@@ -20,7 +24,22 @@ const Tower = ({
   const damageTypeWatch = watch("tower.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
   const [textLength, setTextLength] = useState(0);
+  const BuildingContentWatch = watch("tower.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
+  useEffect(() => {
+    const currentDamage = getValues("tower.damagePercentage");
+    const currentHabitable = getValues("tower.isHabitable");
 
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%") setValue("tower.damagePercentage", "100%");
+      if (currentHabitable !== "لا") setValue("tower.isHabitable", "لا");
+    }
+
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "") setValue("tower.damagePercentage", "");
+      if (currentHabitable !== "") setValue("tower.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
   return (
     <div className="space-y-10">
       <section className="space-y-6">
@@ -189,7 +208,7 @@ const Tower = ({
         </div>
 
         {/* Usage Type */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             نوع الاستخدام <span className="text-red-500">*</span>
           </label>
@@ -239,7 +258,18 @@ const Tower = ({
               {errors.tower.usageType.message}
             </p>
           )}
-        </div>
+        </div> */}
+        <MixedUsageComponent
+          {...{ register }}
+          {...{ isChangeToReviewPage }}
+          {...{ showUsageType }}
+          {...{ watch }}
+          {...{ errors }}
+          usageTypePath="tower.usageType"
+          otherUsageTypePath="tower.otherUsageType"
+          selector={(state) => state.damage.tower.MixedUsage}
+          entityKey="tower"
+        />
       </section>
       <section className="space-y-6">
         {/* Collapsed Floors */}
@@ -477,6 +507,37 @@ const Tower = ({
             <p className="text-red-600 text-sm">
               {errors.tower.isHabitable.message}
             </p>
+          )}
+          {showBuildingContent && (
+            <div className="mt-5">
+              {BuildingContent?.map((item, index) => (
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
+                  <input
+                    type="checkbox"
+                    value={item.value}
+                    {...register("tower.BuildingContent", {
+                      required: "اختر واحد على الأقل",
+                    })}
+                    className={classNames(
+                      "accent-primary",
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
+                    )}
+                  />
+                  <span className="mr-2">{item.label}</span>
+                </div>
+              ))}
+              {errors?.tower?.BuildingContent && (
+                <p className="text-red-600 text-sm">
+                  {errors.tower.BuildingContent.message}
+                </p>
+              )}
+            </div>
           )}
         </div>
 
