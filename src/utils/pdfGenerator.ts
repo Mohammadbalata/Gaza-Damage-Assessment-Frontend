@@ -202,11 +202,56 @@ export const generateApplicationPDF = async (
   citizen: any,
   application: any,
   t: any,
-  language: any
+  language: string
 ) => {
+  // نوع المبنى وبياناته
+  const buildingType = application?.extraData?.buildingType;
+  const buildingData = buildingType
+    ? application?.extraData?.[buildingType]
+    : null;
+
+  // إنشاء PDF
   const pdf = new jsPDF("p", "pt", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
+  // دالة لتحويل بيانات المبنى إلى HTML
+  const renderBuildingData = (data: any) => {
+    if (!data || typeof data !== "object") return "";
+
+    const direction = language === "ar" ? "rtl" : "ltr";
+    const entries = Object.entries(data).filter(
+      ([_, value]) =>
+        value !== null &&
+        value !== "" &&
+        !(Array.isArray(value) && value.length === 0)
+    );
+
+    let html = `<div style="
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    direction: ${direction};
+  ">`;
+
+    entries.forEach(([key, value]) => {
+      const translationKey = `form.${key}`;
+      const label = t(translationKey) || key;
+
+      // إذا القيمة boolean، حولها إلى "نعم" أو "لا"
+      let displayValue = value;
+      if (typeof value === "boolean") {
+        displayValue = value ? "نعم" : "لا";
+      }
+
+      html += `<div style="margin:0;"><strong>${label}:</strong> ${displayValue}</div>`;
+    });
+
+    html += "</div>";
+    return html;
+  };
+
+  // إنشاء عنصر HTML كامل للطباعة
   const element = document.createElement("div");
   element.style.width = "800px";
   element.style.fontFamily = "'Amiri', Arial, sans-serif";
@@ -215,22 +260,21 @@ export const generateApplicationPDF = async (
   element.style.background = "#fdfdfd";
   element.style.color = "#333";
   element.style.lineHeight = "1.8";
-  element.style.boxSizing = "border-box";
 
   element.innerHTML = `
     <div style="text-align:center; margin-bottom:30px;">
-      <h1 style="margin:0; font-size:28px; color:#1E3A8A; font-weight:bold;">
+      <h1 style="margin:0; font-size:28px; color:#1E3A8A;">
         ${t("app.title")}
       </h1>
-      <p style="margin:5px 0; font-size:20px; color:#374151; font-weight:bold;">
+      <p style="font-size:20px; font-weight:bold;">
         ${t("common.damageRequest")}
       </p>
     </div>
 
-    <hr style="border:none; border-top:2px solid #eee; margin-bottom:30px;" />
+    <hr style="margin-bottom:30px;" />
 
-    <section style="margin-bottom:30px;">
-      <h3 style="font-size:25px; color:#1E3A8A; font-weight:bold; margin-bottom:15px;">
+    <section>
+      <h3 style="font-size:25px; color:#1E3A8A;">
         ${t("review.identityInfo")}
       </h3>
       <p><strong>${t("auth.nationalId")}:</strong> ${
@@ -245,51 +289,70 @@ export const generateApplicationPDF = async (
   }</p>
     </section>
 
-    <section>
-      <h3 style="font-size:25px; color:#1E3A8A; font-weight:bold; margin-bottom:20px;">
+    <section style="margin-top:15px;">
+      <h3 style="font-size:25px; color:#1E3A8A;">
         ${t("review.damageInfo")}
       </h3>
 
       <div style="
-        margin-bottom:20px;
+        margin-top:15px;
         padding:20px;
         border-radius:12px;
         background:#EFF6FF;
-        box-shadow:0 4px 8px rgba(0,0,0,0.05);
         border-right:6px solid #1E3A8A;
       ">
-        <h4 style="margin-top:0; color:#1E3A8A;">
-          ${t("citizen.applicationId")} #${application.id}
+        <h4>
+          <strong>${t("success.trackingNumber")}:</strong> #${application.id}
         </h4>
-        <p><strong>${t("success.trackingNumber")}:</strong> ${
-    application.id
+
+        <p><strong>${t("form.submissionDate")}:</strong> ${formatDate(
+    new Date(application.createdAt)
+  )}</p>
+        <p><strong>${t("status")}:</strong> ${t(
+    `status.${application.status?.toLowerCase()}`
+  )}</p>
+        <p><strong>${t("map.address")}:</strong> ${
+    application.location?.address || "-"
   }</p>
-        <p><strong>${t("form.submissionDate")}:</strong>
-          ${formatDate(new Date(application.createdAt))}
+
+        <hr style="margin:12px 0; border:none; border-top:1px solid #D1D5DB;" />
+        <p style="margin:6px 0;">
+          <strong>${t("form.buildingType")}:</strong> ${t(
+    `form.${buildingType}`
+  )}
         </p>
-        <p><strong>${t("status")}:</strong>
-          ${t(`status.${application.status?.toLowerCase()}`)}
-        </p>
-        <p><strong>${t("map.address")}:</strong>
-          ${application.location?.address || "-"}
-        </p>
-        <p><strong>${t("form.damageLevel")}:</strong>
-           ${application.damage_level || "-"}
-        </p>
-        <p><strong>${t("form.propertyType")}:</strong>
-           ${application.property_type || "-"}
-        </p>
+
+        ${renderBuildingData(buildingData)}
       </div>
     </section>
   `;
 
   document.body.appendChild(element);
-  const canvas = await html2canvas(element, { scale: 2 });
-  const img = canvas.toDataURL("image/jpeg");
-  const props = pdf.getImageProperties(img);
-  const height = (props.height * pageWidth) / props.width;
 
-  pdf.addImage(img, "JPEG", 0, 0, pageWidth, height);
+  // تحويل HTML إلى canvas كامل
+  const canvas = await html2canvas(element as HTMLElement, { scale: 2 });
+  const imgData = canvas.toDataURL("image/jpeg");
+  const imgProps = pdf.getImageProperties(imgData);
+  const imgWidth = pageWidth;
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+  // تقسيم الصورة على صفحات PDF
+  let remainingHeight = imgHeight;
+  let position = 0;
+
+  while (remainingHeight > 0) {
+    const sliceHeight = Math.min(remainingHeight, pageHeight);
+    const yOffset = -position;
+
+    pdf.addImage(imgData, "JPEG", 0, yOffset, imgWidth, imgHeight);
+    remainingHeight -= pageHeight;
+    position += pageHeight;
+
+    if (remainingHeight > 0) {
+      pdf.addPage();
+    }
+  }
+
   document.body.removeChild(element);
 
   pdf.save(`Application-${application.id}.pdf`);

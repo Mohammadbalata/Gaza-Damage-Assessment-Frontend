@@ -22,6 +22,32 @@ export const buildingOptions = [
     label: "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
   },
 ];
+export const nearestLandmark = [
+  {
+    Label: "مدرسة",
+    value: "مدرسة",
+  },
+  {
+    Label: "مستشفى",
+    value: "مستشفى",
+  },
+  {
+    Label: "شارع رئيسي",
+    value: "شارع رئيسي",
+  },
+  {
+    Label: "مسجد",
+    value: "مسجد",
+  },
+  {
+    Label: "سوق",
+    value: "سوق",
+  },
+  {
+    Label: "اخرى",
+    value: "اخرى",
+  },
+];
 
 export const DAMAGE_TYPES = [
   {
