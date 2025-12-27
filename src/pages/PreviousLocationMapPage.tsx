@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { RotateCcw, Check } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
 import MapContainer from "../components/MapContainer";
@@ -232,7 +232,7 @@ const PreviousLocationMapPage = () => {
               />
             </Box>
 
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={handleConfirm}
@@ -248,7 +248,7 @@ const PreviousLocationMapPage = () => {
               sx={{ flex: 1, height: 48 }}
             >
               {t("common.continue")}
-            </Button>
+            </Button> */}
           </Stack>
         </CardContent>
       </Card>

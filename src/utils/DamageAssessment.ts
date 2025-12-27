@@ -22,6 +22,32 @@ export const buildingOptions = [
     label: "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
   },
 ];
+export const nearestLandmark = [
+  {
+    Label: "مدرسة",
+    value: "مدرسة",
+  },
+  {
+    Label: "مستشفى",
+    value: "مستشفى",
+  },
+  {
+    Label: "شارع رئيسي",
+    value: "شارع رئيسي",
+  },
+  {
+    Label: "مسجد",
+    value: "مسجد",
+  },
+  {
+    Label: "سوق",
+    value: "سوق",
+  },
+  {
+    Label: "اخرى",
+    value: "اخرى",
+  },
+];
 
 export const DAMAGE_TYPES = [
   {
@@ -63,6 +89,12 @@ export const DAMAGE_TYPE_CompHouse = [
   { label: "ضرر جدران", value: "ضرر جدران" },
   { label: "ضرر أبواب وشبابيك", value: "ضرر أبواب وشبابيك" },
   { label: "ضرر بالحريق", value: "ضرر بالحريق" },
+];
+
+export const BuildingContent = [
+  { label: "يحتوي على غرفة قابلة للسكن على الأقل", value: "يحتوي على غرفة قابلة للسكن على الأقل" },
+  { label: "يحتوي على مطبخ قابل للاستخدام على الأقل", value:"يحتوي على مطبخ قابل للاستخدام على الأقل" },
+  { label: "يحتوي على دورة مياه قابلة للاستخدام على الأقل", value: "يحتوي على دورة مياه قابلة للاستخدام على الأقل" },
 ];
 
 export const removeImagesFromBuilding = (buildingData: any) => {

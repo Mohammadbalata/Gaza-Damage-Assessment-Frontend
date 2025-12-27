@@ -1,26 +1,20 @@
-import { FieldErrors, UseFormRegister } from "react-hook-form";
-import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES ,nearestLandmark } from "../../utils/DamageAssessment";
 import classNames from "classnames";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
 
-interface ApartmentInsideBuildingProps {
-  register: UseFormRegister<IDamageAssessmentState>;
-  errors: FieldErrors<IDamageAssessmentState>;
-  watch: any;
-  control: any;
-  isChangeToReviewPage: boolean;
-}
 const ApartmentInsideBuilding = ({
   register,
   errors,
   watch,
   control,
   isChangeToReviewPage,
-}: ApartmentInsideBuildingProps) => {
+  getValues,
+  setValue,
+}: IBuildingProps) => {
   const { t } = useLanguage();
   const [textLength, setTextLength] = useState(0);
 
@@ -28,6 +22,26 @@ const ApartmentInsideBuilding = ({
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("ApartmentInsideBuilding.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
+  const BuildingContentWatch = watch("ApartmentInsideBuilding.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
+  useEffect(() => {
+    const currentDamage = getValues("ApartmentInsideBuilding.damagePercentage");
+    const currentHabitable = getValues("ApartmentInsideBuilding.isHabitable");
+
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%")
+        setValue("ApartmentInsideBuilding.damagePercentage", "100%");
+      if (currentHabitable !== "لا")
+        setValue("ApartmentInsideBuilding.isHabitable", "لا");
+    }
+
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "")
+        setValue("ApartmentInsideBuilding.damagePercentage", "");
+      if (currentHabitable !== "")
+        setValue("ApartmentInsideBuilding.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
   return (
     <div className="space-y-6">
       {/* رقم الطابق */}
@@ -319,6 +333,37 @@ const ApartmentInsideBuilding = ({
             {errors.ApartmentInsideBuilding.isHabitable.message}
           </p>
         )}
+        {showBuildingContent && (
+          <div className="mt-5">
+            {BuildingContent?.map((item, index) => (
+              <div
+                className={classNames("mr-3", {
+                  "cursor-not-allowed": isChangeToReviewPage,
+                })}
+                key={index}
+              >
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("ApartmentInsideBuilding.BuildingContent", {
+                    required: "اختر واحد على الأقل",
+                  })}
+                  className={classNames(
+                    "accent-primary",
+                    isChangeToReviewPage &&
+                      "pointer-events-none accent-gray-200"
+                  )}
+                />
+                <span className="mr-2">{item.label}</span>
+              </div>
+            ))}
+            {errors?.ApartmentInsideBuilding?.BuildingContent && (
+              <p className="text-red-600 text-sm">
+                {errors.ApartmentInsideBuilding.BuildingContent.message}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* أقرب معلم */}
@@ -337,13 +382,12 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage}
         >
-          <option value="">اختر معلم</option>
-          <option value="school">مدرسة</option>
-          <option value="mosque">مسجد</option>
-          <option value="hospital">مستشفى</option>
-          <option value="market">سوق</option>
-          <option value="street">شارع رئيسي</option>
-          <option value="other">أخرى</option>
+          <option value="">اختر أقرب معلم</option>
+          {nearestLandmark.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.Label}
+            </option>
+          ))}
         </select>
 
         {errors?.ApartmentInsideBuilding?.nearestLandmark && (
