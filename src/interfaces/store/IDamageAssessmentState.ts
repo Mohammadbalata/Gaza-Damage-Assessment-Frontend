@@ -12,6 +12,34 @@ export interface IDamageAssessmentState {
   // propertyArea?: number | null; // done
   // damageType?: string; // done:
 }
+export interface IMixedUsage {
+  floors: IFloorsState;
+  units: IUnitsState;
+}
+export interface IFloorsState {
+  ground: any;
+  mezzanine: any;
+  roof: any;
+}
+
+export interface IUnitsState {
+  ground: any;
+  mezzanine: any;
+  roof: any;
+}
+export interface IUnit {
+  id:any;
+  usage: string;
+  activity: string;
+}
+export interface DamageState {
+  ResidentialBuilding: {
+    MixedUsage: IMixedUsage;
+  };
+  tower: {
+    MixedUsage: IMixedUsage;
+  };
+}
 export interface IndependentBuilding {
   numberOfFloors?: number | null;
   groundFloorArea?: number | null;
@@ -32,6 +60,7 @@ export interface IndependentBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ApartmentInsideBuilding {
@@ -57,6 +86,7 @@ export interface ApartmentInsideBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface ResidentialBuilding {
@@ -72,6 +102,8 @@ export interface ResidentialBuilding {
   nameOfStreet?: string;
   usageType?: string;
   otherUsageType?: string;
+  floors?: any;
+  units?: any[];
 
   collapsedFloors?: number | null;
   partialCollapses?: number | null;
@@ -91,6 +123,8 @@ export interface ResidentialBuilding {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
+  MixedUsage: IMixedUsage;
 }
 
 export interface ITower {
@@ -126,6 +160,8 @@ export interface ITower {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
+  MixedUsage: IMixedUsage;
 }
 
 export interface ICompHouse {
@@ -146,6 +182,7 @@ export interface ICompHouse {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }
 
 export interface IAdditionalBuildings {
@@ -173,4 +210,5 @@ export interface IAdditionalBuildings {
   beforeWarImage?: any;
   afterWarImage?: any;
   ownershipDocuments?: any[];
+  BuildingContent?: any[];
 }

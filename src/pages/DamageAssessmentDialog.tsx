@@ -59,6 +59,7 @@ const DamageAssessmentDialog = ({
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     control,
     formState: { errors },
@@ -73,6 +74,12 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+  const { floors:floorsResidential, units:unitsResisential } = useAppSelector(
+    (state) => state.damage.ResidentialBuilding.MixedUsage
+  );
+  const { floors:floorsTower, units:unitsTower } = useAppSelector(
+    (state) => state.damage.tower.MixedUsage
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -159,8 +166,46 @@ const DamageAssessmentDialog = ({
 
     return formData;
   };
+  const reBuildData = (formdata: any) => {
+    if (formdata.buildingType === "ResidentialBuilding") {
+      const data = {
+        ...formdata,
+        ResidentialBuilding: {
+          ...formdata.ResidentialBuilding,
+          MixedUsage: {
+            floors:floorsResidential,
+            units:unitsResisential,
+          },
+        },
+      };
+      console.log("final payload", data);
+      return data;
+    } else if(formdata.buildingType === "tower") {
+      const data = {
+        ...formdata,
+        tower: {
+          ...formdata.tower,
+          MixedUsage: {
+            floors:floorsTower,
+            units:unitsTower,
+          },
+        },
+      };
+      console.log('into tower')
+      console.log("final payload", data);
+      return data;
+    }
+  };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (formdata: any) => {
+    let data = formdata;
+    console.log(data);
+    if (data.buildingType === "ResidentialBuilding") {
+      data = reBuildData(data);
+    }
+    else if(data.buildingType === "tower"){
+      data = reBuildData(data);
+    }
     // Phase 1: Review
     if (!isChangeToReviewPage) {
       setIsChangeToReviewPage(true);
@@ -211,6 +256,7 @@ const DamageAssessmentDialog = ({
       dispatch(updatePreviousLocation({ previosLocation: application }));
 
       // API Call
+      console.log(application);
       const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
 
@@ -303,6 +349,8 @@ const DamageAssessmentDialog = ({
       control,
       errors,
       isChangeToReviewPage: isChangeToReviewPage,
+      setValue,
+      getValues,
     };
 
     switch (selected) {
@@ -376,7 +424,9 @@ const DamageAssessmentDialog = ({
                 disabled={isViewMode}
                 value={damageAssessmentInfo.buildingType}
               >
-                <option value="">{t("common.select")}</option>
+                <option value="" disabled>
+                  اختر مبنى
+                </option>
                 {buildingOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -389,10 +439,8 @@ const DamageAssessmentDialog = ({
                 </p>
               )}
             </div>
-
             <BuildingTypeView />
           </div>
-
           {/* Actions Area */}
           {!readOnly && (
             <DialogActions sx={{ mt: 4, px: 0 }}>

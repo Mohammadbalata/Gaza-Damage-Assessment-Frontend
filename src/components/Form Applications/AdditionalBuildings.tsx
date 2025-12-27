@@ -2,8 +2,8 @@ import classNames from "classnames";
 import { useLanguage } from "../../contexts/LanguageContext";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
-import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
-import { useState } from "react";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { useEffect, useState } from "react";
 
 const AdditionalBuildings = ({
   register,
@@ -11,18 +11,37 @@ const AdditionalBuildings = ({
   watch,
   control,
   isChangeToReviewPage,
+  getValues,
+  setValue
 }: any) => {
   const { t } = useLanguage();
   const propertyType = watch("additionalBuildings.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("additionalBuildings.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
+  const BuildingContentWatch = watch("additionalBuildings.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
 
   const roomTypeWatch = watch("additionalBuildings.roomType");
   const showUsageType = roomTypeWatch === "أخرى";
   const floorsCountWatch = watch("additionalBuildings.floorsCount");
   const showfloorsCount = floorsCountWatch > 0;
   const [textLength, setTextLength] = useState(0);
+
+  useEffect(() => {
+  const currentDamage = getValues("additionalBuildings.damagePercentage");
+  const currentHabitable = getValues("additionalBuildings.isHabitable");
+
+  if (damageTypeWatch === "هدم كلي") {
+    if (currentDamage !== "100%") setValue("additionalBuildings.damagePercentage", "100%");
+    if (currentHabitable !== "لا") setValue("additionalBuildings.isHabitable", "لا");
+  }
+
+  if (damageTypeWatch === "هدم جزئي") {
+    if (currentDamage !== "") setValue("additionalBuildings.damagePercentage", "");
+    if (currentHabitable !== "") setValue("additionalBuildings.isHabitable", "");
+  }
+}, [damageTypeWatch, setValue, getValues]);
 
   return (
     <div className="space-y-10">
@@ -78,7 +97,7 @@ const AdditionalBuildings = ({
           }
           {errors?.additionalBuildings?.type && (
             <p className="text-red-600 text-sm">
-              {errors.additionalBuildings.type.message}
+              {errors.additionalBuildings?.type.message}
             </p>
           )}
         </div>
@@ -367,6 +386,37 @@ const AdditionalBuildings = ({
             <p className="text-red-600 text-sm">
               {errors.additionalBuildings.isHabitable.message}
             </p>
+          )}
+          {showBuildingContent && (
+            <div className="mt-5">
+              {BuildingContent?.map((item, index) => (
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
+                  <input
+                    type="checkbox"
+                    value={item.value}
+                    {...register("additionalBuildings.BuildingContent", {
+                      required: "اختر واحد على الأقل",
+                    })}
+                    className={classNames(
+                      "accent-primary",
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
+                    )}
+                  />
+                  <span className="mr-2">{item.label}</span>
+                </div>
+              ))}
+              {errors?.additionalBuildings?.BuildingContent && (
+              <p className="text-red-600 text-sm">
+                {errors.additionalBuildings.BuildingContent.message}
+              </p>
+            )}
+            </div>
           )}
         </div>
 

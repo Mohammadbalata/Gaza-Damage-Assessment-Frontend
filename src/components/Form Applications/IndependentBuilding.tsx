@@ -1,10 +1,10 @@
 import { useLanguage } from "../../contexts/LanguageContext";
-import { DAMAGE_TYPES } from "../../utils/DamageAssessment";
-import { IndependentBuildingProps } from "../../interfaces/props/IImageUploadInputProps";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import classNames from "classnames";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const IndependentBuilding = ({
   register,
@@ -12,7 +12,9 @@ const IndependentBuilding = ({
   watch,
   control,
   isChangeToReviewPage,
-}: IndependentBuildingProps) => {
+  setValue,
+  getValues,
+}: IBuildingProps) => {
   const { t } = useLanguage();
   const [textLength, setTextLength] = useState(0);
 
@@ -20,6 +22,27 @@ const IndependentBuilding = ({
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("IndependentBuilding.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
+  const BuildingContentWatch = watch("IndependentBuilding.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
+
+  useEffect(() => {
+    const currentDamage = getValues("IndependentBuilding.damagePercentage");
+    const currentHabitable = getValues("IndependentBuilding.isHabitable");
+
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%")
+        setValue("IndependentBuilding.damagePercentage", "100%");
+      if (currentHabitable !== "لا")
+        setValue("IndependentBuilding.isHabitable", "لا");
+    }
+
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "")
+        setValue("IndependentBuilding.damagePercentage", "");
+      if (currentHabitable !== "")
+        setValue("IndependentBuilding.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
   console.log(isChangeToReviewPage);
   return (
     <div className="space-y-6">
@@ -316,7 +339,10 @@ const IndependentBuilding = ({
             "input-field",
             isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
           )}
-          disabled={isChangeToReviewPage ? true : false}
+          disabled={
+            (isChangeToReviewPage ? true : false) ||
+            damageTypeWatch === "هدم كلي"
+          }
         >
           <option value="">0</option>
           <option value="25%">25%</option>
@@ -344,7 +370,10 @@ const IndependentBuilding = ({
             "input-field",
             isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
           )}
-          disabled={isChangeToReviewPage ? true : false}
+          disabled={
+            (isChangeToReviewPage ? true : false) ||
+            damageTypeWatch === "هدم كلي"
+          }
         >
           <option value="">اختر نوع</option>
           <option value="نعم">نعم</option>
@@ -354,6 +383,37 @@ const IndependentBuilding = ({
           <p className="text-red-600 text-sm">
             {errors.IndependentBuilding.isHabitable.message}
           </p>
+        )}
+        {showBuildingContent && (
+          <div className="mt-5">
+            {BuildingContent?.map((item, index) => (
+              <div
+                className={classNames("mr-3", {
+                  "cursor-not-allowed": isChangeToReviewPage,
+                })}
+                key={index}
+              >
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("IndependentBuilding.BuildingContent", {
+                    required: "اختر واحد على الأقل",
+                  })}
+                  className={classNames(
+                    "accent-primary",
+                    isChangeToReviewPage &&
+                      "pointer-events-none accent-gray-200"
+                  )}
+                />
+                <span className="mr-2">{item.label}</span>
+              </div>
+            ))}
+            {errors?.IndependentBuilding?.BuildingContent && (
+              <p className="text-red-600 text-sm">
+                {errors.IndependentBuilding.BuildingContent.message}
+              </p>
+            )}
+          </div>
         )}
       </div>
 

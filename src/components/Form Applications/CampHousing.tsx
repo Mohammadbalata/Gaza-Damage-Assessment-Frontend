@@ -1,16 +1,11 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { DAMAGE_TYPE_CompHouse } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPE_CompHouse } from "../../utils/DamageAssessment";
 import classNames from "classnames";
-import { useState } from "react";
-interface CampHousingProps {
-  register: any;
-  errors: any;
-  watch: any;
-  control: any;
-  isChangeToReviewPage: boolean;
-}
+import { useEffect, useState } from "react";
+import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
+
 
 const CampHousing = ({
   register,
@@ -18,14 +13,32 @@ const CampHousing = ({
   watch,
   control,
   isChangeToReviewPage,
-}: CampHousingProps) => {
+  getValues,
+  setValue
+}: IBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("compHouse.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("compHouse.damageType");
   const showDamageValue = damageTypeWatch === "هدم جزئي";
   const [textLength, setTextLength] = useState(0);
+  const BuildingContentWatch = watch("compHouse.isHabitable");
+  const showBuildingContent = BuildingContentWatch === "نعم";
 
+  useEffect(() => {
+  const currentDamage = getValues("compHouse.damagePercentage");
+  const currentHabitable = getValues("compHouse.isHabitable");
+
+  if (damageTypeWatch === "هدم كلي") {
+    if (currentDamage !== "100%") setValue("compHouse.damagePercentage", "100%");
+    if (currentHabitable !== "لا") setValue("compHouse.isHabitable", "لا");
+  }
+
+  if (damageTypeWatch === "هدم جزئي") {
+    if (currentDamage !== "") setValue("compHouse.damagePercentage", "");
+    if (currentHabitable !== "") setValue("compHouse.isHabitable", "");
+  }
+}, [damageTypeWatch, setValue, getValues]);
   return (
     <div className="space-y-6">
       {/* مساحة المسكن */}
@@ -218,6 +231,37 @@ const CampHousing = ({
             <p className="text-red-600 text-sm">
               {errors.compHouse.isHabitable.message}
             </p>
+          )}
+          {showBuildingContent && (
+            <div className="mt-5">
+              {BuildingContent?.map((item, index) => (
+                <div
+                  className={classNames("mr-3", {
+                    "cursor-not-allowed": isChangeToReviewPage,
+                  })}
+                  key={index}
+                >
+                  <input
+                    type="checkbox"
+                    value={item.value}
+                    {...register("compHouse.BuildingContent", {
+                      required: "اختر واحد على الأقل",
+                    })}
+                    className={classNames(
+                      "accent-primary",
+                      isChangeToReviewPage &&
+                        "pointer-events-none accent-gray-200"
+                    )}
+                  />
+                  <span className="mr-2">{item.label}</span>
+                </div>
+              ))}
+              {errors?.compHouse?.BuildingContent && (
+              <p className="text-red-600 text-sm">
+                {errors.compHouse.BuildingContent.message}
+              </p>
+            )}
+            </div>
           )}
         </div>
 
