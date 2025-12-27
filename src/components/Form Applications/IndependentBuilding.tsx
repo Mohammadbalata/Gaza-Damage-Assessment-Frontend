@@ -1,5 +1,5 @@
 import { useLanguage } from "../../contexts/LanguageContext";
-import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES , nearestLandmark } from "../../utils/DamageAssessment";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
@@ -434,12 +434,11 @@ const IndependentBuilding = ({
           disabled={isChangeToReviewPage}
         >
           <option value="">اختر أقرب معلم</option>
-          <option value="school">مدرسة</option>
-          <option value="mosque">مسجد</option>
-          <option value="hospital">مستشفى</option>
-          <option value="market">سوق</option>
-          <option value="street">شارع رئيسي</option>
-          <option value="other">أخرى</option>
+          {nearestLandmark.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.Label}
+            </option>
+          ))}
         </select>
 
         {errors?.IndependentBuilding?.nearestLandmark && (

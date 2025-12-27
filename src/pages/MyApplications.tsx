@@ -65,8 +65,7 @@ const MyApplications = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const {
-  } = useForm<any>({
+  const {} = useForm<any>({
     defaultValues: {
       id: "",
     },
@@ -164,6 +163,7 @@ const MyApplications = () => {
   //   console.log(selectedApplication)
   const handleDownloadAppPdf = (app: any) => {
     generateApplicationPDF(citizen, app, t, language);
+    console.log(app);
   };
 
   const handleDialogClose = () => {

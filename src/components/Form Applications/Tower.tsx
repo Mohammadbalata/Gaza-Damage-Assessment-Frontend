@@ -1,7 +1,7 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES , nearestLandmark} from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
@@ -557,13 +557,12 @@ const Tower = ({
             )}
             disabled={isChangeToReviewPage}
           >
-            <option value="">اختر معلم</option>
-            <option value="school">مدرسة</option>
-            <option value="mosque">مسجد</option>
-            <option value="hospital">مستشفى</option>
-            <option value="market">سوق</option>
-            <option value="street">شارع رئيسي</option>
-            <option value="other">أخرى</option>
+            <option value="">اختر أقرب معلم</option>
+            {nearestLandmark.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.Label}
+              </option>
+            ))}
           </select>
 
           {errors?.tower?.nearestLandmark && (
