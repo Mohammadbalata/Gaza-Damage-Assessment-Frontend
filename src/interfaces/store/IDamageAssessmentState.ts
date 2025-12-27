@@ -12,6 +12,34 @@ export interface IDamageAssessmentState {
   // propertyArea?: number | null; // done
   // damageType?: string; // done:
 }
+export interface IMixedUsage {
+  floors: IFloorsState;
+  units: IUnitsState;
+}
+export interface IFloorsState {
+  ground: any;
+  mezzanine: any;
+  roof: any;
+}
+
+export interface IUnitsState {
+  ground: any;
+  mezzanine: any;
+  roof: any;
+}
+export interface IUnit {
+  id:any;
+  usage: string;
+  activity: string;
+}
+export interface DamageState {
+  ResidentialBuilding: {
+    MixedUsage: IMixedUsage;
+  };
+  tower: {
+    MixedUsage: IMixedUsage;
+  };
+}
 export interface IndependentBuilding {
   numberOfFloors?: number | null;
   groundFloorArea?: number | null;
@@ -89,6 +117,7 @@ export interface ResidentialBuilding {
   afterWarImage?: any;
   ownershipDocuments?: any[];
   BuildingContent?: any[];
+  MixedUsage: IMixedUsage;
 }
 
 export interface ITower {
@@ -123,6 +152,7 @@ export interface ITower {
   afterWarImage?: any;
   ownershipDocuments?: any[];
   BuildingContent?: any[];
+  MixedUsage: IMixedUsage;
 }
 
 export interface ICompHouse {

@@ -74,7 +74,12 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
-  const { floors, units } = useAppSelector((state) => state.mixedUsage);
+  const { floors:floorsResidential, units:unitsResisential } = useAppSelector(
+    (state) => state.damage.ResidentialBuilding.MixedUsage
+  );
+  const { floors:floorsTower, units:unitsTower } = useAppSelector(
+    (state) => state.damage.tower.MixedUsage
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -161,23 +166,45 @@ const DamageAssessmentDialog = ({
 
     return formData;
   };
-
-  const onSubmit = async (data: any) => {
-    if (
-      data.buildingType === "ResidentialBuilding" ||
-      data.buildingType === "tower"
-    ) {
-      const payload = {
-        ...data,
+  const reBuildData = (formdata: any) => {
+    if (formdata.buildingType === "ResidentialBuilding") {
+      const data = {
+        ...formdata,
         ResidentialBuilding: {
-          ...data.ResidentialBuilding,
-          mixedUsage: {
-            floors,
-            units,
+          ...formdata.ResidentialBuilding,
+          MixedUsage: {
+            floors:floorsResidential,
+            units:unitsResisential,
           },
         },
       };
-      console.log("final payload", payload);
+      console.log("final payload", data);
+      return data;
+    } else if(formdata.buildingType === "tower") {
+      const data = {
+        ...formdata,
+        tower: {
+          ...formdata.tower,
+          MixedUsage: {
+            floors:floorsTower,
+            units:unitsTower,
+          },
+        },
+      };
+      console.log('into tower')
+      console.log("final payload", data);
+      return data;
+    }
+  };
+
+  const onSubmit = async (formdata: any) => {
+    let data = formdata;
+    console.log(data);
+    if (data.buildingType === "ResidentialBuilding") {
+      data = reBuildData(data);
+    }
+    else if(data.buildingType === "tower"){
+      data = reBuildData(data);
     }
     // Phase 1: Review
     if (!isChangeToReviewPage) {
@@ -246,11 +273,11 @@ const DamageAssessmentDialog = ({
         );
       } else {
         // Create new application
-        // await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // });
+        await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       }
 
       // Success feedback
@@ -323,7 +350,7 @@ const DamageAssessmentDialog = ({
       errors,
       isChangeToReviewPage: isChangeToReviewPage,
       setValue,
-      getValues
+      getValues,
     };
 
     switch (selected) {

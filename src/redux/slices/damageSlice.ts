@@ -3,7 +3,7 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { IDamageAssessmentState } from "../../interfaces/store/IDamageAssessmentState";
+import { DamageState, IDamageAssessmentState, IFloorsState, IUnitsState } from "../../interfaces/store/IDamageAssessmentState";
 import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
@@ -79,6 +79,18 @@ const initialState: IDamageAssessmentState = {
     beforeWarImage: null,
     afterWarImage: null,
     ownershipDocuments: [],
+    MixedUsage: {
+      floors: {
+        ground: false,
+        mezzanine: false,
+        roof: false,
+      },
+      units: {
+        ground: [],
+        mezzanine: [],
+        roof: [],
+      },
+    },
   },
 
   tower: {
@@ -112,6 +124,18 @@ const initialState: IDamageAssessmentState = {
     beforeWarImage: null,
     afterWarImage: null,
     ownershipDocuments: [],
+    MixedUsage: {
+      floors: {
+        ground: false,
+        mezzanine: false,
+        roof: false,
+      },
+      units: {
+        ground: [],
+        mezzanine: [],
+        roof: [],
+      },
+    },
   },
 
   compHouse: {
@@ -222,6 +246,25 @@ export const damageAssessmentSlice = createSlice({
     setBuildingType: (state, action: PayloadAction<string>) => {
       state.buildingType = action.payload;
     },
+    setMixedUsageUnits: (
+      state,
+      action: PayloadAction<{
+        entity: keyof DamageState;
+        units: IUnitsState;
+      }>
+    ) => {
+      state[action.payload.entity].MixedUsage.units = action.payload.units;
+    },
+
+    setMixedUsageFloors: (
+      state,
+      action: PayloadAction<{
+        entity: keyof DamageState;
+        floors: IFloorsState;
+      }>
+    ) => {
+      state[action.payload.entity].MixedUsage.floors = action.payload.floors;
+    },
   },
 });
 
@@ -236,6 +279,8 @@ export const {
   setLoading,
   setError,
   setBuildingType,
+  setMixedUsageFloors,
+  setMixedUsageUnits,
 } = damageAssessmentSlice.actions;
 
 // Export save actions using handleSave

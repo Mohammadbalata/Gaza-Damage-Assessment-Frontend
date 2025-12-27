@@ -1,61 +1,130 @@
 import classNames from "classnames";
+import { useEffect, useState } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import {
+  IFloorsState,
+  IUnit,
+  IUnitsState,
+} from "../../../interfaces/store/IDamageAssessmentState";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import {
-  addUnit,
-  removeUnit,
-  setFloor,
-  updateUnit,
-} from "../../../redux/slices/mixedUsageSlice";
+  setMixedUsageFloors,
+  setMixedUsageUnits,
+} from "../../../redux/slices/damageSlice";
+import { Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-/* ========= Types ========= */
-type FloorKey = "ground" | "mezzanine" | "roof";
-type UnitField = "usage" | "activity";
+/* ========= Props ========= */
+interface MixedUsageProps {
+  register: any;
+  watch: any;
+  errors: any;
+  isChangeToReviewPage: boolean;
+  showUsageType: boolean;
+  entityKey: "ResidentialBuilding" | "tower";
+
+  /** dynamic form paths */
+  usageTypePath: string;
+  otherUsageTypePath: string;
+
+  /** redux */
+  selector: (state: any) => {
+    floors: IFloorsState;
+    units: IUnitsState;
+  };
+}
 
 /* ========= Component ========= */
-const MixedUsageComponent = ({
+const MixedUsageComponent: React.FC<MixedUsageProps> = ({
   register,
+  watch,
+  errors,
   isChangeToReviewPage,
   showUsageType,
-  watch,
-}: any) => {
+  usageTypePath,
+  otherUsageTypePath,
+  selector,
+  entityKey,
+}) => {
   const { t } = useLanguage();
   const dispatch = useAppDispatch();
 
-  const usageType = watch("ResidentialBuilding.usageType");
-  const showMixedUsage = usageType === "مزدوج الاستخدام";
+  const usageTypeWatch = watch(usageTypePath);
+  const isMixedUsage = usageTypeWatch === "مزدوج الاستخدام";
 
-  const { floors, units } = useAppSelector((state) => state.mixedUsage);
+  const mixedUsageData = useAppSelector(selector);
 
-  const floorLabels: Record<FloorKey, string> = {
+  /* ========= Local State (Single Source of Truth) ========= */
+  const [floorsState, setFloorsState] = useState<IFloorsState>({
+    ground: false,
+    mezzanine: false,
+    roof: false,
+  });
+
+  const [unitsState, setUnitsState] = useState<IUnitsState>({
+    ground: [],
+    mezzanine: [],
+    roof: [],
+  });
+
+  /* ========= Init from Redux ========= */
+  useEffect(() => {
+    if (mixedUsageData) {
+      setFloorsState(mixedUsageData.floors);
+      setUnitsState(mixedUsageData.units);
+    }
+  }, [mixedUsageData]);
+
+  const floorLabels: Record<keyof IFloorsState, string> = {
     ground: "الطابق الأرضي",
     mezzanine: "السدة",
     roof: "الروف",
   };
 
+  /* ========= Helpers ========= */
+  const syncUnitsToRedux = () => {
+    dispatch(
+      setMixedUsageUnits({
+        entity: entityKey,
+        units: unitsState,
+      })
+    );
+  };
+
   /* ========= Handlers ========= */
-  const handleFloorChange = (floor: FloorKey, value: boolean) => {
+  const addUnit = (floor: keyof IUnitsState) => {
     if (isChangeToReviewPage) return;
-    dispatch(setFloor({ floor, value }));
+
+    setUnitsState((prev) => ({
+      ...prev,
+      [floor]: [...prev[floor], { usage: "", activity: "" }],
+    }));
   };
 
-  const handleAddUnit = (floor: FloorKey) => {
+  const removeUnit = (floor: keyof IUnitsState, index: number) => {
     if (isChangeToReviewPage) return;
-    dispatch(addUnit(floor));
+
+    setUnitsState((prev) => {
+      const updated = [...prev[floor]];
+      updated.splice(index, 1);
+      return { ...prev, [floor]: updated };
+    });
+
+    setTimeout(syncUnitsToRedux, 0);
   };
 
-  const handleRemoveUnit = (floor: FloorKey, index: number) => {
-    if (isChangeToReviewPage) return;
-    dispatch(removeUnit({ floor, index }));
-  };
-
-  const handleUpdateUnit = (
-    floor: FloorKey,
+  const updateUnit = (
+    floor: keyof IUnitsState,
     index: number,
-    field: UnitField,
+    field: keyof IUnit,
     value: string
   ) => {
-    dispatch(updateUnit({ floor, index, field, value }));
+    setUnitsState((prev) => {
+      const updated = [...prev[floor]];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, [floor]: updated };
+    });
   };
 
   /* ========= Render ========= */
@@ -63,14 +132,12 @@ const MixedUsageComponent = ({
     <div className="space-y-4">
       {/* نوع الاستخدام */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium mb-1">
           نوع الاستخدام <span className="text-red-500">*</span>
         </label>
 
         <select
-          {...register("ResidentialBuilding.usageType", {
-            required: t("common.required"),
-          })}
+          {...register(usageTypePath, { required: t("common.required") })}
           disabled={isChangeToReviewPage}
           className={classNames(
             "input-field",
@@ -85,107 +152,115 @@ const MixedUsageComponent = ({
         </select>
 
         {showUsageType && (
-          <div className="mt-4">
-            <input
-              {...register("ResidentialBuilding.otherUsageType", {
-                required: t("common.required"),
-              })}
-              disabled={isChangeToReviewPage}
-              placeholder="أدخل نوع الاستخدام"
-              className="input-field"
-            />
-          </div>
+          <input
+            {...register(otherUsageTypePath, {
+              required: t("common.required"),
+            })}
+            placeholder="أدخل نوع الاستخدام"
+            disabled={isChangeToReviewPage}
+            className="input-field mt-3"
+          />
         )}
+
+        {errors && <p className="text-red-600 text-sm">{errors?.message}</p>}
       </div>
 
       {/* الطوابق */}
-      {showMixedUsage && (
+      {isMixedUsage && (
         <div className="space-y-4">
           <label className="font-medium">اسم الطابق</label>
 
-          {(Object.keys(floors) as FloorKey[]).map((floorKey) => (
-            <div key={floorKey} className="border p-3 rounded-md">
-              {/* checkbox */}
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={floors[floorKey]}
-                  disabled={isChangeToReviewPage}
-                  onChange={(e) =>
-                    handleFloorChange(floorKey, e.target.checked)
-                  }
-                />
-                {floorLabels[floorKey]}
-              </label>
-
-              {/* إضافة وحدة */}
-              {floors[floorKey] && !isChangeToReviewPage && (
-                <button
-                  type="button"
-                  className="mt-2 text-blue-600 underline"
-                  onClick={() => handleAddUnit(floorKey)}
-                >
-                  + إضافة وحدة
-                </button>
-              )}
-
-              {/* الوحدات */}
-              {units[floorKey].map((unit: any, index: any) => (
-                <div
-                  key={index}
-                  className="mt-3 mr-4 space-y-2 border p-3 rounded-md relative"
-                >
-                  {!isChangeToReviewPage && (
-                    <button
-                      type="button"
-                      className="absolute top-2 left-2 text-red-600 text-sm"
-                      onClick={() => handleRemoveUnit(floorKey, index)}
-                    >
-                      حذف ✕
-                    </button>
-                  )}
-
-                  <select
-                    value={unit.usage}
+          {(Object?.keys(floorsState) as (keyof IFloorsState)[]).map(
+            (floorKey) => (
+              <div key={floorKey} className="border p-3 rounded-md">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={floorsState[floorKey]}
                     disabled={isChangeToReviewPage}
-                    onChange={(e) =>
-                      handleUpdateUnit(floorKey, index, "usage", e.target.value)
-                    }
-                    className={classNames(
-                      "input-field",
-                      isChangeToReviewPage && "cursor-not-allowed bg-gray-200"
-                    )}
-                  >
-                    <option value="">نوع الاستخدام</option>
-                    <option value="سكني">سكني</option>
-                    <option value="تجاري">تجاري</option>
-                    <option value="خدماتي">خدماتي</option>
-                  </select>
+                    onChange={(e) => {
+                      const updated = {
+                        ...floorsState,
+                        [floorKey]: e.target.checked,
+                      };
+                      setFloorsState(updated);
+                      dispatch(
+                        setMixedUsageFloors({
+                          entity: entityKey,
+                          floors: updated,
+                        })
+                      );
+                    }}
+                  />
+                  {floorLabels[floorKey]}
+                </label>
 
-                  {(unit.usage === "تجاري" || unit.usage === "خدماتي") && (
-                    <input
-                      type="text"
-                      value={unit.activity}
+                {floorsState[floorKey] && !isChangeToReviewPage && (
+                  <Button
+                    variant="contained"
+                    className="!mt-4"
+                    onClick={() => addUnit(floorKey)}
+                  >
+                    <AddIcon fontSize="inherit" />
+                    <span className="!ml-1"> إضافة وحدة</span>
+                  </Button>
+                )}
+
+                {unitsState[floorKey].map((unit: any, index: number) => (
+                  <div
+                    key={index}
+                    className="mt-3 mr-4 space-y-2 border p-3 rounded-md flex flex-col items-end"
+                  >
+                    {!isChangeToReviewPage && (
+                      <Button
+                        color="error"
+                        variant="contained"
+                        className="h-8"
+                        onClick={() => removeUnit(floorKey, index)}
+                      >
+                        <DeleteIcon fontSize="inherit" />
+                        <span className="mr-1 !text-md">حذف</span>
+                      </Button>
+                    )}
+
+                    <select
+                      value={unit.usage}
                       disabled={isChangeToReviewPage}
+                      className="input-field"
                       onChange={(e) =>
-                        handleUpdateUnit(
-                          floorKey,
-                          index,
-                          "activity",
-                          e.target.value
-                        )
+                        updateUnit(floorKey, index, "usage", e.target.value)
                       }
-                      placeholder="اسم النشاط"
-                      className={classNames(
-                        "input-field",
-                        isChangeToReviewPage && "cursor-not-allowed bg-gray-200"
-                      )}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
+                      onBlur={syncUnitsToRedux}
+                    >
+                      <option value="">نوع الاستخدام</option>
+                      <option value="سكني">سكني</option>
+                      <option value="تجاري">تجاري</option>
+                      <option value="خدماتي">خدماتي</option>
+                    </select>
+
+                    {(unit.usage === "تجاري" || unit.usage === "خدماتي") && (
+                      <input
+                        type="text"
+                        placeholder="اسم النشاط"
+                        value={unit.activity}
+                        disabled={isChangeToReviewPage}
+                        className="input-field"
+                        onChange={(e) =>
+                          updateUnit(
+                            floorKey,
+                            index,
+                            "activity",
+                            e.target.value
+                          )
+                        }
+                        onBlur={syncUnitsToRedux}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          )}
         </div>
       )}
     </div>

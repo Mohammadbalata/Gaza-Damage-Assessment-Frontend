@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import MixedUsageComponent from "./MixedUsageComponent";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
 
-
 const ResidentialBuilding = ({
   register,
   errors,
@@ -15,7 +14,7 @@ const ResidentialBuilding = ({
   control,
   isChangeToReviewPage,
   getValues,
-  setValue
+  setValue,
 }: IBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("ResidentialBuilding.propertyType");
@@ -29,19 +28,23 @@ const ResidentialBuilding = ({
   const showBuildingContent = BuildingContentWatch === "نعم";
 
   useEffect(() => {
-  const currentDamage = getValues("ResidentialBuilding.damagePercentage");
-  const currentHabitable = getValues("ResidentialBuilding.isHabitable");
+    const currentDamage = getValues("ResidentialBuilding.damagePercentage");
+    const currentHabitable = getValues("ResidentialBuilding.isHabitable");
 
-  if (damageTypeWatch === "هدم كلي") {
-    if (currentDamage !== "100%") setValue("ResidentialBuilding.damagePercentage", "100%");
-    if (currentHabitable !== "لا") setValue("ResidentialBuilding.isHabitable", "لا");
-  }
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%")
+        setValue("ResidentialBuilding.damagePercentage", "100%");
+      if (currentHabitable !== "لا")
+        setValue("ResidentialBuilding.isHabitable", "لا");
+    }
 
-  if (damageTypeWatch === "هدم جزئي") {
-    if (currentDamage !== "") setValue("ResidentialBuilding.damagePercentage", "");
-    if (currentHabitable !== "") setValue("ResidentialBuilding.isHabitable", "");
-  }
-}, [damageTypeWatch, setValue, getValues]);
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "")
+        setValue("ResidentialBuilding.damagePercentage", "");
+      if (currentHabitable !== "")
+        setValue("ResidentialBuilding.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
 
   return (
     <div className="space-y-6">
@@ -258,6 +261,10 @@ const ResidentialBuilding = ({
         {...{ showUsageType }}
         {...{ watch }}
         {...{ errors }}
+        usageTypePath="ResidentialBuilding.usageType"
+        otherUsageTypePath="ResidentialBuilding.otherUsageType"
+        selector={(state) => state.damage.ResidentialBuilding.MixedUsage}
+        entityKey="ResidentialBuilding"
       />
       {/* ====== الأضرار الإنشائية ====== */}
       <section className="space-y-6">

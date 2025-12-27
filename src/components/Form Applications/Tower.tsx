@@ -5,6 +5,7 @@ import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
+import MixedUsageComponent from "./MixedUsageComponent";
 
 const Tower = ({
   register,
@@ -25,20 +26,20 @@ const Tower = ({
   const [textLength, setTextLength] = useState(0);
   const BuildingContentWatch = watch("tower.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
-useEffect(() => {
-  const currentDamage = getValues("tower.damagePercentage");
-  const currentHabitable = getValues("tower.isHabitable");
+  useEffect(() => {
+    const currentDamage = getValues("tower.damagePercentage");
+    const currentHabitable = getValues("tower.isHabitable");
 
-  if (damageTypeWatch === "هدم كلي") {
-    if (currentDamage !== "100%") setValue("tower.damagePercentage", "100%");
-    if (currentHabitable !== "لا") setValue("tower.isHabitable", "لا");
-  }
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%") setValue("tower.damagePercentage", "100%");
+      if (currentHabitable !== "لا") setValue("tower.isHabitable", "لا");
+    }
 
-  if (damageTypeWatch === "هدم جزئي") {
-    if (currentDamage !== "") setValue("tower.damagePercentage", "");
-    if (currentHabitable !== "") setValue("tower.isHabitable", "");
-  }
-}, [damageTypeWatch, setValue, getValues]);
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "") setValue("tower.damagePercentage", "");
+      if (currentHabitable !== "") setValue("tower.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
   return (
     <div className="space-y-10">
       <section className="space-y-6">
@@ -207,7 +208,7 @@ useEffect(() => {
         </div>
 
         {/* Usage Type */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             نوع الاستخدام <span className="text-red-500">*</span>
           </label>
@@ -257,7 +258,18 @@ useEffect(() => {
               {errors.tower.usageType.message}
             </p>
           )}
-        </div>
+        </div> */}
+        <MixedUsageComponent
+          {...{ register }}
+          {...{ isChangeToReviewPage }}
+          {...{ showUsageType }}
+          {...{ watch }}
+          {...{ errors }}
+          usageTypePath="tower.usageType"
+          otherUsageTypePath="tower.otherUsageType"
+          selector={(state) => state.damage.tower.MixedUsage}
+          entityKey="tower"
+        />
       </section>
       <section className="space-y-6">
         {/* Collapsed Floors */}
