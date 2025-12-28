@@ -48,6 +48,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.other": "other",
     "common.savedSuccessfully": "data saved Successfully",
     "common.lettersRemaining": "letters remaining",
+    "common.filters": "Filters",
+    "common.all":"All",
+
     "common.single": "single",
     "common.married": "married",
     "common.divorced": "divorced",
@@ -399,6 +402,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.locations.current": "Current",
     "admin.locations.permissionMessage":
       "You do not have permission to view locations.",
+    "admin.locations.applicationId": "Application Number",
 
     "admin.applications.title": "Admin Applications",
     "admin.applications.noLocation": "No Location",
@@ -602,7 +606,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.divorced": "مطلق/ ـة",
     "common.widowed": "أرملة",
     "common.lettersRemaining": "عدد الحروف المتبقية",
-
+    "common.filters": "الفلاتر",
+    "common.all":"الكل",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -797,7 +802,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.totalCitizens": "إجمالي المواطنين",
     "admin.totalLocations": "إجمالي المواقع",
     "admin.totalBanking": "إجمالي الحسابات البنكية",
-     "admin.totalRoles": "إجمالي الأدوار",
+    "admin.totalRoles": "إجمالي الأدوار",
     "admin.totalPermissions": "إجمالي الصلاحيلات",
     "admin.pendingReview": "قيد المراجعة",
     "admin.approved": "تم الموافقة",
@@ -933,6 +938,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.locations.temporary": "مؤقت",
     "admin.locations.current": "حالي",
     "admin.locations.permissionMessage": "لا تملك صلاحية عرض المواقع.",
+    "admin.locations.applicationId": "رقم الطلب",
 
     "admin.applications.title": "طلبات المسؤول",
     "admin.applications.subtitle":
@@ -948,7 +954,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.applications.notes": "ملاحظات",
     "admin.applications.notesPlaceholder": "أضف ملاحظات داخلية لهذا الطلب",
     "admin.applications.searchCitizenPlaceholder": "ابحث باسم المواطن أو رقمه",
-
 
     "admin.manageRoles": "إدارة الأدوار",
     "admin.rolesDescription": "إنشاء وتعيين الأدوار",
@@ -974,7 +979,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "error.createRole": "فشل إنشاء الدور",
     "error.updateRole": "فشل تحديث الدور",
     "error.deleteRole": "فشل حذف الدور",
-
 
     "admin.managePermissions": "إدارة الصلاحيات",
     "admin.permissionsDescription": "التحكم بصلاحيات النظام",
