@@ -8,12 +8,15 @@ import {
   Stack,
   Typography,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import { ArrowBack, Send as SendIcon } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
 import AuthComp from "./AuthComp";
 import FormInput from "../components/FormInput";
 import { ROUTES } from "../routes/Routes";
+import { usePost } from "../hooks/api/useApi";
+import { API } from "../constants/ApiRoutes";
 
 interface FormData {
   email: string;
@@ -23,22 +26,42 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = React.useState(false);
+  const [emailSent, setEmailSent] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<FormData>();
 
+  const { loading, execute: sendResetEmail } = usePost(
+    `${API.admin.auth.forgotPassword}`,
+    {
+      onSuccess: () => {
+        setEmailSent(true);
+        setErrorMessage(null);
+        enqueueSnackbar(t("auth.resetEmailSent"), { variant: "success" });
+      },
+      onError: (err) => {
+        console.error(err);
+        // Check if error indicates email not found
+        if (
+          err?.toLowerCase().includes("not found") ||
+          err?.toLowerCase().includes("لم يتم العثور")
+        ) {
+          setErrorMessage(t("auth.emailNotFound"));
+        } else {
+          setErrorMessage(err || t("common.error"));
+        }
+      },
+    }
+  );
+
   const onSubmit = (data: FormData) => {
-    setLoading(true);
-    // Mock API call
-    setTimeout(() => {
-      setLoading(false);
-      enqueueSnackbar(t("auth.resetCodeSent"), { variant: "success" });
-      console.log("Reset code sent to:", data.email);
-    }, 1500);
+    setErrorMessage(null);
+    sendResetEmail({ email: data.email });
   };
 
   return (
@@ -52,79 +75,125 @@ const ForgotPasswordPage = () => {
         </Typography>
       </Box>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={3}>
-          <Box>
-            <Typography
-              variant="body2"
-              color="primary.light"
-              sx={{ mb: 1 }}
-              fontWeight={600}
-            >
-              {t("auth.email")}
+      {emailSent ? (
+        <Stack spacing={3} alignItems="center">
+          <Alert
+            severity="success"
+            sx={{
+              width: "100%",
+              borderRadius: 2,
+              "& .MuiAlert-message": { width: "100%" },
+            }}
+          >
+            <Typography variant="body2" fontWeight="medium">
+              {t("auth.resetCodeSent")}
             </Typography>
-            <FormInput
-              id="email"
-              type="email"
-              placeholder={t("form.emailPlaceholder")}
-              register={register}
-              errors={errors}
-              validation={{
-                required: t("common.required"),
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: t("form.invalidEmail"),
-                },
-              }}
-            />
-          </Box>
-
-          <Stack spacing={2}>
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              disabled={loading}
-              startIcon={
-                loading ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  <SendIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
-                )
-              }
-              sx={{
-                py: 1.5,
-                borderRadius: 2,
-                fontWeight: 600,
-                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
-                "&:hover": {
-                  boxShadow: "0 6px 16px rgba(25, 118, 210, 0.4)",
-                },
-              }}
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
             >
-              {loading ? "" : t("auth.sendResetCode")}
-            </Button>
-
-            <Button
-              variant="text"
-              fullWidth
-              onClick={() => navigate(`/${ROUTES.SIGNIN}`)}
-              startIcon={
-                <ArrowBack
-                  sx={{
-                    transform: language === "ar" ? "rotate(180deg)" : "none",
-                    ml: language === "ar" ? 1 : 0,
-                  }}
-                />
-              }
-              sx={{ fontWeight: 600 }}
-            >
-              {t("auth.backToLogin")}
-            </Button>
-          </Stack>
+              {getValues("email")}
+            </Typography>
+          </Alert>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => navigate(`/${ROUTES.SIGNIN}`)}
+            startIcon={
+              <ArrowBack
+                sx={{
+                  transform: language === "ar" ? "rotate(180deg)" : "none",
+                  ml: language === "ar" ? 1 : 0,
+                }}
+              />
+            }
+            sx={{ fontWeight: 600 }}
+          >
+            {t("auth.backToLogin")}
+          </Button>
         </Stack>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3}>
+            {errorMessage && (
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {errorMessage}
+              </Alert>
+            )}
+
+            <Box>
+              <Typography
+                variant="body2"
+                color="primary.light"
+                sx={{ mb: 1 }}
+                fontWeight={600}
+              >
+                {t("auth.email")}
+              </Typography>
+              <FormInput
+                id="email"
+                type="email"
+                placeholder={t("form.emailPlaceholder")}
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: t("form.invalidEmail"),
+                  },
+                }}
+              />
+            </Box>
+
+            <Stack spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                disabled={loading}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <SendIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
+                  )
+                }
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
+                  "&:hover": {
+                    boxShadow: "0 6px 16px rgba(25, 118, 210, 0.4)",
+                  },
+                }}
+              >
+                {loading ? "" : t("auth.sendResetCode")}
+              </Button>
+
+              <Button
+                variant="text"
+                fullWidth
+                onClick={() => navigate(`/${ROUTES.SIGNIN}`)}
+                startIcon={
+                  <ArrowBack
+                    sx={{
+                      transform: language === "ar" ? "rotate(180deg)" : "none",
+                      ml: language === "ar" ? 1 : 0,
+                    }}
+                  />
+                }
+                sx={{ fontWeight: 600 }}
+              >
+                {t("auth.backToLogin")}
+              </Button>
+            </Stack>
+          </Stack>
+        </form>
+      )}
     </AuthComp>
   );
 };
