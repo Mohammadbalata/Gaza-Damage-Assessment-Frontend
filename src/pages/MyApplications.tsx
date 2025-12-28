@@ -5,9 +5,7 @@ import {
   Box,
   Stack,
   Button,
-  Chip,
   Fade,
-  Card,
   CardContent,
   CircularProgress,
   Menu,
@@ -17,21 +15,18 @@ import {
   Divider,
   Dialog,
   TextField,
-  Link as MuiLink,
-  Tooltip,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import ApplicationCard from "../components/MyApplications/ApplicationCard";
+
 import {
   Add as AddIcon,
   Description as DescriptionIcon,
-  Event as EventIcon,
   Home as HomeIcon,
   Foundation as FoundationIcon,
   MonetizationOn as MonetizationOnIcon,
   MedicalServices as MedicalServicesIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  Edit as EditIcon,
-  Visibility as VisibilityIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -173,22 +168,22 @@ const MyApplications = () => {
     // if (!isReadOnly) refresh(); // If we have refresh exposed
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toUpperCase()) {
-      case "APPROVED":
-        return "success";
-      case "REJECTED":
-        return "error";
-      case "VERIFIED":
-        return "info";
-      case "CLOSED":
-        return "default";
-      case "PENDING":
-        return "warning";
-      default:
-        return "warning";
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status?.toUpperCase()) {
+  //     case "APPROVED":
+  //       return "success";
+  //     case "REJECTED":
+  //       return "error";
+  //     case "VERIFIED":
+  //       return "info";
+  //     case "CLOSED":
+  //       return "default";
+  //     case "PENDING":
+  //       return "warning";
+  //     default:
+  //       return "warning";
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -382,7 +377,7 @@ const MyApplications = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
-              startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+              startAdornment: <SearchIcon sx={{ fontSize: 20, mr: 1 }} />,
             }}
             size="small"
           />
@@ -429,7 +424,7 @@ const MyApplications = () => {
             <Button
               variant="outlined"
               size="large"
-              startIcon={<AddIcon />}
+              startIcon={<AddIcon sx={{ ml: 1 }} />}
               onClick={() => handleRequestTypeSelect("damage")}
             >
               {t("citizen.addDamageRequest")}
@@ -447,196 +442,15 @@ const MyApplications = () => {
               gap: 2,
             }}
           >
-            {filteredApplications.map((app: any) => {
-              const status = app.status?.toUpperCase() || "PENDING";
-              const isPending = status === "PENDING";
-
-              return (
-                <Fade
-                  in={true}
-                  style={{ transformOrigin: "0 0 0" }}
-                  key={app.key}
-                >
-                  <Card
-                    elevation={0}
-                    sx={{
-                      height: "100%",
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 3,
-                      transition: "all 0.2s ease-in-out",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                  >
-                    <CardContent
-                      sx={{
-                        p: 2,
-                        "&:last-child": { pb: 2 },
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                        gap: 2,
-                        height: "100%",
-                      }}
-                    >
-                      {/* Icon */}
-                      <Box
-                        sx={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 2,
-                          bgcolor: "primary.50",
-                          color: "primary.main",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <DescriptionIcon />
-                      </Box>
-
-                      {/* Content */}
-                      <Box sx={{ flex: 1, width: "100%" }}>
-                        <Stack
-                          direction={{ xs: "column", sm: "row" }}
-                          alignItems="center"
-                          spacing={1}
-                          sx={{
-                            mb: 0.5,
-                            justifyContent: "center",
-                            gap: {
-                              xs: 0,
-                              sm: "10px",
-                              md: "10px",
-                              lg: "10px",
-                              xl: "10px",
-                            },
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <Typography
-                            variant="subtitle1"
-                            fontWeight="bold"
-                            sx={{
-                              minWidth: {
-                                xs: "100%",
-                                sm: "100%",
-                                md: "auto",
-                                lg: "auto",
-                                xl: "auto",
-                              },
-                            }}
-                          >
-                            {t("citizen.applicationId")} #{app.id}
-                          </Typography>
-                          <Tooltip
-                            title={
-                              t(
-                                `status.tooltip.${app.status?.toLowerCase()}`
-                              ) || ""
-                            }
-                            arrow
-                            placement="top"
-                          >
-                            <Chip
-                              label={
-                                t(`status.${app.status?.toLowerCase()}`) ||
-                                app.status
-                              }
-                              color={getStatusColor(app.status)}
-                              size="small"
-                              sx={{
-                                fontWeight: "bold",
-                                height: 24,
-                                textAlign: "right",
-                                cursor: "help",
-                              }}
-                            />
-                          </Tooltip>
-                        </Stack>
-
-                        <Typography variant="body2" color="text.secondary">
-                          <EventIcon sx={{ fontSize: 16 }} />
-                          {t("citizen.submittedOn")}:{" "}
-                          {new Date(app.createdAt).toLocaleDateString(
-                            language === "ar" ? "ar-EG" : "en-US"
-                          )}
-                        </Typography>
-
-                        <Typography variant="h6" mt={1}>
-                          {t("citizen.address")} : {app.location.address}
-                        </Typography>
-                      </Box>
-
-                      {/* Action */}
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        justifyContent="center"
-                        width="100%"
-                      >
-                        <Button
-                          variant={isPending ? "outlined" : "text"}
-                          startIcon={
-                            isPending ? <EditIcon /> : <VisibilityIcon />
-                          }
-                          sx={{
-                            display: "flex",
-                            gap: 1,
-                            minWidth: "auto",
-                            flex: 1,
-                          }}
-                          onClick={() => handleAction(app)}
-                        >
-                          {isPending
-                            ? t("common.editRequest")
-                            : t("common.reviewRequest")}
-                        </Button>
-                        {app.location?.latitude && app.location?.longitude && (
-                          <MuiLink
-                            component={Link}
-                            to={`/admin/locations/map?lat=${app.location.latitude}&lng=${app.location.longitude}`}
-                            variant="caption"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flex: 1,
-                              textDecoration: "none",
-                              color: "primary.main",
-                              fontWeight: "medium",
-                              "&:hover": { textDecoration: "underline" },
-                            }}
-                          >
-                            {t("map.showonmap")}
-                          </MuiLink>
-                        )}
-                        <Button
-                          variant="text"
-                          color="primary"
-                          startIcon={<DescriptionIcon />}
-                          sx={{
-                            display: "flex",
-                            gap: 1,
-                            minWidth: "auto",
-                            flex: 1,
-                          }}
-                          onClick={() => handleDownloadAppPdf(app)}
-                        >
-                          {t("app.receipt")}
-                        </Button>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Fade>
-              );
-            })}
+            {filteredApplications.map((app: any, index: number) => (
+              <ApplicationCard
+                key={app.id || index}
+                index={index}
+                application={app}
+                onAction={handleAction}
+                onDownloadPdf={handleDownloadAppPdf}
+              />
+            ))}
           </Box>
         )}
 

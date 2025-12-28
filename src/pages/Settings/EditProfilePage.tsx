@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
 import AvatarEditOverlay from "../../components/AvatarEditOverlay";
@@ -54,6 +54,7 @@ const EditProfilePage = () => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<EditProfileForm>({
     defaultValues: {
@@ -75,6 +76,28 @@ const EditProfilePage = () => {
   });
   const selectedGender = watch("gender");
   const selectedMaritalStatus = watch("marital_status");
+
+  // Reactively update form when citizenInfo changes (e.g. initial load)
+  useEffect(() => {
+    if (citizenInfo) {
+      reset({
+        first_name: citizenInfo?.first_name,
+        father_name: citizenInfo?.father_name,
+        grandfather_name: citizenInfo?.grandfather_name,
+        family_name: citizenInfo?.family_name,
+        mother_name: citizenInfo?.mother_name,
+        family_members_number: citizenInfo?.family_members_number,
+        whatsapp_number: citizenInfo?.whatsapp_number,
+        place_of_birth: citizenInfo?.place_of_birth,
+        country: citizenInfo?.country,
+        date_of_birth: citizenInfo?.date_of_birth
+          ? new Date(citizenInfo.date_of_birth).toISOString().split("T")[0]
+          : "",
+        gender: citizenInfo?.gender,
+        marital_status: citizenInfo?.marital_status,
+      });
+    }
+  }, [citizenInfo, reset]);
 
   // Handle avatar file selection
   const handleAvatarChange = (file: File) => {
