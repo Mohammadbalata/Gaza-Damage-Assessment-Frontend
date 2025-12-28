@@ -45,6 +45,9 @@ const ApplicationCard = ({
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
+  const buildingType = application?.extraData?.buildingType;
+  const buildingData = application?.extraData?.[buildingType];
+  console.log("buildingData", buildingData);
 
   const status = application.status?.toUpperCase() || "PENDING";
   const isPending = status === "PENDING";
@@ -204,10 +207,30 @@ const ApplicationCard = ({
                 <Typography
                   component="span"
                   variant="body2"
-                  fontWeight="medium"
-                  color="text.primary"
+                  sx={{
+                    fontWeight: 500,
+                    color: "text.secondary",
+                    lineHeight: 1.6,
+                    display: "inline-flex",
+                    gap: 0.5,
+                    flexWrap: "wrap",
+                  }}
                 >
-                  {application.location?.address || "-"}
+                  {application?.location?.neighborhood && (
+                    <span> {application?.location?.neighborhood}</span>
+                  )}
+
+                  {buildingData?.nearestLandmark && (
+                    <span> | {buildingData?.nearestLandmark}</span>
+                  )}
+
+                  {buildingData?.nameOfStreet && (
+                    <span> | {buildingData?.nameOfStreet}</span>
+                  )}
+
+                  {application?.location?.house_number && (
+                    <span> | {application.location.house_number}</span>
+                  )}
                 </Typography>
               </Typography>
             </Stack>
