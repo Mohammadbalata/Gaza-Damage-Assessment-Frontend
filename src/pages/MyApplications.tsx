@@ -14,7 +14,13 @@ import {
   ListItemText,
   Divider,
   Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   TextField,
+  IconButton,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import ApplicationCard from "../components/MyApplications/ApplicationCard";
 
@@ -27,12 +33,15 @@ import {
   MedicalServices as MedicalServicesIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   Search as SearchIcon,
+  Edit as EditIcon,
+  Close as CloseIcon,
+  LocationOn as LocationOnIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useGet } from "../hooks/api/useApi";
+import { useGet, usePost } from "../hooks/api/useApi";
 import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
@@ -43,7 +52,10 @@ import {
 } from "../utils/pdfGenerator";
 import { API } from "../constants/ApiRoutes";
 import { formatDate } from "../utils/helpers";
+import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
+import MapContainer from "../components/MapContainer";
+import SelectLocations, { locations } from "../components/SelectLocations";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -64,6 +76,57 @@ const MyApplications = () => {
       id: "",
     },
   });
+
+  // Current Location Edit Dialog State
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [locationPosition, setLocationPosition] = useState<
+    [number, number] | null
+  >(null);
+  const [locationAddress, setLocationAddress] = useState("");
+  const [locationNeighborhood, setLocationNeighborhood] = useState<string>(
+    locations[11].name
+  );
+  const defaultCenter: [number, number] = [31.3547, 34.3088];
+  const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
+  const theme = useTheme();
+
+  // usePost for updating current location
+  const { loading: locationLoading, execute: updateLocation } = usePost(
+    `${API.citizen.locations.current}`,
+    {
+      onSuccess: () => {
+        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+          variant: "success",
+        });
+        setLocationDialogOpen(false);
+        refreshApplications();
+      },
+      onError: (err) => {
+        enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
+        console.error(err);
+      },
+    }
+  );
+
+  // Reverse geocoding for location address
+  useEffect(() => {
+    if (locationPosition) {
+      fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${locationPosition[0]}&lon=${locationPosition[1]}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setLocationAddress(data.display_name || t("map.selectLocation"));
+        })
+        .catch(() => {
+          setLocationAddress(
+            `Lat: ${locationPosition[0].toFixed(
+              6
+            )}, Lng: ${locationPosition[1].toFixed(6)}`
+          );
+        });
+    }
+  }, [locationPosition, t]);
 
   // const id = watch("id");
 
@@ -167,22 +230,45 @@ const MyApplications = () => {
     // if (!isReadOnly) refresh(); // If we have refresh exposed
   };
 
-  // const getStatusColor = (status: string) => {
-  //   switch (status?.toUpperCase()) {
-  //     case "APPROVED":
-  //       return "success";
-  //     case "REJECTED":
-  //       return "error";
-  //     case "VERIFIED":
-  //       return "info";
-  //     case "CLOSED":
-  //       return "default";
-  //     case "PENDING":
-  //       return "warning";
-  //     default:
-  //       return "warning";
-  //   }
-  // };
+  // Location Dialog Handlers
+  const handleOpenLocationDialog = () => {
+    // Pre-fill with existing location if available
+    if (citizen?.current_location) {
+      const lat = parseFloat(citizen.current_location.latitude);
+      const lng = parseFloat(citizen.current_location.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setLocationPosition([lat, lng]);
+        setMapCenter([lat, lng]);
+      }
+      setLocationAddress(citizen.current_location.address || "");
+    } else {
+      setLocationPosition(null);
+      setLocationAddress("");
+    }
+    setLocationDialogOpen(true);
+  };
+
+  const handleCloseLocationDialog = () => {
+    setLocationDialogOpen(false);
+    setLocationPosition(null);
+    setLocationAddress("");
+  };
+
+  const handleResetLocation = () => {
+    setLocationPosition(null);
+    setLocationAddress("");
+  };
+
+  const handleConfirmLocationUpdate = () => {
+    if (locationPosition && locationAddress) {
+      updateLocation({
+        latitude: locationPosition[0].toString(),
+        longitude: locationPosition[1].toString(),
+        address: locationAddress,
+        neighborhood: locationNeighborhood,
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -498,36 +584,259 @@ const MyApplications = () => {
                 borderRadius: "12px",
                 backgroundColor: "#ECFDF5",
                 boxShadow: "0 4px 8px rgba(0,0,0,0.04)",
-                borderRight: "6px solid #10B981",
+                borderRight: language === "ar" ? "6px solid #10B981" : "none",
+                borderLeft: language === "ar" ? "none" : "6px solid #10B981",
                 mb: 2,
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontSize: "25px",
-                  fontWeight: "bold",
-                  color: "#047857",
-                  mb: 2,
-                }}
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="flex-start"
+                spacing={2}
               >
-                {t("citizen.currentLocation")}
-              </Typography>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <LocationOnIcon sx={{ color: "#10B981", fontSize: 28 }} />
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontSize: { xs: "20px", sm: "25px" },
+                      fontWeight: "bold",
+                      color: "#047857",
+                    }}
+                  >
+                    {t("citizen.currentLocation")}
+                  </Typography>
+                </Stack>
+                <IconButton
+                  onClick={handleOpenLocationDialog}
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: "primary.main",
+                    borderRadius: 2,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      bgcolor: "primary.main",
+                      color: "white",
+                      transform: "scale(1.05)",
+                    },
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+
+              <Divider sx={{ my: 2, borderColor: alpha("#10B981", 0.3) }} />
 
               <Typography sx={{ mb: 1 }}>
                 <strong>{t("citizen.address")}:</strong>{" "}
-                {citizen.current_location?.address || "-"}
+                {citizen?.current_location?.address || "-"}
               </Typography>
 
               <Typography>
                 <strong>{t("citizen.addedDate")}:</strong>{" "}
-                {citizen.current_location
+                {citizen?.current_location
                   ? formatDate(new Date(citizen.current_location.createdAt))
                   : "-"}
               </Typography>
+
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<EditIcon sx={{ ml: language === "ar" ? 1 : 0 }} />}
+                onClick={handleOpenLocationDialog}
+                sx={{
+                  mt: 2,
+                  alignSelf: "flex-start",
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
+                  bgcolor: "#10B981",
+                  "&:hover": {
+                    bgcolor: "#059669",
+                    boxShadow: "0 6px 16px rgba(16, 185, 129, 0.4)",
+                  },
+                }}
+              >
+                {t("citizen.editCurrentLocation")}
+              </Button>
             </Stack>
           </Box>
         </CardContent>
+
+        {/* Edit Current Location Dialog */}
+        <Dialog
+          open={locationDialogOpen}
+          onClose={handleCloseLocationDialog}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              overflow: "hidden",
+            },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <LocationOnIcon color="primary" />
+              <Typography variant="h6" fontWeight="bold">
+                {t("citizen.editCurrentLocation")}
+              </Typography>
+            </Stack>
+            <IconButton onClick={handleCloseLocationDialog} size="small">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent sx={{ p: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {t("map.currentLocationDescription")}
+            </Typography>
+
+            {/* Map Container */}
+            <Box
+              sx={{
+                height: 350,
+                borderRadius: 2,
+                overflow: "hidden",
+                border: "1px solid",
+                borderColor: "divider",
+                mb: 3,
+              }}
+            >
+              <MapContainer
+                center={mapCenter}
+                zoom={15}
+                markerPosition={locationPosition}
+                setMarkerPosition={setLocationPosition}
+                height="100%"
+                width="100%"
+                setAddress={setLocationAddress}
+              />
+            </Box>
+
+            {/* Location Info */}
+            {locationPosition && (
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: "background.default",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  mb: 2,
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  useFlexGap={true}
+                >
+                  <Box flex={1}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      gutterBottom
+                    >
+                      {t("map.coordinates")}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium" dir="ltr">
+                      {locationPosition[0].toFixed(6)},{" "}
+                      {locationPosition[1].toFixed(6)}
+                    </Typography>
+                  </Box>
+                  <Box flex={1}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      gutterBottom
+                    >
+                      {t("map.address")}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {locationAddress}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+            )}
+
+            {/* Neighborhood Select */}
+            <SelectLocations
+              handleReset={handleResetLocation}
+              setNeighborhood={setLocationNeighborhood}
+              setCenter={setMapCenter}
+            />
+          </DialogContent>
+
+          <DialogActions
+            sx={{
+              px: 3,
+              py: 2,
+              bgcolor: "background.default",
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={handleResetLocation}
+              disabled={!locationPosition}
+              startIcon={
+                <RotateCcw
+                  className={language === "ar" ? "ml-2" : "mr-2"}
+                  size={18}
+                />
+              }
+            >
+              {t("map.reset")}
+            </Button>
+            <Button
+              sx={{ mx: 1 }}
+              variant="outlined"
+              onClick={handleCloseLocationDialog}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleConfirmLocationUpdate}
+              disabled={
+                !locationPosition || !locationAddress || locationLoading
+              }
+              startIcon={
+                locationLoading ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : (
+                  <Check
+                    className={language === "ar" ? "ml-2" : "mr-2"}
+                    size={18}
+                  />
+                )
+              }
+              sx={{
+                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
+              }}
+            >
+              {locationLoading ? "" : t("common.save")}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Fade>
   );

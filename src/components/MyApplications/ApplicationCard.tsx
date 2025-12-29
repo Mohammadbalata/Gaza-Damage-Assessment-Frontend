@@ -127,7 +127,12 @@ const ApplicationCard = ({
             spacing={2}
             mb={3}
           >
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              useFlexGap={true}
+            >
               <Box
                 sx={{
                   width: 48,
@@ -179,7 +184,12 @@ const ApplicationCard = ({
 
           {/* Body: Metadata */}
           <Stack spacing={2}>
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="center"
+              useFlexGap={true}
+            >
               <EventIcon fontSize="small" color="action" />
               <Typography variant="body2" color="text.secondary">
                 {t("citizen.submittedOn")}:{" "}
@@ -196,7 +206,12 @@ const ApplicationCard = ({
               </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={1.5} alignItems="flex-start">
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="flex-start"
+              useFlexGap={true}
+            >
               <LocationOnIcon
                 fontSize="small"
                 color="action"
@@ -252,7 +267,13 @@ const ApplicationCard = ({
           <Button
             variant={isPending ? "contained" : "outlined"}
             color={isPending ? "primary" : "inherit"}
-            startIcon={isPending ? <EditIcon /> : <VisibilityIcon />}
+            startIcon={
+              isPending ? (
+                <EditIcon sx={{ ml: 2 }} />
+              ) : (
+                <VisibilityIcon sx={{ ml: 2 }} />
+              )
+            }
             onClick={() => onAction(application)}
             sx={{
               flexGrow: 1,
