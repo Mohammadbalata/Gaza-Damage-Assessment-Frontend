@@ -4,6 +4,8 @@ export const API = {
       signin: `/auth/admin/signin`,
       signup: `/auth/admin/signup`,
       changePassword: `/auth/admin/change-password`,
+      forgotPassword: `/auth/admin/reset-password/request`,
+      resetPassword: `/auth/admin/reset-password`,
     },
 
     users: {
