@@ -211,17 +211,22 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
                     key={index}
                     className="mt-3 mr-4 space-y-2 border p-3 rounded-md flex flex-col items-end"
                   >
-                    {!isChangeToReviewPage && (
-                      <Button
-                        color="error"
-                        variant="contained"
-                        className="h-8"
-                        onClick={() => removeUnit(floorKey, index)}
-                      >
-                        <DeleteIcon fontSize="inherit" />
-                        <span className="mr-1 !text-md">حذف</span>
-                      </Button>
-                    )}
+                    <div className="flex justify-between w-full">
+                      <label className="font-normal text-md mr-2">
+                        نوع الاستخدام{" "}
+                      </label>
+                      {!isChangeToReviewPage && (
+                        <Button
+                          color="error"
+                          variant="contained"
+                          className="h-8"
+                          onClick={() => removeUnit(floorKey, index)}
+                        >
+                          <DeleteIcon fontSize="inherit" />
+                          <span className="mr-1 !text-md">حذف</span>
+                        </Button>
+                      )}
+                    </div>
 
                     <select
                       value={unit.usage}
@@ -239,22 +244,27 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
                     </select>
 
                     {(unit.usage === "تجاري" || unit.usage === "خدماتي") && (
-                      <input
-                        type="text"
-                        placeholder="اسم النشاط"
-                        value={unit.activity}
-                        disabled={isChangeToReviewPage}
-                        className="input-field"
-                        onChange={(e) =>
-                          updateUnit(
-                            floorKey,
-                            index,
-                            "activity",
-                            e.target.value
-                          )
-                        }
-                        onBlur={syncUnitsToRedux}
-                      />
+                      <div className="w-full !mt-5">
+                        <label className="font-normal text-md mr-2">
+                          اسم النشاط :
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="اسم النشاط"
+                          value={unit.activity}
+                          disabled={isChangeToReviewPage}
+                          className="input-field mt-1"
+                          onChange={(e) =>
+                            updateUnit(
+                              floorKey,
+                              index,
+                              "activity",
+                              e.target.value
+                            )
+                          }
+                          onBlur={syncUnitsToRedux}
+                        />
+                      </div>
                     )}
                   </div>
                 ))}
