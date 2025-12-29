@@ -56,7 +56,6 @@ import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
 import SelectLocations, { locations } from "../components/SelectLocations";
-import { useAppSelector } from "../hooks/redux";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -90,7 +89,6 @@ const MyApplications = () => {
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const theme = useTheme();
-  const { previosLocation } = useAppSelector((state) => state.location);
 
   // usePost for updating current location
   const { loading: locationLoading, execute: updateLocation } = usePost(
