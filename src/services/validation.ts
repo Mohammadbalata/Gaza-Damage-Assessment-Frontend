@@ -81,12 +81,6 @@ export const citizenSchema = yup.object().shape({
 
 // Application schema
 export const applicationSchema = yup.object({
-  citizenId: yup
-    .number()
-    .required("رقم المواطن مطلوب")
-    .positive("يجب أن يكون رقم المواطن موجباً")
-    .integer("يجب أن يكون رقم المواطن رقماً صحيحاً"),
-
   status: yup
     .string()
     .required("الحالة مطلوبة")
@@ -108,11 +102,6 @@ export const applicationSchema = yup.object({
 });
 
 export const locationSchema = yup.object({
-  citizenId: yup
-    .number()
-    .required("رقم المواطن مطلوب")
-    .positive("يجب أن يكون رقم المواطن موجباً")
-    .integer("يجب أن يكون رقم المواطن رقماً صحيحاً"),
 
   type: yup
     .string()
