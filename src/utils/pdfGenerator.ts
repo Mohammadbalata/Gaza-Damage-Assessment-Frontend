@@ -311,9 +311,18 @@ export const generateApplicationPDF = async (
         <p><strong>${t("status")}:</strong> ${t(
     `status.${application.status?.toLowerCase()}`
   )}</p>
-        <p><strong>${t("map.address")}:</strong> ${
-    application.location?.address || "-"
-  }</p>
+<p><strong>${t("map.address")}:</strong>
+  ${
+    [
+      application?.location?.neighborhood,
+      buildingData?.nearestLandmark,
+      buildingData?.nameOfStreet,
+      buildingData?.buildingNumber,
+    ]
+      .filter(Boolean)
+      .join(" - ") || "-"
+  }
+</p>
 
         <hr style="margin:12px 0; border:none; border-top:1px solid #D1D5DB;" />
         <p style="margin:6px 0;">
