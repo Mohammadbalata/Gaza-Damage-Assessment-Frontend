@@ -31,11 +31,11 @@ const MultipleImagesInput = ({
     control={control}
     defaultValue={[]}
     rules={{
-      validate: (files: File[]) => {
+      validate: (files: any[]) => {
         if (files?.length > 5) {
           return "لا يمكن رفع أكثر من 5 صور";
         }
-        if (files?.some((f) => f.size > MAX_SIZE)) {
+        if (files?.some((f) => f instanceof File && f.size > MAX_SIZE)) {
           return "كل صورة يجب أن لا تتجاوز 2MB";
         }
         return true;
@@ -43,21 +43,26 @@ const MultipleImagesInput = ({
     }}
     render={({ field, fieldState }) => {
       const inputRef = useRef<HTMLInputElement | null>(null);
-      const files: File[] = field.value || [];
+      const files: (File | string)[] = field.value || [];
 
       const [cropIndex, setCropIndex] = useState<number | null>(null);
       const [previews, setPreviews] = useState<string[]>([]);
 
       /* ✅ مزامنة المعاينات مع قيمة الفورم */
       useEffect(() => {
-        const urls = files.map((file) =>
-          file instanceof File ? URL.createObjectURL(file) : ""
-        );
+        const urls = files.map((file) => {
+          if (file instanceof File) return URL.createObjectURL(file);
+          if (typeof file === "string") return file;
+          return "";
+        });
 
         setPreviews(urls);
 
         return () => {
-          urls.forEach((url) => URL.revokeObjectURL(url));
+          urls.forEach((url) => {
+            // Only revoke blob URLs, checking if it starts with blob: is a safe bet or just revoke all (browsers ignore non-blob revocation)
+            if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
+          });
         };
       }, [files]);
 

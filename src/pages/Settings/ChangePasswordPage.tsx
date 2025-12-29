@@ -36,7 +36,7 @@ interface ResetPasswordForm {
   confirmPassword: string;
 }
 
-const ResetPasswordPage = () => {
+const ChangePasswordPage = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -355,4 +355,4 @@ const ResetPasswordPage = () => {
   );
 };
 
-export default ResetPasswordPage;
+export default ChangePasswordPage;

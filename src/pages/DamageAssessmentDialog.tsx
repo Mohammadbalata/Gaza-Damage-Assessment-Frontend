@@ -74,24 +74,55 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
-  const { floors:floorsResidential, units:unitsResisential } = useAppSelector(
+  const { floors: floorsResidential, units: unitsResisential } = useAppSelector(
     (state) => state.damage.ResidentialBuilding.MixedUsage
   );
-  const { floors:floorsTower, units:unitsTower } = useAppSelector(
+  const { floors: floorsTower, units: unitsTower } = useAppSelector(
     (state) => state.damage.tower.MixedUsage
   );
 
+  // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
       const type = initialData?.extraData?.buildingType;
-      dispatch(setBuildingType(type));
-      setValue("buildingType", type);
-      if (initialData.extraData) {
-        setValue(type as any, initialData.extraData[type]);
 
+      // Update Redux state for consistency
+      dispatch(setBuildingType(type));
+      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // Update Form State
+      setValue("buildingType", type);
+
+      // Hydrate extra fields
+      if (initialData.extraData && initialData.extraData[type]) {
+        setValue(type as any, initialData.extraData[type]);
         dispatchByType(dispatch, type, initialData.extraData);
       }
-      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // Hydrate Images (Critical for Edit Mode)
+      if (initialData.extraData) {
+        // Hydrate images if they exist in extraData structure from API
+        // Typically API returns them at root or inside the specific building type object
+        // Adjust based on your actual API response structure
+        const specificData =
+          initialData.extraData[type] || initialData.extraData;
+
+        if (specificData?.beforeWarImage) {
+          setValue(
+            `${type}.beforeWarImage` as any,
+            specificData.beforeWarImage
+          );
+        }
+        if (specificData?.afterWarImage) {
+          setValue(`${type}.afterWarImage` as any, specificData.afterWarImage);
+        }
+        if (specificData?.ownershipDocuments) {
+          setValue(
+            `${type}.ownershipDocuments` as any,
+            specificData.ownershipDocuments
+          );
+        }
+      }
     }
   }, [initialData, dispatch, setValue]);
 
@@ -173,25 +204,25 @@ const DamageAssessmentDialog = ({
         ResidentialBuilding: {
           ...formdata.ResidentialBuilding,
           MixedUsage: {
-            floors:floorsResidential,
-            units:unitsResisential,
+            floors: floorsResidential,
+            units: unitsResisential,
           },
         },
       };
       console.log("final payload", data);
       return data;
-    } else if(formdata.buildingType === "tower") {
+    } else if (formdata.buildingType === "tower") {
       const data = {
         ...formdata,
         tower: {
           ...formdata.tower,
           MixedUsage: {
-            floors:floorsTower,
-            units:unitsTower,
+            floors: floorsTower,
+            units: unitsTower,
           },
         },
       };
-      console.log('into tower')
+      console.log("into tower");
       console.log("final payload", data);
       return data;
     }
@@ -202,8 +233,7 @@ const DamageAssessmentDialog = ({
     console.log(data);
     if (data.buildingType === "ResidentialBuilding") {
       data = reBuildData(data);
-    }
-    else if(data.buildingType === "tower"){
+    } else if (data.buildingType === "tower") {
       data = reBuildData(data);
     }
     // Phase 1: Review
@@ -338,7 +368,8 @@ const DamageAssessmentDialog = ({
     }
   }, [onClose]);
 
-  const BuildingTypeView = () => {
+  // Render logic extracted to specific helper or inline
+  const renderBuildingContent = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
       damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
@@ -439,7 +470,8 @@ const DamageAssessmentDialog = ({
                 </p>
               )}
             </div>
-            <BuildingTypeView />
+            {/* Inline Rendering to prevent remounts */}
+            {renderBuildingContent()}
           </div>
           {/* Actions Area */}
           {!readOnly && (

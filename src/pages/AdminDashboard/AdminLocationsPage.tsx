@@ -7,12 +7,6 @@ import {
   Container,
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Dialog,
   DialogTitle,
@@ -23,28 +17,27 @@ import {
   Stack,
   MenuItem,
   Link as MuiLink,
-  Autocomplete,
+  Collapse,
 } from "@mui/material";
-import { Plus, Trash2, Edit2, Search } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, Filter, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
-import {
-  Citizen,
-  Location,
-  LocationType,
-} from "../../types/entities";
+import { Citizen, Location, LocationType } from "../../types/entities";
 import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useDelete, usePatch, usePost } from "../../hooks/api/useApi";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
+import PaginatedTable from "../../components/admin/PaginationTable";
+import { api } from "../../services/api";
+import DebounceSearchField from "../../components/admin/DebounceSearchField";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -97,9 +90,8 @@ export function AdminLocationsPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
-  const [search, setSearch] = useState("");
-  const [citizenSearch, setCitizenSearch] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
+  const [selectedValue, setSelectedValue] = useState<any>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
@@ -108,6 +100,29 @@ export function AdminLocationsPage() {
 
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
+
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [data, setData] = useState<any>([]);
+  const [meta, setMeta] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Search filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<any>({
+    applicationId: "",
+    fullName: "",
+    nationalId: "",
+    type: "",
+    neighborhood: "",
+  });
+  const [activeFilters, setActiveFilters] = useState<any>({
+    applicationId: "",
+    fullName: "",
+    nationalId: "",
+    type: "",
+    neighborhood: "",
+  });
 
   // Default center: Gaza City
   const defaultCenter: [number, number] = [31.3547, 34.3088];
@@ -137,7 +152,6 @@ export function AdminLocationsPage() {
     control,
     handleSubmit,
     reset,
-    setValue,
     formState: { isSubmitting },
   } = useForm<LocationFormData>({
     resolver: yupResolver(
@@ -150,18 +164,189 @@ export function AdminLocationsPage() {
     },
   });
 
-  const {
-    loading,
-    data: locations,
-    setData,
-  } = useGet<Location[]>(API.admin.locations.list, {
-    immediate: true,
-  });
+  useEffect(() => {
+    fetchData(page, limit, activeFilters);
+  }, [page, limit, activeFilters]);
+
+  const fetchData = async (page: number, limit: number, filters: any) => {
+    setLoading(true);
+    try {
+      const params: any = {
+        page: page + 1,
+        limit,
+      };
+
+      if (filters.applicationId) {
+        params.applicationId = filters.applicationId;
+      }
+      if (filters.fullName) {
+        params.fullName = filters.fullName;
+      }
+      if (filters.nationalId) {
+        params.nationalId = filters.nationalId;
+      }
+      if (filters.type) {
+        params.type = filters.type;
+      }
+      if (filters.neighborhood) {
+        params.neighborhood = filters.neighborhood;
+      }
+
+      const res = await api.get(API.admin.locations.list, { params });
+      setData(res.data.data.data);
+      setMeta(res.data.data.meta);
+    } catch (err) {
+      showError(t("error.fetchLocations"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(0);
+  };
+
+  const handleSearch = () => {
+    setActiveFilters({ ...searchFilters });
+    setPage(0);
+  };
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      applicationId: "",
+      fullName: "",
+      nationalId: "",
+      type: "",
+      neighborhood: "",
+    };
+    setSearchFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
+    setPage(0);
+  };
+
+  const hasActiveFilters = Object.values(activeFilters).some(
+    (value) => value !== ""
+  );
+
+  const columns = [
+    {
+      id: "citizen",
+      label: t("admin.citizen"),
+      align: "center" as const,
+      format: (_: any, row: Location) => (
+        <Box>
+          <Typography variant="body2" fontWeight="medium">
+            {row.citizen?.first_name || `Citizen #${row.citizenId}`}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {row.citizen?.national_id}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      id: "type",
+      label: t("admin.type"),
+      align: "center" as const,
+      format: (value: LocationType) => (
+        <Chip
+          label={value.replace("_", " ").toLowerCase()}
+          sx={{
+            ...locationColors[value],
+            textTransform: "capitalize",
+            borderRadius: "6px",
+            px: 1.5,
+            py: 0.5,
+            fontSize: "0.8rem",
+          }}
+        />
+      ),
+    },
+    {
+      id: "neighborhood",
+      label: t("admin.neighborhood"),
+      align: "center" as const,
+      format: (value: string) => value || "-",
+    },
+    {
+      id: "address",
+      label: t("admin.address"),
+      align: "center" as const,
+      format: (_: any, row: Location) =>
+        [row.address, row.town, row.street].filter(Boolean).join(" • ") || "-",
+    },
+    {
+      id: "coordinates",
+      label: t("admin.coordinates"),
+      align: "center" as const,
+      format: (_: any, row: Location) =>
+        row.latitude != null && row.longitude != null ? (
+          <Box>
+            <Typography variant="body2">
+              {row.latitude}, {row.longitude}
+            </Typography>
+            <MuiLink
+              component={Link}
+              to={`/admin/locations/map?lat=${row.latitude}&lng=${row.longitude}`}
+              variant="caption"
+              sx={{ display: "block", mt: 0.5 }}
+            >
+              {t("map.showonmap")}
+            </MuiLink>
+          </Box>
+        ) : (
+          "-"
+        ),
+    },
+    ...(canManage
+      ? [
+          {
+            id: "actions",
+            label: t("admin.actions"),
+            align: "center" as const,
+            format: (_: any, row: Location) => (
+              <Box>
+                <Button
+                  size="small"
+                  startIcon={
+                    <Edit2
+                      className={`${language == "ar" ? "ml-2" : ""}`}
+                      size={16}
+                    />
+                  }
+                  onClick={() => openEditDialog(row)}
+                >
+                  {t("common.edit")}
+                </Button>
+                <Button
+                  size="small"
+                  color="error"
+                  startIcon={
+                    <Trash2
+                      className={`${language == "ar" ? "ml-2" : ""}`}
+                      size={16}
+                    />
+                  }
+                  onClick={() => setDeleteConfirm({ open: true, id: row.id })}
+                >
+                  {t("common.delete")}
+                </Button>
+              </Box>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   const { loading: loadingDeleteLocation, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.locationDeleted"));
-      setData((prev) =>
+      setData((prev: Location[]) =>
         prev ? prev.filter((l) => l.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
@@ -171,15 +356,10 @@ export function AdminLocationsPage() {
     },
   });
 
-  const { data: citizenOptions, loading: citizenLoading } = useGet(
-    API.admin.citizens.list,
-    { immediate: true }
-  );
-
   const { loading: loadingCreateLocation, execute: executeCreateLocation } =
     usePost(API.admin.locations.create, {
       onSuccess: (data) => {
-        setData((prev) => (prev ? [data, ...prev] : [data]));
+        setData((prev: Location[]) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.locationCreated"));
         setIsDialogOpen(false);
         reset();
@@ -193,7 +373,8 @@ export function AdminLocationsPage() {
     usePatch({
       onSuccess: (data) => {
         setData(
-          (prev) => prev?.map((l) => (l.id === data.id ? data : l)) || prev
+          (prev: Location[]) =>
+            prev?.map((l) => (l.id === data.id ? data : l)) || prev
         );
         showSuccess(t("success.locationUpdated"));
         setIsDialogOpen(false);
@@ -206,7 +387,6 @@ export function AdminLocationsPage() {
 
   useEffect(() => {
     if (position) {
-      // Reverse geocoding
       fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`
       )
@@ -215,18 +395,15 @@ export function AdminLocationsPage() {
           setAddress(data.display_name || "Location selected");
         })
         .catch(() => {
-          // setAddress(
-          //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
-          // );
           setAddress("");
         });
     }
   }, [position]);
 
-  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     setPosition(null);
+    setSelectedCitizen(null);
     reset({
       type: LocationType.CURRENT,
       notes: "",
@@ -235,15 +412,10 @@ export function AdminLocationsPage() {
     setIsDialogOpen(true);
   };
 
-  // Open edit dialog
   const openEditDialog = (location: Location) => {
     setEditing(location);
     setPosition([location?.latitude || 0, location?.longitude || 0]);
-    setSelectedCitizen(
-      citizenOptions.filter(
-        (c: Citizen) => c.id === location?.citizen?.id
-      )[0] || null
-    );
+    setSelectedCitizen(location.citizen || null);
     reset({
       type: location.type,
       notes: location.notes || "",
@@ -252,16 +424,16 @@ export function AdminLocationsPage() {
     setIsDialogOpen(true);
   };
 
-  // Handle submit
   const onSubmit = async (data: LocationFormData & { citizenId?: number }) => {
     const payload = {
-      citizenId: editing ? data.citizenId : selectedCitizen?.id,
+      citizenId: editing ? data.citizenId : selectedValue,
       type: data.type,
       address: address || null,
       latitude: position ? position[0].toString() : null,
       longitude: position ? position[1].toString() : null,
       notes: data.notes || null,
     };
+
     if (editing) {
       executeUpdateLocation(
         API.admin.locations.update(editing.id.toString()),
@@ -272,23 +444,10 @@ export function AdminLocationsPage() {
     }
   };
 
-  // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
     execute(API.admin.locations.delete(deleteConfirm.id.toString()));
   };
-
-  const filteredLocations = locations?.filter(
-    (location) =>
-      location.citizen?.first_name
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      location.citizen?.national_id?.includes(search) ||
-      location.address?.toLowerCase().includes(search.toLowerCase()) ||
-      location.town?.toLowerCase().includes(search.toLowerCase()) ||
-      location.street?.toLowerCase().includes(search.toLowerCase()) ||
-      location.neighborhood?.toLowerCase().includes(search.toLowerCase())
-  );
 
   if (!canView) {
     return (
@@ -333,140 +492,148 @@ export function AdminLocationsPage() {
         )}
       </Box>
 
-      {/* Search */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          placeholder={t("common.searchPlaceholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+      {/* Search/Filter Section */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: showFilters ? 2 : 0,
           }}
-          size="small"
-        />
-      </Box>
+        >
+          <Button
+            startIcon={<Filter size={18} />}
+            onClick={() => setShowFilters(!showFilters)}
+            variant={showFilters ? "contained" : "outlined"}
+          >
+            {t("common.filters") || "Filters"}
+            {hasActiveFilters && (
+              <Chip
+                label={
+                  Object.values(activeFilters).filter((v) => v !== "").length
+                }
+                size="small"
+                sx={{ ml: 1, height: 20 }}
+              />
+            )}
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              startIcon={<X size={16} />}
+              onClick={handleClearFilters}
+              color="error"
+            >
+              {t("common.clearFilters")}
+            </Button>
+          )}
+        </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ mb: 3 }}>
-        {loading ? (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <CircularProgress />
-          </Box>
-        ) : filteredLocations?.length === 0 ? (
-          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
-            <Typography>{t("admin.noLocationsFound")}</Typography>
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: "grey.100" }}>
-                <TableCell align="center">{t("admin.citizen")}</TableCell>
-                <TableCell align="center">{t("admin.type")}</TableCell>
-                <TableCell align="center">{t("admin.neighborhood")}</TableCell>
-                <TableCell align="center">{t("admin.address")}</TableCell>
-                <TableCell align="center">{t("admin.coordinates")}</TableCell>
-                {canManage && (
-                  <TableCell align="center">{t("admin.actions")}</TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredLocations?.map((location: Location) => (
-                <TableRow
-                  key={location.id}
-                  hover
-                  sx={{ "&:last-child td": { border: 0 } }}
-                >
-                  <TableCell align="center">
-                    <Typography variant="body2" fontWeight="medium">
-                      {location.citizen?.first_name ||
-                        `Citizen #${location.citizenId}`}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      {location.citizen?.national_id}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Chip
-                      label={location.type
-                        .replace("_", " ")
-                        .toLocaleLowerCase()}
-                      sx={{
-                        ...locationColors[location.type],
-                        textTransform: "capitalize",
-                        borderRadius: "6px",
-                        px: 1.5,
-                        py: 0.5,
-                        fontSize: "0.8rem",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">{location.neighborhood}</TableCell>
-                  <TableCell align="center">
-                    {[location.address, location.town, location.street]
-                      .filter(Boolean)
-                      .join(" • ") || "-"}
-                  </TableCell>
+        <Collapse in={showFilters}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              mt: 2,
+            }}
+          >
+            <TextField
+              label={t("admin.locations.applicationId") || "Application ID"}
+              value={searchFilters.applicationId}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  applicationId: e.target.value,
+                })
+              }
+              size="small"
+              type="text"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
 
-                  <TableCell align="center">
-                    {location.latitude != null && location.longitude != null ? (
-                      <Box>
-                        <Typography variant="body2">
-                          {location.latitude}, {location.longitude}
-                        </Typography>
-                        <MuiLink
-                          component={Link}
-                          to={`/admin/locations/map?lat=${location.latitude}&lng=${location.longitude}`}
-                          variant="caption"
-                          sx={{ display: "block", mt: 0.5 }}
-                        >
-                          {t("map.showonmap")}
-                        </MuiLink>
-                      </Box>
-                    ) : (
-                      "-"
-                    )}
-                  </TableCell>
-                  {canManage && (
-                    <TableCell align="center">
-                      <Box>
-                        <Button
-                          size="small"
-                          startIcon={
-                            <Edit2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() => openEditDialog(location)}
-                        >
-                          {t("common.edit")}
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={
-                            <Trash2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() =>
-                            setDeleteConfirm({ open: true, id: location.id })
-                          }
-                        >
-                          {t("common.delete")}
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  )}
-                </TableRow>
+            <TextField
+              label={t("admin.neighborhood") || "Neighborhood"}
+              value={searchFilters.neighborhood}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  neighborhood: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              label={t("admin.citizens.fullName") || "Full Name"}
+              value={searchFilters.fullName}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  fullName: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              label={t("admin.citizens.nationalId") || "National ID"}
+              value={searchFilters.nationalId}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  nationalId: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              select
+              label={t("admin.type") || "Type"}
+              value={searchFilters.type}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  type: e.target.value as LocationType | "",
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            >
+              <MenuItem value="">{t("common.all") || "All"}</MenuItem>
+              {locationTypes.map((type) => (
+                <MenuItem key={type.id} value={type.value}>
+                  {type.label}
+                </MenuItem>
               ))}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+            </TextField>
+
+            <Button
+              variant="contained"
+              startIcon={<Search size={18} />}
+              onClick={handleSearch}
+              sx={{ minWidth: 180, flex: "1 1 180px" }}
+            >
+              {t("common.search") || "Search"}
+            </Button>
+          </Box>
+        </Collapse>
+      </Paper>
+
+      <PaginatedTable
+        columns={columns}
+        data={data}
+        loading={loading}
+        meta={meta}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        emptyMessage={t("admin.noLocationsFound")}
+      />
 
       {/* Create/Edit Dialog */}
       <Dialog
@@ -481,27 +648,6 @@ export function AdminLocationsPage() {
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                gap: 2,
-              }}
-            ></Box>
-
-            {/* <FormTextField
-              control={control}
-              name="citizenId"
-              label={t("admin.locations.citizenId")}
-              select
-            >
-              {citizens?.map((citizen: Citizen) => (
-                <MenuItem key={citizen.id} value={citizen.id}>
-                  {citizen.full_name} - {citizen.national_id}
-                </MenuItem>
-              ))}
-            </FormTextField> */}
-
             {editing ? (
               <TextField
                 label={t("admin.applications.citizen")}
@@ -512,44 +658,11 @@ export function AdminLocationsPage() {
                 fullWidth
               />
             ) : (
-              <Autocomplete
-                options={citizenOptions}
-                getOptionLabel={(option) =>
-                  `${option.full_name || option.first_name || ""} (${
-                    option.national_id
-                  })`
-                }
-                loading={citizenLoading}
-                value={selectedCitizen}
-                onChange={(_, newValue) => {
-                  setSelectedCitizen(newValue);
-                  setValue("citizenId", newValue?.id || 0);
-                }}
-                inputValue={citizenSearch}
-                onInputChange={(_, newInputValue) => {
-                  setCitizenSearch(newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={t("admin.applications.citizen")}
-                    placeholder={
-                      t("admin.applications.searchCitizenPlaceholder") ||
-                      "Search by name or national ID"
-                    }
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {citizenLoading && (
-                            <CircularProgress color="inherit" size={20} />
-                          )}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
+              <DebounceSearchField
+                control={control}
+                label={t("admin.citizens.fullName")}
+                placeholder={t("common.search")}
+                onSelect={(id) => setSelectedValue(id)}
               />
             )}
 

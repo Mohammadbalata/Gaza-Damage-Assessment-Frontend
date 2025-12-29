@@ -139,10 +139,11 @@ export function AdminBankingPage() {
     immediate: true,
   });
 
-  const { data: citizenOptions, loading: citizenLoading } = useGet<Citizen[]>(
+  const { data: options, loading: citizenLoading } = useGet<any>(
     API.admin.citizens.list,
     { immediate: true }
   );
+  const citizenOptions = options?.data
 
   const { loading: loadingDeleteAccount, execute } = useDelete({
     onSuccess: () => {

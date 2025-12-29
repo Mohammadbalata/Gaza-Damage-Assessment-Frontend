@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -6,13 +6,6 @@ import {
   Container,
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,8 +13,12 @@ import {
   Typography,
   CircularProgress,
   Stack,
+  Paper,
+  Grid,
+  Collapse,
+  Chip,
 } from "@mui/material";
-import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, Import, Filter, X } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { Citizen } from "../../types/entities";
@@ -30,9 +27,11 @@ import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useDelete, usePatch, usePost } from "../../hooks/api/useApi";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
+import PaginatedTable from "../../components/admin/PaginationTable";
+import { api } from "../../services/api";
 
 interface CitizenFormData {
   national_id: string;
@@ -41,6 +40,12 @@ interface CitizenFormData {
   grandfather_name: string;
   family_name: string;
   phone_number: string;
+}
+
+interface SearchFilters {
+  fullName: string;
+  nationalId: string;
+  phone: string;
 }
 
 export function AdminCitizensPage() {
@@ -53,11 +58,29 @@ export function AdminCitizensPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Citizen | null>(null);
-  const [search, setSearch] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
     id: number | null;
   }>({ open: false, id: null });
+
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [data, setData] = useState<any>([]);
+  const [meta, setMeta] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Search filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
+    fullName: "",
+    nationalId: "",
+    phone: "",
+  });
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>({
+    fullName: "",
+    nationalId: "",
+    phone: "",
+  });
 
   // Form
   const {
@@ -77,20 +100,135 @@ export function AdminCitizensPage() {
     },
   });
 
-  const {
-    loading,
-    data: citizens,
-    setData,
-  } = useGet<Citizen[]>(API.admin.citizens.list, {
-    immediate: true,
-  });
+  useEffect(() => {
+    fetchData(page, limit, activeFilters);
+  }, [page, limit, activeFilters]);
+
+  const fetchData = async (
+    page: number,
+    limit: number,
+    filters: SearchFilters
+  ) => {
+    setLoading(true);
+    try {
+      const params: any = {
+        page: page + 1,
+        limit,
+      };
+
+      if (filters.fullName) {
+        params.fullName = filters.fullName;
+      }
+      if (filters.nationalId) {
+        params.nationalId = filters.nationalId;
+      }
+      if (filters.phone) {
+        params.phone = filters.phone;
+      }
+
+      const res = await api.get(API.admin.citizens.list, { params });
+      setData(res.data.data.data);
+      setMeta(res.data.data.meta);
+    } catch (err) {
+      showError(t("error.fetchCitizens"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(0);
+  };
+
+  const handleSearch = () => {
+    setActiveFilters({ ...searchFilters });
+    setPage(0);
+  };
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      fullName: "",
+      nationalId: "",
+      phone: "",
+    };
+    setSearchFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
+    setPage(0);
+  };
+
+  const hasActiveFilters = Object.values(activeFilters).some(
+    (value) => value !== ""
+  );
+
+  const columns = [
+    {
+      id: "national_id",
+      label: t("admin.citizens.nationalId"),
+      align: "center" as const,
+      format: (value: string) => value,
+    },
+    {
+      id: "full_name",
+      label: t("admin.citizens.fullName"),
+      align: "center" as const,
+      format: (value: string) => value || "----",
+    },
+    {
+      id: "phone_number",
+      label: t("admin.citizens.phoneNumber"),
+      align: "center" as const,
+      format: (value: string) => value,
+    },
+    ...(canManage
+      ? [
+          {
+            id: "actions",
+            label: t("admin.actions"),
+            align: "center" as const,
+            format: (_: any, row: Citizen) => (
+              <Box>
+                <Button
+                  size="small"
+                  startIcon={
+                    <Edit2
+                      className={`${language == "ar" ? "ml-2" : ""}`}
+                      size={16}
+                    />
+                  }
+                  onClick={() => openEditDialog(row)}
+                >
+                  {t("common.edit")}
+                </Button>
+                <Button
+                  size="small"
+                  color="error"
+                  startIcon={
+                    <Trash2
+                      className={`${language == "ar" ? "ml-2" : ""}`}
+                      size={16}
+                    />
+                  }
+                  onClick={() => setDeleteConfirm({ open: true, id: row.id })}
+                >
+                  {t("common.delete")}
+                </Button>
+              </Box>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   const { loading: loadingDeleteCitizen, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.citizenDeleted"));
-      // Remove deleted citizen from list
-      setData((prev) =>
-        prev ? prev.filter((c) => c.id !== deleteConfirm.id) : prev
+      setData((prev:Citizen[]) =>
+        prev ? prev.filter((c:Citizen) => c.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
     },
@@ -102,7 +240,7 @@ export function AdminCitizensPage() {
   const { loading: loadingCreateCitizen, execute: executeCreateCitizen } =
     usePost(API.admin.citizens.create, {
       onSuccess: (data) => {
-        setData((prev) => (prev ? [data, ...prev] : [data]));
+        setData((prev:Citizen[]) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.citizenCreated"));
         setIsDialogOpen(false);
         reset();
@@ -116,7 +254,7 @@ export function AdminCitizensPage() {
     usePatch({
       onSuccess: (data) => {
         setData(
-          (prev) => prev?.map((c) => (c.id === data.id ? data : c)) || prev
+          (prev:Citizen[]) => prev?.map((c) => (c.id === data.id ? data : c)) || prev
         );
         showSuccess(t("success.citizenUpdated"));
         setIsDialogOpen(false);
@@ -127,7 +265,6 @@ export function AdminCitizensPage() {
       },
     });
 
-  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     reset({
@@ -141,7 +278,6 @@ export function AdminCitizensPage() {
     setIsDialogOpen(true);
   };
 
-  // Open edit dialog
   const openEditDialog = (citizen: Citizen) => {
     setEditing(citizen);
     reset({
@@ -155,7 +291,6 @@ export function AdminCitizensPage() {
     setIsDialogOpen(true);
   };
 
-  // Handle submit
   const onSubmit = async (data: CitizenFormData) => {
     if (editing) {
       executeUpdateCitizen(API.admin.citizens.update(editing.id.toString()), {
@@ -192,18 +327,10 @@ export function AdminCitizensPage() {
       });
   };
 
-  // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
     execute(API.admin.citizens.delete(deleteConfirm.id.toString()));
   };
-
-  const filteredCitizens = citizens?.filter(
-    (citizen) =>
-      citizen.national_id.includes(search) ||
-      (citizen.full_name &&
-        citizen.full_name.toLowerCase().includes(search.toLowerCase()))
-  );
 
   if (!canView) {
     return (
@@ -266,100 +393,169 @@ export function AdminCitizensPage() {
         )}
       </Box>
 
-      {/* Search */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          placeholder={t("common.searchPlaceholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+      {/* Search/Filter Section */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: showFilters ? 2 : 0,
           }}
-          size="small"
-        />
-      </Box>
+        >
+          <Button
+            startIcon={<Filter size={18} />}
+            onClick={() => setShowFilters(!showFilters)}
+            variant={showFilters ? "contained" : "outlined"}
+          >
+            {t("common.filters") || "Filters"}
+            {hasActiveFilters && (
+              <Chip
+                label={
+                  Object.values(activeFilters).filter((v) => v !== "").length
+                }
+                size="small"
+                sx={{ ml: 1, height: 20 }}
+              />
+            )}
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              startIcon={<X size={16} />}
+              onClick={handleClearFilters}
+              color="error"
+            >
+              {t("common.clearFilters") || "Clear Filters"}
+            </Button>
+          )}
+        </Box>
+        {/* <Collapse in={showFilters}>
+  <Box
+    sx={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 2,
+      mt: 2,
+    }}
+  >
+    <TextField
+      label={t("admin.citizens.fullName") || "Full Name"}
+      value={searchFilters.fullName}
+      onChange={(e) =>
+        setSearchFilters({
+          ...searchFilters,
+          fullName: e.target.value,
+        })
+      }
+      size="small"
+      sx={{ minWidth: 220, flex: "1 1 220px" }}
+    />
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ mb: 3 }}>
-        {loading ? (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <CircularProgress />
-          </Box>
-        ) : filteredCitizens?.length === 0 ? (
-          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
-            <Typography>{t("admin.noCitizensFound")}</Typography>
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: "grey.100" }}>
-                <TableCell align="center">
-                  {t("admin.citizens.nationalId")}
-                </TableCell>
-                <TableCell align="center">
-                  {t("admin.citizens.fullName")}
-                </TableCell>
-                <TableCell align="center">
-                  {t("admin.citizens.phoneNumber")}
-                </TableCell>
-                {canManage && (
-                  <TableCell align="center">{t("admin.actions")}</TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredCitizens?.map((citizen: Citizen) => (
-                <TableRow
-                  key={citizen.id}
-                  hover
-                  sx={{ "&:last-child td": { border: 0 } }}
-                >
-                  <TableCell align="center">{citizen.national_id}</TableCell>
-                  <TableCell align="center">
-                    {citizen.full_name || "----"}
-                  </TableCell>
-                  <TableCell align="center">{citizen.phone_number}</TableCell>
+    <TextField
+      label={t("admin.citizens.nationalId") || "National ID"}
+      value={searchFilters.nationalId}
+      onChange={(e) =>
+        setSearchFilters({
+          ...searchFilters,
+          nationalId: e.target.value,
+        })
+      }
+      size="small"
+      sx={{ minWidth: 220, flex: "1 1 220px" }}
+    />
 
-                  {canManage && (
-                    <TableCell align="center">
-                      <Box>
-                        <Button
-                          size="small"
-                          startIcon={
-                            <Edit2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() => openEditDialog(citizen)}
-                        >
-                          {t("common.edit")}
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={
-                            <Trash2
-                              className={`${language == "ar" ? "ml-2" : ""}  `}
-                              size={16}
-                            />
-                          }
-                          onClick={() =>
-                            setDeleteConfirm({ open: true, id: citizen.id })
-                          }
-                        >
-                          {t("common.delete")}
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+    <TextField
+      label={t("admin.citizens.phoneNumber") || "Phone"}
+      value={searchFilters.phone}
+      onChange={(e) =>
+        setSearchFilters({
+          ...searchFilters,
+          phone: e.target.value,
+        })
+      }
+      size="small"
+      sx={{ minWidth: 220, flex: "1 1 220px" }}
+    />
+
+    <Button
+      variant="contained"
+      startIcon={<Search size={18} />}
+      onClick={handleSearch}
+      sx={{ minWidth: 180, flex: "1 1 180px", alignSelf: "center" }}
+    >
+      {t("common.search") || "Search"}
+    </Button>
+  </Box>
+</Collapse> */}
+
+        <Collapse in={showFilters}>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid>
+              <TextField
+                fullWidth
+                label={t("admin.citizens.fullName") || "Full Name"}
+                value={searchFilters.fullName}
+                onChange={(e) =>
+                  setSearchFilters({
+                    ...searchFilters,
+                    fullName: e.target.value,
+                  })
+                }
+                size="small"
+              />
+            </Grid>
+            <Grid>
+              <TextField
+                fullWidth
+                label={t("admin.citizens.nationalId") || "National ID"}
+                value={searchFilters.nationalId}
+                onChange={(e) =>
+                  setSearchFilters({
+                    ...searchFilters,
+                    nationalId: e.target.value,
+                  })
+                }
+                size="small"
+              />
+            </Grid>
+            <Grid>
+              <TextField
+                fullWidth
+                label={t("admin.citizens.phoneNumber") || "Phone"}
+                value={searchFilters.phone}
+                onChange={(e) =>
+                  setSearchFilters({
+                    ...searchFilters,
+                    phone: e.target.value,
+                  })
+                }
+                size="small"
+              />
+            </Grid>
+            <Grid>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<Search size={18} />}
+                onClick={handleSearch}
+              >
+                {t("common.search") || "Search"}
+              </Button>
+            </Grid>
+          </Grid>
+        </Collapse>
+      </Paper>
+
+      <PaginatedTable
+        columns={columns}
+        data={data}
+        loading={loading}
+        meta={meta}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        emptyMessage={t("admin.noCitizensFound")}
+      />
 
       {/* Create/Edit Dialog */}
       <Dialog
