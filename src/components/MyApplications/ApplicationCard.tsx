@@ -163,21 +163,27 @@ const ApplicationCard = ({
               </Box>
             </Stack>
 
-            <Chip
-              label={statusLabel}
-              icon={statusConfig.icon}
-              color={statusConfig.color as any}
-              size="small"
-              sx={{
-                fontWeight: "bold",
-                borderRadius: 2,
-                px: 1,
-                direction: "ltr", // Ensure icon stays on correct side visually if needed, but standard Chip handles it
-                "& .MuiChip-label": {
+            <Tooltip
+              title={
+                t(`status.tooltip.${application.status?.toLowerCase()}`) || ""
+              }
+            >
+              <Chip
+                label={statusLabel}
+                icon={statusConfig.icon}
+                color={statusConfig.color as any}
+                size="small"
+                sx={{
+                  fontWeight: "bold",
+                  borderRadius: 2,
                   px: 1,
-                },
-              }}
-            />
+                  direction: "ltr",
+                  "& .MuiChip-label": {
+                    px: 1,
+                  },
+                }}
+              />
+            </Tooltip>
           </Stack>
 
           <Divider sx={{ my: 2, borderStyle: "dashed" }} />
