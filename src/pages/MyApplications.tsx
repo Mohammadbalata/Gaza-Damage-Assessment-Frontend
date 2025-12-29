@@ -528,13 +528,16 @@ const MyApplications = () => {
             }}
           >
             {filteredApplications.map((app: any, index: number) => (
-              <ApplicationCard
-                key={app.id || index}
-                index={index}
-                application={app}
-                onAction={handleAction}
-                onDownloadPdf={handleDownloadAppPdf}
-              />
+              <>
+                <ApplicationCard
+                  key={app.id || index}
+                  index={index}
+                  application={app}
+                  onAction={handleAction}
+                  onDownloadPdf={handleDownloadAppPdf}
+                />
+                {console.log('app',app)}
+              </>
             ))}
           </Box>
         )}
