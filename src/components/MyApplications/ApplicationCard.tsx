@@ -47,7 +47,6 @@ const ApplicationCard = ({
   const theme = useTheme();
   const buildingType = application?.extraData?.buildingType;
   const buildingData = application?.extraData?.[buildingType];
-  console.log("buildingData", buildingData);
 
   const status = application.status?.toUpperCase() || "PENDING";
   const isPending = status === "PENDING";

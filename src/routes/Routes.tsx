@@ -199,11 +199,7 @@ export const routes = [
 
   {
     path: ROUTES.ADMIN_LOCATION_MAP,
-    element: (
-      <ProtectedRoute>
-        <AdminLocationMapPage />
-      </ProtectedRoute>
-    ),
+    element: <AdminLocationMapPage />,
   },
 
   { path: "*", element: <NotFoundPage /> },
