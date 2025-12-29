@@ -60,7 +60,7 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
           <Box sx={{ p: 4, textAlign: "center" }}>
             <CircularProgress />
           </Box>
-        ) : data.length === 0 ? (
+        ) : data?.length === 0 ? (
           <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
             <Typography>{emptyMessage}</Typography>
           </Box>
@@ -84,7 +84,7 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row, index) => (
+              {data?.map((row, index) => (
                 <TableRow
                   hover
                   key={row.id || index}
