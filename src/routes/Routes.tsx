@@ -15,7 +15,7 @@ import { Navigate } from "react-router-dom";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
-import ResetPasswordPage from "../pages/Settings/ResetPasswordPage";
+import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
 import MyApplications from "../pages/MyApplications";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
@@ -26,6 +26,7 @@ import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import BiometricDataPage from "../pages/Settings/BiometricDataPage";
+import AdminResetPasswordPage from "../pages/AdminDashboard/ResetPasswordPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -56,6 +57,7 @@ export const ROUTES: IRoutes = {
   ADMIN_LOGIN: "/admin/login",
   ADMIN_DASHBOARD: "/admin",
   ADMIN_LOCATION_MAP: "admin/locations/map",
+  ADMIN_RESET_PASSWORD: "/admin/reset-password",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
   FORGOT_PASSWORD: "auth/forgot-password",
   BANK_INFORMATION: "/citizen/bank-information",
@@ -96,7 +98,7 @@ export const routes = [
     path: ROUTES.CHANGE_PASSWORD,
     element: (
       <ProtectedRoutes>
-        <ResetPasswordPage />
+        <ChangePasswordPage />
       </ProtectedRoutes>
     ),
   },
@@ -163,6 +165,10 @@ export const routes = [
     element: <ForgotPasswordPage />,
   },
   {
+    path: ROUTES.ADMIN_RESET_PASSWORD,
+    element: <AdminResetPasswordPage />,
+  },
+  {
     path: ROUTES.BANK_INFORMATION,
     element: (
       <ProtectedRoutes>
@@ -193,11 +199,7 @@ export const routes = [
 
   {
     path: ROUTES.ADMIN_LOCATION_MAP,
-    element: (
-      <ProtectedRoute>
-        <AdminLocationMapPage />
-      </ProtectedRoute>
-    ),
+    element: <AdminLocationMapPage />,
   },
 
   { path: "*", element: <NotFoundPage /> },

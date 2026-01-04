@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -6,13 +6,6 @@ import {
   Container,
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,8 +14,12 @@ import {
   CircularProgress,
   Stack,
   MenuItem,
+  Paper,
+  Grid,
+  Collapse,
+  Chip,
 } from "@mui/material";
-import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, Import, Filter, X } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { AdminUser, Role } from "../../types/entities";
@@ -34,12 +31,19 @@ import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
+import PaginatedTable from "../../components/admin/PaginationTable";
+import { api } from "../../services/api";
 
 interface UserFormData {
   name: string;
   email: string;
   password?: string;
   roleId: number;
+}
+
+interface SearchFilters {
+  fullName: string;
+  email: string;
 }
 
 export function AdminUsersPage() {
@@ -52,11 +56,27 @@ export function AdminUsersPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUser | null>(null);
-  const [search, setSearch] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
     id: number | null;
   }>({ open: false, id: null });
+
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [data, setData] = useState<any>([]);
+  const [meta, setMeta] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Search filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
+    fullName: "",
+    email: "",
+  });
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>({
+    fullName: "",
+    email: "",
+  });
 
   // Form
   const {
@@ -74,23 +94,150 @@ export function AdminUsersPage() {
     },
   });
 
-  const {
-    loading,
-    data: users,
-    setData,
-  } = useGet<AdminUser[]>(API.admin.users.list, {
-    immediate: true,
-  });
-
   const { data: roles } = useGet<Role[]>(API.admin.roles.list, {
     immediate: true,
   });
 
+  useEffect(() => {
+    fetchData(page, limit, activeFilters);
+  }, [page, limit, activeFilters]);
+
+  const fetchData = async (
+    page: number,
+    limit: number,
+    filters: SearchFilters
+  ) => {
+    setLoading(true);
+    try {
+      const params: any = {
+        page: page + 1,
+        limit,
+      };
+
+      if (filters.fullName) {
+        params.fullName = filters.fullName;
+      }
+      if (filters.email) {
+        params.email = filters.email;
+      }
+
+      const res = await api.get(API.admin.users.list, { params });
+      setData(res.data.data.data);
+      setMeta(res.data.data.meta);
+    } catch (err) {
+      showError(t("error.fetchUsers"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(0);
+  };
+
+  const handleSearch = () => {
+    setActiveFilters({ ...searchFilters });
+    setPage(0);
+  };
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      fullName: "",
+      email: "",
+    };
+    setSearchFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
+    setPage(0);
+  };
+
+  const hasActiveFilters = Object.values(activeFilters).some(
+    (value) => value !== ""
+  );
+
+  const columns = [
+    {
+      id: "id",
+      label: t("admin.users.id"),
+      align: "center" as const,
+      format: (value: number) => value,
+    },
+    {
+      id: "name",
+      label: t("admin.users.name"),
+      align: "center" as const,
+      format: (value: string) => value,
+    },
+    {
+      id: "email",
+      label: t("admin.users.email"),
+      align: "center" as const,
+      format: (value: string) => value,
+    },
+    {
+      id: "role",
+      label: t("admin.users.role"),
+      align: "center" as const,
+      format: (_: any, row: AdminUser) => (
+        <Box sx={{ textTransform: "capitalize" }}>{row.role.name}</Box>
+      ),
+    },
+    {
+      id: "createdAt",
+      label: t("common.created") || "Created",
+      align: "center" as const,
+      format: (value: string) => new Date(value).toDateString(),
+    },
+    ...(canManage
+      ? [
+          {
+            id: "actions",
+            label: t("admin.actions"),
+            align: "center" as const,
+            format: (_: any, row: AdminUser) =>
+              authUser?.id === row.id ? null : (
+                <Box>
+                  <Button
+                    size="small"
+                    startIcon={
+                      <Edit2
+                        className={`${language == "ar" ? "ml-2" : ""}`}
+                        size={16}
+                      />
+                    }
+                    onClick={() => openEditDialog(row)}
+                  >
+                    {t("common.edit")}
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={
+                      <Trash2
+                        className={`${language == "ar" ? "ml-2" : ""}`}
+                        size={16}
+                      />
+                    }
+                    onClick={() => setDeleteConfirm({ open: true, id: row.id })}
+                  >
+                    {t("common.delete")}
+                  </Button>
+                </Box>
+              ),
+          },
+        ]
+      : []),
+  ];
+
   const { loading: loadingDeleteUser, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.userDeleted"));
-      setData((prev) =>
-        prev ? prev.filter((u) => u.id !== deleteConfirm.id) : prev
+      setData((prev: AdminUser[]) =>
+        prev ? prev.filter((u: AdminUser) => u.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
     },
@@ -103,7 +250,7 @@ export function AdminUsersPage() {
     API.admin.users.create,
     {
       onSuccess: (data) => {
-        setData((prev) => (prev ? [data, ...prev] : [data]));
+        setData((prev: AdminUser[]) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.userCreated"));
         setIsDialogOpen(false);
         reset();
@@ -117,7 +264,8 @@ export function AdminUsersPage() {
   const { loading: loadingUpdateUser, execute: executeUpdateUser } = usePatch({
     onSuccess: (data) => {
       setData(
-        (prev) => prev?.map((u) => (u.id === data.id ? data : u)) || prev
+        (prev: AdminUser[]) =>
+          prev?.map((u) => (u.id === data.id ? data : u)) || prev
       );
       showSuccess(t("success.userUpdated"));
       setIsDialogOpen(false);
@@ -128,7 +276,6 @@ export function AdminUsersPage() {
     },
   });
 
-  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     reset({
@@ -140,7 +287,6 @@ export function AdminUsersPage() {
     setIsDialogOpen(true);
   };
 
-  // Open edit dialog
   const openEditDialog = (user: AdminUser) => {
     setEditing(user);
     reset({
@@ -152,7 +298,6 @@ export function AdminUsersPage() {
     setIsDialogOpen(true);
   };
 
-  // Handle submit
   const onSubmit = async (data: UserFormData) => {
     const payload = {
       name: data.name,
@@ -168,7 +313,6 @@ export function AdminUsersPage() {
     }
   };
 
-  // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
     execute(API.admin.users.delete(deleteConfirm.id.toString()));
@@ -197,12 +341,6 @@ export function AdminUsersPage() {
         alert("Failed to download Excel file");
       });
   };
-
-  const filteredUsers = users?.filter(
-    (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-  );
 
   if (!canView) {
     return (
@@ -262,125 +400,97 @@ export function AdminUsersPage() {
         )}
       </Box>
 
-      {/* Search */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          placeholder={t("common.searchPlaceholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+      {/* Search/Filter Section */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: showFilters ? 2 : 0,
           }}
-          size="small"
-        />
-      </Box>
+        >
+          <Button
+            startIcon={<Filter size={18} />}
+            onClick={() => setShowFilters(!showFilters)}
+            variant={showFilters ? "contained" : "outlined"}
+          >
+            {t("common.filters") || "Filters"}
+            {hasActiveFilters && (
+              <Chip
+                label={
+                  Object.values(activeFilters).filter((v) => v !== "").length
+                }
+                size="small"
+                sx={{ ml: 1, height: 20 }}
+              />
+            )}
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              startIcon={<X size={16} />}
+              onClick={handleClearFilters}
+              color="error"
+            >
+              {t("common.clearFilters") || "Clear Filters"}
+            </Button>
+          )}
+        </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ mb: 3 }}>
-        {loading ? (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <CircularProgress />
-          </Box>
-        ) : filteredUsers?.length === 0 ? (
-          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
-            <Typography>{t("admin.noUsersFound")}</Typography>
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: "grey.100" }}>
-                <TableCell align="center">{t("admin.users.id")}</TableCell>
-                <TableCell align="center">{t("admin.users.name")}</TableCell>
-                <TableCell align="center">{t("admin.users.email")}</TableCell>
-                <TableCell align="center">{t("admin.users.role")}</TableCell>
-                <TableCell align="center">
-                  {t("common.created") || "Created"}
-                </TableCell>
-                {canManage && (
-                  <TableCell align="center">{t("admin.actions")}</TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell align="center">{authUser?.id}</TableCell>
-                <TableCell align="center">{authUser?.name}</TableCell>
-                <TableCell align="center">{authUser?.email}</TableCell>
-                <TableCell align="center">{authUser?.role.name}</TableCell>
-                <TableCell align="center">
-                  {new Date(authUser?.createdAt || "").toDateString()}
-                </TableCell>
-                <TableCell align="center"></TableCell>
-              </TableRow>
-              {filteredUsers
-                ?.sort((a, b) => a.id - b.id)
-                ?.map((user: AdminUser) => (
-                  <>
-                    {authUser?.id !== user.id && (
-                      <TableRow
-                        key={user.id}
-                        hover
-                        sx={{ "&:last-child td": { border: 0 } }}
-                      >
-                        <TableCell align="center">{user.id}</TableCell>
-                        <TableCell align="center">{user.name}</TableCell>
-                        <TableCell align="center">{user.email}</TableCell>
-                        <TableCell
-                          align="center"
-                          sx={{ textTransform: "capitalize" }}
-                        >
-                          {user.role.name}
-                        </TableCell>
-                        <TableCell align="center">
-                          {new Date(user.createdAt).toDateString()}
-                        </TableCell>
+        <Collapse in={showFilters}>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid>
+              <TextField
+                fullWidth
+                label={t("admin.users.name") || "Name"}
+                value={searchFilters.fullName}
+                onChange={(e) =>
+                  setSearchFilters({
+                    ...searchFilters,
+                    fullName: e.target.value,
+                  })
+                }
+                size="small"
+              />
+            </Grid>
+            <Grid>
+              <TextField
+                fullWidth
+                label={t("admin.users.email") || "Email"}
+                value={searchFilters.email}
+                onChange={(e) =>
+                  setSearchFilters({
+                    ...searchFilters,
+                    email: e.target.value,
+                  })
+                }
+                size="small"
+              />
+            </Grid>
+            <Grid>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<Search size={18} />}
+                onClick={handleSearch}
+              >
+                {t("common.search") || "Search"}
+              </Button>
+            </Grid>
+          </Grid>
+        </Collapse>
+      </Paper>
 
-                        {canManage && (
-                          <TableCell align="center">
-                            <Box>
-                              <Button
-                                size="small"
-                                startIcon={
-                                  <Edit2
-                                    className={`${
-                                      language == "ar" ? "ml-2" : ""
-                                    }`}
-                                    size={16}
-                                  />
-                                }
-                                onClick={() => openEditDialog(user)}
-                              >
-                                {t("common.edit")}
-                              </Button>
-                              <Button
-                                size="small"
-                                color="error"
-                                startIcon={
-                                  <Trash2
-                                    className={`${
-                                      language == "ar" ? "ml-2" : ""
-                                    }`}
-                                    size={16}
-                                  />
-                                }
-                                onClick={() =>
-                                  setDeleteConfirm({ open: true, id: user.id })
-                                }
-                              >
-                                {t("common.delete")}
-                              </Button>
-                            </Box>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    )}
-                  </>
-                ))}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+      <PaginatedTable
+        columns={columns}
+        data={data}
+        loading={loading}
+        meta={meta}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        emptyMessage={t("admin.noUsersFound")}
+      />
 
       {/* Create/Edit Dialog */}
       <Dialog

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -6,13 +6,6 @@ import {
   Container,
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,8 +16,10 @@ import {
   MenuItem,
   Autocomplete,
   Chip,
+  Paper,
+  Collapse,
 } from "@mui/material";
-import { Plus, Trash2, Edit2, Search, Import } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, X, Filter } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AdminAuthContext";
 import { applicationSchema } from "../../services/validation";
@@ -33,46 +28,42 @@ import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
 import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
-import {
-  Application,
-  ApplicationStatus,
-  Citizen,
-} from "../../types/entities";
+import { Application, ApplicationStatus, Citizen } from "../../types/entities";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
+import { api } from "../../services/api";
+import PaginatedTable from "../../components/admin/PaginationTable";
 
 interface ApplicationFormData {
   citizenId: number;
   status: ApplicationStatus;
   notes: string;
 }
+
+
 const applicationTypesColors: Record<string, object> = {
   PENDING: {
-    bgcolor: "rgba(255, 193, 7, 0.15)", // Amber
+    bgcolor: "rgba(255, 193, 7, 0.15)",
     color: "#FFC107",
     fontWeight: 600,
   },
-
   VERIFIED: {
-    bgcolor: "rgba(33, 150, 243, 0.15)", // Blue
+    bgcolor: "rgba(33, 150, 243, 0.15)",
     color: "#2196F3",
     fontWeight: 600,
   },
-
   APPROVED: {
-    bgcolor: "rgba(76, 175, 80, 0.15)", // Green
+    bgcolor: "rgba(76, 175, 80, 0.15)",
     color: "#4CAF50",
     fontWeight: 600,
   },
-
   REJECTED: {
-    bgcolor: "rgba(244, 67, 54, 0.15)", // Red
+    bgcolor: "rgba(244, 67, 54, 0.15)",
     color: "#F44354",
     fontWeight: 600,
   },
-
   CLOSED: {
-    bgcolor: "rgba(158, 158, 158, 0.15)", // Grey
+    bgcolor: "rgba(158, 158, 158, 0.15)",
     color: "#9E9E9E",
     fontWeight: 600,
   },
@@ -94,8 +85,30 @@ export function AdminApplicationsPage() {
     id: number | null;
   }>({ open: false, id: null });
 
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [data, setData] = useState<any>([]);
+  const [meta, setMeta] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Search filters
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFilters, setSearchFilters] = useState<any>({
+    applicationId: "",
+    fullName: "",
+    nationalId: "",
+    phone: "",
+    status: "",
+  });
+  const [activeFilters, setActiveFilters] = useState<any>({
+    applicationId: "",
+    fullName: "",
+    nationalId: "",
+    phone: "",
+    status: "",
+  });
+
   // Citizen search
-  const [search, setSearch] = useState("");
   const [citizenSearch, setCitizenSearch] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
 
@@ -115,23 +128,166 @@ export function AdminApplicationsPage() {
     },
   });
 
-  const {
-    loading,
-    data: applications,
-    setData,
-  } = useGet<Application[]>(API.admin.applications.list, {
-    immediate: true,
-  });
+  useEffect(() => {
+    fetchData(page, limit, activeFilters);
+  }, [page, limit, activeFilters]);
 
-  // const { data: locations } = useGet<Location[]>("/locations", {
-  //   immediate: true,
-  // });
+  const fetchData = async (
+    page: number,
+    limit: number,
+    filters: any
+  ) => {
+    setLoading(true);
+    try {
+      const params: any = {
+        page: page + 1,
+        limit,
+      };
+
+      // Add filters to params if they have values
+      if (filters.applicationId) {
+        params.applicationId = filters.applicationId;
+      }
+      if (filters.fullName) {
+        params.fullName = filters.fullName;
+      }
+      if (filters.nationalId) {
+        params.nationalId = filters.nationalId;
+      }
+      if (filters.phone) {
+        params.phone = filters.phone;
+      }
+      if (filters.status) {
+        params.status = filters.status;
+      }
+
+      const res = await api.get(API.admin.applications.list, { params });
+      setData(res.data.data.data);
+      setMeta(res.data.data.meta);
+    } catch (err) {
+      showError(t("error.fetchApplications"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(0);
+  };
+
+  const handleSearch = () => {
+    setActiveFilters({ ...searchFilters });
+    setPage(0);
+  };
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      applicationId: "",
+      fullName: "",
+      nationalId: "",
+      phone: "",
+      status: "",
+    };
+    setSearchFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
+    setPage(0);
+  };
+
+  const hasActiveFilters = Object.values(activeFilters).some(
+    (value) => value !== ""
+  );
+
+  const columns = [
+    {
+      id: "id",
+      label: t("admin.applications.id"),
+      align: "center" as const,
+      format: (value: number) => value,
+    },
+    {
+      id: "citizen",
+      label: t("admin.applications.citizen"),
+      align: "center" as const,
+      format: (_: any, row: Application) => row.citizen?.full_name || "----",
+    },
+    {
+      id: "status",
+      label: t("admin.applications.status"),
+      align: "center" as const,
+      format: (value: ApplicationStatus) => (
+        <Chip
+          label={value.replace("_", " ").toLowerCase()}
+          sx={{
+            ...applicationTypesColors[value],
+            textTransform: "capitalize",
+            borderRadius: "6px",
+            px: 1.5,
+            py: 0.5,
+            fontSize: "0.8rem",
+          }}
+        />
+      ),
+    },
+    {
+      id: "updatedAt",
+      label: t("admin.applications.updated"),
+      align: "center" as const,
+      format: (value: string) => new Date(value).toLocaleString(),
+    },
+    ...(canManage || canEditApplication
+      ? [
+          {
+            id: "actions",
+            label: t("admin.actions"),
+            align: "center" as const,
+            format: (_: any, row: Application) => (
+              <Box>
+                {canEditApplication && (
+                  <Button
+                    size="small"
+                    startIcon={
+                      <Edit2
+                        className={`${language == "ar" ? "ml-2" : ""}`}
+                        size={16}
+                      />
+                    }
+                    onClick={() => openEditDialog(row)}
+                  >
+                    {t("common.edit")}
+                  </Button>
+                )}
+                {canManage && (
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={
+                      <Trash2
+                        className={`${language == "ar" ? "ml-2" : ""}`}
+                        size={16}
+                      />
+                    }
+                    onClick={() => setDeleteConfirm({ open: true, id: row.id })}
+                  >
+                    {t("common.delete")}
+                  </Button>
+                )}
+              </Box>
+            ),
+          },
+        ]
+      : []),
+  ];
 
   const { loading: loadingDeleteApplication, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.applicationDeleted"));
-      setData((prev) =>
-        prev ? prev.filter((a) => a.id !== deleteConfirm.id) : prev
+      setData((prev:Application[]) =>
+        prev ? prev.filter((a:Application) => a.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
     },
@@ -145,7 +301,7 @@ export function AdminApplicationsPage() {
     execute: executeCreateApplication,
   } = usePost(API.admin.applications.create, {
     onSuccess: (data) => {
-      setData((prev) => (prev ? [data, ...prev] : [data]));
+      setData((prev:any) => (prev ? [data, ...prev] : [data]));
       showSuccess(t("success.applicationCreated"));
       setIsDialogOpen(false);
       reset();
@@ -163,7 +319,7 @@ export function AdminApplicationsPage() {
   } = usePatch({
     onSuccess: (data) => {
       setData(
-        (prev) => prev?.map((a) => (a.id === data.id ? data : a)) || prev
+        (prev:Application[]) => prev?.map((a:Application) => (a.id === data.id ? data : a)) || prev
       );
       showSuccess(t("success.applicationUpdated"));
       setIsDialogOpen(false);
@@ -181,7 +337,6 @@ export function AdminApplicationsPage() {
     { immediate: true }
   );
 
-  // Open create dialog
   const openCreateDialog = () => {
     setEditing(null);
     reset({
@@ -194,7 +349,6 @@ export function AdminApplicationsPage() {
     setIsDialogOpen(true);
   };
 
-  // Open edit dialog
   const openEditDialog = (application: Application) => {
     setEditing(application);
     reset({
@@ -207,63 +361,21 @@ export function AdminApplicationsPage() {
     setIsDialogOpen(true);
   };
 
-  // Handle submit
   const onSubmit = async (data: ApplicationFormData) => {
     if (editing) {
       executeUpdateApplication(
         API.admin.applications.update(editing.id.toString()),
-        {
-          ...data,
-        }
+        { ...data }
       );
     } else {
-      executeCreateApplication({
-        ...data,
-      });
+      executeCreateApplication({ ...data });
     }
   };
 
-  const handleExportData = () => {
-    fetch(
-      `https://backend-5549.onrender.com/api${API.admin.applications.export}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error("Server error while downloading Excel");
-        return res.blob();
-      })
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "applications.xlsx";
-        a.click();
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Failed to download Excel file");
-      });
-  };
-
-  // Handle delete
   const handleDelete = async () => {
     if (!deleteConfirm.id) return;
     execute(API.admin.applications.delete(deleteConfirm.id.toString()));
   };
-
-  const filteredApplications = applications?.filter(
-    (application) =>
-      application.id.toString().includes(search) ||
-      application.citizen?.first_name
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      application.citizen?.national_id?.includes(search)
-  );
 
   if (!canView) {
     return (
@@ -296,153 +408,172 @@ export function AdminApplicationsPage() {
           </Typography>
         </Box>
         {hasPermission(permissions.application.export) && (
-          <span className="flex justify-center items-center gap-3">
-            <Button
-              variant="contained"
-              color="inherit"
-              startIcon={
-                <Import
-                  className={`${language == "ar" ? "ml-2" : ""} `}
-                  size={20}
-                />
-              }
-              onClick={handleExportData}
-            >
-              {t("admin.applications.export")}
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={
-                <Plus
-                  className={`${language == "ar" ? "ml-2" : ""}`}
-                  size={20}
-                />
-              }
-              onClick={openCreateDialog}
-            >
-              {t("admin.applications.create")}
-            </Button>
-          </span>
+          <Button
+            variant="contained"
+            startIcon={
+              <Plus className={`${language == "ar" ? "ml-2" : ""}`} size={20} />
+            }
+            onClick={openCreateDialog}
+          >
+            {t("admin.applications.create")}
+          </Button>
         )}
       </Box>
 
-      {/* Search */}
-      <Box sx={{ mb: 3 }}>
-        <TextField
-          fullWidth
-          placeholder={t("common.searchPlaceholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: <Search size={20} style={{ marginRight: 8 }} />,
+      {/* Search/Filter Section */}
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: showFilters ? 2 : 0,
           }}
-          size="small"
-        />
-      </Box>
+        >
+          <Button
+            startIcon={<Filter size={18} className={language == "ar" ? "ml-2" :""} />}
+            onClick={() => setShowFilters(!showFilters)}
+            variant={showFilters ? "contained" : "outlined"}
+          >
+            {t("common.filters") || "Filters"}
+            {hasActiveFilters && (
+              <Chip
+                label={
+                  Object.values(activeFilters).filter((v) => v !== "").length
+                }
+                size="small"
+                sx={{ ml: 1, height: 20 }}
+              />
+            )}
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              startIcon={<X size={16} />}
+              onClick={handleClearFilters}
+              color="error"
+            >
+              {t("common.clearFilters") || "Clear Filters"}
+            </Button>
+          )}
+        </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ mb: 3 }}>
-        {loading ? (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <CircularProgress />
-          </Box>
-        ) : filteredApplications?.length === 0 ? (
-          <Box sx={{ p: 4, textAlign: "center", color: "textSecondary" }}>
-            <Typography>{t("admin.noApplicationsFound")}</Typography>
-          </Box>
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: "grey.100" }}>
-                <TableCell align="center">
-                  {t("admin.applications.id")}
-                </TableCell>
-                <TableCell align="center">
-                  {t("admin.applications.citizen")}
-                </TableCell>
-                <TableCell align="center">
-                  {t("admin.applications.status")}
-                </TableCell>
-                <TableCell align="center">
-                  {t("admin.applications.updated")}
-                </TableCell>
-                {(canManage || canEditApplication) && (
-                  <TableCell align="center">{t("admin.actions")}</TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredApplications?.map((application: Application) => (
-                <TableRow
-                  key={application.id}
-                  hover
-                  sx={{ "&:last-child td": { border: 0 } }}
-                >
-                  <TableCell align="center">{application.id}</TableCell>
-                  <TableCell align="center">
-                    {application.citizen?.full_name || "----"}
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ textTransform: "capitalize" }}
-                  >
-                    <Chip
-                      label={application.status
-                        .replace("_", " ")
-                        .toLocaleLowerCase()}
-                      sx={{
-                        ...applicationTypesColors[application.status],
-                        textTransform: "capitalize",
-                        borderRadius: "6px",
-                        px: 1.5,
-                        py: 0.5,
-                        fontSize: "0.8rem",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">
-                    {new Date(application.updatedAt).toLocaleString()}
-                  </TableCell>
+        <Collapse in={showFilters}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+              mt: 2,
+            }}
+          >
+            <TextField
+              label={t("admin.applications.id")}
+              value={searchFilters.applicationId}
+              onChange={(e) =>{
+                setSearchFilters({
+                  ...searchFilters,
+                  applicationId: e.target.value,
+                })
 
-                  {canManage && (
-                    <TableCell align="center">
-                      <Box>
-                        <Button
-                          size="small"
-                          startIcon={
-                            <Edit2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() => openEditDialog(application)}
-                        >
-                          {t("common.edit")}
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={
-                            <Trash2
-                              className={`${language == "ar" ? "ml-2" : ""}`}
-                              size={16}
-                            />
-                          }
-                          onClick={() =>
-                            setDeleteConfirm({ open: true, id: application.id })
-                          }
-                        >
-                          {t("common.delete")}
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+                console.log(e.target.value);
+                
+              }}
+              size="small"
+              type="text"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              label={t("admin.citizens.fullName")}
+              value={searchFilters.fullName}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  fullName: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              label={t("admin.citizens.nationalId")}
+              value={searchFilters.nationalId}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  nationalId: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              label={t("admin.citizens.phoneNumber")}
+              value={searchFilters.phone}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  phone: e.target.value,
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            />
+
+            <TextField
+              select
+              label={t("admin.applications.status")}
+              value={searchFilters.status}
+              onChange={(e) =>
+                setSearchFilters({
+                  ...searchFilters,
+                  status: e.target.value as ApplicationStatus | "",
+                })
+              }
+              size="small"
+              sx={{ minWidth: 220, flex: "1 1 220px" }}
+            >
+              <MenuItem value={ApplicationStatus.PENDING}>
+                {t("status.submitted")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.VERIFIED}>
+                {t("status.verified")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.APPROVED}>
+                {t("status.approved")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.REJECTED}>
+                {t("status.rejected")}
+              </MenuItem>
+              <MenuItem value={ApplicationStatus.CLOSED}>
+                {t("status.closed")}
+              </MenuItem>
+            </TextField>
+
+            <Button
+              variant="contained"
+              startIcon={<Search size={18} />}
+              onClick={handleSearch}
+              sx={{ minWidth: 180, flex: "1 1 180px" }}
+            >
+              {t("common.search")}
+            </Button>
+          </Box>
+        </Collapse>
+      </Paper>
+
+      <PaginatedTable
+        columns={columns}
+        data={data}
+        loading={loading}
+        meta={meta}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        emptyMessage={t("admin.noApplicationsFound")}
+      />
 
       {/* Create/Edit Dialog */}
       <Dialog
@@ -458,7 +589,6 @@ export function AdminApplicationsPage() {
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Stack spacing={3}>
-            {/* Citizen Search Autocomplete */}
             {editing ? (
               <TextField
                 label={t("admin.applications.citizen")}
@@ -508,7 +638,6 @@ export function AdminApplicationsPage() {
               />
             )}
 
-            {/* Status Select */}
             <FormTextField
               control={control}
               name="status"
@@ -532,7 +661,6 @@ export function AdminApplicationsPage() {
               </MenuItem>
             </FormTextField>
 
-            {/* Notes */}
             <FormTextField
               control={control}
               name="notes"

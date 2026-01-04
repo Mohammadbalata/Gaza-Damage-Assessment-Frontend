@@ -66,8 +66,10 @@ export const authSlice = createSlice({
       state.isAuthenticated = false;
       state.nationalId = "";
       state.password = "";
+      state.citizenInfo = {};
       localStorage.removeItem("citizen_user");
       localStorage.removeItem("token");
+      localStorage.removeItem("citizenInfo");
     },
     setCitizenInfo: (state, action) => {
       state.citizenInfo = action.payload;
@@ -85,6 +87,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
       state.nationalId = action.payload.nationalId;
       state.password = action.payload.password;
+      state.citizenInfo = action.payload.citizenInfo;
     });
     builder.addCase(signIn.rejected, (state, action) => {
       state.loading = false;
@@ -104,6 +107,10 @@ export const authSlice = createSlice({
       state.messageSuccess = action.payload.data.message;
       state.verificationQuestion = action.payload.data.data.questions;
       state.familyMembersNumber = action.payload.data.data.familyMembersNumber;
+      // If signup returns user info, update it
+      if (action.payload.citizenInfo) {
+        state.citizenInfo = action.payload.citizenInfo;
+      }
     });
     builder.addCase(signUp.rejected, (state, action) => {
       state.loading = false;
@@ -131,9 +138,17 @@ export const signIn = createAsyncThunk(
       const extraData = res.data?.data?.user?.application?.extraData;
       const locations = res.data.data.user.application?.locations;
       const token = res.data?.data?.token;
+
+      // Extract and save citizenInfo
+      const citizenInfo = res.data?.data?.user || {};
+
       if (token) {
         localStorage.setItem("token", token);
       }
+
+      // Persist citizenInfo for EditProfile consistency
+      localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
+
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
@@ -148,6 +163,7 @@ export const signIn = createAsyncThunk(
         family_name: res.data?.data?.user?.family_name || "User",
         extraData,
         locations,
+        citizenInfo, // Include in payload for reducer
       };
 
       localStorage.setItem("citizen_user", JSON.stringify(userProfile));
@@ -172,8 +188,16 @@ export const signUp = createAsyncThunk(
           payload.formData
         );
         const token = res.data?.data?.token;
+
+        // Try to extract citizenInfo from response if available
+        let citizenInfo = null;
+        if (res.data?.data?.user) {
+          citizenInfo = res.data.data.user;
+          localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
+        }
+
         console.log(res.data);
-        return { payload, data: res.data, token };
+        return { payload, data: res.data, token, citizenInfo };
       } catch (err: any) {
         console.log(err);
         return rejectWithValue(err.response?.data?.message || "Sign up failed");

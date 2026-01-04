@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
 import AvatarEditOverlay from "../../components/AvatarEditOverlay";
@@ -54,6 +54,7 @@ const EditProfilePage = () => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<EditProfileForm>({
     defaultValues: {
@@ -62,7 +63,7 @@ const EditProfilePage = () => {
       grandfather_name: citizenInfo?.grandfather_name,
       family_name: citizenInfo?.family_name,
       mother_name: citizenInfo?.mother_name,
-      family_members_number: citizenInfo?.family_members_number,
+      // family_members_number: Number(citizenInfo?.family_members_number),
       whatsapp_number: citizenInfo?.whatsapp_number,
       place_of_birth: citizenInfo?.place_of_birth,
       country: citizenInfo?.country,
@@ -75,6 +76,28 @@ const EditProfilePage = () => {
   });
   const selectedGender = watch("gender");
   const selectedMaritalStatus = watch("marital_status");
+
+  // Reactively update form when citizenInfo changes (e.g. initial load)
+  useEffect(() => {
+    if (citizenInfo) {
+      reset({
+        first_name: citizenInfo?.first_name,
+        father_name: citizenInfo?.father_name,
+        grandfather_name: citizenInfo?.grandfather_name,
+        family_name: citizenInfo?.family_name,
+        mother_name: citizenInfo?.mother_name,
+        // family_members_number: Number(citizenInfo?.family_members_number),
+        whatsapp_number: citizenInfo?.whatsapp_number,
+        place_of_birth: citizenInfo?.place_of_birth,
+        country: citizenInfo?.country,
+        date_of_birth: citizenInfo?.date_of_birth
+          ? new Date(citizenInfo.date_of_birth).toISOString().split("T")[0]
+          : "",
+        gender: citizenInfo?.gender,
+        marital_status: citizenInfo?.marital_status,
+      });
+    }
+  }, [citizenInfo, reset]);
 
   // Handle avatar file selection
   const handleAvatarChange = (file: File) => {
@@ -89,42 +112,30 @@ const EditProfilePage = () => {
     setIsLoading(true);
 
     try {
-      let requestData: FormData | EditProfileForm;
-      let headers: any = {
-        Authorization: `Bearer ${token}`,
-      };
+      const headers = { Authorization: `Bearer ${token}` };
+      const formData = new FormData();
 
-      // If avatar changed, use FormData
-      if (newAvatar) {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
-            formData.append(key, String(value));
-          }
-        });
-        formData.append("avatar", newAvatar);
-        requestData = formData;
-      } else {
-        // No avatar change, use regular JSON
-        requestData = data;
-      }
-      const res = await axiosClient.put(
-        "/citizen/update-profile",
-        requestData,
-        {
-          headers,
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value.toString());
         }
-      );
+      });
+
+      if (newAvatar) {
+        formData.append("avatar", newAvatar);
+      }
+
+      const res = await axiosClient.put("/citizen/update-profile", formData, {
+        headers,
+      });
 
       if (res) {
         setIsLoading(false);
         enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
-        localStorage.setItem("citizenInfo", JSON.stringify(res.data.data));
-        dispatch(
-          setCitizenInfo(
-            JSON.parse(localStorage.getItem("citizenInfo") || "{}")
-          )
-        );
+
+        const updatedData = res.data.data;
+        dispatch(setCitizenInfo(updatedData));
+        localStorage.setItem("citizenInfo", JSON.stringify(updatedData));
       }
     } catch (err: any) {
       setIsLoading(false);
@@ -285,13 +296,14 @@ const EditProfilePage = () => {
                 </FormHelperText>
               )}
 
-              <TextField
+              {/* <TextField
                 type="number"
                 label={t("form.familyMembersNumber")}
                 fullWidth
                 {...register("family_members_number", {
                   required: t("validation.required"),
                   min: { value: 1, message: t("validation.minOne") },
+                  valueAsNumber: true,
                 })}
                 error={!!errors.family_members_number}
                 InputProps={{ sx: { height: 56 } }}
@@ -300,7 +312,7 @@ const EditProfilePage = () => {
                 <FormHelperText error>
                   {errors.family_members_number.message}
                 </FormHelperText>
-              )}
+              )} */}
 
               <TextField
                 label={t("form.whatsappNumber")}

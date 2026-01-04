@@ -49,6 +49,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.other": "other",
     "common.savedSuccessfully": "data saved Successfully",
     "common.lettersRemaining": "letters remaining",
+    "common.filters": "Filters",
+    "common.all":"All",
+
     "common.single": "single",
     "common.married": "married",
     "common.divorced": "divorced",
@@ -444,6 +447,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.locations.current": "Current",
     "admin.locations.permissionMessage":
       "You do not have permission to view locations.",
+    "admin.locations.applicationId": "Application Number",
 
     "admin.applications.title": "Admin Applications",
     "admin.applications.noLocation": "No Location",
@@ -588,6 +592,25 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "This page allows you to edit and update your personal information",
     "citizen.address": "Address",
     "citizen.addedDate": "Added Date",
+    "citizen.editCurrentLocation": "Edit Current Location",
+    "citizen.updateLocationSuccess": "Location updated successfully",
+    "citizen.updateLocationError": "Failed to update location",
+    "citizen.selectNewLocation": "Select New Location",
+
+    // Reset Password
+    "auth.resetPasswordTitle": "Reset Password",
+    "auth.newPassword": "New Password",
+    "auth.confirmNewPassword": "Confirm New Password",
+    "auth.passwordResetSuccess": "Password reset successfully!",
+    "auth.redirectingToLogin": "Redirecting to login...",
+    "auth.invalidResetToken": "Invalid or expired reset link",
+    "auth.emailNotFound": "Email not found",
+    "auth.resetEmailSent": "Reset email sent successfully",
+    "auth.enterNewPassword": "Enter your new password",
+    "auth.passwordStrength": "Password Strength",
+    "auth.passwordRequirements":
+      "Password must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character",
+
     // Not Found
     "notFound.title": "Page Not Found",
     "notFound.description":
@@ -655,7 +678,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.divorced": "مطلق/ ـة",
     "common.widowed": "أرملة",
     "common.lettersRemaining": "عدد الحروف المتبقية",
-
+    "common.filters": "الفلاتر",
+    "common.all":"الكل",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -1033,6 +1057,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.locations.temporary": "مؤقت",
     "admin.locations.current": "حالي",
     "admin.locations.permissionMessage": "لا تملك صلاحية عرض المواقع.",
+    "admin.locations.applicationId": "رقم الطلب",
 
     "admin.applications.title": "طلبات المسؤول",
     "admin.applications.subtitle":
@@ -1170,6 +1195,25 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "تتيح لك هذه الصفحة تعديل وتحديث بياناتك الشخصية",
     "citizen.address": "العنوان",
     "citizen.addedDate": "تاريخ الإضافة",
+    "citizen.editCurrentLocation": "تعديل الموقع الحالي",
+    "citizen.updateLocationSuccess": "تم تحديث الموقع بنجاح",
+    "citizen.updateLocationError": "فشل تحديث الموقع",
+    "citizen.selectNewLocation": "اختر الموقع الجديد",
+
+    // Reset Password
+    "auth.resetPasswordTitle": "إعادة تعيين كلمة المرور",
+    "auth.newPassword": "كلمة المرور الجديدة",
+    "auth.confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "auth.passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح!",
+    "auth.redirectingToLogin": "جاري التحويل إلى صفحة تسجيل الدخول...",
+    "auth.invalidResetToken": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية",
+    "auth.emailNotFound": "البريد الإلكتروني غير موجود",
+    "auth.resetEmailSent": "تم إرسال رسالة إعادة التعيين بنجاح",
+    "auth.enterNewPassword": "أدخل كلمة المرور الجديدة",
+    "auth.passwordStrength": "قوة كلمة المرور",
+    "auth.passwordRequirements":
+      "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص",
+
     // Not Found
     "notFound.title": "الصفحة غير موجودة",
     "notFound.description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
