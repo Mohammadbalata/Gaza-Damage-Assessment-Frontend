@@ -56,6 +56,7 @@ import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
 import SelectLocations, { locations } from "../components/SelectLocations";
+import { useAppSelector } from "../hooks/redux";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -69,7 +70,7 @@ const MyApplications = () => {
 
   // Dialog State
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const {} = useForm<any>({
     defaultValues: {
@@ -89,6 +90,7 @@ const MyApplications = () => {
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const theme = useTheme();
+  const { previosLocation } = useAppSelector((state) => state.location);
 
   // usePost for updating current location
   const { loading: locationLoading, execute: updateLocation } = usePost(
@@ -269,7 +271,12 @@ const MyApplications = () => {
       });
     }
   };
-
+  // useEffect(() => {
+  //   console.log(locationPosition)
+  //   console.log(locationAddress)
+  //   console.log(locationNeighborhood)
+  //   console.log(selectedApplication)
+  // }, [selectedApplication]);
   if (loading) {
     return (
       <Box
@@ -528,16 +535,13 @@ const MyApplications = () => {
             }}
           >
             {filteredApplications.map((app: any, index: number) => (
-              <>
-                <ApplicationCard
-                  key={app.id || index}
-                  index={index}
-                  application={app}
-                  onAction={handleAction}
-                  onDownloadPdf={handleDownloadAppPdf}
-                />
-                {console.log('app',app)}
-              </>
+              <ApplicationCard
+                key={app.id || index}
+                index={index}
+                application={app}
+                onAction={handleAction}
+                onDownloadPdf={handleDownloadAppPdf}
+              />
             ))}
           </Box>
         )}
@@ -556,7 +560,14 @@ const MyApplications = () => {
               onClose={handleDialogClose}
               readOnly={isReadOnly}
               initialData={selectedApplication}
-              location={null}
+              location={{
+                position: [
+                  selectedApplication?.location?.latitude,
+                  selectedApplication.location.longitude,
+                ],
+                address: `${selectedApplication.location.address}`,
+                neighborhood: `${selectedApplication.location.neighborhood}`,
+              }}
               onSuccess={refreshApplications}
             />
           )}
@@ -753,8 +764,8 @@ const MyApplications = () => {
                       {t("map.coordinates")}
                     </Typography>
                     <Typography variant="body2" fontWeight="medium" dir="ltr">
-                      {locationPosition[0].toFixed(6)},{" "}
-                      {locationPosition[1].toFixed(6)}
+                      {locationPosition[0]?.toFixed(6)},{" "}
+                      {locationPosition[1]?.toFixed(6)}
                     </Typography>
                   </Box>
                   <Box flex={1}>

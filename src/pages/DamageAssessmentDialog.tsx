@@ -123,6 +123,7 @@ const DamageAssessmentDialog = ({
           );
         }
       }
+      // console.log("initialData",initialData)
     }
   }, [initialData, dispatch, setValue]);
 
@@ -149,13 +150,14 @@ const DamageAssessmentDialog = ({
 
     // Safety check for numeric values
     if (application.latitude !== undefined && application.latitude !== null) {
-      formData.append("latitude", application.latitude.toString());
+      formData.append("latitude", application.latitude);
       // Also send as nested location object in case backend expects it
-      formData.append("location[latitude]", application.latitude.toString());
+      // formData.append("location[latitude]", application.latitude.toString());
+      console.log("latitude", application.latitude);
     }
     if (application.longitude !== undefined && application.longitude !== null) {
-      formData.append("longitude", application.longitude.toString());
-      formData.append("location[longitude]", application.longitude.toString());
+      formData.append("longitude", application.longitude);
+      // formData.append("location[longitude]", application.longitude.toString());
     }
 
     const address = application?.address || "";
@@ -209,7 +211,7 @@ const DamageAssessmentDialog = ({
           },
         },
       };
-      console.log("final payload", data);
+      // console.log("final payload", data);
       return data;
     } else if (formdata.buildingType === "tower") {
       const data = {
@@ -222,15 +224,15 @@ const DamageAssessmentDialog = ({
           },
         },
       };
-      console.log("into tower");
-      console.log("final payload", data);
+      // console.log("into tower");
+      // console.log("final payload", data);
       return data;
     }
   };
 
   const onSubmit = async (formdata: any) => {
     let data = formdata;
-    console.log(data);
+    // console.log(data);
     if (data.buildingType === "ResidentialBuilding") {
       data = reBuildData(data);
     } else if (data.buildingType === "tower") {
@@ -289,6 +291,9 @@ const DamageAssessmentDialog = ({
       console.log(application);
       const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
+
+      const obj = Object.fromEntries(formData.entries());
+      console.log(obj);
 
       if (initialData?.id) {
         // Update existing application
