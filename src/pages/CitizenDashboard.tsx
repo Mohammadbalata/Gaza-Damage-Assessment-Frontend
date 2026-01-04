@@ -38,13 +38,16 @@ const CitizenDashboard: React.FC = () => {
   // Get user info from Redux store
   const authState: any = useAppSelector((state) => state.auth);
   const citizenInfo = authState.citizenInfo;
-  const citizenName = authState.user?.first_name
-    ? ` ${authState.user?.first_name || ""}`.trim()
-    : authState.nationalId;
+  // const citizenName = authState.user?.first_name
+  //   ? ` ${authState.user?.first_name || ""}`.trim()
+  //   : authState.nationalId;
 
   // Get avatar URL from citizenInfo (can be from API or local upload)
   const avatarUrl = citizenInfo?.avatar || null;
 
+  // Get citizenFirst_name from citizenInfo
+  const citizenName = citizenInfo?.first_name || "";
+  console.log(authState);
   /**
    * Handle logout - clears auth state and redirects to sign in
    */

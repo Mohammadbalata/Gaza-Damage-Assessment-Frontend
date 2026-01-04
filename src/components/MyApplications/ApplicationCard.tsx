@@ -240,17 +240,15 @@ const ApplicationCard = ({
                   {application?.location?.neighborhood && (
                     <span> {application?.location?.neighborhood}</span>
                   )}
-
                   {buildingData?.nearestLandmark && (
-                    <span> | {buildingData?.nearestLandmark}</span>
+                    <span> - {buildingData?.nearestLandmark}</span>
                   )}
-
                   {buildingData?.nameOfStreet && (
-                    <span> | {buildingData?.nameOfStreet}</span>
+                    <span> - {buildingData?.nameOfStreet}</span>
                   )}
 
-                  {application?.location?.house_number && (
-                    <span> | {application.location.house_number}</span>
+                  {buildingData?.buildingNumber && (
+                    <span> - {buildingData?.buildingNumber}</span>
                   )}
                 </Typography>
               </Typography>
