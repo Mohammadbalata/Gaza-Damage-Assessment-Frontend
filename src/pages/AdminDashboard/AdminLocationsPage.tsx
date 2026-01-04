@@ -17,7 +17,6 @@ import {
   Stack,
   MenuItem,
   Link as MuiLink,
-  Autocomplete,
   Collapse,
 } from "@mui/material";
 import { Plus, Trash2, Edit2, Search, Filter, X } from "lucide-react";
@@ -31,13 +30,14 @@ import { FormTextField } from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useDelete, usePatch, usePost } from "../../hooks/api/useApi";
 import MapContainer from "../../components/MapContainer";
 import { locationSchema } from "../../services/validation";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
 import PaginatedTable from "../../components/admin/PaginationTable";
 import { api } from "../../services/api";
+import DebounceSearchField from "../../components/admin/DebounceSearchField";
 
 // Fix default marker icons for Leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -90,8 +90,8 @@ export function AdminLocationsPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
-  const [citizenSearch, setCitizenSearch] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
+  const [selectedValue, setSelectedValue] = useState<any>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
@@ -152,7 +152,6 @@ export function AdminLocationsPage() {
     control,
     handleSubmit,
     reset,
-    setValue,
     formState: { isSubmitting },
   } = useForm<LocationFormData>({
     resolver: yupResolver(
@@ -347,7 +346,7 @@ export function AdminLocationsPage() {
   const { loading: loadingDeleteLocation, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.locationDeleted"));
-      setData((prev:Location[]) =>
+      setData((prev: Location[]) =>
         prev ? prev.filter((l) => l.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
@@ -357,17 +356,10 @@ export function AdminLocationsPage() {
     },
   });
 
-  const { data: options, loading: citizenLoading } = useGet(
-    API.admin.citizens.list,
-    { immediate: true }
-  );
-
-  const citizenOptions = options?.data
-
   const { loading: loadingCreateLocation, execute: executeCreateLocation } =
     usePost(API.admin.locations.create, {
       onSuccess: (data) => {
-        setData((prev:Location[]) => (prev ? [data, ...prev] : [data]));
+        setData((prev: Location[]) => (prev ? [data, ...prev] : [data]));
         showSuccess(t("success.locationCreated"));
         setIsDialogOpen(false);
         reset();
@@ -381,7 +373,8 @@ export function AdminLocationsPage() {
     usePatch({
       onSuccess: (data) => {
         setData(
-          (prev:Location[]) => prev?.map((l) => (l.id === data.id ? data : l)) || prev
+          (prev: Location[]) =>
+            prev?.map((l) => (l.id === data.id ? data : l)) || prev
         );
         showSuccess(t("success.locationUpdated"));
         setIsDialogOpen(false);
@@ -411,7 +404,6 @@ export function AdminLocationsPage() {
     setEditing(null);
     setPosition(null);
     setSelectedCitizen(null);
-    setCitizenSearch("");
     reset({
       type: LocationType.CURRENT,
       notes: "",
@@ -423,11 +415,7 @@ export function AdminLocationsPage() {
   const openEditDialog = (location: Location) => {
     setEditing(location);
     setPosition([location?.latitude || 0, location?.longitude || 0]);
-    setSelectedCitizen(
-      citizenOptions.filter(
-        (c: Citizen) => c.id === location?.citizen?.id
-      )[0] || null
-    );
+    setSelectedCitizen(location.citizen || null);
     reset({
       type: location.type,
       notes: location.notes || "",
@@ -438,13 +426,14 @@ export function AdminLocationsPage() {
 
   const onSubmit = async (data: LocationFormData & { citizenId?: number }) => {
     const payload = {
-      citizenId: editing ? data.citizenId : selectedCitizen?.id,
+      citizenId: editing ? data.citizenId : selectedValue,
       type: data.type,
       address: address || null,
       latitude: position ? position[0].toString() : null,
       longitude: position ? position[1].toString() : null,
       notes: data.notes || null,
     };
+
     if (editing) {
       executeUpdateLocation(
         API.admin.locations.update(editing.id.toString()),
@@ -669,44 +658,11 @@ export function AdminLocationsPage() {
                 fullWidth
               />
             ) : (
-              <Autocomplete
-                options={citizenOptions}
-                getOptionLabel={(option) =>
-                  `${option.full_name || option.first_name || ""} (${
-                    option.national_id
-                  })`
-                }
-                loading={citizenLoading}
-                value={selectedCitizen}
-                onChange={(_, newValue) => {
-                  setSelectedCitizen(newValue);
-                  setValue("citizenId", newValue?.id || 0);
-                }}
-                inputValue={citizenSearch}
-                onInputChange={(_, newInputValue) => {
-                  setCitizenSearch(newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={t("admin.applications.citizen")}
-                    placeholder={
-                      t("admin.applications.searchCitizenPlaceholder") ||
-                      "Search by name or national ID"
-                    }
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {citizenLoading && (
-                            <CircularProgress color="inherit" size={20} />
-                          )}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
+              <DebounceSearchField
+                control={control}
+                label={t("admin.citizens.fullName")}
+                placeholder={t("common.search")}
+                onSelect={(id) => setSelectedValue(id)}
               />
             )}
 
