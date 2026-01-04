@@ -1,9 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import WebMap from "@arcgis/core/WebMap";
-import MapView from "@arcgis/core/views/MapView";
-import Graphic from "@arcgis/core/Graphic";
-import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
-import "@arcgis/core/assets/esri/themes/light/main.css";
+import { CircularProgress, Box } from "@mui/material";
 import FormDialog from "./FormDialog";
 
 interface ArcGISMapContainerProps {
@@ -19,6 +15,14 @@ interface ArcGISMapContainerProps {
   webmapId?: string; // ArcGIS WebMap ID (optional)
 }
 
+// Extend Window interface to include esri
+declare global {
+  interface Window {
+    require: any;
+    esri: any;
+  }
+}
+
 const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   center,
   zoom = 13,
@@ -32,85 +36,205 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   webmapId = "904af244856c476d809250d2604d9db0", // default WebMap
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [view, setView] = useState<MapView | null>(null);
+  const [, setView] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const graphicsLayerRef = useRef<GraphicsLayer | null>(null);
+  const graphicsLayerRef = useRef<any>(null);
+  const viewRef = useRef<any>(null);
 
-  // initialize map
+  // initialize map with WebMap ID using CDN
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const webmap = new WebMap({
-      portalItem: { id: webmapId },
-    });
+    setLoading(true);
+    let isMounted = true;
 
-    const viewInstance = new MapView({
-      container: mapRef.current,
-      map: webmap,
-      center: center,
-      zoom: zoom,
-    });
+    // Check if ArcGIS API is loaded
+    if (!window.require) {
+      console.error("ArcGIS API not loaded. Make sure to include the script in your index.html");
+      setLoading(false);
+      return;
+    }
 
-    // create a graphics layer for marker
-    const graphicsLayer = new GraphicsLayer();
-    webmap.add(graphicsLayer);
-    graphicsLayerRef.current = graphicsLayer;
+    // Load ArcGIS modules from CDN
+    window.require([
+      "esri/WebMap",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer"
+    ], (WebMap: any, MapView: any, Graphic: any, GraphicsLayer: any) => {
+      if (!isMounted || !mapRef.current) return;
 
-    // click event for placing marker
-    viewInstance.on("click", (evt) => {
-      const { longitude, latitude } = evt.mapPoint;
-      const pos: [number, number] = [longitude, latitude];
-
-      // set marker position
-      setMarkerPosition?.(pos);
-      setOpenDialog(true);
-
-      // add marker graphic
-      graphicsLayer.removeAll();
-      const pointGraphic = new Graphic({
-        geometry: { type: "point", longitude, latitude },
-        symbol: {
-          type: "simple-marker",
-          color: "red",
-          size: 12,
-          outline: { color: "white", width: 1 },
-        },
+      const webmap = new WebMap({
+        portalItem: { id: webmapId },
+        basemap: "satellite"
       });
-      graphicsLayer.add(pointGraphic);
 
-      // reset address if needed
-      setAddress?.("");
+      const viewInstance = new MapView({
+        container: mapRef.current,
+        map: webmap,
+        center: center,
+        zoom: zoom,
+      });
+
+      viewRef.current = viewInstance;
+
+      // Wait for webmap to load before adding graphics layer
+      webmap.when(() => {
+        if (!isMounted) return;
+        
+        // create a graphics layer for marker
+        const graphicsLayer = new GraphicsLayer();
+        webmap.add(graphicsLayer);
+        graphicsLayerRef.current = graphicsLayer;
+      });
+
+      // click event for placing marker
+      viewInstance.on("click", (evt: any) => {
+        const { longitude, latitude } = evt.mapPoint;
+        const pos: [number, number] = [longitude, latitude];
+
+        // set marker position
+        if (setMarkerPosition) {
+          setMarkerPosition(pos);
+          setOpenDialog(true);
+        }
+
+        // add marker graphic with more visible styling
+        if (graphicsLayerRef.current) {
+          graphicsLayerRef.current.removeAll();
+          const pointGraphic = new Graphic({
+            geometry: { 
+              type: "point", 
+              longitude, 
+              latitude 
+            },
+            symbol: {
+              type: "simple-marker",
+              color: [226, 119, 40], // Orange color
+              size: 16,
+              outline: { 
+                color: [255, 255, 255], 
+                width: 3 
+              },
+            },
+          });
+          graphicsLayerRef.current.add(pointGraphic);
+        }
+
+        // reset address when new marker is placed
+        if (setAddress) {
+          setAddress("");
+        }
+      });
+
+      // Wait for view to be ready
+      viewInstance.when(() => {
+        if (!isMounted) return;
+        setView(viewInstance);
+        setLoading(false);
+      }).catch((error: any) => {
+        console.error("Error loading map:", error);
+        if (isMounted) setLoading(false);
+      });
     });
-
-    setView(viewInstance);
 
     return () => {
-      viewInstance.destroy();
+      isMounted = false;
+      if (viewRef.current) {
+        viewRef.current.destroy();
+        viewRef.current = null;
+      }
     };
-  }, [mapRef]);
+  }, [webmapId]);
+
+  // update view center when center prop changes
+  useEffect(() => {
+    if (viewRef.current && !loading) {
+      viewRef.current.goTo({ 
+        center: center, 
+        zoom: zoom 
+      }, {
+        duration: 800 // smooth animation
+      }).catch((error: any) => {
+        console.log(error);
+        
+        console.log("Navigation cancelled or failed");
+      });
+    }
+  }, [center, zoom, loading]);
 
   // update marker if markerPosition changes externally
   useEffect(() => {
-    if (!markerPosition || !graphicsLayerRef.current) return;
-    graphicsLayerRef.current.removeAll();
-    const [longitude, latitude] = markerPosition;
-    const pointGraphic = new Graphic({
-      geometry: { type: "point", longitude, latitude },
-      symbol: {
-        type: "simple-marker",
-        color: "red",
-        size: 12,
-        outline: { color: "white", width: 1 },
-      },
-    });
-    graphicsLayerRef.current.add(pointGraphic);
+    if (!markerPosition || !graphicsLayerRef.current) {
+      // Clear marker if position is null
+      if (!markerPosition && graphicsLayerRef.current) {
+        graphicsLayerRef.current.removeAll();
+      }
+      return;
+    }
 
-    // pan to marker
-    view?.goTo({ center: markerPosition, zoom });
-  }, [markerPosition]);
+    // Load Graphic module to create marker
+    if (!window.require) return;
+
+    window.require(["esri/Graphic"], (Graphic: any) => {
+      if (graphicsLayerRef.current) {
+        graphicsLayerRef.current.removeAll();
+        const [longitude, latitude] = markerPosition;
+        const pointGraphic = new Graphic({
+          geometry: { 
+            type: "point", 
+            longitude, 
+            latitude 
+          },
+          symbol: {
+            type: "simple-marker",
+            color: [226, 119, 40], // Orange color
+            size: 16,
+            outline: { 
+              color: [255, 255, 255], 
+              width: 3 
+            },
+          },
+        });
+        graphicsLayerRef.current.add(pointGraphic);
+
+        // pan to marker if view is ready
+        if (viewRef.current && !loading) {
+          viewRef.current.goTo({ 
+            center: markerPosition, 
+            zoom 
+          }, {
+            duration: 800
+          }).catch((error: any) => {
+            console.log(error);
+            console.log("Navigation cancelled or failed");
+          });
+        }
+      }
+    });
+  }, [markerPosition, zoom, loading]);
 
   return (
     <>
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "rgba(255, 255, 255, 0.8)",
+            zIndex: 1000,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
       <div ref={mapRef} style={{ height, width }} />
       {children}
       {location?.address && (

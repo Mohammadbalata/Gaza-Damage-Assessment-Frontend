@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
-import MapContainer from "../components/MapContainer";
 import SelectLocations, { locations } from "../components/SelectLocations";
 import {
   Container,
@@ -19,13 +18,14 @@ import { ArrowBack } from "@mui/icons-material";
 import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
+import ArcGISMapContainer from "../components/MapContainer.v2";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
 
-  // Map States
+  // Map States - Note: ArcGIS uses [lng, lat] format
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
@@ -33,33 +33,21 @@ const PreviousLocationMapPage = () => {
   // Dialog State
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Default center: Gaza City
-  const defaultCenter: [number, number] = [31.349013, 34.292483];
+  // Default center: Gaza City - [lng, lat] format for ArcGIS
+  const defaultCenter: [number, number] = [34.292483, 31.349013];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
-
-  // const { loading } = usePost(`applications/add-previous-location`, {
-  //   onSuccess: () => {
-
-  //   },
-  //   onError: (err) => {
-  //     console.log(err);
-  //   },
-  // });
 
   useEffect(() => {
     if (position) {
-      // Reverse geocoding
+      // Reverse geocoding - position is [lng, lat] from ArcGIS
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[1]}&lon=${position[0]}`
       )
         .then((res) => res.json())
         .then((data) => {
           setAddress(data.display_name);
         })
-        .catch((error: any) => {
-          // setAddress(
-          //   `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`
-          // );
+        .catch((error) => {
           setAddress("لا يوجد اتصال في الانترنت");
           console.log(error);
         });
@@ -70,12 +58,6 @@ const PreviousLocationMapPage = () => {
     setPosition(null);
     setAddress("");
   };
-
-  // const handleConfirm = () => {
-  //   if (position) {
-  //     setOpenDialog(true);
-  //   }
-  // };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -119,14 +101,14 @@ const PreviousLocationMapPage = () => {
               position: "relative",
             }}
           >
-            <MapContainer
+            <ArcGISMapContainer
               center={center}
               zoom={15}
               markerPosition={position}
               setMarkerPosition={setPosition}
               height="100%"
               width="100%"
-              {...{ setAddress }}
+              setAddress={setAddress}
               location={{ position, address, neighborhood }}
             />
           </Box>
@@ -153,7 +135,7 @@ const PreviousLocationMapPage = () => {
                     {t("map.coordinates")}
                   </Typography>
                   <Typography variant="body1" fontWeight="medium" dir="ltr">
-                    {position[0].toFixed(6)}, {position[1].toFixed(6)}
+                    {position[1].toFixed(6)}, {position[0].toFixed(6)}
                   </Typography>
                 </Box>
                 <Box flex={1}>
@@ -231,24 +213,6 @@ const PreviousLocationMapPage = () => {
                 setCenter={setCenter}
               />
             </Box>
-
-            {/* <Button
-              variant="contained"
-              color="primary"
-              onClick={handleConfirm}
-              disabled={
-                !position || !address || address === "لا يوجد اتصال في الانترنت"
-              }
-              startIcon={
-                <Check
-                  className={language === "ar" ? "ml-2" : "mr-2"}
-                  size={18}
-                />
-              }
-              sx={{ flex: 1, height: 48 }}
-            >
-              {t("common.continue")}
-            </Button> */}
           </Stack>
         </CardContent>
       </Card>
