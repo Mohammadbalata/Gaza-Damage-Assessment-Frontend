@@ -14,7 +14,6 @@ import {
   CircularProgress,
   Stack,
   MenuItem,
-  Autocomplete,
   Chip,
   Paper,
   Collapse,
@@ -27,19 +26,19 @@ import FormTextField from "../../components/Shared/FormTextField";
 import ErrorAlert from "../../components/Shared/ErrorAlert";
 import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 import { useNotification } from "../../hooks/useNotifications";
-import { useDelete, useGet, usePatch, usePost } from "../../hooks/api/useApi";
+import { useDelete, usePatch, usePost } from "../../hooks/api/useApi";
 import { Application, ApplicationStatus, Citizen } from "../../types/entities";
 import { API } from "../../constants/ApiRoutes";
 import { permissions } from "../../constants/permissions";
 import { api } from "../../services/api";
 import PaginatedTable from "../../components/admin/PaginationTable";
+import DebounceSearchField from "../../components/admin/DebounceSearchField";
 
 interface ApplicationFormData {
   citizenId: number;
   status: ApplicationStatus;
   notes: string;
 }
-
 
 const applicationTypesColors: Record<string, object> = {
   PENDING: {
@@ -77,6 +76,7 @@ export function AdminApplicationsPage() {
   const canManage = hasPermission(permissions.application.create);
   const canView = hasPermission(permissions.application.view);
   const canEditApplication = hasPermission(permissions.application.update);
+  const [selectedValue, setSelectedValue] = useState<any>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
@@ -109,7 +109,6 @@ export function AdminApplicationsPage() {
   });
 
   // Citizen search
-  const [citizenSearch, setCitizenSearch] = useState("");
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
 
   // Form
@@ -117,7 +116,6 @@ export function AdminApplicationsPage() {
     control,
     handleSubmit,
     reset,
-    setValue,
     formState: { isSubmitting },
   } = useForm<ApplicationFormData>({
     resolver: yupResolver(applicationSchema) as any,
@@ -132,11 +130,7 @@ export function AdminApplicationsPage() {
     fetchData(page, limit, activeFilters);
   }, [page, limit, activeFilters]);
 
-  const fetchData = async (
-    page: number,
-    limit: number,
-    filters: any
-  ) => {
+  const fetchData = async (page: number, limit: number, filters: any) => {
     setLoading(true);
     try {
       const params: any = {
@@ -286,8 +280,8 @@ export function AdminApplicationsPage() {
   const { loading: loadingDeleteApplication, execute } = useDelete({
     onSuccess: () => {
       showSuccess(t("success.applicationDeleted"));
-      setData((prev:Application[]) =>
-        prev ? prev.filter((a:Application) => a.id !== deleteConfirm.id) : prev
+      setData((prev: Application[]) =>
+        prev ? prev.filter((a: Application) => a.id !== deleteConfirm.id) : prev
       );
       setDeleteConfirm({ open: false, id: null });
     },
@@ -301,12 +295,11 @@ export function AdminApplicationsPage() {
     execute: executeCreateApplication,
   } = usePost(API.admin.applications.create, {
     onSuccess: (data) => {
-      setData((prev:any) => (prev ? [data, ...prev] : [data]));
+      setData((prev: Application[]) => (prev ? [data, ...prev] : [data]));
       showSuccess(t("success.applicationCreated"));
       setIsDialogOpen(false);
       reset();
       setSelectedCitizen(null);
-      setCitizenSearch("");
     },
     onError: (error) => {
       showError(error || t("error.createApplication"));
@@ -319,23 +312,18 @@ export function AdminApplicationsPage() {
   } = usePatch({
     onSuccess: (data) => {
       setData(
-        (prev:Application[]) => prev?.map((a:Application) => (a.id === data.id ? data : a)) || prev
+        (prev: Application[]) =>
+          prev?.map((a: Application) => (a.id === data.id ? data : a)) || prev
       );
       showSuccess(t("success.applicationUpdated"));
       setIsDialogOpen(false);
       reset();
       setSelectedCitizen(null);
-      setCitizenSearch("");
     },
     onError: (error) => {
       showError(error || t("error.updateApplication"));
     },
   });
-
-  const { data: citizenOptions, loading: citizenLoading } = useGet(
-    API.admin.citizens.list,
-    { immediate: true }
-  );
 
   const openCreateDialog = () => {
     setEditing(null);
@@ -345,19 +333,18 @@ export function AdminApplicationsPage() {
       notes: "",
     });
     setSelectedCitizen(null);
-    setCitizenSearch("");
     setIsDialogOpen(true);
   };
 
   const openEditDialog = (application: Application) => {
     setEditing(application);
+
     reset({
       citizenId: application.citizenId,
       status: application.status,
       notes: application.notes || "",
     });
     setSelectedCitizen(application.citizen || null);
-    setCitizenSearch(application.citizen?.full_name || "");
     setIsDialogOpen(true);
   };
 
@@ -368,7 +355,7 @@ export function AdminApplicationsPage() {
         { ...data }
       );
     } else {
-      executeCreateApplication({ ...data });
+      executeCreateApplication({ ...data, citizenId: selectedValue });
     }
   };
 
@@ -431,7 +418,9 @@ export function AdminApplicationsPage() {
           }}
         >
           <Button
-            startIcon={<Filter size={18} className={language == "ar" ? "ml-2" :""} />}
+            startIcon={
+              <Filter size={18} className={language == "ar" ? "ml-2" : ""} />
+            }
             onClick={() => setShowFilters(!showFilters)}
             variant={showFilters ? "contained" : "outlined"}
           >
@@ -470,14 +459,13 @@ export function AdminApplicationsPage() {
             <TextField
               label={t("admin.applications.id")}
               value={searchFilters.applicationId}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setSearchFilters({
                   ...searchFilters,
                   applicationId: e.target.value,
-                })
+                });
 
                 console.log(e.target.value);
-                
               }}
               size="small"
               type="text"
@@ -597,44 +585,11 @@ export function AdminApplicationsPage() {
                 fullWidth
               />
             ) : (
-              <Autocomplete
-                options={citizenOptions}
-                getOptionLabel={(option) =>
-                  `${option.full_name || option.first_name || ""} (${
-                    option.national_id
-                  })`
-                }
-                loading={citizenLoading}
-                value={selectedCitizen}
-                onChange={(_, newValue) => {
-                  setSelectedCitizen(newValue);
-                  setValue("citizenId", newValue?.id || 0);
-                }}
-                inputValue={citizenSearch}
-                onInputChange={(_, newInputValue) => {
-                  setCitizenSearch(newInputValue);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={t("admin.applications.citizen")}
-                    placeholder={
-                      t("admin.applications.searchCitizenPlaceholder") ||
-                      "Search by name or national ID"
-                    }
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {citizenLoading && (
-                            <CircularProgress color="inherit" size={20} />
-                          )}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
-                  />
-                )}
+              <DebounceSearchField
+                control={control}
+                label={t("admin.citizens.fullName")}
+                placeholder={t("common.search")}
+                onSelect={(id) => setSelectedValue(id)}
               />
             )}
 
