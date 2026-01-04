@@ -220,7 +220,7 @@ const VerificationQuestionsPage = () => {
               }
               sx={{ py: 1.5, fontWeight: 600 }}
             >
-              {loadingInput ? t("common.loading") : t("auth.verify")}
+            {loadingInput ? "" : t("auth.verify")}
             </Button>
           </Stack>
         </Stack>

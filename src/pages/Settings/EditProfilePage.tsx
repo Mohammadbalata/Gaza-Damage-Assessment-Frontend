@@ -13,14 +13,15 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import { Person, ArrowBack, Save as SaveIcon } from "@mui/icons-material";
+import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
+import AvatarEditOverlay from "../../components/AvatarEditOverlay";
 
 interface EditProfileForm {
   first_name: string;
@@ -43,12 +44,17 @@ const EditProfilePage = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Avatar state for new image
+  const [newAvatar, setNewAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
   const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<EditProfileForm>({
     defaultValues: {
@@ -57,7 +63,7 @@ const EditProfilePage = () => {
       grandfather_name: citizenInfo?.grandfather_name,
       family_name: citizenInfo?.family_name,
       mother_name: citizenInfo?.mother_name,
-      family_members_number: citizenInfo?.family_members_number,
+      // family_members_number: Number(citizenInfo?.family_members_number),
       whatsapp_number: citizenInfo?.whatsapp_number,
       place_of_birth: citizenInfo?.place_of_birth,
       country: citizenInfo?.country,
@@ -71,27 +77,68 @@ const EditProfilePage = () => {
   const selectedGender = watch("gender");
   const selectedMaritalStatus = watch("marital_status");
 
+  // Reactively update form when citizenInfo changes (e.g. initial load)
+  useEffect(() => {
+    if (citizenInfo) {
+      reset({
+        first_name: citizenInfo?.first_name,
+        father_name: citizenInfo?.father_name,
+        grandfather_name: citizenInfo?.grandfather_name,
+        family_name: citizenInfo?.family_name,
+        mother_name: citizenInfo?.mother_name,
+        // family_members_number: Number(citizenInfo?.family_members_number),
+        whatsapp_number: citizenInfo?.whatsapp_number,
+        place_of_birth: citizenInfo?.place_of_birth,
+        country: citizenInfo?.country,
+        date_of_birth: citizenInfo?.date_of_birth
+          ? new Date(citizenInfo.date_of_birth).toISOString().split("T")[0]
+          : "",
+        gender: citizenInfo?.gender,
+        marital_status: citizenInfo?.marital_status,
+      });
+    }
+  }, [citizenInfo, reset]);
+
+  // Handle avatar file selection
+  const handleAvatarChange = (file: File) => {
+    setNewAvatar(file);
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+  };
+
   const onSubmit = async (data: EditProfileForm) => {
     const token = localStorage.getItem("token");
     setIsLoading(true);
 
     try {
-      const res = await axiosClient.put("/citizen/update-profile", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const headers = { Authorization: `Bearer ${token}` };
+      const formData = new FormData();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value.toString());
+        }
       });
+
+      if (newAvatar) {
+        formData.append("avatar", newAvatar);
+      }
+
+      const res = await axiosClient.put("/citizen/update-profile", formData, {
+        headers,
+      });
+
       if (res) {
         setIsLoading(false);
         enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
-        localStorage.setItem("citizenInfo", JSON.stringify(res.data.data));
-        dispatch(
-          setCitizenInfo(
-            JSON.parse(localStorage.getItem("citizenInfo") || "{}")
-          )
-        );
+
+        const updatedData = res.data.data;
+        dispatch(setCitizenInfo(updatedData));
+        localStorage.setItem("citizenInfo", JSON.stringify(updatedData));
       }
     } catch (err: any) {
+      setIsLoading(false);
       console.error(err);
       enqueueSnackbar(
         err?.response?.data?.message || t("common.errorOccurred"),
@@ -135,19 +182,14 @@ const EditProfilePage = () => {
             alignItems="center"
             spacing={2}
             sx={{ position: "relative", zIndex: 1 }}
+            useFlexGap={true}
           >
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: "50%",
-                bgcolor: "rgba(255,255,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Person sx={{ fontSize: 40 }} />
-            </Box>
+            <AvatarEditOverlay
+              currentAvatar={citizenInfo?.avatar}
+              onAvatarChange={handleAvatarChange}
+              previewUrl={avatarPreview}
+              size={80}
+            />
 
             <Box
               sx={{
@@ -254,13 +296,14 @@ const EditProfilePage = () => {
                 </FormHelperText>
               )}
 
-              <TextField
+              {/* <TextField
                 type="number"
                 label={t("form.familyMembersNumber")}
                 fullWidth
                 {...register("family_members_number", {
                   required: t("validation.required"),
                   min: { value: 1, message: t("validation.minOne") },
+                  valueAsNumber: true,
                 })}
                 error={!!errors.family_members_number}
                 InputProps={{ sx: { height: 56 } }}
@@ -269,7 +312,7 @@ const EditProfilePage = () => {
                 <FormHelperText error>
                   {errors.family_members_number.message}
                 </FormHelperText>
-              )}
+              )} */}
 
               <TextField
                 label={t("form.whatsappNumber")}
@@ -423,7 +466,7 @@ const EditProfilePage = () => {
                     boxShadow: "0 4px 12px rgba(2, 115, 237, 0.3)",
                   }}
                 >
-                  {isLoading ? t("common.loading") : t("common.save")}
+                  {isLoading ? "" : t("common.save")}
                 </Button>
               </Stack>
             </Stack>

@@ -38,7 +38,7 @@
 //           return "حجم الصورة يجب أن لا يتجاوز 2MB";
 //         return true;
 //       },
-    
+
 //     }}
 //     render={({ field, fieldState }) => {
 //       const inputRef = useRef<HTMLInputElement | null>(null);
@@ -168,6 +168,7 @@ import CropIcon from "@mui/icons-material/Crop";
 import { useRef, useState, useEffect } from "react";
 import { ImageCropDialog } from "./ImageCropDialog";
 import classNames from "classnames";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 const MAX_SIZE = 2 * 1024 * 1024;
 
@@ -176,164 +177,225 @@ const SingleImageInput = ({
   name,
   label,
   isChangeToReviewPage,
-  previewAPI
+  previewAPI,
+  isOptional = false,
+  isRequired = false,
 }: {
   control: any;
   name: string;
-  label: string;
+  label?: string;
   isChangeToReviewPage?: boolean;
-  previewAPI?:any
-}) => (
-  <Controller
-    name={name}
-    control={control}
-    defaultValue={null}
-    rules={{
-      validate: (file: File | null) => {
-        if (!file) return true;
-        if (file.size > MAX_SIZE)
-          return "حجم الصورة يجب أن لا يتجاوز 2MB";
-        return true;
-      },
-    }}
-    render={({ field, fieldState }) => {
-      const inputRef = useRef<HTMLInputElement | null>(null);
-      const [preview, setPreview] = useState<string | null>(previewAPI);
-      const [openCrop, setOpenCrop] = useState(false);
+  previewAPI?: any;
+  isOptional?: boolean;
+  isRequired?: boolean;
+}) => {
+  const { t, language } = useLanguage();
+  const sizeErrorMessage = t("imageUpload.sizeError");
 
-      // ✅ مزامنة preview مع قيمة الفورم
-      useEffect(() => {
-        if (field.value instanceof File) {
-          const url = URL.createObjectURL(field.value);
-          setPreview(url);
+  return (
+    <Controller
+      name={name}
+      control={control}
+      defaultValue={null}
+      rules={{
+        required: isRequired ? t("common.required") : false,
+        validate: (file: File | null) => {
+          if (!file) return true;
+          if (file.size > MAX_SIZE) return sizeErrorMessage;
+          return true;
+        },
+      }}
+      render={({ field, fieldState }) => {
+        const inputRef = useRef<HTMLInputElement | null>(null);
+        const [preview, setPreview] = useState<string | null>(previewAPI);
+        const [openCrop, setOpenCrop] = useState(false);
 
-          return () => URL.revokeObjectURL(url);
-        }
+        // Sync preview with form value
+        useEffect(() => {
+          if (field.value instanceof File) {
+            const url = URL.createObjectURL(field.value);
+            setPreview(url);
 
-        if (typeof field.value === "string") {
-          // في حال كانت الصورة URL من API
-          setPreview(field.value);
-        }
+            return () => URL.revokeObjectURL(url);
+          }
 
-        if (!field.value) {
-          setPreview(null);
-        }
-      }, [field.value]);
+          if (typeof field.value === "string") {
+            // If the image is a URL from API
+            setPreview(field.value);
+          }
 
-      const setFile = (file: File | null) => {
-        if (isChangeToReviewPage) return;
-        field.onChange(file);
-      };
-      useEffect(() => {
-        console.log(preview)
-      },[])
-      return (
-        <Box>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
+          if (!field.value) {
+            setPreview(null);
+          }
+        }, [field.value]);
 
-          <Card
-            variant="outlined"
-            sx={{
-              borderStyle: "dashed",
-              textAlign: "center",
-              cursor: isChangeToReviewPage ? "default" : "pointer",
-              bgcolor: "#fafafa",
-            }}
-            className={classNames({
-              "pointer-events-none": isChangeToReviewPage,
-            })}
-            onClick={() => {
-              if (!isChangeToReviewPage) {
-                inputRef.current?.click();
-              }
-            }}
-          >
-            <CardContent className={classNames({"bg-gray-200":isChangeToReviewPage , 'hidden' : (!preview && isChangeToReviewPage)})}>
-              <input
-                ref={inputRef}
-                type="file"
-                hidden
-                accept="image/*"
-                disabled={isChangeToReviewPage}
-                onChange={(e) =>
-                  setFile(e.target.files?.[0] || null)
-                }
-              />
-
-              {preview ? (
-                <Box position="relative">
-                  <img
-                    src={preview}
-                    alt="preview"
-                    style={{
-                      maxHeight: 160,
-                      margin: "auto",
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  {!isChangeToReviewPage && (
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{ position: "absolute", top: 6, right: 6 }}
-                    >
-                      <IconButton
-                        size="small"
-                        sx={{ bgcolor: "primary.main", color: "#fff" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenCrop(true);
-                        }}
-                      >
-                        <CropIcon fontSize="small" />
-                      </IconButton>
-
-                      <IconButton
-                        size="small"
-                        sx={{ bgcolor: "error.main", color: "#fff" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          field.onChange(null);
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  )}
-                </Box>
-              ) : (
-                <>
-                  <CloudUploadIcon fontSize="large" color="action" />
-                  <Typography variant="body2" color="text.secondary">
-                    اضغط أو اسحب الصورة هنا
+        const setFile = (file: File | null) => {
+          if (isChangeToReviewPage) return;
+          field.onChange(file);
+        };
+      
+        return (
+          <Box>
+            {label && (
+              <Typography
+                variant="body2"
+                fontWeight="medium"
+                gutterBottom
+                sx={{
+                  mb: 1,
+                  textAlign: language === "ar" ? "right" : "left",
+                }}
+              >
+                {label}
+                {isRequired && (
+                  <span style={{ color: "red", marginInlineStart: "4px" }}>
+                    *
+                  </span>
+                )}
+                {isOptional && (
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ marginInlineStart: "8px" }}
+                  >
+                    ({t("common.optional")})
                   </Typography>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </Typography>
+            )}
 
-          {fieldState.error && (
-            <Typography color="error" variant="caption">
-              {fieldState.error.message}
-            </Typography>
-          )}
+            <Card
+              variant="outlined"
+              sx={{
+                borderStyle: "dashed",
+                textAlign: "center",
+                cursor: isChangeToReviewPage ? "default" : "pointer",
+                bgcolor: "#fafafa",
+                borderRadius: 2,
+                transition: "all 0.2s ease",
+                "&:hover": !isChangeToReviewPage
+                  ? {
+                      borderColor: "primary.main",
+                      bgcolor: "rgba(25, 118, 210, 0.04)",
+                    }
+                  : {},
+              }}
+              className={classNames({
+                "pointer-events-none": isChangeToReviewPage,
+              })}
+              onClick={() => {
+                if (!isChangeToReviewPage) {
+                  inputRef.current?.click();
+                }
+              }}
+            >
+              <CardContent
+                className={classNames({
+                  "bg-gray-200": isChangeToReviewPage,
+                  hidden: !preview && isChangeToReviewPage,
+                })}
+                sx={{ py: 3 }}
+              >
+                <input
+                  ref={inputRef}
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  disabled={isChangeToReviewPage}
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
 
-          {/* Crop Dialog */}
-          {preview && !isChangeToReviewPage && (
-            <ImageCropDialog
-              open={openCrop}
-              image={preview}
-              onClose={() => setOpenCrop(false)}
-              onCropComplete={(file) => field.onChange(file)}
-            />
-          )}
-        </Box>
-      );
-    }}
-  />
-);
+                {preview ? (
+                  <Box position="relative">
+                    <img
+                      src={preview}
+                      alt="preview"
+                      style={{
+                        maxHeight: 160,
+                        margin: "auto",
+                        borderRadius: 8,
+                      }}
+                    />
+
+                    {!isChangeToReviewPage && (
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          position: "absolute",
+                          top: 6,
+                          right: language === "ar" ? "auto" : 6,
+                          left: language === "ar" ? 6 : "auto",
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          sx={{ bgcolor: "primary.main", color: "#fff" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenCrop(true);
+                          }}
+                        >
+                          <CropIcon fontSize="small" />
+                        </IconButton>
+
+                        <IconButton
+                          size="small"
+                          sx={{ bgcolor: "error.main", color: "#fff" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            field.onChange(null);
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    )}
+                  </Box>
+                ) : (
+                  <Box sx={{ py: 2 }}>
+                    <CloudUploadIcon
+                      fontSize="large"
+                      color="action"
+                      sx={{ fontSize: 48, mb: 1, opacity: 0.6 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      {t("imageUpload.clickOrDrag")}
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+
+            {fieldState.error && (
+              <Typography
+                color="error"
+                variant="caption"
+                sx={{
+                  display: "block",
+                  mt: 0.5,
+                  textAlign: language === "ar" ? "right" : "left",
+                }}
+              >
+                {fieldState.error.message}
+              </Typography>
+            )}
+
+            {/* Crop Dialog */}
+            {preview && !isChangeToReviewPage && (
+              <ImageCropDialog
+                open={openCrop}
+                image={preview}
+                onClose={() => setOpenCrop(false)}
+                onCropComplete={(file) => field.onChange(file)}
+              />
+            )}
+          </Box>
+        );
+      }}
+    />
+  );
+};
 
 export default SingleImageInput;

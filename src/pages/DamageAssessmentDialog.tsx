@@ -59,6 +59,7 @@ const DamageAssessmentDialog = ({
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     control,
     formState: { errors },
@@ -73,18 +74,56 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
+  const { floors: floorsResidential, units: unitsResisential } = useAppSelector(
+    (state) => state.damage.ResidentialBuilding.MixedUsage
+  );
+  const { floors: floorsTower, units: unitsTower } = useAppSelector(
+    (state) => state.damage.tower.MixedUsage
+  );
 
+  // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
       const type = initialData?.extraData?.buildingType;
-      dispatch(setBuildingType(type));
-      setValue("buildingType", type);
-      if (initialData.extraData) {
-        setValue(type as any, initialData.extraData[type]);
 
+      // Update Redux state for consistency
+      dispatch(setBuildingType(type));
+      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // Update Form State
+      setValue("buildingType", type);
+
+      // Hydrate extra fields
+      if (initialData.extraData && initialData.extraData[type]) {
+        setValue(type as any, initialData.extraData[type]);
         dispatchByType(dispatch, type, initialData.extraData);
       }
-      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // Hydrate Images (Critical for Edit Mode)
+      if (initialData.extraData) {
+        // Hydrate images if they exist in extraData structure from API
+        // Typically API returns them at root or inside the specific building type object
+        // Adjust based on your actual API response structure
+        const specificData =
+          initialData.extraData[type] || initialData.extraData;
+
+        if (specificData?.beforeWarImage) {
+          setValue(
+            `${type}.beforeWarImage` as any,
+            specificData.beforeWarImage
+          );
+        }
+        if (specificData?.afterWarImage) {
+          setValue(`${type}.afterWarImage` as any, specificData.afterWarImage);
+        }
+        if (specificData?.ownershipDocuments) {
+          setValue(
+            `${type}.ownershipDocuments` as any,
+            specificData.ownershipDocuments
+          );
+        }
+      }
+      // console.log("initialData",initialData)
     }
   }, [initialData, dispatch, setValue]);
 
@@ -111,13 +150,14 @@ const DamageAssessmentDialog = ({
 
     // Safety check for numeric values
     if (application.latitude !== undefined && application.latitude !== null) {
-      formData.append("latitude", application.latitude.toString());
+      formData.append("latitude", application.latitude);
       // Also send as nested location object in case backend expects it
-      formData.append("location[latitude]", application.latitude.toString());
+      // formData.append("location[latitude]", application.latitude.toString());
+      console.log("latitude", application.latitude);
     }
     if (application.longitude !== undefined && application.longitude !== null) {
-      formData.append("longitude", application.longitude.toString());
-      formData.append("location[longitude]", application.longitude.toString());
+      formData.append("longitude", application.longitude);
+      // formData.append("location[longitude]", application.longitude.toString());
     }
 
     const address = application?.address || "";
@@ -159,8 +199,45 @@ const DamageAssessmentDialog = ({
 
     return formData;
   };
+  const reBuildData = (formdata: any) => {
+    if (formdata.buildingType === "ResidentialBuilding") {
+      const data = {
+        ...formdata,
+        ResidentialBuilding: {
+          ...formdata.ResidentialBuilding,
+          MixedUsage: {
+            floors: floorsResidential,
+            units: unitsResisential,
+          },
+        },
+      };
+      // console.log("final payload", data);
+      return data;
+    } else if (formdata.buildingType === "tower") {
+      const data = {
+        ...formdata,
+        tower: {
+          ...formdata.tower,
+          MixedUsage: {
+            floors: floorsTower,
+            units: unitsTower,
+          },
+        },
+      };
+      // console.log("into tower");
+      // console.log("final payload", data);
+      return data;
+    }
+  };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (formdata: any) => {
+    let data = formdata;
+    // console.log(data);
+    if (data.buildingType === "ResidentialBuilding") {
+      data = reBuildData(data);
+    } else if (data.buildingType === "tower") {
+      data = reBuildData(data);
+    }
     // Phase 1: Review
     if (!isChangeToReviewPage) {
       setIsChangeToReviewPage(true);
@@ -211,8 +288,12 @@ const DamageAssessmentDialog = ({
       dispatch(updatePreviousLocation({ previosLocation: application }));
 
       // API Call
+      console.log(application);
       const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
+
+      const obj = Object.fromEntries(formData.entries());
+      console.log(obj);
 
       if (initialData?.id) {
         // Update existing application
@@ -292,7 +373,8 @@ const DamageAssessmentDialog = ({
     }
   }, [onClose]);
 
-  const BuildingTypeView = () => {
+  // Render logic extracted to specific helper or inline
+  const renderBuildingContent = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
       damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
@@ -303,6 +385,8 @@ const DamageAssessmentDialog = ({
       control,
       errors,
       isChangeToReviewPage: isChangeToReviewPage,
+      setValue,
+      getValues,
     };
 
     switch (selected) {
@@ -376,7 +460,9 @@ const DamageAssessmentDialog = ({
                 disabled={isViewMode}
                 value={damageAssessmentInfo.buildingType}
               >
-                <option value="">{t("common.select")}</option>
+                <option value="" disabled>
+                  اختر مبنى
+                </option>
                 {buildingOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -389,10 +475,9 @@ const DamageAssessmentDialog = ({
                 </p>
               )}
             </div>
-
-            <BuildingTypeView />
+            {/* Inline Rendering to prevent remounts */}
+            {renderBuildingContent()}
           </div>
-
           {/* Actions Area */}
           {!readOnly && (
             <DialogActions sx={{ mt: 4, px: 0 }}>

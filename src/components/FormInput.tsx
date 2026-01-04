@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+  Box,
+  Typography,
+} from "@mui/material";
 import { Visibility, VisibilityOff, ContentCopy } from "@mui/icons-material";
 import { IFormInputProps } from "../interfaces/props/IFormInputProps";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function FormInput({
   id,
@@ -20,7 +27,9 @@ export default function FormInput({
   setPassword,
   setIsTouchInput,
   isNationalId,
-}: IFormInputProps) {
+  fixedLabel = false,
+}: IFormInputProps & { fixedLabel?: boolean }) {
+  const { language, t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -65,6 +74,92 @@ export default function FormInput({
   // Destructure register props to handle onChange composition and ref
   const { ref, onChange, ...restRegisterProps } = register(id, validation);
 
+  // RTL/LTR placeholder alignment
+  const isRTL = language === "ar";
+  const textAlign = isRTL ? "right" : "left";
+
+  // If using fixed label (label above input), render differently
+  if (fixedLabel) {
+    return (
+      <Box className={classNameParent}>
+        <Typography
+          variant="body2"
+          fontWeight="medium"
+          gutterBottom
+          sx={{
+            mb: 0.5,
+            textAlign: textAlign,
+          }}
+        >
+          {label}
+          {isRequired && (
+            <span style={{ color: "red", marginInlineStart: "4px" }}>*</span>
+          )}
+        </Typography>
+        <TextField
+          id={id}
+          placeholder={placeholder}
+          type={inputType}
+          fullWidth
+          variant="outlined"
+          error={!!errors[id]}
+          helperText={
+            errors[id]?.message ||
+            (copied ? t("common.copied") || "Copied to clipboard!" : "")
+          }
+          defaultValue={defaultValue}
+          inputRef={ref}
+          name={restRegisterProps.name}
+          onBlur={restRegisterProps.onBlur}
+          onChange={(e) => {
+            handleChangeInput(e);
+            onChange(e);
+          }}
+          inputProps={{
+            maxLength: maxLength,
+            style: {
+              textAlign: textAlign,
+            },
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                {type === "password" && isEye && (
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                )}
+                {isCopyIcon && (
+                  <IconButton
+                    aria-label="copy text"
+                    onClick={handleCopy}
+                    edge="end"
+                    color={copied ? "success" : "default"}
+                  >
+                    <ContentCopy fontSize="small" />
+                  </IconButton>
+                )}
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 2,
+            },
+            "& .MuiOutlinedInput-input::placeholder": {
+              textAlign: textAlign,
+            },
+          }}
+        />
+      </Box>
+    );
+  }
+
+  // Default floating label behavior
   return (
     <TextField
       id={id}
@@ -78,20 +173,24 @@ export default function FormInput({
       fullWidth
       variant="outlined"
       error={!!errors[id]}
-      helperText={errors[id]?.message || (copied ? "Copied to clipboard!" : "")}
+      helperText={
+        errors[id]?.message ||
+        (copied ? t("common.copied") || "Copied to clipboard!" : "")
+      }
       defaultValue={defaultValue}
       className={classNameParent}
       inputRef={ref}
       name={restRegisterProps.name}
       onBlur={restRegisterProps.onBlur}
       onChange={(e) => {
-        // Call our custom handler first
         handleChangeInput(e);
-        // Then call react-hook-form's handler
         onChange(e);
       }}
       inputProps={{
         maxLength: maxLength,
+        style: {
+          textAlign: textAlign,
+        },
       }}
       InputProps={{
         endAdornment: (
@@ -121,6 +220,9 @@ export default function FormInput({
       sx={{
         "& .MuiOutlinedInput-root": {
           borderRadius: 2,
+        },
+        "& .MuiOutlinedInput-input::placeholder": {
+          textAlign: textAlign,
         },
       }}
     />
