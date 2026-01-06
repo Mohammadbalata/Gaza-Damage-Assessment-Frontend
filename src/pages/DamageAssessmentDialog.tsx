@@ -81,10 +81,49 @@ const DamageAssessmentDialog = ({
     (state) => state.damage.tower.MixedUsage
   );
 
+  // Helper to extract URL from either string or {url: "..."} object
+  const getImageUrl = (image: any): string | undefined => {
+    if (!image) return undefined;
+    if (typeof image === "string") return image;
+    if (typeof image === "object" && image.url) return image.url;
+    return undefined;
+  };
+
   // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
+      // DEBUG: Log the actual structure to understand where images are
+      console.log("=== DEBUG: initialData structure ===");
+      console.log("Full initialData:", initialData);
+      console.log("initialData.extraData:", initialData.extraData);
+      console.log("Root level images:", {
+        beforeWarImage: initialData.beforeWarImage,
+        afterWarImage: initialData.afterWarImage,
+        ownershipDocuments: initialData.ownershipDocuments,
+      });
+
       const type = initialData?.extraData?.buildingType;
+      console.log("Building type:", type);
+
+      if (type && initialData.extraData?.[type]) {
+        console.log(
+          "Building type specific data:",
+          initialData.extraData[type]
+        );
+        console.log("Images in building type data:", {
+          beforeWarImage: initialData.extraData[type]?.beforeWarImage,
+          afterWarImage: initialData.extraData[type]?.afterWarImage,
+          ownershipDocuments: initialData.extraData[type]?.ownershipDocuments,
+        });
+      }
+
+      // Also check root level of extraData for images (where Supabase stores them)
+      console.log("Images at extraData root:", {
+        beforeWarImage: initialData.extraData?.beforeWarImage,
+        afterWarImage: initialData.extraData?.afterWarImage,
+        ownershipDocuments: initialData.extraData?.ownershipDocuments,
+      });
+      console.log("=== END DEBUG ===");
 
       // Update Redux state for consistency
       dispatch(setBuildingType(type));
@@ -100,30 +139,53 @@ const DamageAssessmentDialog = ({
       }
 
       // Hydrate Images (Critical for Edit Mode)
-      if (initialData.extraData) {
-        // Hydrate images if they exist in extraData structure from API
-        // Typically API returns them at root or inside the specific building type object
-        // Adjust based on your actual API response structure
-        const specificData =
-          initialData.extraData[type] || initialData.extraData;
+      // Check multiple possible locations for image URLs
+      const buildingData = initialData.extraData?.[type] || {};
+      const extraDataRoot = initialData.extraData || {};
 
-        if (specificData?.beforeWarImage) {
-          setValue(
-            `${type}.beforeWarImage` as any,
-            specificData.beforeWarImage
-          );
-        }
-        if (specificData?.afterWarImage) {
-          setValue(`${type}.afterWarImage` as any, specificData.afterWarImage);
-        }
-        if (specificData?.ownershipDocuments) {
-          setValue(
-            `${type}.ownershipDocuments` as any,
-            specificData.ownershipDocuments
-          );
-        }
+      // Try multiple locations: root level, extraData root, building-specific
+      // Also handle nested {url: "..."} structure from Supabase
+      const beforeWarImage =
+        getImageUrl(initialData.beforeWarImage) ||
+        getImageUrl(extraDataRoot.beforeWarImage) ||
+        getImageUrl(buildingData.beforeWarImage);
+
+      const afterWarImage =
+        getImageUrl(initialData.afterWarImage) ||
+        getImageUrl(extraDataRoot.afterWarImage) ||
+        getImageUrl(buildingData.afterWarImage);
+
+      // For ownership documents, handle array of objects
+      let ownershipDocuments =
+        initialData.ownershipDocuments ||
+        extraDataRoot.ownershipDocuments ||
+        buildingData.ownershipDocuments;
+
+      if (Array.isArray(ownershipDocuments)) {
+        ownershipDocuments = ownershipDocuments
+          .map((doc: any) => getImageUrl(doc) || doc)
+          .filter(Boolean);
       }
-      // console.log("initialData",initialData)
+
+      console.log("Resolved image URLs:", {
+        beforeWarImage,
+        afterWarImage,
+        ownershipDocuments,
+      });
+
+      if (beforeWarImage) {
+        setValue(`${type}.beforeWarImage` as any, beforeWarImage);
+      }
+      if (afterWarImage) {
+        setValue(`${type}.afterWarImage` as any, afterWarImage);
+      }
+      if (
+        ownershipDocuments &&
+        Array.isArray(ownershipDocuments) &&
+        ownershipDocuments.length > 0
+      ) {
+        setValue(`${type}.ownershipDocuments` as any, ownershipDocuments);
+      }
     }
   }, [initialData, dispatch, setValue]);
 

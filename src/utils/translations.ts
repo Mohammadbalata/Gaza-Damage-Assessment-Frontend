@@ -50,7 +50,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.savedSuccessfully": "data saved Successfully",
     "common.lettersRemaining": "letters remaining",
     "common.filters": "Filters",
-    "common.all":"All",
+    "common.all": "All",
 
     "common.single": "single",
     "common.married": "married",
@@ -623,6 +623,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "imageUpload.avatarOptional": "Profile Picture (Optional)",
     "imageUpload.editPhoto": "Edit photo",
     "imageUpload.tapToEdit": "Tap to edit",
+
+    // Image Gallery
+    "images.loadError": "Failed to load",
+    "images.uploaded": "Uploaded Images",
+    "images.beforeWar": "Before War Image",
+    "images.afterWar": "After War Image",
+    "images.ownershipDocs": "Ownership Documents",
+    "images.noImages": "No images uploaded",
+    "images.clickToEnlarge": "Click to enlarge",
   },
   ar: {
     // Common
@@ -679,7 +688,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.widowed": "أرملة",
     "common.lettersRemaining": "عدد الحروف المتبقية",
     "common.filters": "الفلاتر",
-    "common.all":"الكل",
+    "common.all": "الكل",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
 
@@ -862,9 +871,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.reset": "إعادة تعيين الموقع",
     "map.confirm": "تأكيد الموقع",
     "map.showonmap": "عرض على الخريطة",
-    "map.previousLocation": " حدد الممتلك المتضرر",
+    "map.previousLocation": "حدد المنشأة المتضررة",
     "map.previousLocationDescription":
-      "يرجى النقر على الخريطة لتحديد موقع ممتلكك قبل الحرب.",
+      "يرجى النقر على الخريطة لتحديد موقع منشأتك قبل الحرب.",
     "map.currentLocation": "اختر موقع النزوح / الإقامة الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
@@ -1225,5 +1234,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "imageUpload.avatarOptional": "الصورة الشخصية (اختياري)",
     "imageUpload.editPhoto": "تعديل الصورة",
     "imageUpload.tapToEdit": "اضغط للتعديل",
+
+    // Image Gallery
+    "images.loadError": "فشل التحميل",
+    "images.uploaded": "الصور المرفوعة",
+    "images.beforeWar": "صورة قبل الحرب",
+    "images.afterWar": "صورة بعد الحرب",
+    "images.ownershipDocs": "مستندات الملكية",
+    "images.noImages": "لم يتم رفع صور",
+    "images.clickToEnlarge": "اضغط للتكبير",
   },
 };
