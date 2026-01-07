@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDate } from "./helpers";
+import Logo from "../../src/assets/logo.jpg";
 
 export const generatePDFReceipt = async (data: any, t: any, language: any) => {
   const citizen = data?.citizen;
@@ -149,7 +150,7 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
     pageElement.style.color = "#333";
     pageElement.style.lineHeight = "1.8";
 
-    pageElement.innerHTML = `
+    pageElement.innerHTML = ` 
       <section>
         ${pageApps
           .map(
@@ -262,16 +263,37 @@ export const generateApplicationPDF = async (
   element.style.lineHeight = "1.8";
 
   element.innerHTML = `
-    <div style="text-align:center; margin-bottom:30px;">
+      <div style="
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:25px;
+  ">
+    <!-- LOGO -->
+    <img
+      src="${Logo}"
+      alt="Logo"
+      style="
+        height:70px;
+        object-fit:contain;
+      "
+    />
+
+    <!-- TITLES -->
+    <div style="text-align:center; flex:1;">
       <h1 style="margin:0; font-size:28px; color:#1E3A8A;">
         ${t("app.title")}
       </h1>
-      <p style="font-size:20px; font-weight:bold;">
+      <p style="font-size:20px; font-weight:bold; margin:5px 0 0;">
         ${t("common.damageRequest")}
       </p>
     </div>
 
-    <hr style="margin-bottom:30px;" />
+    <!-- EMPTY SPACE (للتوازن) -->
+    <div style="width:70px;"></div>
+  </div>
+
+  <hr style="margin-bottom:30px;" />
 
     <section>
       <h3 style="font-size:25px; color:#1E3A8A;">
