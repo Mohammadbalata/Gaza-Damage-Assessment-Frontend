@@ -124,8 +124,7 @@ const LoginPage = () => {
               variant="body2"
               color="primary.light"
               onClick={() => {
-                dispatch(setError(""));
-                navigate(`/${ROUTES.FORGOT_PASSWORD}`);
+                navigate(ROUTES.CITIZEN_FORGOT_PASSWORD);
               }}
               sx={{
                 cursor: "pointer",

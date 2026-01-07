@@ -92,38 +92,14 @@ const DamageAssessmentDialog = ({
   // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
-      // DEBUG: Log the actual structure to understand where images are
-      console.log("=== DEBUG: initialData structure ===");
-      console.log("Full initialData:", initialData);
-      console.log("initialData.extraData:", initialData.extraData);
-      console.log("Root level images:", {
-        beforeWarImage: initialData.beforeWarImage,
-        afterWarImage: initialData.afterWarImage,
-        ownershipDocuments: initialData.ownershipDocuments,
-      });
-
       const type = initialData?.extraData?.buildingType;
-      console.log("Building type:", type);
 
       if (type && initialData.extraData?.[type]) {
         console.log(
           "Building type specific data:",
           initialData.extraData[type]
         );
-        console.log("Images in building type data:", {
-          beforeWarImage: initialData.extraData[type]?.beforeWarImage,
-          afterWarImage: initialData.extraData[type]?.afterWarImage,
-          ownershipDocuments: initialData.extraData[type]?.ownershipDocuments,
-        });
       }
-
-      // Also check root level of extraData for images (where Supabase stores them)
-      console.log("Images at extraData root:", {
-        beforeWarImage: initialData.extraData?.beforeWarImage,
-        afterWarImage: initialData.extraData?.afterWarImage,
-        ownershipDocuments: initialData.extraData?.ownershipDocuments,
-      });
-      console.log("=== END DEBUG ===");
 
       // Update Redux state for consistency
       dispatch(setBuildingType(type));
@@ -167,12 +143,6 @@ const DamageAssessmentDialog = ({
           .filter(Boolean);
       }
 
-      console.log("Resolved image URLs:", {
-        beforeWarImage,
-        afterWarImage,
-        ownershipDocuments,
-      });
-
       if (beforeWarImage) {
         setValue(`${type}.beforeWarImage` as any, beforeWarImage);
       }
@@ -215,7 +185,6 @@ const DamageAssessmentDialog = ({
       formData.append("latitude", application.latitude);
       // Also send as nested location object in case backend expects it
       // formData.append("location[latitude]", application.latitude.toString());
-      console.log("latitude", application.latitude);
     }
     if (application.longitude !== undefined && application.longitude !== null) {
       formData.append("longitude", application.longitude);

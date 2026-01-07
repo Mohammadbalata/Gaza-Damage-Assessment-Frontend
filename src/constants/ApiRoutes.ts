@@ -70,6 +70,8 @@ export const API = {
       verifyQuestions: `/auth/citizen/verify-questions`,
       completeSignup: `/auth/citizen/complete-signup`,
       changePassword: `/auth/citizen/change-password`,
+      forgotPassword: `/auth/citizen/reset-password/request`,
+      resetPassword: `/auth/citizen/reset-password`,
     },
     applications: {
       list: `/citizen/applications`,
