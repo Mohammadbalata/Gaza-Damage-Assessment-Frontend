@@ -173,7 +173,7 @@ const DamageAssessmentDialog = ({
     address: data.address,
     neighborhood: data.neighborhood,
     beforeWarImage: data.beforeWarImage,
-    afterWarImage: data.beforeWarImage,
+    afterWarImage: data.afterWarImage,
     ownershipDocuments: data.ownershipDocuments,
   });
 

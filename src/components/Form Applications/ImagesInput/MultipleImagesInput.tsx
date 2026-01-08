@@ -88,7 +88,7 @@ const MultipleImagesInput = ({
 
       return (
         <Box>
-          <label className="block text-sm font-medium mb-2">{label}</label>
+          <label className="block text-sm font-medium mb-2 mr-2">{label}</label>
 
           {/* Drop Area */}
           <Card
@@ -98,6 +98,8 @@ const MultipleImagesInput = ({
               textAlign: "center",
               cursor: "pointer",
               bgcolor: "#fafafa",
+              paddingTop: 4,
+              paddingBottom: 4,
             }}
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
