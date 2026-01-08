@@ -225,6 +225,22 @@ const AdminLoginPage: React.FC = () => {
                 }}
               />
 
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: -2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  onClick={() => navigate(ROUTES.ADMIN_FORGOT_PASSWORD)}
+                  sx={{
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    textDecoration: "underline",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  {t("auth.forgotPassword")}
+                </Typography>
+              </Box>
+
               {/* Submit Button */}
               <Button
                 type="submit"

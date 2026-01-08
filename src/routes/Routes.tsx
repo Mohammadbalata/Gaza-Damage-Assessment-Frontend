@@ -17,7 +17,9 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
 import MyApplications from "../pages/MyApplications";
-import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import CitizenForgotPasswordPage from "../pages/Citizen/CitizenForgotPasswordPage";
+import CitizenResetPasswordPage from "../pages/Citizen/CitizenResetPasswordPage";
+import AdminForgotPasswordPage from "../pages/AdminDashboard/AdminForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
 import AdminLayout from "../pages/AdminDashboard/AdminLayout";
 import { adminRoutes } from "./admin.routes";
@@ -58,8 +60,10 @@ export const ROUTES: IRoutes = {
   ADMIN_DASHBOARD: "/admin",
   ADMIN_LOCATION_MAP: "admin/locations/map",
   ADMIN_RESET_PASSWORD: "/admin/reset-password",
+  ADMIN_FORGOT_PASSWORD: "/admin/forgot-password",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
-  FORGOT_PASSWORD: "auth/forgot-password",
+  CITIZEN_FORGOT_PASSWORD: "/citizen/forgot-password",
+  CITIZEN_RESET_PASSWORD: "/citizen/reset-password",
   BANK_INFORMATION: "/citizen/bank-information",
   BIOMETRIC_DATA: "/citizen/settings/biometric-data",
 };
@@ -160,9 +164,19 @@ export const routes = [
       </ProtectedRoute>
     ),
   },
+  // Citizen Password Routes
   {
-    path: ROUTES.FORGOT_PASSWORD,
-    element: <ForgotPasswordPage />,
+    path: ROUTES.CITIZEN_FORGOT_PASSWORD,
+    element: <CitizenForgotPasswordPage />,
+  },
+  {
+    path: ROUTES.CITIZEN_RESET_PASSWORD,
+    element: <CitizenResetPasswordPage />,
+  },
+  // Admin Password Routes
+  {
+    path: ROUTES.ADMIN_FORGOT_PASSWORD,
+    element: <AdminForgotPasswordPage />,
   },
   {
     path: ROUTES.ADMIN_RESET_PASSWORD,

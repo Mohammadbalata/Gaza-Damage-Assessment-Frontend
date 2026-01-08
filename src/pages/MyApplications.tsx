@@ -145,6 +145,7 @@ const MyApplications = () => {
     ? (rawData as any).applications
     : [];
   const citizen: any = rawData?.citizen;
+  console.log("rawData", rawData?.applications[1].extraData);
 
   // Filter applications
   const filteredApplications = applications.filter((app: any) => {
