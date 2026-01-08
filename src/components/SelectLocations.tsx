@@ -12,6 +12,7 @@ interface Props {
   className?: string;
   handleReset: any;
   setNeighborhood?: (name: string) => void;
+  neighborhood?: string;
 }
 
 export const locations = [
@@ -86,10 +87,12 @@ const SelectLocations = ({
   setCenter,
   className,
   setNeighborhood,
+  neighborhood
 }: Props) => {
   const handleChange = (e: SelectChangeEvent) => {
     const selected = locations.find((loc) => loc.name === e.target.value);
     if (selected) {
+      console.log('selected' , selected)
       setCenter(selected.coords);
       if (setNeighborhood) {
         setNeighborhood(selected.name);
@@ -108,7 +111,7 @@ const SelectLocations = ({
       <Select
         labelId="select-location-label"
         id="select-location"
-        defaultValue=""
+        defaultValue={neighborhood || locations[11].name}
         label={language === "ar" ? "اختر موقع" : "Select Location"}
         onChange={handleChange}
       >
