@@ -25,7 +25,7 @@ const PreviousLocationMapPage = () => {
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
 
-  // Map States - Note: ArcGIS uses [lng, lat] format
+  // Map States - Note: ArcGIS Map Component expects [lat, lng] in props
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
@@ -33,15 +33,15 @@ const PreviousLocationMapPage = () => {
   // Dialog State
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Default center: Gaza City - [lng, lat] format for ArcGIS
-  const defaultCenter: [number, number] = [34.292483, 31.349013];
+  // Default center: Gaza City - [lat, lng] format
+  const defaultCenter: [number, number] = [31.349013,34.292483];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   useEffect(() => {
     if (position) {
-      // Reverse geocoding - position is [lng, lat] from ArcGIS
+      // Reverse geocoding - position is [lat, lng]
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[1]}&lon=${position[0]}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`
       )
         .then((res) => res.json())
         .then((data) => {
@@ -135,7 +135,7 @@ const PreviousLocationMapPage = () => {
                     {t("map.coordinates")}
                   </Typography>
                   <Typography variant="body1" fontWeight="medium" dir="ltr">
-                    {position[1].toFixed(6)}, {position[0].toFixed(6)}
+                    {position[0].toFixed(6)}, {position[1].toFixed(6)}
                   </Typography>
                 </Box>
                 <Box flex={1}>
@@ -156,7 +156,7 @@ const PreviousLocationMapPage = () => {
           )}
 
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction={{ xs: "column-reverse", sm: "row" }}
             spacing={2}
             justifyContent="space-between"
             alignItems="stretch"

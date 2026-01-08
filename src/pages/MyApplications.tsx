@@ -55,7 +55,7 @@ import { formatDate } from "../utils/helpers";
 import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
-import SelectLocations, { locations } from "../components/SelectLocations";
+import SelectLocations from "../components/SelectLocations";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -84,7 +84,6 @@ const MyApplications = () => {
   >(null);
   const [locationAddress, setLocationAddress] = useState("");
   const [locationNeighborhood, setLocationNeighborhood] = useState<string>(
-    locations[11].name
   );
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
@@ -241,6 +240,7 @@ const MyApplications = () => {
         setMapCenter([lat, lng]);
       }
       setLocationAddress(citizen.current_location.address || "");
+      setLocationNeighborhood(citizen.current_location.neighborhood || "");
     } else {
       setLocationPosition(null);
       setLocationAddress("");
@@ -788,6 +788,7 @@ const MyApplications = () => {
               handleReset={handleResetLocation}
               setNeighborhood={setLocationNeighborhood}
               setCenter={setMapCenter}
+              neighborhood={locationNeighborhood}
             />
           </DialogContent>
 
@@ -800,6 +801,13 @@ const MyApplications = () => {
               borderColor: "divider",
             }}
           >
+            <Button
+              sx={{ mx: 1 }}
+              variant="outlined"
+              onClick={handleCloseLocationDialog}
+            >
+              {t("common.cancel")}
+            </Button>
             <Button
               variant="outlined"
               color="inherit"
@@ -814,13 +822,7 @@ const MyApplications = () => {
             >
               {t("map.reset")}
             </Button>
-            <Button
-              sx={{ mx: 1 }}
-              variant="outlined"
-              onClick={handleCloseLocationDialog}
-            >
-              {t("common.cancel")}
-            </Button>
+            
             <Button
               variant="contained"
               color="primary"

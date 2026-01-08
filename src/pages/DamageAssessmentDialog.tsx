@@ -360,14 +360,18 @@ const DamageAssessmentDialog = ({
       if (initialData?.id) {
         // Update existing application
         await axiosClient.put(
-          API.citizen.applications.update(initialData.id),
+          `${API.citizen.applications.update(initialData.id)}`,
           formData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
-        );
+        ).then(() => {
+          console.log('send edits on dialog form')
+        }).catch((err:any) => {
+          console.log(err)
+        })
       } else {
         // Create new application
         await axiosClient.post(`${API.citizen.locations.previous}`, formData, {

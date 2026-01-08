@@ -3,7 +3,7 @@ import { CircularProgress, Box } from "@mui/material";
 import FormDialog from "./FormDialog";
 
 interface ArcGISMapContainerProps {
-  center: [number, number]; // [lng, lat]
+  center: [number, number]; // [lat, lng]
   zoom?: number;
   markerPosition?: [number, number] | null;
   setMarkerPosition?: (pos: [number, number]) => void;
@@ -73,7 +73,7 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
       const viewInstance = new MapView({
         container: mapRef.current,
         map: webmap,
-        center: center,
+        center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat] for ArcGIS
         zoom: zoom,
       });
 
@@ -91,8 +91,8 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
 
       // click event for placing marker
       viewInstance.on("click", (evt: any) => {
-        const { longitude, latitude } = evt.mapPoint;
-        const pos: [number, number] = [longitude, latitude];
+        const { latitude,longitude } = evt.mapPoint;
+        const pos: [number, number] = [latitude,longitude]; // Keep as [lat, lng]
 
         // set marker position
         if (setMarkerPosition) {
@@ -106,8 +106,7 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
           const pointGraphic = new Graphic({
             geometry: { 
               type: "point", 
-              longitude, 
-              latitude 
+              latitude,longitude
             },
             symbol: {
               type: "simple-marker",
@@ -152,7 +151,7 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   useEffect(() => {
     if (viewRef.current && !loading) {
       viewRef.current.goTo({ 
-        center: center, 
+        center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat]
         zoom: zoom 
       }, {
         duration: 800 // smooth animation
@@ -180,12 +179,11 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
     window.require(["esri/Graphic"], (Graphic: any) => {
       if (graphicsLayerRef.current) {
         graphicsLayerRef.current.removeAll();
-        const [longitude, latitude] = markerPosition;
+        const [latitude,longitude] = markerPosition; // Assumed [lat, lng]
         const pointGraphic = new Graphic({
           geometry: { 
             type: "point", 
-            longitude, 
-            latitude 
+            latitude,longitude // API accepts { latitude, longitude }
           },
           symbol: {
             type: "simple-marker",
@@ -202,7 +200,7 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
         // pan to marker if view is ready
         if (viewRef.current && !loading) {
           viewRef.current.goTo({ 
-            center: markerPosition, 
+            center: [markerPosition[1], markerPosition[0]], // Convert [lat, lng] to [lng, lat]
             zoom 
           }, {
             duration: 800

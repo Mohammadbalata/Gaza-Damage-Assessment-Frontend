@@ -187,7 +187,7 @@ const CurrentLocationMapPage = () => {
           )}
 
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction={{ xs: "column-reverse", sm: "row" }}
             spacing={2}
             justifyContent="space-between"
             alignItems="stretch"
