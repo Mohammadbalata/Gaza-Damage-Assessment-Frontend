@@ -89,7 +89,7 @@ const MultipleImagesInput = ({
       return (
         <Box>
           <label className="block text-sm font-medium mb-2 mr-2">{label}</label>
-
+          {/*  */}
           {/* Drop Area */}
           <Card
             variant="outlined"
