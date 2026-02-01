@@ -14,7 +14,7 @@ const initialState: IDamageAssessmentState = {
     commonFloorArea: null,
     roofType: "",
     wallType: "",
-    buildingAge: null,
+    buildingAge: "",
     damagePercentage: "",
     damageType: "",
     damageTypes: [],
@@ -36,6 +36,7 @@ const initialState: IDamageAssessmentState = {
     usageType: "",
 
     mainBuildingDamage: "",
+    mainBuildingAge: "",
 
     damageType: "",
     damageTypes: [],
@@ -57,6 +58,7 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    buildingAge: "",
 
     usageType: "",
     otherUsageType: "",
@@ -101,6 +103,7 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    buildingAge: "",
 
     usageType: "",
     otherUsageType: "",
@@ -143,6 +146,7 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    buildingAge: "",
 
     damageType: "",
     damageTypes: [],
@@ -168,6 +172,7 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    buildingAge: "",
 
     damageType: "",
     damageTypes: [],

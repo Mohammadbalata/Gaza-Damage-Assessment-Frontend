@@ -269,6 +269,37 @@ const AdditionalBuildings = ({
             </p>
           )}
         </div>
+        {/* عمر المبنى */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            عمر المبنى <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("additionalBuildings.buildingAge", {
+              required: t("common.required"),
+            })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            )}
+            disabled={isChangeToReviewPage ? true : false}
+          >
+            <option value="" disabled>اختر العمر التقريبي</option>
+            <option value="0-10">0 - 10 سنوات</option>
+            <option value="11-20">11 - 20 سنة</option>
+            <option value="21-30">21 - 30 سنة</option>
+            <option value="31-40">31 - 40 سنة</option>
+            <option value="41-50">41 - 50 سنة</option>
+            <option value="51-60">51 - 60 سنة</option>
+            <option value=">60">أكثر من 60 سنة</option>
+          </select>
+
+          {errors?.additionalBuildings?.buildingAge && (
+            <p className="text-red-600 text-sm">
+              {errors.additionalBuildings.buildingAge.message}
+            </p>
+          )}
+        </div>
       </section>
 
       <div className="space-y-6">
@@ -530,14 +561,14 @@ const AdditionalBuildings = ({
           <SingleImageInput
             control={control}
             name="additionalBuildings.beforeWarImage"
-            label="صورة العقار قبل الحرب ( إن وجد )"
+            label="صورة العقار قبل الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <SingleImageInput
             control={control}
             name="additionalBuildings.afterWarImage"
-            label="صورة العقار بعد الحرب ( إن وجد )"
+            label="صورة العقار بعد الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 

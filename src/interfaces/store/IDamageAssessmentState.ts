@@ -48,7 +48,7 @@ export interface IndependentBuilding {
   propertyOwnerName?: string;
   roofType?: string;
   wallType?: string;
-  buildingAge?: number | null;
+  buildingAge?: string | null;
   damageType?: string;
   damageTypes?: string[];
   damagePercentage?: string; // "25%" | "50%" | ...
@@ -87,6 +87,7 @@ export interface ApartmentInsideBuilding {
   afterWarImage?: any;
   ownershipDocuments?: any[];
   BuildingContent?: any[];
+  mainBuildingAge?: string | null;
 }
 
 export interface ResidentialBuilding {
@@ -101,6 +102,7 @@ export interface ResidentialBuilding {
   buildingNumber?: string;
   nameOfStreet?: string;
   usageType?: string;
+  buildingAge?: string | null;
   otherUsageType?: string;
   floors?: any;
   units?: any[];
@@ -125,6 +127,7 @@ export interface ResidentialBuilding {
   ownershipDocuments?: any[];
   BuildingContent?: any[];
   MixedUsage: IMixedUsage;
+  
 }
 
 export interface ITower {
@@ -139,6 +142,7 @@ export interface ITower {
   buildingNumber?: string;
   nameOfStreet?: string;
   usageType?: string;
+  buildingAge?: string | null;
   otherUsageType?: string;
 
   collapsedFloors?: number | null;
@@ -169,6 +173,7 @@ export interface ICompHouse {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  buildingAge?: string | null;
 
   damageType?: string;
   damageTypes: string[];
@@ -199,6 +204,7 @@ export interface IAdditionalBuildings {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  buildingAge?: string | null;
 
   damageType?: string;
   damageTypes: string[];

@@ -55,10 +55,12 @@ const ResidentialBuilding = ({
         </label>
         <input
           type="number"
+          min={0}
+          max={20}
           {...register("ResidentialBuilding.floorsCount", {
             required: t("common.required"),
             min: { value: 1, message: "يجب أن يكون على الأقل طابق واحد" },
-            max: { value: 200, message: "الحد الأقصى 200" },
+            max: { value: 20, message: "الحد الأقصى 20" },
             valueAsNumber: true,
           })}
           className={classNames(
@@ -266,6 +268,37 @@ const ResidentialBuilding = ({
         selector={(state) => state.damage.ResidentialBuilding.MixedUsage}
         entityKey="ResidentialBuilding"
       />
+      {/* عمر المبنى */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          عمر المبنى <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register("ResidentialBuilding.buildingAge", {
+            required: t("common.required"),
+          })}
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
+        >
+          <option value="" disabled>اختر العمر التقريبي</option>
+          <option value="0-10">0 - 10 سنوات</option>
+          <option value="11-20">11 - 20 سنة</option>
+          <option value="21-30">21 - 30 سنة</option>
+          <option value="31-40">31 - 40 سنة</option>
+          <option value="41-50">41 - 50 سنة</option>
+          <option value="51-60">51 - 60 سنة</option>
+          <option value=">60">أكثر من 60 سنة</option>
+        </select>
+
+        {errors?.ResidentialBuilding?.buildingAge && (
+          <p className="text-red-600 text-sm">
+            {errors.ResidentialBuilding.buildingAge.message}
+          </p>
+        )}
+      </div>
       {/* ====== الأضرار الإنشائية ====== */}
       <section className="space-y-6">
         <h3 className="text-lg font-semibold">الأضرار الإنشائية</h3>
@@ -640,14 +673,14 @@ const ResidentialBuilding = ({
         <SingleImageInput
           control={control}
           name="ResidentialBuilding.beforeWarImage"
-          label="صورة العقار قبل الحرب ( إن وجد )"
+          label="صورة العقار قبل الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="ResidentialBuilding.afterWarImage"
-          label="صورة العقار بعد الحرب ( إن وجد )"
+          label="صورة العقار بعد الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 

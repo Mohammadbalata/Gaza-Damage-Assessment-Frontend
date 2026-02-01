@@ -51,10 +51,12 @@ const ApartmentInsideBuilding = ({
         </label>
         <input
           type="number"
+          min={0}
+          max={20}
           {...register("ApartmentInsideBuilding.floorNumber", {
             required: t("common.required"),
             min: { value: -5, message: "الحد الأدنى -5 (طوابق سفلية)" },
-            max: { value: 200, message: "الحد الأقصى 200" },
+            max: { value: 20, message: "الحد الأقصى 20" },
             valueAsNumber: true,
           })}
           className={classNames(
@@ -223,6 +225,38 @@ const ApartmentInsideBuilding = ({
           <option value="تضرر جزئي">تضرر جزئي</option>
           <option value="تضرر كلي">تضرر كلي</option>
         </select>
+      </div>
+
+      {/*  عمر المبنى الأم*/}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          عمر المبنى الأم<span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register("ApartmentInsideBuilding.mainBuildingAge", {
+            required: t("common.required"),
+          })}
+          className={classNames(
+            "input-field",
+            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+          )}
+          disabled={isChangeToReviewPage ? true : false}
+        >
+          <option value="" disabled>اختر العمر التقريبي</option>
+          <option value="0-10">0 - 10 سنوات</option>
+          <option value="11-20">11 - 20 سنة</option>
+          <option value="21-30">21 - 30 سنة</option>
+          <option value="31-40">31 - 40 سنة</option>
+          <option value="41-50">41 - 50 سنة</option>
+          <option value="51-60">51 - 60 سنة</option>
+          <option value=">60">أكثر من 60 سنة</option>
+        </select>
+
+        {errors?.ApartmentInsideBuilding?.mainBuildingAge && (
+          <p className="text-red-600 text-sm">
+            {errors.ApartmentInsideBuilding.mainBuildingAge.message}
+          </p>
+        )}
       </div>
       {/* نوع الضرر */}
       <div>
@@ -475,14 +509,14 @@ const ApartmentInsideBuilding = ({
         <SingleImageInput
           control={control}
           name="ApartmentInsideBuilding.beforeWarImage"
-          label="صورة العقار قبل الحرب ( إن وجد )"
+          label="صورة العقار قبل الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="ApartmentInsideBuilding.afterWarImage"
-          label="صورة العقار بعد الحرب ( إن وجد )"
+          label="صورة العقار بعد الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 

@@ -45,6 +45,9 @@ const ApplicationCard = ({
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
+
+  if (!application) return null;
+
   const buildingType = application?.extraData?.buildingType;
   const buildingData = application?.extraData?.[buildingType];
 
