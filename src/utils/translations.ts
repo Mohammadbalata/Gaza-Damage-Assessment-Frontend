@@ -264,6 +264,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.trackStatus": "Track Application Status",
     "form.enterTrackingNumber": "enter TrackingNumber for search",
 
+    // Landing Page
+    "landing.title": "Together We Build It - Building Our Future Together",
+    "landing.subtitle":
+      "A unified platform for Palestinian reconstruction and support",
+    "landing.cards.database": "Central Database",
+    "landing.cards.services": "Public Services Center",
+    "landing.cards.emergency": "Emergency Management & Rapid Response",
+    "landing.cards.support": "Institutions, Initiatives & Support Network",
+    "landing.damageAssessment": "Damage Assessment Registry",
+
     // Status
     status: "statusOfApplication",
 
@@ -721,6 +731,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
     "auth.verifySuccess": "",
+
+    // Landing Page
+    "landing.title": "سوا بنعمرها - معاً نبني مستقبلنا",
+    "landing.subtitle": "منصة موحدة لإعادة الإعمار والدعم الفلسطيني",
+    "landing.cards.database": "قاعدة البيانات المركزية",
+    "landing.cards.services": "مركز خدمات الجمهور",
+    "landing.cards.emergency": "إدارة الطوارئ والتدخل السريع",
+    "landing.cards.support": "المؤسسات والمبادرات الشراكية والداعية",
+    "landing.damageAssessment": "حصر الأضرار الذاتية",
 
     // Reset Password
     "auth.resetPassword": "إعادة تعيين كلمة المرور",
