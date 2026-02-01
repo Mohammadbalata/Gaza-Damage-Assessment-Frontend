@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { setError, signIn } from "../redux/slices/authSlice";
@@ -31,6 +32,13 @@ const LoginPage = () => {
     handleSubmit,
   } = useForm<FormDataCustom>();
   const { error, loading } = useAppSelector((state) => state.auth);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (token) {
+      navigate(ROUTES.CITIZEN_DASHBOARD);
+    }
+  }, [token, navigate]);
 
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ nationalId: data.nationalId, password: data.password }))

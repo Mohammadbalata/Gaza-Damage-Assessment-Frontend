@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
+import { useEffect } from "react";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,13 @@ const SignUpPage = () => {
   const dispatch = useAppDispatch();
 
   const { error, loading } = useAppSelector((state) => state.auth);
+  const token = localStorage.getItem("token");
+  
+    useEffect(() => {
+      if (token) {
+        navigate(ROUTES.CITIZEN_DASHBOARD);
+      }
+    }, [token, navigate]);
 
   const {
     register,

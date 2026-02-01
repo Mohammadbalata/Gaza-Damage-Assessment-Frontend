@@ -141,11 +141,13 @@ const MyApplications = () => {
   // Robust data handling
   const applications: any[] = Array.isArray(rawData)
     ? rawData
-    : rawData
-    ? (rawData as any).applications
+    : rawData?.applications
+    ? rawData.applications
+    : rawData?.id // If it's a single application object
+    ? [rawData]
     : [];
   const citizen: any = rawData?.citizen;
-  console.log("rawData", rawData?.applications[1].extraData);
+  console.log("rawData", rawData?.applications);
 
   // Filter applications
   const filteredApplications = applications.filter((app: any) => {

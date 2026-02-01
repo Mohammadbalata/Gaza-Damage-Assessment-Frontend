@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
@@ -27,6 +27,14 @@ import Logo from "../../src/assets/logo.jpg";
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const token = localStorage.getItem("token");
+
+
+  useEffect(() => {
+      if (token) {
+        navigate(ROUTES.CITIZEN_DASHBOARD);
+      }
+    }, [token, navigate]);
 
   const actionCards = [
     {
