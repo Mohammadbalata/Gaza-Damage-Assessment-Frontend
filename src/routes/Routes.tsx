@@ -29,6 +29,13 @@ import SettingsPage from "../pages/SettingsPage";
 import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import BiometricDataPage from "../pages/Settings/BiometricDataPage";
 import AdminResetPasswordPage from "../pages/AdminDashboard/ResetPasswordPage";
+import LandingPage from "../pages/LandingPage/LandingPage";
+import {
+  CentralDatabasePage,
+  PublicServicesPage,
+  EmergencyManagementPage,
+  SupportNetworkPage,
+} from "../pages/LandingPage/placeholders";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -41,6 +48,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
+  HOME: "/home",
   SIGNIN: "auth/signIn",
   SIGNUP: "auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
@@ -66,11 +74,22 @@ export const ROUTES: IRoutes = {
   CITIZEN_RESET_PASSWORD: "/citizen/reset-password",
   BANK_INFORMATION: "/citizen/bank-information",
   BIOMETRIC_DATA: "/citizen/settings/biometric-data",
+  // Landing Page Features
+  CENTRAL_DATABASE: "/central-database",
+  PUBLIC_SERVICES: "/public-services",
+  EMERGENCY_MANAGEMENT: "/emergency-management",
+  SUPPORT_NETWORK: "/support-network",
 };
 
 export const routes = [
-  { path: ROUTES.LAYOUT, element: <Layout /> },
-  { index: true, path: ROUTES.LAYOUT, element: <HomePage /> },
+  {
+    path: ROUTES.LAYOUT,
+    element: <Layout />,
+    children: [
+      { index: true, element: <LandingPage /> },
+      { path: ROUTES.HOME, element: <HomePage /> },
+    ],
+  },
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
@@ -215,6 +234,11 @@ export const routes = [
     path: ROUTES.ADMIN_LOCATION_MAP,
     element: <AdminLocationMapPage />,
   },
+
+  { path: ROUTES.CENTRAL_DATABASE, element: <CentralDatabasePage /> },
+  { path: ROUTES.PUBLIC_SERVICES, element: <PublicServicesPage /> },
+  { path: ROUTES.EMERGENCY_MANAGEMENT, element: <EmergencyManagementPage /> },
+  { path: ROUTES.SUPPORT_NETWORK, element: <SupportNetworkPage /> },
 
   { path: "*", element: <NotFoundPage /> },
 ];

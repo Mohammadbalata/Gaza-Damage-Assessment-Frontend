@@ -1,5 +1,6 @@
 export interface IRoutes {
   LAYOUT: string;
+  HOME: string;
   SIGNIN: string;
   SIGNUP: string;
   VERIFICATION_QUESTIONS: string;
@@ -34,6 +35,10 @@ export interface IRoutes {
   // ADMIN_BANKING: string;
   BANK_INFORMATION: string;
   BIOMETRIC_DATA: string;
+  CENTRAL_DATABASE: string;
+  PUBLIC_SERVICES: string;
+  EMERGENCY_MANAGEMENT: string;
+  SUPPORT_NETWORK: string;
   // ADMIN_PERMISSIONS:string
   // ADMIN_ROLES:string
 }

@@ -66,17 +66,16 @@
   }
 }
 
-
-.MuiSelect-select{
+.MuiSelect-select {
   height: 1.7rem !important;
   margin-top: 6px !important;
 }
 
-.MuiDialog-paperScrollPaper{
+.MuiDialog-paperScrollPaper {
   width: 100%;
   max-width: 750px !important;
 }
 
-.MuiListItemText-dense{
+.MuiListItemText-dense {
   text-align: right;
 }
