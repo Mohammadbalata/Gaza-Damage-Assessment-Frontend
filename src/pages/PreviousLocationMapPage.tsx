@@ -13,12 +13,17 @@ import {
   Button,
   Stack,
   Dialog,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
+import { nearestLandmark } from "../utils/DamageAssessment";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -29,19 +34,20 @@ const PreviousLocationMapPage = () => {
   const [position, setPosition] = useState<[number, number] | null>();
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
+  const [selectedLandmark, setSelectedLandmark] = useState<string>("");
 
   // Dialog State
   const [openDialog, setOpenDialog] = useState(false);
 
   // Default center: Gaza City - [lat, lng] format
-  const defaultCenter: [number, number] = [31.349013,34.292483];
+  const defaultCenter: [number, number] = [31.349013, 34.292483];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
 
   useEffect(() => {
     if (position) {
       // Reverse geocoding - position is [lat, lng]
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`,
       )
         .then((res) => res.json())
         .then((data) => {
@@ -57,6 +63,7 @@ const PreviousLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
+    // We don't necessarily reset landmark or neighborhood unless desired, keeping them sticky is often better behavior
   };
 
   const handleCloseDialog = () => {
@@ -206,12 +213,43 @@ const PreviousLocationMapPage = () => {
               {t("map.reset")}
             </Button>
 
-            <Box sx={{ flex: 1 }}>
-              <SelectLocations
-                {...{ handleReset }}
-                {...{ setNeighborhood }}
-                setCenter={setCenter}
-              />
+            <Box sx={{ flex: 2 }}>
+              <Stack direction="row" spacing={2} useFlexGap={true}>
+                <Box flex={1}>
+                  <SelectLocations
+                    {...{ handleReset }}
+                    {...{ setNeighborhood }}
+                    setCenter={setCenter}
+                  />
+                </Box>
+                <Box flex={1}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="select-landmark-label">
+                      {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                    </InputLabel>
+                    <Select
+                      labelId="select-landmark-label"
+                      id="select-landmark"
+                      value={selectedLandmark}
+                      label={
+                        language === "ar" ? "أقرب معلم" : "Nearest Landmark"
+                      }
+                      onChange={(e) => setSelectedLandmark(e.target.value)}
+                    >
+                      <MenuItem value="" disabled>
+                        {language === "ar"
+                          ? "اختر أقرب معلم"
+                          : "Select Landmark"}
+                      </MenuItem>
+                      {nearestLandmark.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.Label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Stack>
             </Box>
           </Stack>
         </CardContent>
@@ -232,6 +270,7 @@ const PreviousLocationMapPage = () => {
               position,
               address,
               neighborhood,
+              nearestLandmark: selectedLandmark,
             }}
           />
         )}

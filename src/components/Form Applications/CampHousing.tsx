@@ -1,11 +1,13 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { BuildingContent, DAMAGE_TYPE_CompHouse , nearestLandmark } from "../../utils/DamageAssessment";
+import {
+  BuildingContent,
+  DAMAGE_TYPE_CompHouse,
+} from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
-
 
 const CampHousing = ({
   register,
@@ -14,7 +16,7 @@ const CampHousing = ({
   control,
   isChangeToReviewPage,
   getValues,
-  setValue
+  setValue,
 }: IBuildingProps) => {
   const { t } = useLanguage();
   const propertyType = watch("compHouse.propertyType");
@@ -26,19 +28,20 @@ const CampHousing = ({
   const showBuildingContent = BuildingContentWatch === "نعم";
 
   useEffect(() => {
-  const currentDamage = getValues("compHouse.damagePercentage");
-  const currentHabitable = getValues("compHouse.isHabitable");
+    const currentDamage = getValues("compHouse.damagePercentage");
+    const currentHabitable = getValues("compHouse.isHabitable");
 
-  if (damageTypeWatch === "هدم كلي") {
-    if (currentDamage !== "100%") setValue("compHouse.damagePercentage", "100%");
-    if (currentHabitable !== "لا") setValue("compHouse.isHabitable", "لا");
-  }
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%")
+        setValue("compHouse.damagePercentage", "100%");
+      if (currentHabitable !== "لا") setValue("compHouse.isHabitable", "لا");
+    }
 
-  if (damageTypeWatch === "هدم جزئي") {
-    if (currentDamage !== "") setValue("compHouse.damagePercentage", "");
-    if (currentHabitable !== "") setValue("compHouse.isHabitable", "");
-  }
-}, [damageTypeWatch, setValue, getValues]);
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "") setValue("compHouse.damagePercentage", "");
+      if (currentHabitable !== "") setValue("compHouse.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
   return (
     <div className="space-y-6">
       {/* مساحة المسكن */}
@@ -56,7 +59,9 @@ const CampHousing = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         />
@@ -77,7 +82,9 @@ const CampHousing = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -108,7 +115,7 @@ const CampHousing = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -131,11 +138,15 @@ const CampHousing = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="" disabled>اختر العمر التقريبي</option>
+          <option value="" disabled>
+            اختر العمر التقريبي
+          </option>
           <option value="0-10">0 - 10 سنوات</option>
           <option value="11-20">11 - 20 سنة</option>
           <option value="21-30">21 - 30 سنة</option>
@@ -165,7 +176,7 @@ const CampHousing = ({
               "input-field mb-4",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -190,7 +201,7 @@ const CampHousing = ({
                   className={classNames(
                     "accent-primary",
                     isChangeToReviewPage &&
-                      "pointer-events-none accent-gray-200"
+                      "pointer-events-none accent-gray-200",
                   )}
                 />
                 <span className="mr-2">{item.label}</span>
@@ -220,7 +231,7 @@ const CampHousing = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -250,7 +261,7 @@ const CampHousing = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -281,49 +292,18 @@ const CampHousing = ({
                     className={classNames(
                       "accent-primary",
                       isChangeToReviewPage &&
-                        "pointer-events-none accent-gray-200"
+                        "pointer-events-none accent-gray-200",
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
                 </div>
               ))}
               {errors?.compHouse?.BuildingContent && (
-              <p className="text-red-600 text-sm">
-                {errors.compHouse.BuildingContent.message}
-              </p>
-            )}
+                <p className="text-red-600 text-sm">
+                  {errors.compHouse.BuildingContent.message}
+                </p>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* أقرب معلم */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            أقرب معلم <span className="text-red-500">*</span>
-          </label>
-
-          <select
-            {...register("compHouse.nearestLandmark", {
-              required: t("common.required"),
-            })}
-            className={classNames(
-              "input-field",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
-            )}
-            disabled={isChangeToReviewPage}
-          >
-            <option value="">اختر أقرب معلم</option>
-            {nearestLandmark.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.Label}
-              </option>
-            ))}
-          </select>
-
-          {errors?.compHouse?.nearestLandmark && (
-            <p className="text-red-600 text-sm">
-              {errors.compHouse.nearestLandmark.message}
-            </p>
           )}
         </div>
 
@@ -338,7 +318,7 @@ const CampHousing = ({
             {...register("compHouse.nameOfStreet")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -360,7 +340,7 @@ const CampHousing = ({
             {...register("compHouse.buildingNumber")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -390,7 +370,7 @@ const CampHousing = ({
               {...register("compHouse.additionalNotes")}
               className={classNames(
                 "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
-                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
               )}
               maxLength={300}
               disabled={isChangeToReviewPage}

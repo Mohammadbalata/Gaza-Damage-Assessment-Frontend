@@ -1,7 +1,7 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { BuildingContent, DAMAGE_TYPES ,nearestLandmark } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
@@ -61,7 +61,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         />
@@ -85,7 +87,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         />
@@ -111,7 +115,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         />
@@ -132,7 +138,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -163,7 +171,7 @@ const ApartmentInsideBuilding = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -186,7 +194,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -212,7 +222,9 @@ const ApartmentInsideBuilding = ({
           defaultValue=""
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -238,11 +250,15 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="" disabled>اختر العمر التقريبي</option>
+          <option value="" disabled>
+            اختر العمر التقريبي
+          </option>
           <option value="0-10">0 - 10 سنوات</option>
           <option value="11-20">11 - 20 سنة</option>
           <option value="21-30">21 - 30 سنة</option>
@@ -269,7 +285,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field mb-4",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -296,12 +314,12 @@ const ApartmentInsideBuilding = ({
                     className={classNames(
                       "accent-primary",
                       isChangeToReviewPage &&
-                        "pointer-events-none accent-gray-200"
+                        "pointer-events-none accent-gray-200",
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
                 </div>
-              )
+              ),
           )}
         {errors?.ApartmentInsideBuilding?.damageType && (
           <p className="text-red-600 text-sm">
@@ -326,7 +344,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -354,7 +374,9 @@ const ApartmentInsideBuilding = ({
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage == true
+              ? "cursor-not-allowed bg-gray-200"
+              : "",
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
@@ -385,7 +407,7 @@ const ApartmentInsideBuilding = ({
                   className={classNames(
                     "accent-primary",
                     isChangeToReviewPage &&
-                      "pointer-events-none accent-gray-200"
+                      "pointer-events-none accent-gray-200",
                   )}
                 />
                 <span className="mr-2">{item.label}</span>
@@ -400,37 +422,6 @@ const ApartmentInsideBuilding = ({
         )}
       </div>
 
-      {/* أقرب معلم */}
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          أقرب معلم <span className="text-red-500">*</span>
-        </label>
-
-        <select
-          {...register("ApartmentInsideBuilding.nearestLandmark", {
-            required: t("common.required"),
-          })}
-          className={classNames(
-            "input-field",
-            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
-          )}
-          disabled={isChangeToReviewPage}
-        >
-          <option value="">اختر أقرب معلم</option>
-          {nearestLandmark.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.Label}
-            </option>
-          ))}
-        </select>
-
-        {errors?.ApartmentInsideBuilding?.nearestLandmark && (
-          <p className="text-red-600 text-sm">
-            {errors.ApartmentInsideBuilding.nearestLandmark.message}
-          </p>
-        )}
-      </div>
-
       {/* اسم الشارع  */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -442,7 +433,7 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.nameOfStreet")}
           className={classNames(
             "input-field mt-2",
-            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
           )}
           disabled={isChangeToReviewPage}
         />
@@ -464,7 +455,7 @@ const ApartmentInsideBuilding = ({
           {...register("ApartmentInsideBuilding.buildingNumber")}
           className={classNames(
             "input-field mt-2",
-            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+            isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
           )}
           disabled={isChangeToReviewPage}
         />
@@ -494,7 +485,7 @@ const ApartmentInsideBuilding = ({
             {...register("ApartmentInsideBuilding.additionalNotes")}
             className={classNames(
               "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             maxLength={300}
             disabled={isChangeToReviewPage}
