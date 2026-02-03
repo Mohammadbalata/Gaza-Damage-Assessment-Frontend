@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { useLanguage } from "../../contexts/LanguageContext";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
-import { BuildingContent, DAMAGE_TYPES , nearestLandmark } from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import { useEffect, useState } from "react";
 
 const AdditionalBuildings = ({
@@ -12,7 +12,7 @@ const AdditionalBuildings = ({
   control,
   isChangeToReviewPage,
   getValues,
-  setValue
+  setValue,
 }: any) => {
   const { t } = useLanguage();
   const propertyType = watch("additionalBuildings.propertyType");
@@ -29,19 +29,23 @@ const AdditionalBuildings = ({
   const [textLength, setTextLength] = useState(0);
 
   useEffect(() => {
-  const currentDamage = getValues("additionalBuildings.damagePercentage");
-  const currentHabitable = getValues("additionalBuildings.isHabitable");
+    const currentDamage = getValues("additionalBuildings.damagePercentage");
+    const currentHabitable = getValues("additionalBuildings.isHabitable");
 
-  if (damageTypeWatch === "هدم كلي") {
-    if (currentDamage !== "100%") setValue("additionalBuildings.damagePercentage", "100%");
-    if (currentHabitable !== "لا") setValue("additionalBuildings.isHabitable", "لا");
-  }
+    if (damageTypeWatch === "هدم كلي") {
+      if (currentDamage !== "100%")
+        setValue("additionalBuildings.damagePercentage", "100%");
+      if (currentHabitable !== "لا")
+        setValue("additionalBuildings.isHabitable", "لا");
+    }
 
-  if (damageTypeWatch === "هدم جزئي") {
-    if (currentDamage !== "") setValue("additionalBuildings.damagePercentage", "");
-    if (currentHabitable !== "") setValue("additionalBuildings.isHabitable", "");
-  }
-}, [damageTypeWatch, setValue, getValues]);
+    if (damageTypeWatch === "هدم جزئي") {
+      if (currentDamage !== "")
+        setValue("additionalBuildings.damagePercentage", "");
+      if (currentHabitable !== "")
+        setValue("additionalBuildings.isHabitable", "");
+    }
+  }, [damageTypeWatch, setValue, getValues]);
 
   return (
     <div className="space-y-10">
@@ -58,7 +62,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -83,7 +87,7 @@ const AdditionalBuildings = ({
                     "input-field",
                     isChangeToReviewPage == true
                       ? "cursor-not-allowed bg-gray-200"
-                      : ""
+                      : "",
                   )}
                   disabled={isChangeToReviewPage ? true : false}
                 />
@@ -117,7 +121,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -144,7 +148,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -171,7 +175,7 @@ const AdditionalBuildings = ({
                 "input-field",
                 isChangeToReviewPage == true
                   ? "cursor-not-allowed bg-gray-200"
-                  : ""
+                  : "",
               )}
               disabled={isChangeToReviewPage ? true : false}
             />
@@ -195,7 +199,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -226,7 +230,7 @@ const AdditionalBuildings = ({
                 "input-field",
                 isChangeToReviewPage == true
                   ? "cursor-not-allowed bg-gray-200"
-                  : ""
+                  : "",
               )}
               disabled={isChangeToReviewPage ? true : false}
             />
@@ -251,7 +255,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -280,11 +284,15 @@ const AdditionalBuildings = ({
             })}
             className={classNames(
               "input-field",
-              isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="" disabled>اختر العمر التقريبي</option>
+            <option value="" disabled>
+              اختر العمر التقريبي
+            </option>
             <option value="0-10">0 - 10 سنوات</option>
             <option value="11-20">11 - 20 سنة</option>
             <option value="21-30">21 - 30 سنة</option>
@@ -316,7 +324,7 @@ const AdditionalBuildings = ({
               "input-field mb-4",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -343,12 +351,12 @@ const AdditionalBuildings = ({
                       className={classNames(
                         "accent-primary",
                         isChangeToReviewPage &&
-                          "pointer-events-none accent-gray-200"
+                          "pointer-events-none accent-gray-200",
                       )}
                     />
                     <span className="mr-2">{item.label}</span>
                   </div>
-                )
+                ),
             )}
 
           {errors?.additionalBuildings?.damageType && (
@@ -376,7 +384,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -405,7 +413,7 @@ const AdditionalBuildings = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -436,49 +444,18 @@ const AdditionalBuildings = ({
                     className={classNames(
                       "accent-primary",
                       isChangeToReviewPage &&
-                        "pointer-events-none accent-gray-200"
+                        "pointer-events-none accent-gray-200",
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
                 </div>
               ))}
               {errors?.additionalBuildings?.BuildingContent && (
-              <p className="text-red-600 text-sm">
-                {errors.additionalBuildings.BuildingContent.message}
-              </p>
-            )}
+                <p className="text-red-600 text-sm">
+                  {errors.additionalBuildings.BuildingContent.message}
+                </p>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* أقرب معلم */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            أقرب معلم <span className="text-red-500">*</span>
-          </label>
-
-          <select
-            {...register("additionalBuildings.nearestLandmark", {
-              required: t("common.required"),
-            })}
-            className={classNames(
-              "input-field",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
-            )}
-            disabled={isChangeToReviewPage}
-          >
-            <option value="">اختر أقرب معلم</option>
-            {nearestLandmark.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.Label}
-              </option>
-            ))}
-          </select>
-
-          {errors?.additionalBuildings?.nearestLandmark && (
-            <p className="text-red-600 text-sm">
-              {errors.additionalBuildings.nearestLandmark.message}
-            </p>
           )}
         </div>
 
@@ -493,7 +470,7 @@ const AdditionalBuildings = ({
             {...register("additionalBuildings.nameOfStreet")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -516,7 +493,7 @@ const AdditionalBuildings = ({
             {...register("additionalBuildings.buildingNumber")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -547,7 +524,7 @@ const AdditionalBuildings = ({
               {...register("additionalBuildings.additionalNotes")}
               className={classNames(
                 "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
-                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
               )}
               maxLength={300}
               disabled={isChangeToReviewPage}

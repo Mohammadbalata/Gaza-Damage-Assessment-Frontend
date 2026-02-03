@@ -51,92 +51,100 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
 
     // Check if ArcGIS API is loaded
     if (!window.require) {
-      console.error("ArcGIS API not loaded. Make sure to include the script in your index.html");
+      console.error(
+        "ArcGIS API not loaded. Make sure to include the script in your index.html",
+      );
       setLoading(false);
       return;
     }
 
     // Load ArcGIS modules from CDN
-    window.require([
-      "esri/WebMap",
-      "esri/views/MapView",
-      "esri/Graphic",
-      "esri/layers/GraphicsLayer"
-    ], (WebMap: any, MapView: any, Graphic: any, GraphicsLayer: any) => {
-      if (!isMounted || !mapRef.current) return;
+    window.require(
+      [
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/Graphic",
+        "esri/layers/GraphicsLayer",
+      ],
+      (WebMap: any, MapView: any, Graphic: any, GraphicsLayer: any) => {
+        if (!isMounted || !mapRef.current) return;
 
-      const webmap = new WebMap({
-        portalItem: { id: webmapId },
-        basemap: "satellite"
-      });
+        const webmap = new WebMap({
+          portalItem: { id: webmapId },
+          basemap: "satellite",
+        });
 
-      const viewInstance = new MapView({
-        container: mapRef.current,
-        map: webmap,
-        center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat] for ArcGIS
-        zoom: zoom,
-      });
+        const viewInstance = new MapView({
+          container: mapRef.current,
+          map: webmap,
+          center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat] for ArcGIS
+          zoom: zoom,
+        });
 
-      viewRef.current = viewInstance;
+        viewRef.current = viewInstance;
 
-      // Wait for webmap to load before adding graphics layer
-      webmap.when(() => {
-        if (!isMounted) return;
-        
-        // create a graphics layer for marker
-        const graphicsLayer = new GraphicsLayer();
-        webmap.add(graphicsLayer);
-        graphicsLayerRef.current = graphicsLayer;
-      });
+        // Wait for webmap to load before adding graphics layer
+        webmap.when(() => {
+          if (!isMounted) return;
 
-      // click event for placing marker
-      viewInstance.on("click", (evt: any) => {
-        const { latitude,longitude } = evt.mapPoint;
-        const pos: [number, number] = [latitude,longitude]; // Keep as [lat, lng]
+          // create a graphics layer for marker
+          const graphicsLayer = new GraphicsLayer();
+          webmap.add(graphicsLayer);
+          graphicsLayerRef.current = graphicsLayer;
+        });
 
-        // set marker position
-        if (setMarkerPosition) {
-          setMarkerPosition(pos);
-          setOpenDialog(true);
-        }
+        // click event for placing marker
+        viewInstance.on("click", (evt: any) => {
+          const { latitude, longitude } = evt.mapPoint;
+          const pos: [number, number] = [latitude, longitude]; // Keep as [lat, lng]
 
-        // add marker graphic with more visible styling
-        if (graphicsLayerRef.current) {
-          graphicsLayerRef.current.removeAll();
-          const pointGraphic = new Graphic({
-            geometry: { 
-              type: "point", 
-              latitude,longitude
-            },
-            symbol: {
-              type: "simple-marker",
-              color: [226, 119, 40], // Orange color
-              size: 16,
-              outline: { 
-                color: [255, 255, 255], 
-                width: 3 
+          // set marker position
+          if (setMarkerPosition) {
+            setMarkerPosition(pos);
+            setOpenDialog(true);
+          }
+
+          // add marker graphic with more visible styling
+          if (graphicsLayerRef.current) {
+            graphicsLayerRef.current.removeAll();
+            const pointGraphic = new Graphic({
+              geometry: {
+                type: "point",
+                latitude,
+                longitude,
               },
-            },
+              symbol: {
+                type: "simple-marker",
+                color: [226, 119, 40], // Orange color
+                size: 16,
+                outline: {
+                  color: [255, 255, 255],
+                  width: 3,
+                },
+              },
+            });
+            graphicsLayerRef.current.add(pointGraphic);
+          }
+
+          // reset address when new marker is placed
+          if (setAddress) {
+            setAddress("");
+          }
+        });
+
+        // Wait for view to be ready
+        viewInstance
+          .when(() => {
+            if (!isMounted) return;
+            setView(viewInstance);
+            setLoading(false);
+          })
+          .catch((error: any) => {
+            console.error("Error loading map:", error);
+            if (isMounted) setLoading(false);
           });
-          graphicsLayerRef.current.add(pointGraphic);
-        }
-
-        // reset address when new marker is placed
-        if (setAddress) {
-          setAddress("");
-        }
-      });
-
-      // Wait for view to be ready
-      viewInstance.when(() => {
-        if (!isMounted) return;
-        setView(viewInstance);
-        setLoading(false);
-      }).catch((error: any) => {
-        console.error("Error loading map:", error);
-        if (isMounted) setLoading(false);
-      });
-    });
+      },
+    );
 
     return () => {
       isMounted = false;
@@ -150,16 +158,21 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   // update view center when center prop changes
   useEffect(() => {
     if (viewRef.current && !loading) {
-      viewRef.current.goTo({ 
-        center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat]
-        zoom: zoom 
-      }, {
-        duration: 800 // smooth animation
-      }).catch((error: any) => {
-        console.log(error);
-        
-        console.log("Navigation cancelled or failed");
-      });
+      viewRef.current
+        .goTo(
+          {
+            center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat]
+            zoom: zoom,
+          },
+          {
+            duration: 800, // smooth animation
+          },
+        )
+        .catch((error: any) => {
+          console.log(error);
+
+          console.log("Navigation cancelled or failed");
+        });
     }
   }, [center, zoom, loading]);
 
@@ -179,19 +192,20 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
     window.require(["esri/Graphic"], (Graphic: any) => {
       if (graphicsLayerRef.current) {
         graphicsLayerRef.current.removeAll();
-        const [latitude,longitude] = markerPosition; // Assumed [lat, lng]
+        const [latitude, longitude] = markerPosition; // Assumed [lat, lng]
         const pointGraphic = new Graphic({
-          geometry: { 
-            type: "point", 
-            latitude,longitude // API accepts { latitude, longitude }
+          geometry: {
+            type: "point",
+            latitude,
+            longitude, // API accepts { latitude, longitude }
           },
           symbol: {
             type: "simple-marker",
             color: [226, 119, 40], // Orange color
             size: 16,
-            outline: { 
-              color: [255, 255, 255], 
-              width: 3 
+            outline: {
+              color: [255, 255, 255],
+              width: 3,
             },
           },
         });
@@ -199,15 +213,20 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
 
         // pan to marker if view is ready
         if (viewRef.current && !loading) {
-          viewRef.current.goTo({ 
-            center: [markerPosition[1], markerPosition[0]], // Convert [lat, lng] to [lng, lat]
-            zoom 
-          }, {
-            duration: 800
-          }).catch((error: any) => {
-            console.log(error);
-            console.log("Navigation cancelled or failed");
-          });
+          viewRef.current
+            .goTo(
+              {
+                center: [markerPosition[1], markerPosition[0]], // Convert [lat, lng] to [lng, lat]
+                zoom,
+              },
+              {
+                duration: 800,
+              },
+            )
+            .catch((error: any) => {
+              console.log(error);
+              console.log("Navigation cancelled or failed");
+            });
         }
       }
     });

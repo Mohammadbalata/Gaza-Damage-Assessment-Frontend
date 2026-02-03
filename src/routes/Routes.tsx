@@ -16,7 +16,7 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
-import MyApplications from "../pages/MyApplications";
+import MyApplications from "../pages/MyApplications"; 
 import CitizenForgotPasswordPage from "../pages/Citizen/CitizenForgotPasswordPage";
 import CitizenResetPasswordPage from "../pages/Citizen/CitizenResetPasswordPage";
 import AdminForgotPasswordPage from "../pages/AdminDashboard/AdminForgotPasswordPage";
@@ -99,9 +99,9 @@ export const routes = [
   {
     path: ROUTES.PREVIOUS_LOCATION,
     element: (
-      <ProtectedRoutes>
+      <div>
         <PreviousLocationMapPage />
-      </ProtectedRoutes>
+      </div>
     ),
   },
   {

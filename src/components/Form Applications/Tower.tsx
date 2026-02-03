@@ -1,7 +1,7 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 import SingleImageInput from "./ImagesInput/SingleImageInput";
 import MultipleImagesInput from "./ImagesInput/MultipleImagesInput";
-import { BuildingContent, DAMAGE_TYPES , nearestLandmark} from "../../utils/DamageAssessment";
+import { BuildingContent, DAMAGE_TYPES } from "../../utils/DamageAssessment";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { IBuildingProps } from "../../interfaces/props/IBuildingProps";
@@ -51,7 +51,7 @@ const Tower = ({
           <input
             type="number"
             min={0}
-          max={20}
+            max={20}
             {...register("tower.totalFloors", {
               required: t("common.required"),
               min: { value: 1, message: "الحد الأدنى طابق واحد" },
@@ -62,7 +62,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -89,7 +89,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -116,7 +116,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -139,7 +139,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -170,7 +170,7 @@ const Tower = ({
                 "input-field",
                 isChangeToReviewPage == true
                   ? "cursor-not-allowed bg-gray-200"
-                  : ""
+                  : "",
               )}
               disabled={isChangeToReviewPage ? true : false}
             />
@@ -200,7 +200,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -285,11 +285,15 @@ const Tower = ({
             })}
             className={classNames(
               "input-field",
-              isChangeToReviewPage == true ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="" disabled>اختر العمر التقريبي</option>
+            <option value="" disabled>
+              اختر العمر التقريبي
+            </option>
             <option value="0-10">0 - 10 سنوات</option>
             <option value="11-20">11 - 20 سنة</option>
             <option value="21-30">21 - 30 سنة</option>
@@ -323,7 +327,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -350,7 +354,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -373,7 +377,7 @@ const Tower = ({
               {...register("tower.criticalColumnDamage")}
               className={classNames(
                 "accent-primary",
-                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                isChangeToReviewPage && "pointer-events-none accent-gray-200",
               )}
             />
             <span>أعمدة</span>
@@ -385,7 +389,7 @@ const Tower = ({
               {...register("tower.criticalShearWallDamage")}
               className={classNames(
                 "accent-primary",
-                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                isChangeToReviewPage && "pointer-events-none accent-gray-200",
               )}
             />
             <span>جدران</span>
@@ -396,7 +400,7 @@ const Tower = ({
               {...register("tower.criticalRoofBelts")}
               className={classNames(
                 "accent-primary",
-                isChangeToReviewPage && "pointer-events-none accent-gray-200"
+                isChangeToReviewPage && "pointer-events-none accent-gray-200",
               )}
             />
             <span>أحزمة و كشفات أسقف</span>
@@ -421,7 +425,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           />
@@ -444,7 +448,7 @@ const Tower = ({
               "input-field mb-4",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -469,7 +473,7 @@ const Tower = ({
                   className={classNames(
                     "accent-primary",
                     isChangeToReviewPage &&
-                      "pointer-events-none accent-gray-200"
+                      "pointer-events-none accent-gray-200",
                   )}
                 />
                 <span className="mr-2">{item.label}</span>
@@ -500,7 +504,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -530,7 +534,7 @@ const Tower = ({
               "input-field",
               isChangeToReviewPage == true
                 ? "cursor-not-allowed bg-gray-200"
-                : ""
+                : "",
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
@@ -561,7 +565,7 @@ const Tower = ({
                     className={classNames(
                       "accent-primary",
                       isChangeToReviewPage &&
-                        "pointer-events-none accent-gray-200"
+                        "pointer-events-none accent-gray-200",
                     )}
                   />
                   <span className="mr-2">{item.label}</span>
@@ -576,37 +580,6 @@ const Tower = ({
           )}
         </div>
 
-        {/* أقرب معلم */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            أقرب معلم <span className="text-red-500">*</span>
-          </label>
-
-          <select
-            {...register("tower.nearestLandmark", {
-              required: t("common.required"),
-            })}
-            className={classNames(
-              "input-field",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
-            )}
-            disabled={isChangeToReviewPage}
-          >
-            <option value="">اختر أقرب معلم</option>
-            {nearestLandmark.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.Label}
-              </option>
-            ))}
-          </select>
-
-          {errors?.tower?.nearestLandmark && (
-            <p className="text-red-600 text-sm">
-              {errors.tower.nearestLandmark.message}
-            </p>
-          )}
-        </div>
-
         {/* اسم الشارع  */}
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -618,7 +591,7 @@ const Tower = ({
             {...register("tower.nameOfStreet")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -640,7 +613,7 @@ const Tower = ({
             {...register("tower.buildingNumber")}
             className={classNames(
               "input-field mt-2",
-              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+              isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
             )}
             disabled={isChangeToReviewPage}
           />
@@ -670,7 +643,7 @@ const Tower = ({
               {...register("tower.additionalNotes")}
               className={classNames(
                 "input-field min-h-[100px] resize-none p-2 pb-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400",
-                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : ""
+                isChangeToReviewPage ? "cursor-not-allowed bg-gray-200" : "",
               )}
               maxLength={300}
               disabled={isChangeToReviewPage}
