@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
-import SelectLocations, { locations } from "../components/SelectLocations";
+import { locations as neighborhoodLocations, landmarks as neighborhoodLandmarks } from "../constants/locations";
 import {
   Container,
   Card,
@@ -23,29 +23,68 @@ import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
-import { nearestLandmark } from "../utils/DamageAssessment";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
 
-  // Map States - Note: ArcGIS Map Component expects [lat, lng] in props
-  const [position, setPosition] = useState<[number, number] | null>();
+  // Map States
+  const [position, setPosition] = useState<[number, number] | null>(null);
   const [address, setAddress] = useState("");
-  const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
-  const [selectedLandmark, setSelectedLandmark] = useState<string>("");
+  
+  // Selection States
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedLandmarkCoords, setSelectedLandmarkCoords] = useState<string>("");
 
   // Dialog State
   const [openDialog, setOpenDialog] = useState(false);
 
-  // Default center: Gaza City - [lat, lng] format
+
+  // Default center: Gaza City
   const defaultCenter: [number, number] = [31.349013, 34.292483];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
+  const [zoom, setZoom] = useState<number>(15);
+
+
+  // Get landmarks for selected neighborhood
+  const currentLandmarks = useMemo(() => {
+    if (!selectedNeighborhoodId) return [];
+    return neighborhoodLandmarks[selectedNeighborhoodId] || [];
+  }, [selectedNeighborhoodId]);
+
+  // Handle Neighborhood Change
+  const handleNeighborhoodChange = (event: any) => {
+    const neighborhoodId = event.target.value;
+    setSelectedNeighborhoodId(neighborhoodId);
+    setSelectedLandmarkCoords(""); // Reset landmark when neighborhood changes
+    
+    // Find neighborhood coordinates to center map
+    const neighborhood = neighborhoodLocations.find(n => n.id === neighborhoodId);
+    if (neighborhood) {
+      setCenter(neighborhood.coords);
+      setZoom(15); // Reset zoom or keep it moderate for neighborhood view
+    }
+  };
+
+  // Handle Landmark Change
+  const handleLandmarkChange = (event: any) => {
+    const coordsStr = event.target.value;
+    setSelectedLandmarkCoords(coordsStr);
+
+    if (coordsStr) {
+      const [lat, lng] = coordsStr.split(',').map(Number);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition([lat, lng]); // Optionally set marker position too
+        setZoom(18); // High zoom for specific landmark
+      }
+    }
+  };
 
   useEffect(() => {
     if (position) {
-      // Reverse geocoding - position is [lat, lng]
+      // Reverse geocoding
       fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}`,
       )
@@ -63,11 +102,27 @@ const PreviousLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
-    // We don't necessarily reset landmark or neighborhood unless desired, keeping them sticky is often better behavior
+    setSelectedNeighborhoodId("");
+    setSelectedLandmarkCoords("");
+    setCenter(defaultCenter);
+    setZoom(15);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+  };
+
+  const getNeighborhoodName = (id: string) => {
+    return neighborhoodLocations.find(n => n.id === id)?.name || id;
+  };
+
+  const getLandmarkName = (coordsToCheck: string) => {
+    if (!coordsToCheck || !selectedNeighborhoodId) return "";
+    const [lat, lng] = coordsToCheck.split(',');
+    const landmark = currentLandmarks.find((l: any) => 
+      l.latitude === lat && l.longitude === lng
+    );
+    return landmark?.landmark || "";
   };
 
   return (
@@ -97,6 +152,53 @@ const PreviousLocationMapPage = () => {
             </Typography>
           </Box>
 
+          <Stack direction={{ xs: "column", md: "row" }} sx={{ mb: 3 , gap:2 }}>
+            <FormControl fullWidth size="small" required>
+              <InputLabel>
+                {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+              </InputLabel>
+              <Select
+                value={selectedNeighborhoodId}
+                label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                onChange={handleNeighborhoodChange}
+                onFocus={() => setOpenDialog(false)}
+                autoFocus
+              >
+                <MenuItem value="">
+                  {language === "ar" ? "الكل" : "All"}
+                </MenuItem>
+                {neighborhoodLocations.map((n) => (
+                  <MenuItem key={n.id} value={n.id}>
+                    {n.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size="small" sx={{ml:0 }}>
+              <InputLabel>
+                {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+              </InputLabel>
+              <Select
+                value={selectedLandmarkCoords}
+                label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                onChange={handleLandmarkChange}
+                disabled={!selectedNeighborhoodId}
+
+                
+              >
+                <MenuItem value="">
+                  {language === "ar" ? "اختر المعلم" : "Select Landmark"}
+                </MenuItem>
+                {currentLandmarks.map((lm: any, index: number) => (
+                  <MenuItem key={index} value={`${lm.latitude},${lm.longitude}`}>
+                    {lm.landmark}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+
           <Box
             sx={{
               height: 400,
@@ -110,13 +212,19 @@ const PreviousLocationMapPage = () => {
           >
             <ArcGISMapContainer
               center={center}
-              zoom={15}
+              zoom={zoom}
               markerPosition={position}
               setMarkerPosition={setPosition}
               height="100%"
               width="100%"
               setAddress={setAddress}
-              location={{ position, address, neighborhood }}
+              location={{ 
+                position, 
+                address, 
+                neighborhood: getNeighborhoodName(selectedNeighborhoodId),
+                landmark: getLandmarkName(selectedLandmarkCoords),
+                // We're passing the name, not coordinates, if that's what's expected for display/saving
+              }}
             />
           </Box>
 
@@ -201,7 +309,7 @@ const PreviousLocationMapPage = () => {
               variant="outlined"
               color="inherit"
               onClick={handleReset}
-              disabled={!position}
+              disabled={!position && !selectedNeighborhoodId}
               startIcon={
                 <RotateCcw
                   className={language === "ar" ? "ml-2" : "mr-2"}
@@ -212,45 +320,6 @@ const PreviousLocationMapPage = () => {
             >
               {t("map.reset")}
             </Button>
-
-            <Box sx={{ flex: 2 }}>
-              <Stack direction="row" spacing={2} useFlexGap={true}>
-                <Box flex={1}>
-                  <SelectLocations
-                    {...{ handleReset }}
-                    {...{ setNeighborhood }}
-                    setCenter={setCenter}
-                  />
-                </Box>
-                <Box flex={1}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel id="select-landmark-label">
-                      {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                    </InputLabel>
-                    <Select
-                      labelId="select-landmark-label"
-                      id="select-landmark"
-                      value={selectedLandmark}
-                      label={
-                        language === "ar" ? "أقرب معلم" : "Nearest Landmark"
-                      }
-                      onChange={(e) => setSelectedLandmark(e.target.value)}
-                    >
-                      <MenuItem value="" disabled>
-                        {language === "ar"
-                          ? "اختر أقرب معلم"
-                          : "Select Landmark"}
-                      </MenuItem>
-                      {nearestLandmark.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.Label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Stack>
-            </Box>
           </Stack>
         </CardContent>
       </Card>
@@ -269,8 +338,8 @@ const PreviousLocationMapPage = () => {
             location={{
               position,
               address,
-              neighborhood,
-              nearestLandmark: selectedLandmark,
+              neighborhood: getNeighborhoodName(selectedNeighborhoodId),
+              nearestLandmark: getLandmarkName(selectedLandmarkCoords),
             }}
           />
         )}

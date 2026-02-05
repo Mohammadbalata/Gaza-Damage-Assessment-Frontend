@@ -736,10 +736,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.title": "سوا بنعمرها - معاً نبني مستقبلنا",
     "landing.subtitle": "منصة موحدة لإعادة الإعمار والدعم الفلسطيني",
     "landing.cards.database": "قاعدة البيانات المركزية",
-    "landing.cards.services": "مركز خدمات الجمهور",
-    "landing.cards.emergency": "إدارة الطوارئ والتدخل السريع",
-    "landing.cards.support": "المؤسسات والمبادرات الشراكية والداعية",
-    "landing.damageAssessment": "حصر الأضرار الذاتية",
+    "landing.cards.services": "مركز الخدمات",
+    "landing.cards.emergency": "الطوارئ والتدخل السريع",
+    "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
+    "landing.damageAssessment": "حصر الأضرار الذاتي",
 
     // Reset Password
     "auth.resetPassword": "إعادة تعيين كلمة المرور",
