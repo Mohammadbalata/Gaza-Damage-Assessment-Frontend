@@ -38,11 +38,11 @@ const DamageAssessmentSection: React.FC = () => {
           />
 
           <Stack
-            direction={{ xs: "column", md: "row" }}
+            direction={{ xs: "column-reverse", sm: "row" }}
             alignItems="center"
             justifyContent="space-between"
             spacing={4}
-            sx={{ position: "relative", zIndex: 1 }}
+            sx={{ position: "relative", zIndex: 1 , mr: 5 }}
           >
             {/* Text Section */}
             <Box
@@ -73,10 +73,12 @@ const DamageAssessmentSection: React.FC = () => {
                   color: "#2d5f3f",
                   fontWeight: 700,
                   mt: 2,
-                  px: 4,
+                  px: 6,
+                  pl:4,
                   "&:hover": {
                     bgcolor: "#f0f0f0",
                   },
+                  textAlign:'center'
                 }}
               >
                 {t("auth.login")}

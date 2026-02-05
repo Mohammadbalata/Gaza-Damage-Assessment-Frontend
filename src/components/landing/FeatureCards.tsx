@@ -48,7 +48,7 @@ const FeatureCards: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, mb: 8 }}>
+    <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, mb: 8 , }}>
       <Box
         sx={{
           display: "grid",

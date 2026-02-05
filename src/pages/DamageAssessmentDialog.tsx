@@ -298,12 +298,19 @@ const DamageAssessmentDialog = ({
         location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
       const address = location?.address ?? initLoc?.address;
       const neighborhood = location?.neighborhood ?? initLoc?.neighborhood;
+      const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
+      console.log("Submitting Data - Address:", address);
+      console.log("Submitting Data - Neighborhood:", neighborhood);
+      console.log("Submitting Data - Nearest Landmark:", landmark);
 
       const reBuildData = {
         buildingType: type,
-        extraData: formDataWithoutImg[type],
+        extraData: {
+          ...formDataWithoutImg[type],
+          landmark,
+        },
         beforeWarImage: data[type]?.beforeWarImage,
         afterWarImage: data[type]?.afterWarImage,
         ownershipDocuments: data[type]?.ownershipDocuments,

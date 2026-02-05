@@ -49,8 +49,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
   HOME: "/home",
-  SIGNIN: "auth/signIn",
-  SIGNUP: "auth/signUp",
+  SIGNIN: "/auth/signIn",
+  SIGNUP: "/auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
   PASSWORD_DISPLAY: "/password-display",
   CHANGE_PASSWORD: "/citizen/settings/change-password",

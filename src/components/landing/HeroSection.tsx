@@ -1,23 +1,27 @@
 import React from "react";
-import { Box, Typography, Button, Container, Stack } from "@mui/material";
-import { useLanguage } from "../../contexts/LanguageContext";
-import Logo from "../../assets/logo.png";
-import { useNavigate } from "react-router-dom";
+import { Box, Button, Stack } from "@mui/material";
 import { ROUTES } from "../../routes/Routes";
-import backgroundPattern from "../../assets/background-pattern.png";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../contexts/LanguageContext";
+
+
+
 
 const HeroSection: React.FC = () => {
-  const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
 
   return (
     <Box
       sx={{
         position: "relative",
-        backgroundImage: `url(${backgroundPattern})`,
+        // Gradient overlay + Fixed Image
+        backgroundImage: "url('/assets/images/hero-bg.jpg')",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
+        backgroundPosition: "center center",
+        backgroundAttachment: "fixed",
         pt: { xs: 8, md: 12 },
         pb: { xs: 12, md: 16 },
         overflow: "hidden",
@@ -25,15 +29,13 @@ const HeroSection: React.FC = () => {
         flexDirection: "column",
         alignItems: "center",
         textAlign: "center",
+        height: "82vh",
       }}
     >
-      <Container
-        maxWidth="lg"
-        sx={{ position: "relative", zIndex: 1, mt: -10, opacity: 1 }}
-      >
-        <Stack spacing={4} alignItems="center">
+      
+        <Stack spacing={4} mt={80} alignItems="center">
           {/* Logo Section */}
-          <Box
+          {/* <Box
             component="img"
             src={Logo} // Using imported logo
             alt="Sawaban'amraha Logo"
@@ -42,14 +44,15 @@ const HeroSection: React.FC = () => {
               height: 500,
               mb: 2,
             }}
-          />
+          /> */}
 
-          {/* Slogans */}
+          {/* Slogans
           <Typography
             variant="h2"
             component="h1"
             sx={{
               fontWeight: 800,
+              ma
               color: "#2d5f3f", // Primary Green
               fontSize: { xs: "2.5rem", md: "4rem" },
               fontFamily:
@@ -69,10 +72,10 @@ const HeroSection: React.FC = () => {
             }}
           >
             {t("landing.subtitle")}
-          </Typography>
+          </Typography> */}
 
           {/* Login Button */}
-          <Button
+          <Button 
             variant="contained"
             size="large"
             onClick={() => navigate(ROUTES.HOME)}
@@ -87,17 +90,19 @@ const HeroSection: React.FC = () => {
               "&:hover": {
                 bgcolor: "#1e402a",
               },
+              position: "absolute",
+              top: "5%",
+              right: "4%"
             }}
           >
             {t("auth.login")}
           </Button>
 
           {/* Palestinian Flag Element - Simplified CSS representation */}
-          <Box sx={{ mt: 4, display: "flex", gap: 1 }}>
+          <Box sx={{ mt: 4, display: "flex", gap: 1 ,  }}>
             {/* We can add a flag SVG or simple CSS blocks here later if needed */}
           </Box>
         </Stack>
-      </Container>
       {/* Decorative Bottom Curve */}
       <Box
         sx={{

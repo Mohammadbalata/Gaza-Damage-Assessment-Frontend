@@ -236,8 +236,11 @@ export const generateApplicationPDF = async (
   ">`;
 
     entries.forEach(([key, value]) => {
-      const translationKey = `form.${key}`;
-      const label = t(translationKey) || key;
+      let label = "";
+      if (key !== "landmark") {
+        const translationKey = `form.${key}`;
+        label = t(translationKey) || key;
+      
 
       // إذا القيمة boolean، حولها إلى "نعم" أو "لا"
       let displayValue = value;
@@ -246,10 +249,13 @@ export const generateApplicationPDF = async (
       }
 
       html += `<div style="margin:0;"><strong>${label}:</strong> ${displayValue}</div>`;
+    }
     });
 
     html += "</div>";
+  
     return html;
+  
   };
 
   // إنشاء عنصر HTML كامل للطباعة
@@ -337,7 +343,7 @@ export const generateApplicationPDF = async (
   ${
     [
       application?.location?.neighborhood,
-      buildingData?.nearestLandmark,
+      buildingData?.landmark,
       buildingData?.nameOfStreet,
       buildingData?.buildingNumber,
     ]

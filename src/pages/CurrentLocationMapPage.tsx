@@ -7,7 +7,7 @@ import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePost } from "../hooks/api/useApi";
-import SelectLocations, { locations } from "../components/SelectLocations";
+import SelectLocations from "../components/SelectLocations";
 import {
   Container,
   Card,
@@ -19,6 +19,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { API } from "../constants/ApiRoutes";
+import { locations } from "../constants/locations";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
