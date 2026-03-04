@@ -101,9 +101,9 @@ export const removeImagesFromBuilding = (buildingData: any) => {
   if (!buildingData) return buildingData;
 
   const cleaned = { ...buildingData };
-  delete cleaned.beforeWarImage;
-  delete cleaned.afterWarImage;
-  delete cleaned.ownershipDocuments;
+  delete cleaned.before_damage_image;
+  delete cleaned.after_damage_image;
+  delete cleaned.ownership_documents;
 
   return cleaned;
 };
