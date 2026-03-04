@@ -206,9 +206,9 @@ export const generateApplicationPDF = async (
   language: string
 ) => {
   // نوع المبنى وبياناته
-  const buildingType = application?.extraData?.buildingType;
+  const buildingType = application?.damage_details?.buildingType;
   const buildingData = buildingType
-    ? application?.extraData?.[buildingType]
+    ? application?.damage_details?.[buildingType]
     : null;
 
   // إنشاء PDF

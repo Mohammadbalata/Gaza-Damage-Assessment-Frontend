@@ -15,7 +15,7 @@ const getStoredUser = () => {
 const storedUser = getStoredUser();
 
 const initialState: IAuthState = {
-  nationalId: storedUser?.nationalId || "",
+  national_id: storedUser?.national_id || "",
   password: storedUser?.password || "",
   user: storedUser || null,
   isAuthenticated: !!storedUser,
@@ -41,7 +41,7 @@ export const authSlice = createSlice({
       state.error = action.payload;
     },
     setNationalId: (state, action) => {
-      state.nationalId = action.payload;
+      state.national_id = action.payload;
     },
     setFirstName: (state, action) => {
       state.firstName = action.payload;
@@ -64,7 +64,7 @@ export const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      state.nationalId = "";
+      state.national_id = "";
       state.password = "";
       state.citizenInfo = {};
       localStorage.removeItem("citizen_user");
@@ -85,7 +85,7 @@ export const authSlice = createSlice({
       state.loading = false;
       state.user = action.payload;
       state.isAuthenticated = true;
-      state.nationalId = action.payload.nationalId;
+      state.national_id = action.payload.national_id;
       state.password = action.payload.password;
       state.citizenInfo = action.payload.citizenInfo;
     });
@@ -101,7 +101,7 @@ export const authSlice = createSlice({
     });
     builder.addCase(signUp.fulfilled, (state, action) => {
       state.loading = false;
-      state.nationalId = action.payload.payload.nationalId;
+      state.national_id = action.payload.payload.national_id;
       state.password = action.payload.payload.password;
       state.isAuthenticated = action.payload.data.success;
       state.messageSuccess = action.payload.data.message;
@@ -125,29 +125,29 @@ export const authSlice = createSlice({
 export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
-    payload: { nationalId: string; password: string },
+    payload: { national_id: string; password: string },
     { rejectWithValue }
   ) => {
     try {
       const res = await axiosClient.post(`${API.citizen.auth.login}`, {
-        nationalId: payload.nationalId,
+        national_id: payload.national_id,
         password: payload.password,
       });
-      console.log(res);
-      // console.log("API Response:", res.data.data.user.application.extraData);
-      const extraData = res.data?.data?.user?.application?.extraData;
-      const locations = res.data.data.user.application?.locations;
-      const token = res.data?.data?.token;
+      console.log('citizen',res.data.citizen);
+      // console.log("API Response:", res.data.data.user.application.damage_details);
+      // const damage_details = res.data?.user?.application?.damage_details;
+      // const locations = res.data.user.application?.locations;
+      const token = res.data?.token;
 
       // Extract and save citizenInfo
-      const citizenInfo = res.data?.data?.user || {};
+      const citizenInfo = res.data.citizen;
 
       if (token) {
         localStorage.setItem("token", token);
+        localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
       }
 
-      // Persist citizenInfo for EditProfile consistency
-      localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
+     
 
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
@@ -155,23 +155,21 @@ export const signIn = createAsyncThunk(
 
       const userProfile = {
         citizenData: res?.data,
-        nationalId: payload.nationalId,
+        national_id: payload.national_id,
         password: payload.password,
         name: res.data?.data?.name || "User",
         first_name: res.data?.data?.user?.first_name || "User",
         father_name: res.data?.data?.user?.father_name || "User",
         family_name: res.data?.data?.user?.family_name || "User",
-        extraData,
-        locations,
-        citizenInfo, // Include in payload for reducer
+        citizenInfo:citizenInfo, // Include in payload for reducer
       };
 
-      localStorage.setItem("citizen_user", JSON.stringify(userProfile));
+      // localStorage.setItem("citizen_user", JSON.stringify(userProfile));
 
       return userProfile;
     } catch (error: any) {
       console.log(error);
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      return rejectWithValue(error.response?.data?.message || "لا يوجد اتصال بالانترنت");
     }
   }
 );
@@ -187,13 +185,13 @@ export const signUp = createAsyncThunk(
           `${payload.pathSignUp}`,
           payload.formData
         );
-        const token = res.data?.data?.token;
+        const token = res.data?.token;
 
         // Try to extract citizenInfo from response if available
         let citizenInfo = null;
-        if (res.data?.data?.user) {
-          citizenInfo = res.data.data.user;
-          localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
+        if (res.data?.citizen) {
+          citizenInfo = res.data.citizen;
+          localStorage.setItem("citizenInfo", JSON?.stringify(citizenInfo));
         }
 
         console.log(res.data);
@@ -205,7 +203,7 @@ export const signUp = createAsyncThunk(
     } else {
       try {
         const res = await axiosClient.post(`${payload.pathSignUp}`, {
-          nationalId: payload.nationalId,
+          national_id: payload.national_id,
           password: payload.password, // include if backend expects it
           firstName: payload.firstName,
           fatherName: payload.fatherName,
@@ -216,7 +214,7 @@ export const signUp = createAsyncThunk(
           phoneNumber: payload.phoneNumber,
           whatsappNumber: payload.whatsappNumber,
         });
-        const token = res.data?.data?.token;
+        const token = res.data?.token;
         console.log(res.data);
         return { payload, data: res.data, token };
       } catch (err: any) {

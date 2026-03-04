@@ -95,6 +95,7 @@ export interface Location {
   type: LocationType;
   address: string;
   neighborhood: string;
+  neighborhood_id?: number | string | null;
   governorate?: string | null;
   town?: string | null;
   street?: string | null;
@@ -103,7 +104,7 @@ export interface Location {
   latitude?: number | null;
   longitude?: number | null;
   notes?: string | null;
-  extraData: string;
+  damage_details: string;
   createdAt: string;
   updatedAt: string;
   citizen?: Citizen;

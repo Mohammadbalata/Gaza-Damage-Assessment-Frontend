@@ -53,7 +53,7 @@ const VerificationQuestionsPage = () => {
       setLoading(true);
       dispatch(
         signUp({
-          nationalId: id ?? "",
+          national_id: id ?? "",
           password: "",
           pathSignUp: `${API.citizen.auth.verifyQuestions}`,
         })
@@ -88,7 +88,7 @@ const VerificationQuestionsPage = () => {
 
     try {
       await axiosClient.post(`${API.citizen.auth.verifyQuestions}`, {
-        nationalId: id,
+        national_id: id,
         answers: answers,
       });
       setLoadingInput(false);

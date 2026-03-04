@@ -1,34 +1,34 @@
 export type Location = {
-  id: string;
+  id: number;
   name: string;
   coords: [number, number];
 };
 
 export const locations: Location[] = [
-  { id: "GaaAlgrain", name: "حي قاع القرين", coords: [31.312136, 34.322571] },
-  { id: "ALManara", name: "حي المنارة", coords: [31.312481, 34.308956] },
-  { id: "ButnAlsameen", name: "حي البطن السمين", coords: [31.338725, 34.293492] },
-  { id: "SouthernMawasi", name: "حي المواصي الجنوبي", coords: [31.350169, 34.257856] },
-  { id: "GizanAbuRishawn", name: "حي قيزان أبو رشوان", coords: [31.32892, 34.283064] },
-  { id: "JortAllout", name: "حي جورت اللوت", coords: [31.332005, 34.303409] },
-  { id: "ALSalam", name: "حي السلام", coords: [31.303201, 34.293245] },
-  { id: "GizanAlnajar", name: "حي قيزان النجار", coords: [31.320056, 34.293727] },
-  { id: "NorthernMawasi", name: "حي المواصي الشمالي", coords: [31.378993, 34.291451] },
-  { id: "AlTahrer", name: "حي التحرير", coords: [31.341646, 34.271494] },
-  { id: "ALSatar", name: "حي السطر", coords: [31.363714, 34.321218] },
-  { id: "Maain", name: "حي معن", coords: [31.329971, 34.31607] },
-  { id: "ALJla", name: "حي الجلاء", coords: [31.377936, 34.312917] },
-  { id: "AlNasir", name: "حي النصر", coords: [31.364591, 34.292537] },
-  { id: "ALAmal", name: "حي الأمل", coords: [31.356017, 34.298724] },
-  { id: "KhanYounisCamp", name: "حي المعسكر", coords: [31.348462, 34.292917] },
-  { id: "CityCenter", name: "حي مركز المدينة", coords: [31.343805, 34.302888] },
-  { id: "ALKatiba", name: "حي الكتيبة", coords: [31.356724, 34.307157] },
-  { id: "ALMahata", name: "حي المحطة", coords: [31.350257, 34.312577] },
-  { id: "AlSheikhNasser", name: "حي الشيخ ناصر", coords: [31.340147, 34.311497] },
+  { id: 1, name: "حي قاع القرين", coords: [31.312136, 34.322571] },
+  { id: 2, name: "حي المنارة", coords: [31.312481, 34.308956] },
+  { id: 3, name: "حي البطن السمين", coords: [31.338725, 34.293492] },
+  { id: 4, name: "حي المواصي الجنوبي", coords: [31.350169, 34.257856] },
+  { id: 5, name: "حي قيزان أبو رشوان", coords: [31.32892, 34.283064] },
+  { id: 6, name: "حي جورت اللوت", coords: [31.332005, 34.303409] },
+  { id: 7, name: "حي السلام", coords: [31.303201, 34.293245] },
+  { id: 8, name: "حي قيزان النجار", coords: [31.320056, 34.293727] },
+  { id: 9, name: "حي المواصي الشمالي", coords: [31.378993, 34.291451] },
+  { id: 10, name: "حي التحرير", coords: [31.341646, 34.271494] },
+  { id: 11, name: "حي السطر", coords: [31.363714, 34.321218] },
+  { id: 12, name: "حي معن", coords: [31.329971, 34.31607] },
+  { id: 13, name: "حي الجلاء", coords: [31.377936, 34.312917] },
+  { id: 14, name: "حي النصر", coords: [31.364591, 34.292537] },
+  { id: 15, name: "حي الأمل", coords: [31.356017, 34.298724] },
+  { id: 16, name: "حي المعسكر", coords: [31.348462, 34.292917] },
+  { id: 17, name: "حي مركز المدينة", coords: [31.343805, 34.302888] },
+  { id: 18, name: "حي الكتيبة", coords: [31.356724, 34.307157] },
+  { id: 19, name: "حي المحطة", coords: [31.350257, 34.312577] },
+  { id: 20, name: "حي الشيخ ناصر", coords: [31.340147, 34.311497] },
 ];
 
 export const landmarks:any = {
-  "ALAmal": [
+  "15": [
     {
       "landmark": "بركة حي الأمل + متنزه",
       "latitude": "31.359859",
@@ -165,7 +165,7 @@ export const landmarks:any = {
       "longitude": "34.294926"
     }
   ],
-  "ButnAlsameen": [
+  "3": [
     {
       "landmark": "المقبرة العامة",
       "latitude": "31.34156",
@@ -287,7 +287,7 @@ export const landmarks:any = {
       "longitude": "34.296324"
     }
   ],
-  "AlTahrer": [
+  "10": [
     {
       "landmark": "الكلية الجامعية للعلوم التطبيقية",
       "latitude": "31.354277",
@@ -379,7 +379,7 @@ export const landmarks:any = {
       "longitude": "34.278741"
     }
   ],
-  "ALJla": [
+  "13": [
     {
       "landmark": "UNDP محطة ",
       "latitude": "31.370886",
@@ -476,7 +476,7 @@ export const landmarks:any = {
       "longitude": "34.309262"
     }
   ],
-  "ALSatar": [
+  "11": [
     {
       "landmark": "المجمع الاسلامي مدرسه الاقصى",
       "latitude": "31.366263",
@@ -613,7 +613,7 @@ export const landmarks:any = {
       "longitude": "34.30773"
     }
   ],
-  "ALSalam": [
+  "7": [
     {
       "landmark": "مدرسة الهدى تابعة للمجمع الإسلامي",
       "latitude": "31.316649",
@@ -690,7 +690,7 @@ export const landmarks:any = {
       "longitude": "34.304379"
     }
   ],
-  "AlSheikhNasser": [
+  "20": [
     {
       "landmark": "جمعية دار الكتاب والسنة",
       "latitude": "31.339321",
@@ -747,7 +747,7 @@ export const landmarks:any = {
       "longitude": "34.310772"
     }
   ],
-  "ALKatiba": [
+  "18": [
     {
       "landmark": "محطة الصرف الصحي الوفية",
       "latitude": "31.351798",
@@ -799,7 +799,7 @@ export const landmarks:any = {
       "longitude": "34.301899"
     }
   ],
-  "ALMahata": [
+  "19": [
     {
       "landmark": "الإتصالات الفلسطينية",
       "latitude": "31.343394",
@@ -1016,7 +1016,7 @@ export const landmarks:any = {
       "longitude": "34.308127"
     }
   ],
-  "KhanYounisCamp": [
+  "16": [
     {
       "landmark": "استاد خان يونس البلدي",
       "latitude": "31.347858",
@@ -1283,7 +1283,7 @@ export const landmarks:any = {
       "longitude": "34.29525"
     }
   ],
-  "ALManara": [
+  "2": [
     {
       "landmark": "المدينة الرياضية",
       "latitude": "31.32423",
@@ -1365,7 +1365,7 @@ export const landmarks:any = {
       "longitude": "34.302162"
     }
   ],
-  "SouthernMawasi": [
+  "9": [
     {
       "landmark": "مسجد الإحسان",
       "latitude": "31.357675",
@@ -1412,7 +1412,7 @@ export const landmarks:any = {
       "longitude": "34.269902"
     }
   ],
-  "NorthernMawasi": [
+  "4": [
     {
       "landmark": "المنتزة البحري",
       "latitude": "31.381346",
@@ -1519,7 +1519,7 @@ export const landmarks:any = {
       "longitude": "34.303833"
     }
   ],
-  "AlNasir": [
+  "14": [
     {
       "landmark": "اتحاد لجان الرعاية الصحية",
       "latitude": "31.35535",
@@ -1746,7 +1746,7 @@ export const landmarks:any = {
       "longitude": "34.293787"
     }
   ],
-  "JortAllout": [
+  "6": [
     {
       "landmark": "الكلية الجامعية للعلوم والتكنولوجيا\n",
       "latitude": "31.328178",
@@ -1858,7 +1858,7 @@ export const landmarks:any = {
       "longitude": "34.310271"
     }
   ],
-  "GizanAbuRishawn": [
+  "5": [
     {
       "landmark": "بئر مياه _ سلطة المياه الفلسطينية",
       "latitude": "31.329672",
@@ -1935,7 +1935,7 @@ export const landmarks:any = {
       "longitude": "34.288923"
     }
   ],
-  "GizanAlnajar": [
+  "8": [
     {
       "landmark": "بئر مياه الاغاثة",
       "latitude": "31.319374",
@@ -2002,7 +2002,7 @@ export const landmarks:any = {
       "longitude": "34.287414"
     }
   ],
-  "CityCenter": [
+  "17": [
     {
       "landmark": "اكشاك الميدان",
       "latitude": "31.343329",
@@ -2159,7 +2159,7 @@ export const landmarks:any = {
       "longitude": "34.302957"
     }
   ],
-  "Maain": [
+  "12": [
     {
       "landmark": "بئر وخزان معن",
       "latitude": "31.33215",
@@ -2311,7 +2311,7 @@ export const landmarks:any = {
       "longitude": "34.312929"
     }
   ],
-  "GaaAlgrain": [
+  "1": [
     {
       "landmark": "الجامعة الاسلامية",
       "latitude": "31.3222",

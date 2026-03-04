@@ -7,10 +7,10 @@
 //   );
 //   let prevLocationsChangedExtraData: any[] = [];
 //   prevLocations.forEach((location: any) => {
-//     const extraData = JSON.parse(location.extraData);
+//     const damage_details = JSON.parse(location.damage_details);
 //     prevLocationsChangedExtraData.push({
 //       ...location,
-//       extraData: extraData,
+//       damage_details: damage_details,
 //     });
 //   });
 

@@ -43,14 +43,14 @@ const SignUpPage = () => {
   const onSubmit = async (data: FormDataCustom) => {
     await dispatch(
       signUp({
-        nationalId: data.nationalId,
+        national_id: data.national_id,
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
       })
     )
       .unwrap()
       .then(() => {
-        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.nationalId}`);
+        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.national_id}`);
         console.log("success");
       })
       .catch((error) => {
@@ -105,7 +105,7 @@ const SignUpPage = () => {
               {t("auth.nationalId")}
             </Typography>
             <FormInput
-              id="nationalId"
+              id="national_id"
               type="text"
               placeholder={t("auth.nationalIdPlaceholder")}
               register={register}

@@ -1,5 +1,5 @@
 export interface IAuthState {
-  nationalId?: string | null | any;
+  national_id?: string | null | any;
   password?: string | null | any;
   user?: any | null;
   isAuthenticated?: boolean;

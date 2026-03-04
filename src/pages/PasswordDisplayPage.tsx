@@ -61,7 +61,7 @@ const PasswordDisplayPage = () => {
   useEffect(() => {
     dispatch(
       signUp({
-        nationalId: id ?? "",
+        national_id: id ?? "",
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
       })
@@ -80,7 +80,7 @@ const PasswordDisplayPage = () => {
 
   const onSubmit = async (data: any) => {
     const formData = new FormData();
-    formData.append("nationalId", id ?? "");
+    formData.append("national_id", id ?? "");
     formData.append("password", data.password);
     formData.append("firstName", data.firstName);
     formData.append("fatherName", data.fatherName);

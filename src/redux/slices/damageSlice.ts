@@ -22,9 +22,9 @@ const initialState: IDamageAssessmentState = {
     additionalNotes: "",
     propertyType: "",
     propertyOwnerName: "",
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
   },
   ApartmentInsideBuilding: {
     floorNumber: null,
@@ -45,9 +45,9 @@ const initialState: IDamageAssessmentState = {
     isHabitable: "",
     additionalNotes: "",
 
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
   },
 
   ResidentialBuilding: {
@@ -78,9 +78,9 @@ const initialState: IDamageAssessmentState = {
     isHabitable: "",
     additionalNotes: "",
 
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
     MixedUsage: {
       floors: {
         ground: false,
@@ -124,9 +124,9 @@ const initialState: IDamageAssessmentState = {
     isHabitable: "",
     additionalNotes: "",
 
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
     MixedUsage: {
       floors: {
         ground: false,
@@ -155,9 +155,9 @@ const initialState: IDamageAssessmentState = {
     isHabitable: "",
     additionalNotes: "",
 
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
   },
 
   additionalBuildings: {
@@ -181,9 +181,9 @@ const initialState: IDamageAssessmentState = {
     isHabitable: "",
     additionalNotes: "",
 
-    beforeWarImage: null,
-    afterWarImage: null,
-    ownershipDocuments: [],
+    before_damage_image: null,
+    after_damage_image: null,
+    ownership_documents: [],
   },
 
   loading: false,
@@ -202,7 +202,7 @@ const handleSave = async (
     dispatch(setBuildingType(buildingType));
     dispatch(actionCreator(data));
     console.log("buildingType in handleSave", buildingType);
-    // console.log(JSON.parse(res.data.data.extraData));
+    // console.log(JSON.parse(res.data.data.damage_details));
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : errorMessage;
     console.log(msg);

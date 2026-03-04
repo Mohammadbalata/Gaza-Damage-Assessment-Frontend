@@ -23,11 +23,11 @@ import { Button, CircularProgress, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
-import { ROUTES } from "../routes/Routes";
-import { useNavigate } from "react-router-dom";
-import { axiosClient } from "../api/baseUrl";
+// import { ROUTES } from "../routes/Routes";
+// import { useNavigate } from "react-router-dom";
+// import { axiosClient } from "../api/baseUrl";
 import { Login as LoginIcon } from "@mui/icons-material";
-import { API } from "../constants/ApiRoutes";
+// import { API } from "../constants/ApiRoutes";
 import { useSnackbar } from "notistack";
 
 interface DamageAssessmentDialogProps {
@@ -46,13 +46,14 @@ const DamageAssessmentDialog = ({
   onSuccess,
 }: DamageAssessmentDialogProps) => {
   const { t, language } = useLanguage();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
+  const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   // Use a local loading state to strictly control the button
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
-  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
+  const [isCurrentLocation] = useState<boolean>(citizenInfo.current_location !== null);
   const { enqueueSnackbar } = useSnackbar();
 
   const {
@@ -92,12 +93,12 @@ const DamageAssessmentDialog = ({
   // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
-      const type = initialData?.extraData?.buildingType;
+      const type = initialData?.damage_details?.buildingType;
 
-      if (type && initialData.extraData?.[type]) {
+      if (type && initialData.damage_details?.[type]) {
         console.log(
           "Building type specific data:",
-          initialData.extraData[type]
+          initialData.damage_details[type]
         );
       }
 
@@ -109,52 +110,52 @@ const DamageAssessmentDialog = ({
       setValue("buildingType", type);
 
       // Hydrate extra fields
-      if (initialData.extraData && initialData.extraData[type]) {
-        setValue(type as any, initialData.extraData[type]);
-        dispatchByType(dispatch, type, initialData.extraData);
+      if (initialData.damage_details && initialData.damage_details[type]) {
+        setValue(type as any, initialData.damage_details[type]);
+        dispatchByType(dispatch, type, initialData.damage_details);
       }
 
       // Hydrate Images (Critical for Edit Mode)
       // Check multiple possible locations for image URLs
-      const buildingData = initialData.extraData?.[type] || {};
-      const extraDataRoot = initialData.extraData || {};
+      const buildingData = initialData.damage_details?.[type] || {};
+      const damageDetailsRoot = initialData.damage_details || {};
 
-      // Try multiple locations: root level, extraData root, building-specific
+      // Try multiple locations: root level, damage_details root, building-specific
       // Also handle nested {url: "..."} structure from Supabase
-      const beforeWarImage =
-        getImageUrl(initialData.beforeWarImage) ||
-        getImageUrl(extraDataRoot.beforeWarImage) ||
-        getImageUrl(buildingData.beforeWarImage);
+      const before_damage_image =
+        getImageUrl(initialData.before_damage_image) ||
+        getImageUrl(damageDetailsRoot.before_damage_image) ||
+        getImageUrl(buildingData.before_damage_image);
 
-      const afterWarImage =
-        getImageUrl(initialData.afterWarImage) ||
-        getImageUrl(extraDataRoot.afterWarImage) ||
-        getImageUrl(buildingData.afterWarImage);
+      const after_damage_image =
+        getImageUrl(initialData.after_damage_image) ||
+        getImageUrl(damageDetailsRoot.after_damage_image) ||
+        getImageUrl(buildingData.after_damage_image);
 
       // For ownership documents, handle array of objects
-      let ownershipDocuments =
-        initialData.ownershipDocuments ||
-        extraDataRoot.ownershipDocuments ||
-        buildingData.ownershipDocuments;
+      let ownership_documents =
+        initialData.ownership_documents ||
+        damageDetailsRoot.ownership_documents ||
+        buildingData.ownership_documents;
 
-      if (Array.isArray(ownershipDocuments)) {
-        ownershipDocuments = ownershipDocuments
+      if (Array.isArray(ownership_documents)) {
+        ownership_documents = ownership_documents
           .map((doc: any) => getImageUrl(doc) || doc)
           .filter(Boolean);
       }
 
-      if (beforeWarImage) {
-        setValue(`${type}.beforeWarImage` as any, beforeWarImage);
+      if (before_damage_image) {
+        setValue(`${type}.before_damage_image` as any, before_damage_image);
       }
-      if (afterWarImage) {
-        setValue(`${type}.afterWarImage` as any, afterWarImage);
+      if (after_damage_image) {
+        setValue(`${type}.after_damage_image` as any, after_damage_image);
       }
       if (
-        ownershipDocuments &&
-        Array.isArray(ownershipDocuments) &&
-        ownershipDocuments.length > 0
+        ownership_documents &&
+        Array.isArray(ownership_documents) &&
+        ownership_documents.length > 0
       ) {
-        setValue(`${type}.ownershipDocuments` as any, ownershipDocuments);
+        setValue(`${type}.ownership_documents` as any, ownership_documents);
       }
     }
   }, [initialData, dispatch, setValue]);
@@ -167,14 +168,14 @@ const DamageAssessmentDialog = ({
 
   const buildApplication = (data: any) => ({
     buildingType: data.buildingType,
-    extraData: data.extraData,
+    damage_details: data.damage_details,
     latitude: data.latitude,
     longitude: data.longitude,
     address: data.address,
-    neighborhood: data.neighborhood,
-    beforeWarImage: data.beforeWarImage,
-    afterWarImage: data.afterWarImage,
-    ownershipDocuments: data.ownershipDocuments,
+    neighborhood_id: data.neighborhood_id,
+    before_damage_image: data.before_damage_image,
+    after_damage_image: data.after_damage_image,
+    ownership_documents: data.ownership_documents,
   });
 
   const createApplicationFormData = (application: any) => {
@@ -192,38 +193,44 @@ const DamageAssessmentDialog = ({
     }
 
     const address = application?.address || "";
-    const neighborhood = application?.neighborhood || "";
+    const neighborhood_id = application?.neighborhood_id;
+
+    if (!neighborhood_id) {
+      console.warn("neighborhood_id is missing in application data");
+    }
 
     formData.append("address", address);
-    formData.append("neighborhood", neighborhood);
+    formData.append("neighborhood_id", neighborhood_id);
 
     // Nested fallbacks
     formData.append("location[address]", address);
-    formData.append("location[neighborhood]", neighborhood);
+    formData.append("location[neighborhood_id]", neighborhood_id);
 
     formData.append(
-      "extraData",
+      "damage_details",
       JSON.stringify({
         buildingType: application.buildingType,
-        [application.buildingType]: application.extraData,
+        [application.buildingType]: application.damage_details,
       })
     );
 
-    if (application.beforeWarImage instanceof File) {
-      formData.append("beforeWarImage", application.beforeWarImage);
+    if (application.before_damage_image instanceof File) {
+      formData.append("before_damage_image", application.before_damage_image);
     }
-    if (application.afterWarImage instanceof File) {
-      formData.append("afterWarImage", application.afterWarImage);
+    if (application.after_damage_image instanceof File) {
+      formData.append("after_damage_image", application.after_damage_image);
     }
 
-    if (Array.isArray(application.ownershipDocuments)) {
-      application.ownershipDocuments.forEach((file: any) => {
+    if (Array.isArray(application.ownership_documents)) {
+      console.log('array length',application.ownership_documents.length)
+      application.ownership_documents.forEach((file: any) => {
         // Only append actual File objects.
         // If backend updates files by replacement, verify if we need to send existing string URLs.
         // Usually FormData for file upload expects Files. Sending strings might break it.
         // We assume backend keeps existing files if not sent, or we deal with new files only.
         if (file instanceof File) {
-          formData.append("ownershipDocuments", file);
+          formData.append("ownership_documents[]", file);
+          console.log('test in application.ownership_documents.forEach ')
         }
       });
     }
@@ -263,7 +270,7 @@ const DamageAssessmentDialog = ({
 
   const onSubmit = async (formdata: any) => {
     let data = formdata;
-    // console.log(data);
+    console.log(data);
     if (data.buildingType === "ResidentialBuilding") {
       data = reBuildData(data);
     } else if (data.buildingType === "tower") {
@@ -279,6 +286,10 @@ const DamageAssessmentDialog = ({
     if (isSubmitting) return;
 
     try {
+      if (!isCurrentLocation && !location?.neighborhood_id && !initialData?.neighborhood_id) {
+        enqueueSnackbar(t("The neighborhood id field is required."), { variant: "error" });
+        return;
+      }
       setIsSubmitting(true);
 
       const type = data.buildingType;
@@ -297,27 +308,28 @@ const DamageAssessmentDialog = ({
       const longitude =
         location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
       const address = location?.address ?? initLoc?.address;
-      const neighborhood = location?.neighborhood ?? initLoc?.neighborhood;
+      const neighborhood_id = location?.neighborhood_id || initLoc?.neighborhood_id;
       const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
       console.log("Submitting Data - Address:", address);
-      console.log("Submitting Data - Neighborhood:", neighborhood);
+      console.log("Submitting Data - neighborhood_id:", neighborhood_id);
       console.log("Submitting Data - Nearest Landmark:", landmark);
 
       const reBuildData = {
         buildingType: type,
-        extraData: {
+        damage_details: {
           ...formDataWithoutImg[type],
           landmark,
         },
-        beforeWarImage: data[type]?.beforeWarImage,
-        afterWarImage: data[type]?.afterWarImage,
-        ownershipDocuments: data[type]?.ownershipDocuments,
+        before_damage_image: data[type]?.before_damage_image,
+        after_damage_image: data[type]?.after_damage_image,
+        ownership_documents: data[type]?.ownership_documents,
         latitude,
         longitude,
-        neighborhood,
+        neighborhood_id,
         address,
+        landmark
       };
 
       const application = buildApplication(reBuildData);
@@ -325,62 +337,68 @@ const DamageAssessmentDialog = ({
       // Update Redux state
       dispatch(updatePreviousLocation({ previosLocation: application }));
 
+    
       // API Call
       console.log(application);
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
 
       const obj = Object.fromEntries(formData.entries());
-      console.log(obj);
+      console.log('formData',obj);
 
-      if (initialData?.id) {
-        // Update existing application
-        await axiosClient.put(
-          `${API.citizen.applications.update(initialData.id)}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then(() => {
-          console.log('send edits on dialog form')
-        }).catch((err:any) => {
-          console.log(err)
-        })
-      } else {
-        // Create new application
-        await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
+      // if (initialData?.id) {
+      //   // Update existing application
+      //   await axiosClient.put(
+      //     `${API.citizen.damageReports.update(initialData.id)}`,
+      //     formData,
+      //     {
+      //       headers: {
+      //         Authorization: `Bearer ${token}`,
+      //       },
+      //     }
+      //   ).then(() => {
+      //     console.log('send edits on dialog form')
+      //   }).catch((err:any) => {
+      //     console.log(err)
+      //   })
+      // } else {
+      //   // Create new application
+      //   await axiosClient.post(`${API.citizen.damageReports.create}`, formData, {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   });
+      // }
 
-      // Success feedback
-      enqueueSnackbar(t("common.success"), { variant: "success" });
+      // // Success feedback
+      // enqueueSnackbar(t("common.success"), { variant: "success" });
 
-      if (onSuccess) {
-        onSuccess();
-        onClose();
-      } else {
-        // Navigation / Refresh
-        // If closing dialog inside MyApplications, we might want to reload or just close
-        // Simple approach: reload to refresh table if updating existing
-        setTimeout(() => {
-          if (initialData) {
-            // Edit mode -> Reload window or navigate to My Apps (force refresh)
-            window.location.reload();
-          } else {
-            // New mode -> Navigate normally
-            navigate(
-              isCurrentLocation
-                ? ROUTES.CITIZEN_DASHBOARD
-                : ROUTES.CURRENT_LOCATION
-            );
-          }
-        }, 1000);
-      }
+      // if (onSuccess) {
+      //   onSuccess();
+      //   onClose();
+      // } else {
+      //   // Navigation / Refresh
+      //   // If closing dialog inside MyApplications, we might want to reload or just close
+      //   // Simple approach: reload to refresh table if updating existing
+      //   setTimeout(() => {
+      //     if (initialData) {
+      //       // Edit mode -> Reload window or navigate to My Apps (force refresh)
+      //       window.location.reload();
+      //     } else {
+      //       // New mode -> Navigate normally
+      //       navigate(
+      //         isCurrentLocation
+      //           ? ROUTES.CITIZEN_DASHBOARD
+      //           : ROUTES.CURRENT_LOCATION
+      //       );
+      //     }
+      //   }, 1000);
+      // }
+            enqueueSnackbar(t("common.success"), { variant: "success" });
+            if (onSuccess) {
+        onSuccess();}
+
+
     } catch (err) {
       console.error(err);
       enqueueSnackbar(t("common.error"), { variant: "error" });
@@ -388,26 +406,7 @@ const DamageAssessmentDialog = ({
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    axiosClient
-      .get(`${API.citizen.applications.list}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res: any) => {
-        const isCurrent = res.data.data.citizen.current_location;
-        if (isCurrent) {
-          setIsCurrentLocation(true);
-        }
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }, []);
+ 
 
   useEffect(() => {
     if (!initialData) {
@@ -419,7 +418,7 @@ const DamageAssessmentDialog = ({
   const renderBuildingContent = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
-      damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
+      damageAssessmentInfo.buildingType || initialData.damage_details.buildingType;
 
     const commonProps = {
       register,

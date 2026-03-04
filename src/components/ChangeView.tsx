@@ -11,7 +11,20 @@ const ChangeView = ({
   const map = useMap();
 
   useEffect(() => {
-    map.setView(center, zoom);
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+
+    const isDifferent = 
+      Math.abs(currentCenter.lat - center[0]) > 0.0001 || 
+      Math.abs(currentCenter.lng - center[1]) > 0.0001 || 
+      currentZoom !== zoom;
+
+    if (isDifferent) {
+      map.setView(center, zoom, {
+        animate: true,
+        duration: 0.5
+      });
+    }
   }, [center, zoom, map]);
 
   return null;

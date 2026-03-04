@@ -41,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useGet, usePost } from "../hooks/api/useApi";
+// import { usePut } from "../hooks/api/useApi";
 import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
@@ -56,6 +56,8 @@ import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
 import SelectLocations from "../components/SelectLocations";
+import { locations } from "../constants/locations";
+import { axiosClient } from "../api/baseUrl";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -83,29 +85,30 @@ const MyApplications = () => {
     [number, number] | null
   >(null);
   const [locationAddress, setLocationAddress] = useState("");
-  const [locationNeighborhood, setLocationNeighborhood] = useState<string>(
-  );
+  const [locationNeighborhood, setLocationNeighborhood] = useState<string>("");
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const theme = useTheme();
+  const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const [locationLoading, setLocationLoading] = useState(false);
 
-  // usePost for updating current location
-  const { loading: locationLoading, execute: updateLocation } = usePost(
-    `${API.citizen.locations.current}`,
-    {
-      onSuccess: () => {
-        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-          variant: "success",
-        });
-        setLocationDialogOpen(false);
-        refreshApplications();
-      },
-      onError: (err) => {
-        enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
-        console.error(err);
-      },
-    }
-  );
+  // // usePut for updating current location
+  // const { loading: locationLoading, execute: updateLocation } = usePut(
+  //   `${API.citizen.locations.current}`,
+  //   {
+  //     onSuccess: () => {
+  //       enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+  //         variant: "success",
+  //       });
+  //       setLocationDialogOpen(false);
+  //     },
+  //     onError: (err) => {
+  //       enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
+  //       console.error(err);
+  //     },
+  //   }
+  // );
+  
 
   // Reverse geocoding for location address
   useEffect(() => {
@@ -129,28 +132,54 @@ const MyApplications = () => {
 
   // const id = watch("id");
 
-  const {
-    data: rawData,
-    loading,
-    error,
-    execute: refreshApplications,
-  } = useGet<any>(`${API.citizen.applications.list}`, {
-    immediate: true,
-  });
+  // const {
+  //   data: rawData,
+  //   loading,
+  //   error,
+  //   execute: refreshApplications,
+  // } = useGet<any>(`${API.citizen.applications.list}`, {
+  //   immediate: true,
+  // });
+  const [rawData, setRawData] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+  
+  useEffect(() => {
+    axiosClient.get(API.citizen.applications.list, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    } ).then((res: any) => {
+       setRawData(res.data.damage_reports);
+       setLoading(false);
+      console.log(rawData)
+    }).catch((err:any) => {
+      console.log(err)
+      setError(err.message);
+      setLoading(false);
+    })
+  }, []); 
 
   // Robust data handling
   const applications: any[] = Array.isArray(rawData)
     ? rawData
-    : rawData?.applications
+    : Array.isArray(rawData?.damage_reports)
     ? rawData.applications
+    : Array.isArray(rawData)
+    ? rawData
     : rawData?.id // If it's a single application object
     ? [rawData]
     : [];
-  const citizen: any = rawData?.citizen;
-  console.log("rawData", rawData?.applications);
+  
+  const citizen: any = rawData?.citizen || {}; // Fallback to empty object if citizen is missing
+  useEffect(() => {
+    
+    // console.log("rawData", rawData?.damage_reports);
+    console.log("applications", applications);
+  }, [rawData]);
 
   // Filter applications
-  const filteredApplications = applications.filter((app: any) => {
+  const filteredApplications = applications?.filter((app: any) => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
 
@@ -203,15 +232,8 @@ const MyApplications = () => {
   };
 
   const handleAction = (app: any) => {
-    // const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
-    // Assuming status is returned from API.
-    // If status is "pending", allow edit. Else, read-only.
-    // NOTE: Check exact enum/string value for "pending" from backend. Usually "PENDING".
-
-    // For safety, checking case-insensitive
-    // console.log(app)
-    const status = app.status?.toUpperCase() || "PENDING";
-    const canEdit = status === "PENDING";
+    const status = app.status?.toUpperCase() ||"SUBMITTED";
+    const canEdit = status === "SUBMITTED";
 
     setSelectedApplication(app);
     setIsReadOnly(!canEdit);
@@ -235,15 +257,15 @@ const MyApplications = () => {
   // Location Dialog Handlers
   const handleOpenLocationDialog = () => {
     // Pre-fill with existing location if available
-    if (citizen?.current_location) {
-      const lat = parseFloat(citizen.current_location.latitude);
-      const lng = parseFloat(citizen.current_location.longitude);
+    if (citizenInfo?.current_location) {    
+      const lat = parseFloat(citizenInfo.current_location.latitude);
+      const lng = parseFloat(citizenInfo.current_location.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setLocationPosition([lat, lng]);
         setMapCenter([lat, lng]);
       }
-      setLocationAddress(citizen.current_location.address || "");
-      setLocationNeighborhood(citizen.current_location.neighborhood || "");
+      setLocationAddress(citizenInfo.current_location.address || "");
+      setLocationNeighborhood(citizenInfo.current_location.neighborhood.name || "");
     } else {
       setLocationPosition(null);
       setLocationAddress("");
@@ -264,20 +286,42 @@ const MyApplications = () => {
 
   const handleConfirmLocationUpdate = () => {
     if (locationPosition && locationAddress) {
-      updateLocation({
+      const selectedLoc = locations.find(loc => loc.name === locationNeighborhood);
+      const neighborhood_id = selectedLoc ? selectedLoc.id : 1;
+      axiosClient.put(`${API.citizen.locations.current}`, {
         latitude: locationPosition[0].toString(),
         longitude: locationPosition[1].toString(),
         address: locationAddress,
-        neighborhood: locationNeighborhood,
+        neighborhood_id,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+      }).then((res:any) => {
+        setLocationLoading(false);
+        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+            variant: "success",
+          });
+          setLocationDialogOpen(false);
+
+          const citizenInfo = JSON.parse(localStorage.getItem('citizenInfo') || '{}');
+
+          const updated = {
+            ...citizenInfo,
+            current_location: res.data.citizen.current_location
+          };
+
+          localStorage.setItem('citizenInfo', JSON.stringify(updated));
+          console.log(res.data)
+      }).catch((err:any) => {
+        setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
+          console.log(err)
       });
     }
   };
-  // useEffect(() => {
-  //   console.log(locationPosition)
-  //   console.log(locationAddress)
-  //   console.log(locationNeighborhood)
-  //   console.log(selectedApplication)
-  // }, [selectedApplication]);
+
   if (loading) {
     return (
       <Box
@@ -563,13 +607,13 @@ const MyApplications = () => {
               initialData={selectedApplication}
               location={{
                 position: [
-                  selectedApplication?.location?.latitude,
-                  selectedApplication.location.longitude,
+                  selectedApplication?.latitude,
+                  selectedApplication?.longitude,
                 ],
-                address: `${selectedApplication.location.address}`,
-                neighborhood: `${selectedApplication.location.neighborhood}`,
+                address: `${selectedApplication?.address}`,
+                neighborhood_id: `${selectedApplication?.neighborhood_id}`,
+                landmark: `${selectedApplication?.landmark}`,
               }}
-              onSuccess={refreshApplications}
             />
           )}
         </Dialog>
@@ -642,14 +686,14 @@ const MyApplications = () => {
 
               <Typography sx={{ mb: 1 }}>
                 <strong>{t("citizen.address")}:</strong>{" "}
-                {citizen?.current_location?.address || "-"}
+                {citizenInfo?.current_location?.address || "-"}   
               </Typography>
 
               <Typography>
                 <strong>{t("citizen.addedDate")}:</strong>{" "}
                 {citizen?.current_location
-                  ? formatDate(new Date(citizen.current_location.createdAt))
-                  : "-"}
+                  ? formatDate(new Date(citizen.current_location.createdAt)) 
+                  : "-"}.  {/* must edit */}
               </Typography>
 
               <Button
@@ -735,6 +779,12 @@ const MyApplications = () => {
                 height="100%"
                 width="100%"
                 setAddress={setLocationAddress}
+                location={{
+                  neighborhood: citizenInfo?.current_location?.neighborhood?.name,
+                }}
+                  
+                
+                
               />
             </Box>
 

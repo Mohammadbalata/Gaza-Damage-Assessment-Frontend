@@ -116,16 +116,16 @@
 
 //             {previosLocations?.map((location: any, index: number) => {
 //               const damageType =
-//                 location?.extraData[location.extraData.buildingType]
+//                 location?.damage_details[location.damage_details.buildingType]
 //                   ?.damageType;
 //               const propertyType =
-//                 location?.extraData[location.extraData.buildingType]
+//                 location?.damage_details[location.damage_details.buildingType]
 //                   ?.propertyType;
 //               const propertyArea =
-//                 location?.extraData[location.extraData.buildingType]
+//                 location?.damage_details[location.damage_details.buildingType]
 //                   ?.propertyArea;
 //               const isHabitable =
-//                 location?.extraData[location.extraData.buildingType]
+//                 location?.damage_details[location.damage_details.buildingType]
 //                   ?.isHabitable;
 
 //               return (

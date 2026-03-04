@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import FormDialog from "./FormDialog";
 
@@ -155,14 +155,24 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
     };
   }, [webmapId]);
 
-  // update view center when center prop changes
+  // Robust coordinate sanitation with stability
+  const safeCenter = useMemo(() => [
+    typeof center?.[0] === 'number' && !isNaN(center[0]) ? center[0] : 31.3547,
+    typeof center?.[1] === 'number' && !isNaN(center[1]) ? center[1] : 34.3088
+  ], [center?.[0], center?.[1]]);
+
+  const safeZoom = useMemo(() => 
+    typeof zoom === 'number' && !isNaN(zoom) ? zoom : 13
+  , [zoom]);
+
+  // update view center when safeCenter or safeZoom changes
   useEffect(() => {
     if (viewRef.current && !loading) {
       viewRef.current
         .goTo(
           {
-            center: [center[1], center[0]], // Convert [lat, lng] to [lng, lat]
-            zoom: zoom,
+            center: [safeCenter[1], safeCenter[0]], // Convert [lat, lng] to [lng, lat]
+            zoom: safeZoom,
           },
           {
             duration: 800, // smooth animation
@@ -170,11 +180,10 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
         )
         .catch((error: any) => {
           console.log(error);
-
           console.log("Navigation cancelled or failed");
         });
     }
-  }, [center, zoom, loading]);
+  }, [safeCenter, safeZoom, loading]);
 
   // update marker if markerPosition changes externally
   useEffect(() => {
