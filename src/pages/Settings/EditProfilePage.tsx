@@ -19,9 +19,10 @@ import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { axiosClient } from "../../api/baseUrl";
 import { useState, useEffect } from "react";
-import {  useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 // import { setCitizenInfo } from "../../redux/slices/authSlice";
 import AvatarEditOverlay from "../../components/AvatarEditOverlay";
+import { setCitizenInfo } from "../../redux/slices/authSlice";
 
 interface EditProfileForm {
   first_name: string;
@@ -46,10 +47,11 @@ const EditProfilePage = () => {
 
   // Avatar state for new image
   const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
-  const [newAvatar, setNewAvatar] = useState<File | null>(citizenInfo.avatar_url);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
-  // const dispatch = useAppDispatch();
+  const [newAvatar, setNewAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    citizenInfo?.avatar_url || null,
+  );
+  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -81,10 +83,10 @@ const EditProfilePage = () => {
   useEffect(() => {
     if (citizenInfo) {
       reset({
-        first_name: citizenInfo?.first_name,
-        father_name: citizenInfo?.father_name,
-        grandfather_name: citizenInfo?.grandfather_name,
-        family_name: citizenInfo?.family_name,
+        first_name: `${citizenInfo?.full_name}`.split(" ")[0],
+        father_name: `${citizenInfo?.full_name}`.split(" ")[1],
+        grandfather_name: `${citizenInfo?.full_name}`.split(" ")[2],
+        family_name: `${citizenInfo?.full_name}`.split(" ")[3],
         mother_name: citizenInfo?.mother_name,
         // family_members_number: Number(citizenInfo?.family_members_number),
         whatsapp_number: citizenInfo?.whatsapp_number,
@@ -108,10 +110,9 @@ const EditProfilePage = () => {
   };
 
   const onSubmit = async (data: EditProfileForm) => {
-
     const token = localStorage.getItem("token");
     setIsLoading(true);
-
+    console.log("data", data);
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const formData = new FormData();
@@ -121,14 +122,13 @@ const EditProfilePage = () => {
           formData.append(key, value.toString());
         }
       });
+      formData.append("_method", "PUT"); // For Laravel's method spoofing
 
-      if (newAvatar) {
+      if (newAvatar instanceof File) {
         formData.append("avatar", newAvatar);
       }
-      const formDataObj = Object.fromEntries(formData.entries());
-console.log(formDataObj);
 
-      const res = await axiosClient.put("/me", formData, {
+      const res = await axiosClient.post("/me", formData, {
         headers,
       });
 
@@ -137,16 +137,16 @@ console.log(formDataObj);
         enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
 
         const updatedData = res.data.citizen;
-        console.log(updatedData)
-        // dispatch(setCitizenInfo(updatedData));
-        // localStorage.setItem("citizenInfo", JSON.stringify(updatedData)); must edit
+        console.log("res", res);
+        dispatch(setCitizenInfo(updatedData));
+        localStorage.setItem("citizenInfo", JSON.stringify(updatedData));
       }
     } catch (err: any) {
       setIsLoading(false);
       console.error(err);
       enqueueSnackbar(
         err?.response?.data?.message || t("common.errorOccurred"),
-        { variant: "error" }
+        { variant: "error" },
       );
     }
   };
