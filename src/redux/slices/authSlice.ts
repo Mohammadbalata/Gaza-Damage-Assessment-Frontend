@@ -105,8 +105,8 @@ export const authSlice = createSlice({
       state.password = action.payload.payload.password;
       state.isAuthenticated = action.payload.data.success;
       state.messageSuccess = action.payload.data.message;
-      state.verificationQuestion = action.payload.data.data.questions;
-      state.familyMembersNumber = action.payload.data.data.familyMembersNumber;
+      state.verificationQuestion = action.payload.data.questions;
+      state.familyMembersNumber = action.payload.data.familyMembersNumber;
       // If signup returns user info, update it
       if (action.payload.citizenInfo) {
         state.citizenInfo = action.payload.citizenInfo;

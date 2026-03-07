@@ -68,7 +68,7 @@ export const API = {
       login: `/auth/login`,
       verifyId: `/auth/verification/national-id`,
       verifyQuestions: `/auth/verification/security-questions`,
-      completeSignup: `/auth/citizen/complete-signup`,
+      completeSignup: `/auth/complete-signup`,
       changePassword: `/auth/citizen/change-password`,
       forgotPassword: `/auth/citizen/reset-password/request`,
       resetPassword: `/auth/citizen/reset-password`,

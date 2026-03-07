@@ -59,21 +59,19 @@ const TrackStatusPage: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axiosClient.get(
-        `citizen/applications/track/${data.trackingNumber}`
-      );
+      const res = await axiosClient.get(`/track/${data.trackingNumber}`);
 
       if (res) {
-        const app = res.data.data;
+        const app = res.data.damage_report;
         console.log(app);
         setApplication({
-          trackingNumber: app.id,
+          trackingNumber: app.report_code,
           status: app.status.toLowerCase(),
-          submittedAt: app.createdAt,
-          lastUpdate: app.updatedAt,
+          submittedAt: app.created_at,
+          lastUpdate: app.updated_at,
           statusHistory: [
-            { status: app.status.toLowerCase(), timestamp: app.createdAt },
-            { status: app.status.toLowerCase(), timestamp: app.createdAt },
+            { status: app.status.toLowerCase(), timestamp: app.created_at },
+            { status: app.status.toLowerCase(), timestamp: app.updated_at },
           ],
         });
       }
@@ -217,11 +215,11 @@ const TrackStatusPage: React.FC = () => {
               </Typography>
               <TextField
                 fullWidth
-                placeholder="GAZA-2024-123456"
+                placeholder="GAZA-2024-ABC123"
                 {...register("trackingNumber", {
                   required: t("common.required"),
                   pattern: {
-                    value: /^GAZA-\d{4}-\d{6}$/,
+                    value: /^GAZA-\d{4}-[A-Za-z0-9]{6}$/,
                     message:
                       language === "ar"
                         ? "صيغة رقم التتبع غير صحيحة (GAZA-YYYY-XXXXXX)"

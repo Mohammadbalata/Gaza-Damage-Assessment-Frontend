@@ -6,29 +6,19 @@ import PreviousLocationMapPage from "../pages/PreviousLocationMapPage";
 import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
-import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
 import CitizenDashboard from "../pages/CitizenDashboard";
-import { useAuth } from "../contexts/AdminAuthContext";
-import { Navigate } from "react-router-dom";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
-import AdminLoginPage from "../pages/AdminDashboard/AdminLoginPage";
 import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
 import MyApplications from "../pages/MyApplications"; 
 import CitizenForgotPasswordPage from "../pages/Citizen/CitizenForgotPasswordPage";
 import CitizenResetPasswordPage from "../pages/Citizen/CitizenResetPasswordPage";
-import AdminForgotPasswordPage from "../pages/AdminDashboard/AdminForgotPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
-import AdminLayout from "../pages/AdminDashboard/AdminLayout";
-import { adminRoutes } from "./admin.routes";
-import { PermissionGuard } from "./PermissionGuard";
 import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
-import AdminLocationMapPage from "../pages/AdminDashboard/AdminLocationMapPage";
 import BiometricDataPage from "../pages/Settings/BiometricDataPage";
-import AdminResetPasswordPage from "../pages/AdminDashboard/ResetPasswordPage";
 import LandingPage from "../pages/LandingPage/LandingPage";
 import {
   CentralDatabasePage,
@@ -36,15 +26,6 @@ import {
   EmergencyManagementPage,
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? (
-    <>{children}</>
-  ) : (
-    <Navigate to={ROUTES.ADMIN_LOGIN} />
-  );
-}
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -171,18 +152,8 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-  {
-    path: ROUTES.ADMIN_LOGIN,
-    element: <AdminLoginPage />,
-  },
-  {
-    path: ROUTES.ADMIN_DASHBOARD,
-    element: (
-      <ProtectedRoute>
-        <AdminDashboard />
-      </ProtectedRoute>
-    ),
-  },
+
+             
   // Citizen Password Routes
   {
     path: ROUTES.CITIZEN_FORGOT_PASSWORD,
@@ -191,15 +162,6 @@ export const routes = [
   {
     path: ROUTES.CITIZEN_RESET_PASSWORD,
     element: <CitizenResetPasswordPage />,
-  },
-  // Admin Password Routes
-  {
-    path: ROUTES.ADMIN_FORGOT_PASSWORD,
-    element: <AdminForgotPasswordPage />,
-  },
-  {
-    path: ROUTES.ADMIN_RESET_PASSWORD,
-    element: <AdminResetPasswordPage />,
   },
   {
     path: ROUTES.BANK_INFORMATION,
@@ -210,30 +172,6 @@ export const routes = [
     ),
   },
 
-  {
-    path: ROUTES.ADMIN_DASHBOARD,
-    element: (
-      <ProtectedRoute>
-        <AdminLayout />
-      </ProtectedRoute>
-    ),
-    children: adminRoutes.map((route) => ({
-      index: route.path === "",
-      path: route.path || undefined,
-      element: route.permission ? (
-        <PermissionGuard permission={route.permission}>
-          {route.element}
-        </PermissionGuard>
-      ) : (
-        route.element
-      ),
-    })),
-  },
-
-  {
-    path: ROUTES.ADMIN_LOCATION_MAP,
-    element: <AdminLocationMapPage />,
-  },
 
   { path: ROUTES.CENTRAL_DATABASE, element: <CentralDatabasePage /> },
   { path: ROUTES.PUBLIC_SERVICES, element: <PublicServicesPage /> },

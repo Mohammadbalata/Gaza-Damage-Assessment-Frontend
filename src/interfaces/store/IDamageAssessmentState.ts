@@ -57,9 +57,9 @@ export interface IndependentBuilding {
   nameOfStreet?: string;
   isHabitable?: string; // "نعم" | "لا"
   additionalNotes?: string;
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
 }
 
@@ -83,9 +83,9 @@ export interface ApartmentInsideBuilding {
   isHabitable?: string;
   additionalNotes?: string;
 
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
   mainBuildingAge?: string | null;
 }
@@ -122,9 +122,9 @@ export interface ResidentialBuilding {
   isHabitable?: string;
   additionalNotes?: string;
 
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
   MixedUsage: IMixedUsage;
   
@@ -161,9 +161,9 @@ export interface ITower {
   isHabitable?: string;
   additionalNotes?: string;
 
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
   MixedUsage: IMixedUsage;
 }
@@ -184,9 +184,9 @@ export interface ICompHouse {
   isHabitable?: string;
   additionalNotes?: string;
 
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
 }
 
@@ -213,8 +213,8 @@ export interface IAdditionalBuildings {
   isHabitable?: string;
   additionalNotes?: string;
 
-  beforeWarImage?: any;
-  afterWarImage?: any;
-  ownershipDocuments?: any[];
+  before_damage_image?: any;
+  after_damage_image?: any;
+  ownership_documents?: any[];
   BuildingContent?: any[];
 }
