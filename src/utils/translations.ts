@@ -222,6 +222,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.criticalShearWallDamage": "Shear Wall Damage",
     "form.unitsCount": "Units Count",
     "form.totalFloors": "Total Floors",
+    "form.MixedUsage": "Mixed Usage",
+    "form.BuildingContent": "Building Content",
+    "form.buildingDetails": "Building Details :",
 
     // Documents
     "form.uploadDocuments": "Upload Documents",
@@ -858,6 +861,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.propertyOwnerName": "اسم مالك العقار",
 
     "form.usageType": "نوع الاستخدام",
+    "form.MixedUsage": "مزدوج الاستخدام ",
+    "form.BuildingContent": "محتوى المبنى",
+    "form.buildingDetails": "تفاصيل المبنى :",
+
     "form.floorNumber": "رقم الطابق",
     "form.apartmentNumber": "رقم الشقة",
     "form.mainBuildingDamage": "أضرار المبنى الأساسي",
