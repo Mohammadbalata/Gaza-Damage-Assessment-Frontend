@@ -27,14 +27,6 @@ import {
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? (
-    <>{children}</>
-  ) : (
-    <Navigate to={ROUTES.ADMIN_LOGIN} />
-  );
-}
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
