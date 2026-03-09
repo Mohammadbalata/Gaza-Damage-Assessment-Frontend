@@ -60,7 +60,7 @@ const VerificationQuestionsPage = () => {
       )
         .unwrap()
         .catch(() => {
-          navigate(`/${ROUTES.SIGNUP}`);
+          navigate(`${ROUTES.SIGNUP}`);
         });
     } else {
       setQuestions(verificationQuestion);
@@ -191,7 +191,7 @@ const VerificationQuestionsPage = () => {
               variant="outlined"
               fullWidth
               size="large"
-              onClick={() => navigate(`/${ROUTES.SIGNUP}`)}
+              onClick={() => navigate(`${ROUTES.SIGNUP}`)}
               startIcon={
                 <ArrowBack
                   sx={{

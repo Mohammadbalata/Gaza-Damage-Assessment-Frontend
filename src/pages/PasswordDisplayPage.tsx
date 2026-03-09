@@ -68,13 +68,13 @@ const PasswordDisplayPage = () => {
     )
       .unwrap()
       .then((res) => {
-        console.log(res.data.data.verification_status);
-        if (res.data.data.verification_status !== "NATIONAL_ID_VERIFIED") {
+        console.log(res.data.verification_status);
+        if (res.data.verification_status !== "NATIONAL_ID_VERIFIED") {
           navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${id}`);
         }
       })
       .catch(() => {
-        navigate(`/${ROUTES.SIGNUP}`);
+        navigate(`${ROUTES.SIGNUP}`);
       });
   }, [navigate, dispatch, id]);
 
@@ -82,14 +82,14 @@ const PasswordDisplayPage = () => {
     const formData = new FormData();
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
-    formData.append("firstName", data.firstName);
-    formData.append("fatherName", data.fatherName);
-    formData.append("grandfatherName", data.grandfatherName);
-    formData.append("familyName", data.familyName);
+    formData.append("first_name", data.firstName);
+    formData.append("father_name", data.fatherName);
+    formData.append("grandfather_name", data.grandfatherName);
+    formData.append("family_name", data.familyName);
     formData.append("email", data.email);
-    formData.append("phoneNumber", data.phoneNumber);
-    formData.append("whatsappNumber", data.whatsappNumber);
-    formData.append("familyMembersNumber", data.familyMembersNumber);
+    formData.append("phone_number", data.phoneNumber);
+    formData.append("whatsapp_number", data.whatsappNumber);
+    formData.append("family_members_number", data.familyMembersNumber);
     formData.append("avatar", data.avatar);
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
     console.log(formData);
@@ -110,7 +110,7 @@ const PasswordDisplayPage = () => {
           console.log(error);
         });
     } else {
-      navigate(`/${ROUTES.SIGNUP}`);
+      navigate(`${ROUTES.SIGNUP}`);
     }
   };
 

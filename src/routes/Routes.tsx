@@ -10,7 +10,7 @@ import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
 import CitizenDashboard from "../pages/CitizenDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
-import ProtectedRoutes from "./ProtectedRoutes";  
+import ProtectedRoutes from "./ProtectedRoutes";
 import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
 import MyApplications from "../pages/MyApplications"; 
 import CitizenForgotPasswordPage from "../pages/Citizen/CitizenForgotPasswordPage";
@@ -27,14 +27,14 @@ import {
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
 
-// function ProtectedRoute({ children }: { children: React.ReactNode }) {
-//   const { isAuthenticated } = useAuth();
-//   return isAuthenticated ? (
-//     <>{children}</>
-//   ) : (
-//     <Navigate to={ROUTES.ADMIN_LOGIN} />
-//   );
-// }
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to={ROUTES.ADMIN_LOGIN} />
+  );
+}
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -161,8 +161,8 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
- 
 
+             
   // Citizen Password Routes
   {
     path: ROUTES.CITIZEN_FORGOT_PASSWORD,
@@ -172,9 +172,6 @@ export const routes = [
     path: ROUTES.CITIZEN_RESET_PASSWORD,
     element: <CitizenResetPasswordPage />,
   },
-  // Admin Password Routes
-  
- 
   {
     path: ROUTES.BANK_INFORMATION,
     element: (
@@ -184,9 +181,6 @@ export const routes = [
     ),
   },
 
- 
-
-  
 
   { path: ROUTES.CENTRAL_DATABASE, element: <CentralDatabasePage /> },
   { path: ROUTES.PUBLIC_SERVICES, element: <PublicServicesPage /> },
