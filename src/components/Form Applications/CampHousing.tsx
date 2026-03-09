@@ -383,21 +383,21 @@ const CampHousing = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <SingleImageInput
             control={control}
-            name="compHouse.beforeWarImage"
+            name="compHouse.before_damage_image"
             label="صورة العقار قبل الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <SingleImageInput
             control={control}
-            name="compHouse.afterWarImage"
+            name="compHouse.after_damage_image"
             label="صورة العقار بعد الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <MultipleImagesInput
             control={control}
-            name="compHouse.ownershipDocuments"
+            name="compHouse.ownership_documents"
             label="مستندات الملكية ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />

@@ -27,12 +27,12 @@ const SignUpPage = () => {
 
   const { error, loading } = useAppSelector((state) => state.auth);
   const token = localStorage.getItem("token");
-  
-    useEffect(() => {
-      if (token) {
-        navigate(ROUTES.CITIZEN_DASHBOARD);
-      }
-    }, [token, navigate]);
+
+  useEffect(() => {
+    if (token) {
+      navigate(ROUTES.CITIZEN_DASHBOARD);
+    }
+  }, [token, navigate]);
 
   const {
     register,
@@ -46,7 +46,7 @@ const SignUpPage = () => {
         national_id: data.national_id,
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
-      })
+      }),
     )
       .unwrap()
       .then(() => {
@@ -212,7 +212,7 @@ const SignUpPage = () => {
               size="small"
               onClick={() => {
                 dispatch(setError(""));
-                navigate(`/${ROUTES.SIGNIN}`);
+                navigate(`${ROUTES.SIGNIN}`);
               }}
               sx={{
                 fontWeight: 600,

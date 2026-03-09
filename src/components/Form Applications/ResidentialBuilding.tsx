@@ -663,21 +663,21 @@ const ResidentialBuilding = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SingleImageInput
           control={control}
-          name="ResidentialBuilding.beforeWarImage"
+          name="ResidentialBuilding.before_damage_image"
           label="صورة العقار قبل الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
-          name="ResidentialBuilding.afterWarImage"
+          name="ResidentialBuilding.after_damage_image"
           label="صورة العقار بعد الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
-          name="ResidentialBuilding.ownershipDocuments"
+          name="ResidentialBuilding.ownership_documents"
           label="مستندات الملكية ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />

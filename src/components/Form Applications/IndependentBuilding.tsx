@@ -524,21 +524,21 @@ const IndependentBuilding = ({
       >
         <SingleImageInput
           control={control}
-          name="IndependentBuilding.beforeWarImage"
+          name="IndependentBuilding.before_damage_image"
           label="صورة العقار قبل الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
-          name="IndependentBuilding.afterWarImage"
+          name="IndependentBuilding.after_damage_image"
           label="صورة العقار بعد الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
-          name="IndependentBuilding.ownershipDocuments"
+          name="IndependentBuilding.ownership_documents"
           label="مستندات الملكية ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />

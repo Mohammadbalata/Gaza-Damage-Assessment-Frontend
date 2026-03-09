@@ -223,7 +223,7 @@ const LoginPage = () => {
               size="small"
               onClick={() => {
                 dispatch(setError(""));
-                navigate(`/${ROUTES.SIGNUP}`);
+                navigate(`${ROUTES.SIGNUP}`);
               }}
               sx={{
                 fontWeight: 600,
