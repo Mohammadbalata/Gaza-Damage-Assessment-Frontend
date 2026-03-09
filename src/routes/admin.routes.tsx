@@ -1,9 +1,7 @@
-import {
-  People,
-} from "@mui/icons-material";
+
 // import { GroupIcon, LockIcon } from "lucide-react";
 // import { permissions } from "../constants/permissions";
-import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
+// import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 // import AdminUsersPage from "../pages/AdminDashboard/AdminUsersPage";
 // import AdminApplicationsPage from "../pages/AdminDashboard/AdminApplicationsPage";
 // import AdminCitizensPage from "../pages/AdminDashboard/AdminCitizensPage";
@@ -14,13 +12,13 @@ import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 
 
 export const adminRoutes = [
-  {
-    path: "",
-    label: "admin.dashboard",
-    element: <AdminDashboard />,
-    icon: <People />,
-    permission: null,
-  },
+  // {
+  //   path: "",
+  //   label: "admin.dashboard",
+  //   element: <AdminDashboard />,
+  //   icon: <People />,
+  //   permission: null,
+  // },
   // {
   //   path: "users",
   //   label: "admin.manageUsers",
