@@ -9,7 +9,7 @@ const CitizenForgotPasswordPage: React.FC = () => {
     <AuthComp title="forgotPassword">
       <ForgotPasswordForm
         apiEndpoint={API.citizen.auth.forgotPassword}
-        loginRedirectPath={`/${ROUTES.SIGNIN}`}
+        loginRedirectPath={`${ROUTES.SIGNIN}`}
       />
     </AuthComp>
   );
