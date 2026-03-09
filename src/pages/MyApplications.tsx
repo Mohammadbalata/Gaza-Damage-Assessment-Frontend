@@ -108,13 +108,12 @@ const MyApplications = () => {
   //     },
   //   }
   // );
-  
 
   // Reverse geocoding for location address
   useEffect(() => {
     if (locationPosition) {
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${locationPosition[0]}&lon=${locationPosition[1]}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${locationPosition[0]}&lon=${locationPosition[1]}`,
       )
         .then((res) => res.json())
         .then((data) => {
@@ -123,8 +122,8 @@ const MyApplications = () => {
         .catch(() => {
           setLocationAddress(
             `Lat: ${locationPosition[0].toFixed(
-              6
-            )}, Lng: ${locationPosition[1].toFixed(6)}`
+              6,
+            )}, Lng: ${locationPosition[1].toFixed(6)}`,
           );
         });
     }
@@ -143,40 +142,41 @@ const MyApplications = () => {
   const [rawData, setRawData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
-  
+
   useEffect(() => {
-    axiosClient.get(API.citizen.applications.list, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    } ).then((res: any) => {
-       setRawData(res.data.damage_reports);
-       setLoading(false);
-      console.log(rawData)
-    }).catch((err:any) => {
-      console.log(err)
-      setError(err.message);
-      setLoading(false);
-    })
-  }, []); 
+    axiosClient
+      .get(API.citizen.applications.list, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res: any) => {
+        setRawData(res.data.damage_reports);
+        setLoading(false);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   // Robust data handling
   const applications: any[] = Array.isArray(rawData)
     ? rawData
     : Array.isArray(rawData?.damage_reports)
-    ? rawData.applications
-    : Array.isArray(rawData)
-    ? rawData
-    : rawData?.id // If it's a single application object
-    ? [rawData]
-    : [];
-  
+      ? rawData.applications
+      : Array.isArray(rawData)
+        ? rawData
+        : rawData?.id // If it's a single application object
+          ? [rawData]
+          : [];
+
   const citizen: any = rawData?.citizen || {}; // Fallback to empty object if citizen is missing
-  useEffect(() => {
-    
-    // console.log("rawData", rawData?.damage_reports);
-    console.log("applications", applications);
-  }, [rawData]);
+  // useEffect(() => {
+  //   // console.log("rawData", rawData?.damage_reports);
+  //   console.log("applications", applications);
+  // }, [rawData]);
 
   // Filter applications
   const filteredApplications = applications?.filter((app: any) => {
@@ -204,12 +204,12 @@ const MyApplications = () => {
   // const filterdApplications = id
   //   ? applications?.filter((item: any) => item.id === id)
   //   : applications;
-
+  // console.log("rawData", rawData);
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
-    console.log(applications);
-    console.log(rawData);
-    console.log(language);
+    // console.log(applications);
+    // console.log(rawData);
+    // console.log(language);
   };
 
   const handleMenuClose = () => {
@@ -232,7 +232,7 @@ const MyApplications = () => {
   };
 
   const handleAction = (app: any) => {
-    const status = app.status?.toUpperCase() ||"SUBMITTED";
+    const status = app.status?.toUpperCase() || "SUBMITTED";
     const canEdit = status === "SUBMITTED";
 
     setSelectedApplication(app);
@@ -240,11 +240,9 @@ const MyApplications = () => {
     setDialogOpen(true);
   };
 
-  // useEffect(()=> {
-  //   console.log(selectedApplication)
+  
   const handleDownloadAppPdf = (app: any) => {
-    generateApplicationPDF(citizen, app, t, language);
-    console.log(app);
+    generateApplicationPDF(app, t, language);
   };
 
   const handleDialogClose = () => {
@@ -257,7 +255,7 @@ const MyApplications = () => {
   // Location Dialog Handlers
   const handleOpenLocationDialog = () => {
     // Pre-fill with existing location if available
-    if (citizenInfo?.current_location) {    
+    if (citizenInfo?.current_location) {
       const lat = parseFloat(citizenInfo.current_location.latitude);
       const lng = parseFloat(citizenInfo.current_location.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
@@ -265,7 +263,9 @@ const MyApplications = () => {
         setMapCenter([lat, lng]);
       }
       setLocationAddress(citizenInfo.current_location.address || "");
-      setLocationNeighborhood(citizenInfo.current_location.neighborhood.name || "");
+      setLocationNeighborhood(
+        citizenInfo.current_location.neighborhood.name || "",
+      );
     } else {
       setLocationPosition(null);
       setLocationAddress("");
@@ -286,39 +286,52 @@ const MyApplications = () => {
 
   const handleConfirmLocationUpdate = () => {
     if (locationPosition && locationAddress) {
-      const selectedLoc = locations.find(loc => loc.name === locationNeighborhood);
+      const selectedLoc = locations.find(
+        (loc) => loc.name === locationNeighborhood,
+      );
       const neighborhood_id = selectedLoc ? selectedLoc.id : 1;
-      axiosClient.put(`${API.citizen.locations.current}`, {
-        latitude: locationPosition[0].toString(),
-        longitude: locationPosition[1].toString(),
-        address: locationAddress,
-        neighborhood_id,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-      }).then((res:any) => {
-        setLocationLoading(false);
-        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+      axiosClient
+        .put(
+          `${API.citizen.locations.current}`,
+          {
+            latitude: locationPosition[0].toString(),
+            longitude: locationPosition[1].toString(),
+            address: locationAddress,
+            neighborhood_id,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        )
+        .then((res: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationSuccess"), {
             variant: "success",
           });
           setLocationDialogOpen(false);
 
-          const citizenInfo = JSON.parse(localStorage.getItem('citizenInfo') || '{}');
+          const citizenInfo = JSON.parse(
+            localStorage.getItem("citizenInfo") || "{}",
+          );
 
           const updated = {
             ...citizenInfo,
-            current_location: res.data.citizen.current_location
+            current_location: res.data.citizen.current_location,
           };
 
-          localStorage.setItem('citizenInfo', JSON.stringify(updated));
-          console.log(res.data)
-      }).catch((err:any) => {
-        setLocationLoading(false);
-          enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
-          console.log(err)
-      });
+          localStorage.setItem("citizenInfo", JSON.stringify(updated));
+          console.log(res.data);
+        })
+        .catch((err: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationError"), {
+            variant: "error",
+          });
+          console.log(err);
+        });
     }
   };
 
@@ -686,14 +699,15 @@ const MyApplications = () => {
 
               <Typography sx={{ mb: 1 }}>
                 <strong>{t("citizen.address")}:</strong>{" "}
-                {citizenInfo?.current_location?.address || "-"}   
+                {citizenInfo?.current_location?.address || "-"}
               </Typography>
 
               <Typography>
                 <strong>{t("citizen.addedDate")}:</strong>{" "}
                 {citizen?.current_location
-                  ? formatDate(new Date(citizen.current_location.createdAt)) 
-                  : "-"}.  {/* must edit */}
+                  ? formatDate(new Date(citizen.current_location.createdAt))
+                  : "-"}
+                . {/* must edit */}
               </Typography>
 
               <Button
@@ -780,11 +794,9 @@ const MyApplications = () => {
                 width="100%"
                 setAddress={setLocationAddress}
                 location={{
-                  neighborhood: citizenInfo?.current_location?.neighborhood?.name,
+                  neighborhood:
+                    citizenInfo?.current_location?.neighborhood?.name,
                 }}
-                  
-                
-                
               />
             </Box>
 
@@ -875,7 +887,7 @@ const MyApplications = () => {
             >
               {t("map.reset")}
             </Button>
-            
+
             <Button
               variant="contained"
               color="primary"
