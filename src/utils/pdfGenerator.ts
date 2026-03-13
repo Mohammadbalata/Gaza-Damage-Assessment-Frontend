@@ -223,7 +223,7 @@ export const generateApplicationPDF = async (
   // إنشاء PDF
   const pdf = new jsPDF("p", "pt", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  // const pageHeight = pdf.internal.pageSize.getHeight();
 
   // دالة لتحويل بيانات المبنى إلى HTML
   const renderBuildingData = (data: any) => {
@@ -246,7 +246,7 @@ export const generateApplicationPDF = async (
     direction:${direction};
   ">`;
 
-    entries.forEach(([key, value]) => {
+    entries.forEach(([key, value]:any) => {
       if (key === "landmark") return;
 
       const translationKey = `form.${key}`;
@@ -268,8 +268,8 @@ export const generateApplicationPDF = async (
       // object
       else if (typeof value === "object") {
         // ⭐ حل MixedUsage
-        if (key === "MixedUsage" && value.units) {
-          displayValue = Object.entries(value.units)
+        if (key === "MixedUsage" && value?.units) {
+          displayValue = Object.entries(value?.units)
             .map(([floor, items]: any) => {
               const units = items
                 .map((u: any) => `${u.usage} - ${u.activity}`)
