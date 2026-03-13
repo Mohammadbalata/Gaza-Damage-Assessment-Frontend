@@ -26,7 +26,10 @@ import {
   Cancel as RejectedIcon,
   TaskAlt as VerifiedIcon,
   Lock as ClosedIcon,
+  Feedback as ComplaintIcon,
+  MoreVert as MoreIcon,
 } from "@mui/icons-material";
+import { MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -36,6 +39,8 @@ export interface ApplicationCardProps {
   application: any;
   onAction: (app: any) => void;
   onDownloadPdf: (app: any) => void;
+  onAddComplaint: (app: any) => void;
+  onCloseComplaint: (app: any) => void;
   index?: number; // For staggered animation
 }
 
@@ -43,11 +48,22 @@ const ApplicationCard = ({
   application,
   onAction,
   onDownloadPdf,
+  onAddComplaint,
+  onCloseComplaint,
   index = 0,
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
   const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   if (!application) return null;
 
@@ -333,6 +349,81 @@ const ApplicationCard = ({
               <PdfIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          
+          {application.complaint ? (
+            <>
+              <Tooltip title={t("common.actions")}>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    color: "primary.main",
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    "&:hover": {
+                      bgcolor: "primary.main",
+                      color: "white",
+                      borderColor: "primary.main",
+                    },
+                  }}
+                >
+                  <MoreIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                transformOrigin={{ vertical: "top", horizontal: language === "ar" ? "right" : "left" }}
+                anchorOrigin={{ vertical: "bottom", horizontal: language === "ar" ? "right" : "left" }}
+              >
+                <MenuItem 
+                  component={Link} 
+                  to={`/citizen/complaints/${application.complaint.id}`}
+                  onClick={handleMenuClose}
+                >
+                  <ListItemIcon>
+                    <VisibilityIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary={t("citizen.viewDetails")} />
+                </MenuItem>
+                <MenuItem 
+                  onClick={() => {
+                    handleMenuClose();
+                    onCloseComplaint(application);
+                  }}
+                  disabled={!application.complaint.response}
+                >
+                  <ListItemIcon>
+                    <ClosedIcon fontSize="small" color={application.complaint.response ? "error" : "disabled"} />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={t("complaint.close")} 
+                    secondary={!application.complaint.response ? t("complaint.waitingForResponse") : null}
+                  />
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Tooltip title={t("complaint.add")}>
+              <IconButton
+                onClick={() => onAddComplaint(application)}
+                sx={{
+                  bgcolor: alpha(theme.palette.error.main, 0.05),
+                  color: "error.main",
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                  "&:hover": {
+                    bgcolor: "error.main",
+                    color: "white",
+                    borderColor: "error.main",
+                  },
+                }}
+              >
+                <ComplaintIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
 
           {application?.latitude &&
             application?.longitude && (

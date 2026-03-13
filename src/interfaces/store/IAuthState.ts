@@ -21,4 +21,5 @@ export interface IAuthState {
   citizenInfo?: any;
   avatar?: File | null;
   formData?: any;
+  trackingNumber?: string;
 }

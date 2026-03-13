@@ -99,6 +99,12 @@ export const API = {
       update: (id: string) => `/citizen/bank-accounts/${id}`,
       delete: (id: string) => `/citizen/bank-accounts/${id}`,
     },
+    complaints: {
+      list: `/complaints`,
+      create: `/complaints`,
+      details: (id: string) => `/complaints/${id}`,
+      close: (id: string) => `/complaints/${id}/close`,
+    },
   },
 
   stats: {

@@ -31,6 +31,7 @@ const initialState: IAuthState = {
   email: "",
   whatsappNumber: "",
   citizenInfo: JSON.parse(localStorage.getItem("citizenInfo") || "{}"),
+  trackingNumber: "",
 };
 
 export const authSlice = createSlice({
@@ -73,6 +74,9 @@ export const authSlice = createSlice({
     },
     setCitizenInfo: (state, action) => {
       state.citizenInfo = action.payload;
+    },
+    setTrackingNumber: (state, action) => {
+      state.trackingNumber = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -126,14 +130,14 @@ export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
     payload: { national_id: string; password: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await axiosClient.post(`${API.citizen.auth.login}`, {
         national_id: payload.national_id,
         password: payload.password,
       });
-      console.log('citizen',res.data.citizen);
+      console.log("citizen", res.data.citizen);
       // console.log("API Response:", res.data.data.user.application.damage_details);
       // const damage_details = res.data?.user?.application?.damage_details;
       // const locations = res.data.user.application?.locations;
@@ -147,8 +151,6 @@ export const signIn = createAsyncThunk(
         localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
       }
 
-     
-
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
@@ -161,7 +163,7 @@ export const signIn = createAsyncThunk(
         first_name: res.data?.data?.user?.first_name || "User",
         father_name: res.data?.data?.user?.father_name || "User",
         family_name: res.data?.data?.user?.family_name || "User",
-        citizenInfo:citizenInfo, // Include in payload for reducer
+        citizenInfo: citizenInfo, // Include in payload for reducer
       };
 
       // localStorage.setItem("citizen_user", JSON.stringify(userProfile));
@@ -169,9 +171,11 @@ export const signIn = createAsyncThunk(
       return userProfile;
     } catch (error: any) {
       console.log(error);
-      return rejectWithValue(error.response?.data?.message || "لا يوجد اتصال بالانترنت");
+      return rejectWithValue(
+        error.response?.data?.message || "لا يوجد اتصال بالانترنت",
+      );
     }
-  }
+  },
 );
 
 //---sign up dispatch ---//
@@ -183,7 +187,7 @@ export const signUp = createAsyncThunk(
       try {
         const res = await axiosClient.post(
           `${payload.pathSignUp}`,
-          payload.formData
+          payload.formData,
         );
         const token = res.data?.token;
 
@@ -222,7 +226,7 @@ export const signUp = createAsyncThunk(
         return rejectWithValue(err.response?.data?.message || "Sign up failed");
       }
     }
-  }
+  },
 );
 // 41003193
 export const {
@@ -235,5 +239,6 @@ export const {
   setEmail,
   setPhoneNumber,
   setCitizenInfo,
+  setTrackingNumber,
 } = authSlice.actions;
 export default authSlice.reducer;
