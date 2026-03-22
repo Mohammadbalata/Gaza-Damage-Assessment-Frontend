@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* headerStyle.css */
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-800;
-    font-family: "Inter", "SF Pro", "Segoe UI", system-ui, sans-serif;
+    font-family: "Inter", "SF Pro", "Segoe UI" ,"Cairo", system-ui, sans-serif;
   }
 
   [dir="rtl"] {
@@ -79,3 +82,42 @@
 .MuiListItemText-dense {
   text-align: right;
 }
+
+.bg-header{
+   background: linear-gradient(
+    to left,
+    #c8d8ee 5%,
+    #c8d8ee 25%,
+    #c8d8ee 30%,
+    #c8d8ee 45%,
+    #f2f8ff 60%,
+    #f2f8ff 80%,
+    #f2f8ff 100%
+  );
+}
+.background-hero{
+  background-size: cover;
+}
+
+@media (min-width:800px) {
+  .background-hero{
+  background-size: auto;
+}
+
+  
+}
+@media (max-width:800px) {
+.hero-btn{
+  bottom: 23%;
+  right: 0;
+}
+
+  
+}
+@media (max-width:400px) {
+  .logo{
+    width: 200px;
+}
+  
+}
+

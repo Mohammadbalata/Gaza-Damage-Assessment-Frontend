@@ -1,5 +1,5 @@
 export interface IRegistryData {
-  nationalId?: number;
+  national_id?: number;
   fullName?: string;
   motherName?: string;
   dateOfBirth?: string;

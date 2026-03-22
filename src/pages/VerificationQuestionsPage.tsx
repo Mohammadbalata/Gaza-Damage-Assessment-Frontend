@@ -53,14 +53,14 @@ const VerificationQuestionsPage = () => {
       setLoading(true);
       dispatch(
         signUp({
-          nationalId: id ?? "",
+          national_id: id ?? "",
           password: "",
           pathSignUp: `${API.citizen.auth.verifyQuestions}`,
         })
       )
         .unwrap()
         .catch(() => {
-          navigate(`/${ROUTES.SIGNUP}`);
+          navigate(`${ROUTES.SIGNUP}`);
         });
     } else {
       setQuestions(verificationQuestion);
@@ -88,7 +88,7 @@ const VerificationQuestionsPage = () => {
 
     try {
       await axiosClient.post(`${API.citizen.auth.verifyQuestions}`, {
-        nationalId: id,
+        national_id: id,
         answers: answers,
       });
       setLoadingInput(false);
@@ -191,7 +191,7 @@ const VerificationQuestionsPage = () => {
               variant="outlined"
               fullWidth
               size="large"
-              onClick={() => navigate(`/${ROUTES.SIGNUP}`)}
+              onClick={() => navigate(`${ROUTES.SIGNUP}`)}
               startIcon={
                 <ArrowBack
                   sx={{

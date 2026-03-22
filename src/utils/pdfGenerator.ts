@@ -3,10 +3,16 @@ import html2canvas from "html2canvas";
 import { formatDate } from "./helpers";
 import Logo from "../../src/assets/logo.jpg";
 
-export const generatePDFReceipt = async (data: any, t: any, language: any) => {
-  const citizen = data?.citizen;
-  const applications = data?.applications || [];
-
+export const generatePDFReceipt = async (
+  rawData: any,
+  t: any,
+  language: any,
+) => {
+  const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  console.log(citizenInfo);
+  const citizen = citizenInfo || {};
+  const applications = rawData || [];
+  console.log("rawDataaaa", rawData);
   // const previousApplications = applications.filter(
   //   (app: any) => app.location?.type === "BEFORE_WAR"
   // );
@@ -47,15 +53,15 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
         ${t("review.identityInfo")}
       </h3>
       <p><strong>${t("auth.nationalId")}:</strong> ${
-    citizen?.national_id || "-"
-  }</p>
+        citizen?.national_id || "-"
+      }</p>
       <p><strong>${t("form.fullName")}:</strong> ${
-    citizen?.full_name || "-"
-  }</p>
+        citizen?.full_name || "-"
+      }</p>
       <p><strong>${t("auth.email")}:</strong> ${citizen?.email || "-"}</p>
       <p><strong>${t("form.phoneNumber")}:</strong> ${
-    citizen?.phone_number || "-"
-  }</p>
+        citizen?.whatsapp_number || "-"
+      }</p>
     </section>
 
     ${
@@ -72,10 +78,10 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
           ${t("citizen.currentLocation")}
         </h3>
         <p><strong>${t("map.address")}:</strong> ${
-            citizen.current_location.address || "-"
-          }</p>
+          citizen.current_location.address || "-"
+        }</p>
         <p><strong>${t("form.submissionDate")}:</strong>
-          ${formatDate(new Date(citizen.current_location.createdAt))}
+          ${formatDate(new Date(citizen.updated_at))}
         </p>
       </section>
     `
@@ -104,18 +110,20 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
             <h4 style="margin-top:0; color:#1E3A8A;">
               ${t("citizen.applicationId")} ${index + 1}
             </h4>
-            <p><strong>${t("success.trackingNumber")}:</strong> ${app.id}</p>
+            <p><strong>${t("success.trackingNumber")}:</strong> ${
+              app.report_code
+            }</p>
             <p><strong>${t("form.submissionDate")}:</strong>
-              ${formatDate(new Date(app.createdAt))}
+              ${formatDate(new Date(app.created_at))}
             </p>
             <p><strong>${t("status")}:</strong>
               ${t(`status.${app.status?.toLowerCase()}`)}
             </p>
             <p><strong>${t("map.address")}:</strong>
-              ${app.location?.address || "-"}
+              ${app.address || "-"}
             </p>
           </div>
-        `
+        `,
           )
           .join("")}
       </section>
@@ -138,7 +146,7 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
   for (let page = 0; page < totalPages; page++) {
     const pageApps = remainingApplications.slice(
       page * itemsPerPage,
-      (page + 1) * itemsPerPage
+      (page + 1) * itemsPerPage,
     );
 
     const pageElement = document.createElement("div");
@@ -167,18 +175,18 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
               ${t("citizen.applicationId")}
               ${page * itemsPerPage + index + 3}
             </h4>
-            <p><strong>${t("success.trackingNumber")}:</strong> ${app.id}</p>
+            <p><strong>${t("success.trackingNumber")}:</strong> ${app.report_code}</p>
             <p><strong>${t("form.submissionDate")}:</strong>
-              ${formatDate(new Date(app.createdAt))}
+              ${formatDate(new Date(app.created_at))}
             </p>
             <p><strong>${t("status")}:</strong>
               ${t(`status.${app.status?.toLowerCase()}`)}
             </p>
             <p><strong>${t("map.address")}:</strong>
-              ${app.location?.address || "-"}
+              ${app.address || "-"}
             </p>
           </div>
-        `
+        `,
           )
           .join("")}
       </section>
@@ -200,196 +208,262 @@ export const generatePDFReceipt = async (data: any, t: any, language: any) => {
 };
 
 export const generateApplicationPDF = async (
-  citizen: any,
   application: any,
   t: any,
-  language: string
+  language: string,
 ) => {
   // نوع المبنى وبياناته
-  const buildingType = application?.extraData?.buildingType;
+  const buildingType = application?.damage_details?.buildingType;
   const buildingData = buildingType
-    ? application?.extraData?.[buildingType]
+    ? application?.damage_details?.[buildingType]
     : null;
+
+  const citizen = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
 
   // إنشاء PDF
   const pdf = new jsPDF("p", "pt", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  // const pageHeight = pdf.internal.pageSize.getHeight();
 
   // دالة لتحويل بيانات المبنى إلى HTML
   const renderBuildingData = (data: any) => {
     if (!data || typeof data !== "object") return "";
 
     const direction = language === "ar" ? "rtl" : "ltr";
+
     const entries = Object.entries(data).filter(
       ([_, value]) =>
         value !== null &&
         value !== "" &&
-        !(Array.isArray(value) && value.length === 0)
+        !(Array.isArray(value) && value.length === 0),
     );
 
-    let html = `<div style="
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    direction: ${direction};
+    let html = `
+  <div style="
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    direction:${direction};
   ">`;
 
-    entries.forEach(([key, value]) => {
-      let label = "";
-      if (key !== "landmark") {
-        const translationKey = `form.${key}`;
-        label = t(translationKey) || key;
-      
+    entries.forEach(([key, value]:any) => {
+      if (key === "landmark") return;
 
-      // إذا القيمة boolean، حولها إلى "نعم" أو "لا"
-      let displayValue = value;
+      const translationKey = `form.${key}`;
+      const label =
+        t(translationKey) !== translationKey ? t(translationKey) : key;
+
+      let displayValue: any = value;
+
+      // boolean
       if (typeof value === "boolean") {
         displayValue = value ? "نعم" : "لا";
       }
 
-      html += `<div style="margin:0;"><strong>${label}:</strong> ${displayValue}</div>`;
-    }
+      // array
+      else if (Array.isArray(value)) {
+        displayValue = value.join(" , ");
+      }
+
+      // object
+      else if (typeof value === "object") {
+        // ⭐ حل MixedUsage
+        if (key === "MixedUsage" && value?.units) {
+          displayValue = Object.entries(value.units)
+            .map(([floor, items]: any) => {
+              const units = items
+                .map((u: any) => `${u.usage} - ${u.activity}`)
+                .join(" , ");
+
+              return `${floor} : ${units}`;
+            })
+            .join(" | ");
+        } else {
+          displayValue = Object.entries(value)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(" , ");
+        }
+      }
+
+      html += `
+      <div style="margin:0;">
+        <strong>${label}:</strong> ${displayValue}
+      </div>
+    `;
     });
 
     html += "</div>";
-  
+
     return html;
-  
   };
 
-  // إنشاء عنصر HTML كامل للطباعة
-  const element = document.createElement("div");
-  element.style.width = "800px";
-  element.style.fontFamily = "'Amiri', Arial, sans-serif";
-  element.style.direction = language === "en" ? "ltr" : "rtl";
-  element.style.padding = "40px";
-  element.style.background = "#fdfdfd";
-  element.style.color = "#333";
-  element.style.lineHeight = "1.8";
+  // =============== الصفحة الأولى: الشعار في الرأس + المحتوى في المنتصف ===============
+  const firstPageElement = document.createElement("div");
+  firstPageElement.style.width = "800px";
+  firstPageElement.style.height = "1000px"; // ارتفاع ثابت بحجم صفحة A4
+  firstPageElement.style.fontFamily = "'Amiri', Arial, sans-serif";
+  firstPageElement.style.direction = language === "en" ? "ltr" : "rtl";
+  firstPageElement.style.padding = "40px";
+  firstPageElement.style.background = "#fdfdfd";
+  firstPageElement.style.color = "#333";
+  firstPageElement.style.lineHeight = "1.8";
+  firstPageElement.style.display = "flex";
+  firstPageElement.style.flexDirection = "column";
 
-  element.innerHTML = `
-      <div style="
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:25px;
-  ">
-    <!-- LOGO -->
-    <img
-      src="${Logo}"
-      alt="Logo"
-      style="
-        height:70px;
-        object-fit:contain;
-      "
-    />
+  firstPageElement.innerHTML = `
+    <!-- الشعار في الرأس (الجزء العلوي) -->
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:40px;
+    ">
+      <!-- LOGO -->
+      <img
+        src="${Logo}"
+        alt="Logo"
+        style="
+          height:70px;
+          object-fit:contain;
+        "
+      />
 
-    <!-- TITLES -->
-    <div style="text-align:center; flex:1;">
-      <h1 style="margin:0; font-size:28px; color:#1E3A8A;">
-        ${t("app.title")}
-      </h1>
-      <p style="font-size:20px; font-weight:bold; margin:5px 0 0;">
-        ${t("common.damageRequest")}
-      </p>
+      <!-- TITLES -->
+      <div style="text-align:center; flex:1;">
+        <h1 style="margin:0; font-size:28px; color:#1E3A8A;">
+          ${t("app.title")}
+        </h1>
+        <p style="font-size:20px; font-weight:bold; margin:5px 0 0;">
+          ${t("common.damageRequest")}
+        </p>
+      </div>
+
+      <!-- EMPTY SPACE (للتوازن) -->
+      <div style="width:70px;"></div>
     </div>
 
-    <!-- EMPTY SPACE (للتوازن) -->
-    <div style="width:70px;"></div>
-  </div>
+    <hr style="margin-bottom:30px;" />
 
-  <hr style="margin-bottom:30px;" />
+    <!-- المحتوى في المنتصف -->
+    <div style="
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:75px;
+    ">
+      <section>
+        <h3 style="font-size:25px; color:#1E3A8A;">
+          ${t("review.identityInfo")}
+        </h3>
+        <p><strong>${t("auth.nationalId")}:</strong> ${
+          citizen?.national_id || "-"
+        }</p>
+        <p><strong>${t("form.fullName")}:</strong> ${
+          citizen?.full_name || "-"
+        }</p>
+        <p><strong>${t("auth.email")}:</strong> ${citizen?.email || "-"}</p>
+        <p><strong>${t("form.phoneNumber")}:</strong> ${
+          citizen?.whatsapp_number || "-"
+        }</p>
+      </section>
 
-    <section>
-      <h3 style="font-size:25px; color:#1E3A8A;">
-        ${t("review.identityInfo")}
-      </h3>
-      <p><strong>${t("auth.nationalId")}:</strong> ${
-    citizen?.national_id || "-"
-  }</p>
-      <p><strong>${t("form.fullName")}:</strong> ${
-    citizen?.full_name || "-"
-  }</p>
-      <p><strong>${t("auth.email")}:</strong> ${citizen?.email || "-"}</p>
-      <p><strong>${t("form.phoneNumber")}:</strong> ${
-    citizen?.phone_number || "-"
-  }</p>
-    </section>
+      <section style="margin-top:30px;">
+        <h3 style="font-size:25px; color:#1E3A8A;">
+          ${t("review.damageInfo")}
+        </h3>
 
-    <section style="margin-top:15px;">
-      <h3 style="font-size:25px; color:#1E3A8A;">
-        ${t("review.damageInfo")}
+        <div style="
+          margin-top:15px;
+          padding:20px;
+          border-radius:12px;
+          background:#EFF6FF;
+          border-right:6px solid #1E3A8A;
+        ">
+          <h4>
+            <strong>${t("success.trackingNumber")}:</strong> #${application.report_code}
+          </h4>
+
+          <p><strong>${t("form.submissionDate")}:</strong> ${formatDate(
+            new Date(application.created_at),
+          )}</p>
+          <p><strong>${t("status")}:</strong> ${t(
+            `status.${application.status?.toLowerCase()}`,
+          )}</p>
+          <p><strong>${t("map.address")}:</strong>
+            ${
+              [
+                application?.location?.neighborhood,
+                buildingData?.landmark,
+                buildingData?.nameOfStreet,
+                buildingData?.buildingNumber,
+              ]
+                .filter(Boolean)
+                .join(" - ") || "-"
+            }
+          </p>
+
+          <hr style="margin:12px 0; border:none; border-top:1px solid #D1D5DB;" />
+          <p style="margin:6px 0;">
+            <strong>${t("form.buildingType")}:</strong> ${t(
+              `form.${buildingType}`,
+            )}
+          </p>
+        </div>
+      </section>
+    </div>
+  `;
+
+  document.body.appendChild(firstPageElement);
+  const canvasFirst = await html2canvas(firstPageElement, { scale: 2 });
+  const imgFirst = canvasFirst.toDataURL("image/jpeg");
+  const propsFirst = pdf.getImageProperties(imgFirst);
+  const heightFirst = (propsFirst.height * pageWidth) / propsFirst.width;
+
+  // إضافة الصورة إلى PDF
+  pdf.addImage(imgFirst, "JPEG", 0, 0, pageWidth, heightFirst);
+  document.body.removeChild(firstPageElement);
+
+  // =============== الصفحة الثانية: باقي بيانات المبنى ===============
+  if (buildingData && Object.keys(buildingData).length > 0) {
+    // استخراج البيانات التي تريد عرضها في الصفحة الثانية (كل شيء ما عدا نوع المبنى)
+    const { buildingType: _, ...restOfData } = buildingData;
+
+    const secondPageElement = document.createElement("div");
+    secondPageElement.style.width = "800px";
+    secondPageElement.style.fontFamily = "'Amiri', Arial, sans-serif";
+    secondPageElement.style.direction = language === "en" ? "ltr" : "rtl";
+    secondPageElement.style.padding = "40px";
+    secondPageElement.style.background = "#fdfdfd";
+    secondPageElement.style.color = "#333";
+    secondPageElement.style.lineHeight = "1.8";
+
+    secondPageElement.innerHTML = `
+      <h3 style="font-size:25px; color:#1E3A8A; margin-bottom:20px;">
+        ${t("form.buildingDetails")}
       </h3>
 
       <div style="
-        margin-top:15px;
         padding:20px;
         border-radius:12px;
         background:#EFF6FF;
         border-right:6px solid #1E3A8A;
       ">
-        <h4>
-          <strong>${t("success.trackingNumber")}:</strong> #${application.id}
-        </h4>
-
-        <p><strong>${t("form.submissionDate")}:</strong> ${formatDate(
-    new Date(application.createdAt)
-  )}</p>
-        <p><strong>${t("status")}:</strong> ${t(
-    `status.${application.status?.toLowerCase()}`
-  )}</p>
-<p><strong>${t("map.address")}:</strong>
-  ${
-    [
-      application?.location?.neighborhood,
-      buildingData?.landmark,
-      buildingData?.nameOfStreet,
-      buildingData?.buildingNumber,
-    ]
-      .filter(Boolean)
-      .join(" - ") || "-"
-  }
-</p>
-
-        <hr style="margin:12px 0; border:none; border-top:1px solid #D1D5DB;" />
-        <p style="margin:6px 0;">
-          <strong>${t("form.buildingType")}:</strong> ${t(
-    `form.${buildingType}`
-  )}
-        </p>
-
-        ${renderBuildingData(buildingData)}
+        ${renderBuildingData(restOfData)}
       </div>
-    </section>
-  `;
+    `;
 
-  document.body.appendChild(element);
+    document.body.appendChild(secondPageElement);
+    const canvasSecond = await html2canvas(secondPageElement, { scale: 2 });
+    const imgSecond = canvasSecond.toDataURL("image/jpeg");
+    const propsSecond = pdf.getImageProperties(imgSecond);
+    const heightSecond = (propsSecond.height * pageWidth) / propsSecond.width;
 
-  // تحويل HTML إلى canvas كامل
-  const canvas = await html2canvas(element as HTMLElement, { scale: 2 });
-  const imgData = canvas.toDataURL("image/jpeg");
-  const imgProps = pdf.getImageProperties(imgData);
-  const imgWidth = pageWidth;
-  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-  // تقسيم الصورة على صفحات PDF
-  let remainingHeight = imgHeight;
-  let position = 0;
-
-  while (remainingHeight > 0) {
-    const yOffset = -position;
-
-    pdf.addImage(imgData, "JPEG", 0, yOffset, imgWidth, imgHeight);
-    remainingHeight -= pageHeight;
-    position += pageHeight;
-
-    if (remainingHeight > 0) {
-      pdf.addPage();
-    }
+    pdf.addPage();
+    pdf.addImage(imgSecond, "JPEG", 0, 0, pageWidth, heightSecond);
+    document.body.removeChild(secondPageElement);
   }
 
-  document.body.removeChild(element);
-
+  // =============== حفظ الملف ===============
   pdf.save(`Application-${application.id}.pdf`);
 };

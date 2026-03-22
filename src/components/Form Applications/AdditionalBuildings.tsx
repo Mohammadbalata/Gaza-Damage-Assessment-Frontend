@@ -537,21 +537,21 @@ const AdditionalBuildings = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
           <SingleImageInput
             control={control}
-            name="additionalBuildings.beforeWarImage"
+            name="additionalBuildings.before_damage_image"
             label="صورة العقار قبل الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <SingleImageInput
             control={control}
-            name="additionalBuildings.afterWarImage"
+            name="additionalBuildings.after_damage_image"
             label="صورة العقار بعد الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <MultipleImagesInput
             control={control}
-            name="additionalBuildings.ownershipDocuments"
+            name="additionalBuildings.ownership_documents"
             label="مستندات الملكية ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />

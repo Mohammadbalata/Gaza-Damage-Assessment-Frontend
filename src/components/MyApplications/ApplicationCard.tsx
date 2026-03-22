@@ -26,14 +26,21 @@ import {
   Cancel as RejectedIcon,
   TaskAlt as VerifiedIcon,
   Lock as ClosedIcon,
+  Feedback as ComplaintIcon,
+  MoreVert as MoreIcon,
 } from "@mui/icons-material";
+import { MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { axiosClient } from "../../api/baseUrl";
 
 export interface ApplicationCardProps {
   application: any;
   onAction: (app: any) => void;
   onDownloadPdf: (app: any) => void;
+  onAddComplaint: (app: any) => void;
+  onCloseComplaint: (app: any) => void;
   index?: number; // For staggered animation
 }
 
@@ -41,18 +48,47 @@ const ApplicationCard = ({
   application,
   onAction,
   onDownloadPdf,
+  onAddComplaint,
+  onCloseComplaint,
   index = 0,
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
+  const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   if (!application) return null;
 
-  const buildingType = application?.extraData?.buildingType;
-  const buildingData = application?.extraData?.[buildingType];
+  const buildingType = application?.damage_details.buildingType;
+  const buildingData = application?.damage_details[buildingType];
 
-  const status = application.status?.toUpperCase() || "PENDING";
-  const isPending = status === "PENDING";
+  const status = application.status?.toUpperCase() || "SUBMITTED";
+  const isSubmitted = status === "SUBMITTED";
+
+
+   useEffect(() => {
+      axiosClient
+      .get(`/neighborhoods`)
+        .then((res:any) => {
+          setNeighborhoodLocations(res.data.neighborhoods);
+        })
+        .catch((error:any) => {
+          console.log(error);
+        });
+    }, []);
+  const getNeighborhoodName = (id: string) => {
+    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === id.toString());
+    if (!neighborhood) return id;
+    return language === "ar" ? neighborhood.name : neighborhood.name_en;
+  };
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -140,10 +176,10 @@ const ApplicationCard = ({
                   width: 48,
                   height: 48,
                   borderRadius: 3,
-                  bgcolor: isPending
+                  bgcolor: isSubmitted
                     ? alpha(theme.palette.warning.main, 0.1)
                     : alpha(theme.palette.primary.main, 0.1),
-                  color: isPending ? "warning.main" : "primary.main",
+                  color: isSubmitted ? "warning.main" : "primary.main",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -160,7 +196,7 @@ const ApplicationCard = ({
                   {t("citizen.applicationId")}
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" lineHeight={1.2}>
-                  #{application.id}
+                  #{application.report_code}
                 </Typography>
               </Box>
             </Stack>
@@ -207,7 +243,7 @@ const ApplicationCard = ({
                   fontWeight="medium"
                   color="text.primary"
                 >
-                  {new Date(application.createdAt).toLocaleDateString(
+                  {new Date(application.created_at).toLocaleDateString(
                     language === "ar" ? "ar-EG" : "en-US"
                   )}
                 </Typography>
@@ -239,8 +275,8 @@ const ApplicationCard = ({
                     flexWrap: "wrap",
                   }}
                 >
-                  {application?.location?.neighborhood && (
-                    <span> {application?.location?.neighborhood}</span>
+                  {application?.neighborhood_id && (
+                    <span> {getNeighborhoodName(application?.neighborhood_id)}</span>
                   )}
                   {buildingData?.landmark && (
                     <span> - {buildingData?.landmark}</span>
@@ -271,10 +307,10 @@ const ApplicationCard = ({
         >
           {/* Primary Action */}
           <Button
-            variant={isPending ? "contained" : "outlined"}
-            color={isPending ? "primary" : "inherit"}
+            variant={isSubmitted ? "contained" : "outlined"}
+            color={isSubmitted ? "primary" : "inherit"}
             startIcon={
-              isPending ? (
+              isSubmitted ? (
                 <EditIcon sx={{ ml: 2 }} />
               ) : (
                 <VisibilityIcon sx={{ ml: 2 }} />
@@ -286,12 +322,12 @@ const ApplicationCard = ({
               borderRadius: 2,
               textTransform: "none",
               fontWeight: "bold",
-              boxShadow: isPending ? 2 : 0,
-              borderWidth: isPending ? 0 : "1px",
-              borderColor: isPending ? "primary.main" : "divider",
+              boxShadow: isSubmitted ? 2 : 0,
+              borderWidth: isSubmitted ? 0 : "1px",
+              borderColor: isSubmitted ? "primary.main" : "divider",
             }}
           >
-            {isPending ? t("common.editRequest") : t("common.reviewRequest")}
+            {isSubmitted ? t("common.editRequest") : t("common.reviewRequest")}
           </Button>
 
           {/* Secondary Actions (Icons) */}
@@ -313,13 +349,88 @@ const ApplicationCard = ({
               <PdfIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          
+          {application.complaint ? (
+            <>
+              <Tooltip title={t("common.actions")}>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    color: "primary.main",
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    "&:hover": {
+                      bgcolor: "primary.main",
+                      color: "white",
+                      borderColor: "primary.main",
+                    },
+                  }}
+                >
+                  <MoreIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                transformOrigin={{ vertical: "top", horizontal: language === "ar" ? "right" : "left" }}
+                anchorOrigin={{ vertical: "bottom", horizontal: language === "ar" ? "right" : "left" }}
+              >
+                <MenuItem 
+                  component={Link} 
+                  to={`/citizen/complaints/${application.complaint.id}`}
+                  onClick={handleMenuClose}
+                >
+                  <ListItemIcon>
+                    <VisibilityIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary={t("citizen.viewDetails")} />
+                </MenuItem>
+                <MenuItem 
+                  onClick={() => {
+                    handleMenuClose();
+                    onCloseComplaint(application);
+                  }}
+                  disabled={!application.complaint.response}
+                >
+                  <ListItemIcon>
+                    <ClosedIcon fontSize="small" color={application.complaint.response ? "error" : "disabled"} />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={t("complaint.close")} 
+                    secondary={!application.complaint.response ? t("complaint.waitingForResponse") : null}
+                  />
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Tooltip title={t("complaint.add")}>
+              <IconButton
+                onClick={() => onAddComplaint(application)}
+                sx={{
+                  bgcolor: alpha(theme.palette.error.main, 0.05),
+                  color: "error.main",
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                  "&:hover": {
+                    bgcolor: "error.main",
+                    color: "white",
+                    borderColor: "error.main",
+                  },
+                }}
+              >
+                <ComplaintIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
 
-          {application.location?.latitude &&
-            application.location?.longitude && (
+          {application?.latitude &&
+            application?.longitude && (
               <Tooltip title={t("map.showonmap")}>
                 <IconButton
                   component={Link}
-                  to={`/admin/locations/map?lat=${application.location.latitude}&lng=${application.location.longitude}`}
+                  to={`/admin/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
                   sx={{
                     bgcolor: alpha(theme.palette.info.main, 0.05),
                     color: "info.main",

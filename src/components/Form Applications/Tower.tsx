@@ -657,21 +657,21 @@ const Tower = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <SingleImageInput
             control={control}
-            name="tower.beforeWarImage"
+            name="tower.before_damage_image"
             label="صورة العقار قبل الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <SingleImageInput
             control={control}
-            name="tower.afterWarImage"
+            name="tower.after_damage_image"
             label="صورة العقار بعد الدمار ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />
 
           <MultipleImagesInput
             control={control}
-            name="tower.ownershipDocuments"
+            name="tower.ownership_documents"
             label="مستندات الملكية ( إن وجد )"
             {...{ isChangeToReviewPage }}
           />

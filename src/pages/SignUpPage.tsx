@@ -27,12 +27,12 @@ const SignUpPage = () => {
 
   const { error, loading } = useAppSelector((state) => state.auth);
   const token = localStorage.getItem("token");
-  
-    useEffect(() => {
-      if (token) {
-        navigate(ROUTES.CITIZEN_DASHBOARD);
-      }
-    }, [token, navigate]);
+
+  useEffect(() => {
+    if (token) {
+      navigate(ROUTES.CITIZEN_DASHBOARD);
+    }
+  }, [token, navigate]);
 
   const {
     register,
@@ -43,14 +43,14 @@ const SignUpPage = () => {
   const onSubmit = async (data: FormDataCustom) => {
     await dispatch(
       signUp({
-        nationalId: data.nationalId,
+        national_id: data.national_id,
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
-      })
+      }),
     )
       .unwrap()
       .then(() => {
-        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.nationalId}`);
+        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.national_id}`);
         console.log("success");
       })
       .catch((error) => {
@@ -105,7 +105,7 @@ const SignUpPage = () => {
               {t("auth.nationalId")}
             </Typography>
             <FormInput
-              id="nationalId"
+              id="national_id"
               type="text"
               placeholder={t("auth.nationalIdPlaceholder")}
               register={register}
@@ -212,7 +212,7 @@ const SignUpPage = () => {
               size="small"
               onClick={() => {
                 dispatch(setError(""));
-                navigate(`/${ROUTES.SIGNIN}`);
+                navigate(`${ROUTES.SIGNIN}`);
               }}
               sx={{
                 fontWeight: 600,

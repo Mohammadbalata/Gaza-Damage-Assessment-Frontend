@@ -1,5 +1,5 @@
 export interface IAuthState {
-  nationalId?: string | null | any;
+  national_id?: string | null | any;
   password?: string | null | any;
   user?: any | null;
   isAuthenticated?: boolean;
@@ -21,4 +21,5 @@ export interface IAuthState {
   citizenInfo?: any;
   avatar?: File | null;
   formData?: any;
+  trackingNumber?: string;
 }

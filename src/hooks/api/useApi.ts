@@ -92,28 +92,22 @@ export function usePost<T = any>(url: string, options: UseApiOptions = {}) {
 /**
  * Hook for PUT requests
  */
-export function usePut<T = any>(options: UseApiOptions = {}) {
-  return useApi<T>(
-    (url: string, payload: any) => api.put(url, payload),
-    options
-  );
+export function usePut<T = any>(url: string, options: UseApiOptions = {}) {
+  return useApi<T>((payload: any) => api.put(url, payload), options);
 }
 
 /**
  * Hook for DELETE requests
  */
-export function useDelete<T = any>(options: UseApiOptions = {}) {
-  return useApi<T>((url: string) => api.delete(url), options);
+export function useDelete<T = any>(url: string, options: UseApiOptions = {}) {
+  return useApi<T>(() => api.delete(url), options);
 }
 
 /**
  * Hook for PATCH requests
  */
-export function usePatch<T = any>(options: UseApiOptions = {}) {
-  return useApi<T>(
-    (url: string, payload: any) => api.patch(url, payload),
-    options
-  );
+export function usePatch<T = any>(url: string, options: UseApiOptions = {}) {
+  return useApi<T>((payload: any) => api.patch(url, payload), options);
 }
 
 export default useApi;

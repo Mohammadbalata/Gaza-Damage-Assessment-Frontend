@@ -41,15 +41,10 @@ const LoginPage = () => {
   }, [token, navigate]);
 
   const onSubmit = (data: FormDataCustom) => {
-    dispatch(signIn({ nationalId: data.nationalId, password: data.password }))
+    dispatch(signIn({ national_id: data.national_id, password: data.password }))
       .unwrap()
       .then((data) => {
-        console.log("data data", data.citizenData.data.user);
-
-        localStorage.setItem(
-          "citizenInfo",
-          JSON.stringify(data.citizenData.data.user)
-        );
+        localStorage.setItem("citizenInfo", JSON.stringify(data.citizenInfo));
         navigate(ROUTES.CITIZEN_DASHBOARD);
       })
       .catch((error) => {
@@ -88,7 +83,8 @@ const LoginPage = () => {
               {t("auth.nationalId")}
             </Typography>
             <FormInput
-              id="nationalId"
+              id="national_id"
+              type="text"
               placeholder={t("auth.nationalIdPlaceholder")}
               register={register}
               errors={errors}
@@ -227,7 +223,7 @@ const LoginPage = () => {
               size="small"
               onClick={() => {
                 dispatch(setError(""));
-                navigate(`/${ROUTES.SIGNUP}`);
+                navigate(`${ROUTES.SIGNUP}`);
               }}
               sx={{
                 fontWeight: 600,

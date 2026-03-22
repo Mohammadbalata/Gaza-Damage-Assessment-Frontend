@@ -65,25 +65,32 @@ export const API = {
 
   citizen: {
     auth: {
-      login: `/auth/citizen/login`,
-      verifyId: `/auth/citizen/verify-id`,
-      verifyQuestions: `/auth/citizen/verify-questions`,
-      completeSignup: `/auth/citizen/complete-signup`,
+      login: `/auth/login`,
+      verifyId: `/auth/verification/national-id`,
+      verifyQuestions: `/auth/verification/security-questions`,
+      completeSignup: `/auth/complete-signup`,
       changePassword: `/auth/citizen/change-password`,
       forgotPassword: `/auth/citizen/reset-password/request`,
       resetPassword: `/auth/citizen/reset-password`,
     },
     applications: {
-      list: `/citizen/applications`,
-      create: `/citizen/applications`,
+      list: `/damage-reports`,
+      create: `/damage-reports`,
       update: (id: string) => `/citizen/applications/${id}`,
       details: (id: string) => `/citizen/applications/${id}`,
       track: (id: string) => `/citizen/applications/${id}/track`,
     },
 
     locations: {
-      current: `/citizen/locations/current`,
+      current: `/current-location`,
       previous: `/citizen/locations/previous`,
+    },
+    damageReports: {
+      list: `/damage-reports`,
+      create: `/damage-reports`,
+      update: (id: string) => `/damage-reports/${id}`,
+      details: (id: string) => `/damage-reports/${id}`,
+      track: (id: string) => `/damage-reports/${id}/track`,
     },
 
     bankAccounts: {
@@ -91,6 +98,12 @@ export const API = {
       create: `/citizen/bank-accounts`,
       update: (id: string) => `/citizen/bank-accounts/${id}`,
       delete: (id: string) => `/citizen/bank-accounts/${id}`,
+    },
+    complaints: {
+      list: `/complaints`,
+      create: `/complaints`,
+      details: (id: string) => `/complaints/${id}`,
+      close: (id: string) => `/complaints/${id}/close`,
     },
   },
 

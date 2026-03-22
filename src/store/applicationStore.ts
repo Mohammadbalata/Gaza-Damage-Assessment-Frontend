@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 interface ApplicationData {
-  nationalId: number;
+  national_id: number;
   fullName: string;
   motherName: string;
   dateOfBirth: string;
@@ -59,7 +59,7 @@ const defaultData: Partial<ApplicationData> = {
 export const useApplicationStore = create<ApplicationStore>((set) => ({
   data: defaultData,
   setNationalId: (id) =>
-    set((state) => ({ data: { ...state.data, nationalId: id } })),
+    set((state) => ({ data: { ...state.data, national_id: id } })),
   setPersonalInfo: (info) =>
     set((state) => ({ data: { ...state.data, ...info } })),
   setFamilyInfo: (info) =>

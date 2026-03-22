@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch } from "../hooks/redux";
-import { locations as neighborhoodLocations, landmarks as neighborhoodLandmarks } from "../constants/locations";
+import { landmarks as neighborhoodLandmarks } from "../constants/locations";
 import {
   Container,
   Card,
@@ -23,6 +23,7 @@ import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
+import { axiosClient } from "../api/baseUrl";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ const PreviousLocationMapPage = () => {
   // Selection States
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
   const [selectedLandmarkCoords, setSelectedLandmarkCoords] = useState<string>("");
+  const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
 
   // Dialog State
   const [openDialog, setOpenDialog] = useState(false);
@@ -60,10 +62,15 @@ const PreviousLocationMapPage = () => {
     setSelectedLandmarkCoords(""); // Reset landmark when neighborhood changes
     
     // Find neighborhood coordinates to center map
-    const neighborhood = neighborhoodLocations.find(n => n.id === neighborhoodId);
-    if (neighborhood) {
-      setCenter(neighborhood.coords);
-      setZoom(15); // Reset zoom or keep it moderate for neighborhood view
+    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === neighborhoodId.toString());
+    if (neighborhood && neighborhood.latitude && neighborhood.longitude) {
+      const lat = parseFloat(neighborhood.latitude);
+      const lng = parseFloat(neighborhood.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition(null);
+        setZoom(15);
+      }
     }
   };
 
@@ -81,6 +88,19 @@ const PreviousLocationMapPage = () => {
       }
     }
   };
+
+
+
+  useEffect(() => {
+    axiosClient.get(`/neighborhoods`)
+      .then((res:any) => {
+        console.log(res.data.neighborhoods);
+        setNeighborhoodLocations(res.data.neighborhoods);
+      })
+      .catch((error:any) => {
+        console.log(error);
+      });
+  }, []);
 
   useEffect(() => {
     if (position) {
@@ -113,14 +133,16 @@ const PreviousLocationMapPage = () => {
   };
 
   const getNeighborhoodName = (id: string) => {
-    return neighborhoodLocations.find(n => n.id === id)?.name || id;
+    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === id.toString());
+    if (!neighborhood) return id;
+    return language === "ar" ? neighborhood.name : neighborhood.name_en;
   };
 
   const getLandmarkName = (coordsToCheck: string) => {
     if (!coordsToCheck || !selectedNeighborhoodId) return "";
     const [lat, lng] = coordsToCheck.split(',');
     const landmark = currentLandmarks.find((l: any) => 
-      l.latitude === lat && l.longitude === lng
+      l.latitude.toString() === lat.toString() && l.longitude.toString() === lng.toString()
     );
     return landmark?.landmark || "";
   };
@@ -169,7 +191,7 @@ const PreviousLocationMapPage = () => {
                 </MenuItem>
                 {neighborhoodLocations.map((n) => (
                   <MenuItem key={n.id} value={n.id}>
-                    {n.name}
+                    {language === "ar" ? n.name : n.name_en}
                   </MenuItem>
                 ))}
               </Select>
@@ -221,9 +243,9 @@ const PreviousLocationMapPage = () => {
               location={{ 
                 position, 
                 address, 
+                neighborhood_id: selectedNeighborhoodId,
                 neighborhood: getNeighborhoodName(selectedNeighborhoodId),
                 landmark: getLandmarkName(selectedLandmarkCoords),
-                // We're passing the name, not coordinates, if that's what's expected for display/saving
               }}
             />
           </Box>
@@ -338,7 +360,7 @@ const PreviousLocationMapPage = () => {
             location={{
               position,
               address,
-              neighborhood: getNeighborhoodName(selectedNeighborhoodId),
+              neighborhood_id: selectedNeighborhoodId,
               nearestLandmark: getLandmarkName(selectedLandmarkCoords),
             }}
           />

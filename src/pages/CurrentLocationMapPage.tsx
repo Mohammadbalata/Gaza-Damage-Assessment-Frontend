@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -6,8 +6,8 @@ import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updateCurrentLocation } from "../redux/slices/locationSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
-import { usePost } from "../hooks/api/useApi";
-import SelectLocations from "../components/SelectLocations";
+import { usePut } from "../hooks/api/useApi";
+import { landmarks as neighborhoodLandmarks } from "../constants/locations";
 import {
   Container,
   Card,
@@ -17,9 +17,13 @@ import {
   Button,
   Stack,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { API } from "../constants/ApiRoutes";
-import { locations } from "../constants/locations";
+import { axiosClient } from "../api/baseUrl";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -31,17 +35,78 @@ const CurrentLocationMapPage = () => {
   const dispatch = useAppDispatch();
   const [position, setPosition] = useState<[number, number] | null>(
     currentLocation.currentLatitude && currentLocation.currentLongitude
-      ? [currentLocation.currentLatitude, currentLocation.currentLongitude]
+      ? [Number(currentLocation.currentLatitude), Number(currentLocation.currentLongitude)]
       : null
   );
   const [address, setAddress] = useState("");
-  const [neighborhood, setNeighborhood] = useState<string>(locations[11].name);
+  
+  // Selection States
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedLandmarkCoords, setSelectedLandmarkCoords] = useState<string>("");
+  const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
 
-  // Default center: Gaza City
+  // Map Navigation state (keep original map)
   const defaultCenter: [number, number] = [31.3547, 34.3088];
-  const [center, setCenter] = useState<[number, number]>(defaultCenter);
+  const [center, setCenter] = useState<[number, number]>(position || defaultCenter);
+  const [zoom, setZoom] = useState<number>(position ? 16 : 13);
 
-  const { loading, execute } = usePost(`${API.citizen.locations.current}`, {
+  // Sync center with position on initial load or landmark/reset selection
+  useEffect(() => {
+    if (position) {
+      setCenter(position);
+    }
+  }, [position]);
+
+  // Get landmarks for selected neighborhood
+  const currentLandmarks = useMemo(() => {
+    if (!selectedNeighborhoodId) return [];
+    return neighborhoodLandmarks[selectedNeighborhoodId] || [];
+  }, [selectedNeighborhoodId]);
+
+  // Handle Neighborhood Change
+  const handleNeighborhoodChange = (event: any) => {
+    const neighborhoodId = event.target.value;
+    setSelectedNeighborhoodId(neighborhoodId);
+    setSelectedLandmarkCoords(""); // Reset landmark when neighborhood changes
+    
+    // Find neighborhood coordinates to center map
+    const neighborhood = neighborhoodLocations.find(n => n?.id?.toString() === neighborhoodId?.toString());
+    if (neighborhood) {
+      // Robust coordinate extraction
+      const latVal = neighborhood.latitude || neighborhood.lat || (neighborhood.coords && neighborhood.coords[0]);
+      const lngVal = neighborhood.longitude || neighborhood.lng || (neighborhood.coords && neighborhood.coords[1]);
+      
+      const lat = parseFloat(latVal);
+      const lng = parseFloat(lngVal);
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition(null); // Reset manual position when neighborhood changes
+        setZoom(15);
+      }
+    } else if (neighborhoodId === "") {
+      // Reset to default center if "All" is selected
+      setCenter(defaultCenter);
+      setZoom(13);
+    }
+  };
+
+  // Handle Landmark Change
+  const handleLandmarkChange = (event: any) => {
+    const coordsStr = event.target.value;
+    setSelectedLandmarkCoords(coordsStr);
+
+    if (coordsStr) {
+      const [lat, lng] = coordsStr.split(',').map(Number);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition([lat, lng]); 
+        setZoom(18); 
+      }
+    }
+  };
+
+  const { loading, execute } = usePut(`${API.citizen.locations.current}`, {
     onSuccess: () => {
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },
@@ -49,6 +114,16 @@ const CurrentLocationMapPage = () => {
       console.log(err);
     },
   });
+
+  useEffect(() => {
+    axiosClient.get(`/neighborhoods`)
+      .then((res:any) => {
+        setNeighborhoodLocations(res.data.neighborhoods);
+      })
+      .catch((error:any) => {
+        console.log(error);
+      });
+  }, []);
 
   useEffect(() => {
     if (position) {
@@ -71,16 +146,36 @@ const CurrentLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
+    setSelectedNeighborhoodId("");
+    setSelectedLandmarkCoords("");
+    setCenter(defaultCenter);
+    setZoom(15);
+  };
+
+  const getNeighborhoodName = (id: string) => {
+    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === id.toString());
+    if (!neighborhood) return id;
+    return language === "ar" ? neighborhood.name : neighborhood.name_en;
+  };
+
+  const getLandmarkName = (coordsToCheck: string) => {
+    if (!coordsToCheck || !selectedNeighborhoodId) return "";
+    const [lat, lng] = coordsToCheck.split(',');
+    const landmarkItem = currentLandmarks.find((l: any) => 
+      l.latitude.toString() === lat.toString() && l.longitude.toString() === lng.toString()
+    );
+    return landmarkItem?.landmark || "";
   };
 
   const handleConfirm = () => {
     if (position && address) {
+      const currentLocAddress = `${getNeighborhoodName(selectedNeighborhoodId)} - ${getLandmarkName(selectedLandmarkCoords)} - ${address}`;
       dispatch(
         updateCurrentLocation({
           currentLocation: {
             currentLatitude: position[0],
             currentLongitude: position[1],
-            currentLocationAddress: address,
+            currentLocationAddress: currentLocAddress,
           },
         })
       );
@@ -89,7 +184,8 @@ const CurrentLocationMapPage = () => {
         latitude: position[0].toString(),
         longitude: position[1].toString(),
         address,
-        neighborhood,
+        neighborhood_id: selectedNeighborhoodId,
+        landmark: getLandmarkName(selectedLandmarkCoords),
       });
     }
   };
@@ -121,6 +217,50 @@ const CurrentLocationMapPage = () => {
             </Typography>
           </Box>
 
+          <Stack direction={{ xs: "column", md: "row" }} sx={{ mb: 3 , gap:2 }}>
+            <FormControl fullWidth size="small" required>
+              <InputLabel>
+                {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+              </InputLabel>
+              <Select
+                value={selectedNeighborhoodId}
+                label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                onChange={handleNeighborhoodChange}
+                autoFocus
+              >
+                <MenuItem value="">
+                  {language === "ar" ? "الكل" : "All"}
+                </MenuItem>
+                {neighborhoodLocations.map((n) => (
+                  <MenuItem key={n.id} value={n.id}>
+                    {language === "ar" ? n.name : n.name_en}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size="small" sx={{ml:0 }}>
+              <InputLabel>
+                {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+              </InputLabel>
+              <Select
+                value={selectedLandmarkCoords}
+                label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                onChange={handleLandmarkChange}
+                disabled={!selectedNeighborhoodId}
+              >
+                <MenuItem value="">
+                  {language === "ar" ? "اختر المعلم" : "Select Landmark"}
+                </MenuItem>
+                {currentLandmarks.map((lm: any, index: number) => (
+                  <MenuItem key={index} value={`${lm.latitude},${lm.longitude}`}>
+                    {lm.landmark}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+
           <Box
             sx={{
               height: 400,
@@ -134,15 +274,17 @@ const CurrentLocationMapPage = () => {
           >
             <MapContainer
               center={center}
-              zoom={15}
+              zoom={zoom}
               markerPosition={position}
               setMarkerPosition={setPosition}
               height="100%"
               width="100%"
-              {...{ setAddress }}
-            >
-              {/* You can add <Marker>, <Popup>, etc. as children if needed */}
-            </MapContainer>
+              setAddress={setAddress}
+              location={{
+                neighborhood_id: selectedNeighborhoodId,
+                neighborhood: getNeighborhoodName(selectedNeighborhoodId),
+              }}
+            />
           </Box>
 
           {position && (
@@ -209,14 +351,6 @@ const CurrentLocationMapPage = () => {
             >
               {t("map.reset")}
             </Button>
-
-            <Box sx={{ flex: 1 }}>
-              <SelectLocations
-                {...{ handleReset }}
-                {...{ setNeighborhood }}
-                setCenter={setCenter}
-              />
-            </Box>
 
             <Button
               variant="contained"

@@ -499,21 +499,21 @@ const ApartmentInsideBuilding = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SingleImageInput
           control={control}
-          name="ApartmentInsideBuilding.beforeWarImage"
+          name="ApartmentInsideBuilding.before_damage_image"
           label="صورة العقار قبل الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
-          name="ApartmentInsideBuilding.afterWarImage"
+          name="ApartmentInsideBuilding.after_damage_image"
           label="صورة العقار بعد الدمار ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
-          name="ApartmentInsideBuilding.ownershipDocuments"
+          name="ApartmentInsideBuilding.ownership_documents"
           label="مستندات الملكية ( إن وجد )"
           {...{ isChangeToReviewPage }}
         />

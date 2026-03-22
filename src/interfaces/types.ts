@@ -1,5 +1,5 @@
 export interface ApplicationData {
-  nationalId: string
+  national_id: string
   fullName: string
   motherName: string
   dateOfBirth: string
@@ -26,4 +26,12 @@ export interface ApplicationData {
   locationAddress?: string
   trackingNumber?: string
   password?: string
+  id?: number;
+  report_code?: string;
+  status?: string;
+  damage_details?: {
+    note?: string;
+  };
+  created_at?: string;
+  updated_at?: string;
 }

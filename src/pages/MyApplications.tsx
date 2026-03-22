@@ -36,16 +36,18 @@ import {
   Edit as EditIcon,
   Close as CloseIcon,
   LocationOn as LocationOnIcon,
+  Feedback as ComplaintIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useGet, usePost } from "../hooks/api/useApi";
+// import { usePut } from "../hooks/api/useApi";
 import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
+import ComplaintDialog from "../components/Complaints/ComplaintDialog";
 import {
   generatePDFReceipt,
   generateApplicationPDF,
@@ -56,6 +58,8 @@ import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
 import SelectLocations from "../components/SelectLocations";
+import { locations } from "../constants/locations";
+import { axiosClient } from "../api/baseUrl";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -76,6 +80,10 @@ const MyApplications = () => {
       id: "",
     },
   });
+  
+  // Complaint Dialog State
+  const [complaintDialogOpen, setComplaintDialogOpen] = useState(false);
+  const [complaintApp, setComplaintApp] = useState<any>(null);
 
   // Current Location Edit Dialog State
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -83,35 +91,35 @@ const MyApplications = () => {
     [number, number] | null
   >(null);
   const [locationAddress, setLocationAddress] = useState("");
-  const [locationNeighborhood, setLocationNeighborhood] = useState<string>(
-  );
+  const [locationNeighborhood, setLocationNeighborhood] = useState<string>("");
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const theme = useTheme();
+  const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const [locationLoading, setLocationLoading] = useState(false);
 
-  // usePost for updating current location
-  const { loading: locationLoading, execute: updateLocation } = usePost(
-    `${API.citizen.locations.current}`,
-    {
-      onSuccess: () => {
-        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-          variant: "success",
-        });
-        setLocationDialogOpen(false);
-        refreshApplications();
-      },
-      onError: (err) => {
-        enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
-        console.error(err);
-      },
-    }
-  );
+  // // usePut for updating current location
+  // const { loading: locationLoading, execute: updateLocation } = usePut(
+  //   `${API.citizen.locations.current}`,
+  //   {
+  //     onSuccess: () => {
+  //       enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+  //         variant: "success",
+  //       });
+  //       setLocationDialogOpen(false);
+  //     },
+  //     onError: (err) => {
+  //       enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
+  //       console.error(err);
+  //     },
+  //   }
+  // );
 
   // Reverse geocoding for location address
   useEffect(() => {
     if (locationPosition) {
       fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${locationPosition[0]}&lon=${locationPosition[1]}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${locationPosition[0]}&lon=${locationPosition[1]}`,
       )
         .then((res) => res.json())
         .then((data) => {
@@ -120,8 +128,8 @@ const MyApplications = () => {
         .catch(() => {
           setLocationAddress(
             `Lat: ${locationPosition[0].toFixed(
-              6
-            )}, Lng: ${locationPosition[1].toFixed(6)}`
+              6,
+            )}, Lng: ${locationPosition[1].toFixed(6)}`,
           );
         });
     }
@@ -129,28 +137,67 @@ const MyApplications = () => {
 
   // const id = watch("id");
 
-  const {
-    data: rawData,
-    loading,
-    error,
-    execute: refreshApplications,
-  } = useGet<any>(`${API.citizen.applications.list}`, {
-    immediate: true,
-  });
+  // const {
+  //   data: rawData,
+  //   loading,
+  //   error,
+  //   execute: refreshApplications,
+  // } = useGet<any>(`${API.citizen.applications.list}`, {
+  //   immediate: true,
+  // });
+  const [rawData, setRawData] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [appsRes, complaintsRes] = await Promise.all([
+          axiosClient.get(API.citizen.applications.list, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+          axiosClient.get(API.citizen.complaints.list, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+        ]);
+
+        const apps = appsRes.data.damage_reports || appsRes.data || [];
+        const complaintsRaw = complaintsRes.data?.complaints || complaintsRes.data?.data?.complaints || complaintsRes.data?.data || [];
+        const complaints = Array.isArray(complaintsRaw) ? complaintsRaw : (complaintsRaw.data || []);
+
+        // Merge complaints into apps
+        const enhancedApps = (Array.isArray(apps) ? apps : []).map((app: any) => {
+          const complaint = complaints.find((c: any) => 
+            String(c.damage_report?.id) === String(app.id) || 
+            String(c.damage_report_id) === String(app.id)
+          );
+          return { ...app, complaint };
+        });
+
+        setRawData(enhancedApps);
+      } catch (err: any) {
+        console.log(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Robust data handling
-  const applications: any[] = Array.isArray(rawData)
-    ? rawData
-    : rawData?.applications
-    ? rawData.applications
-    : rawData?.id // If it's a single application object
-    ? [rawData]
-    : [];
-  const citizen: any = rawData?.citizen;
-  console.log("rawData", rawData?.applications);
+  const applications: any[] = Array.isArray(rawData) ? rawData : [];
+
+  const citizen: any = rawData?.citizen || {}; // Fallback to empty object if citizen is missing
+  // useEffect(() => {
+  //   // console.log("rawData", rawData?.damage_reports);
+  //   console.log("applications", applications);
+  // }, [rawData]);
 
   // Filter applications
-  const filteredApplications = applications.filter((app: any) => {
+  const filteredApplications = applications?.filter((app: any) => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
 
@@ -175,12 +222,12 @@ const MyApplications = () => {
   // const filterdApplications = id
   //   ? applications?.filter((item: any) => item.id === id)
   //   : applications;
-
+  // console.log("rawData", rawData);
   const handleGeneratePdf = () => {
     generatePDFReceipt(rawData, t, language);
-    console.log(applications);
-    console.log(rawData);
-    console.log(language);
+    // console.log(applications);
+    // console.log(rawData);
+    // console.log(language);
   };
 
   const handleMenuClose = () => {
@@ -202,27 +249,78 @@ const MyApplications = () => {
     }
   };
 
+  // في MyApplications.tsx - داخل handleAction
+
   const handleAction = (app: any) => {
-    // const isPending = app.status?.toLowerCase() === "pending" || !app.status; // Treat undefined/null as pending if unsure, or strictly existing status. API response usually has status.
-    // Assuming status is returned from API.
-    // If status is "pending", allow edit. Else, read-only.
-    // NOTE: Check exact enum/string value for "pending" from backend. Usually "PENDING".
+    const status = app.status?.toUpperCase() || "SUBMITTED";
+    const canEdit = status === "SUBMITTED";
 
-    // For safety, checking case-insensitive
-    // console.log(app)
-    const status = app.status?.toUpperCase() || "PENDING";
-    const canEdit = status === "PENDING";
+    // إنشاء نسخة عميقة من الكائن بدلاً من تعديله مباشرة
+    const transformedApp = JSON.parse(JSON.stringify(app)); // <-- الحل هنا
 
-    setSelectedApplication(app);
+    if (app.damage_attachments && app.damage_attachments.length > 0) {
+      // تصنيف المرفقات حسب الفئة
+      const beforeImage = app.damage_attachments.find(
+        (att: any) => att.category === "before_damage_image",
+      );
+      const afterImage = app.damage_attachments.find(
+        (att: any) => att.category === "after_damage_image",
+      );
+      const ownershipDocs = app.damage_attachments.filter(
+        (att: any) => att.category === "ownership_documents",
+      );
+
+      // إضافة الصور إلى الكائن الرئيسي (النسخة الجديدة)
+      if (beforeImage) {
+        transformedApp.before_damage_image = beforeImage.file_url;
+      }
+      if (afterImage) {
+        transformedApp.after_damage_image = afterImage.file_url;
+      }
+      if (ownershipDocs.length > 0) {
+        transformedApp.ownership_documents = ownershipDocs.map(
+          (doc: any) => doc.file_url,
+        );
+      }
+
+      // أيضاً إضافتها داخل damage_details إذا كان الـ buildingType موجود
+      const buildingType = app.damage_details?.buildingType;
+      if (buildingType && app.damage_details[buildingType]) {
+        // تأكد من وجود الكائن
+        if (!transformedApp.damage_details[buildingType]) {
+          transformedApp.damage_details[buildingType] = {};
+        }
+        if (beforeImage) {
+          transformedApp.damage_details[buildingType].before_damage_image =
+            beforeImage.file_url;
+        }
+        if (afterImage) {
+          transformedApp.damage_details[buildingType].after_damage_image =
+            afterImage.file_url;
+        }
+        if (ownershipDocs.length > 0) {
+          transformedApp.damage_details[buildingType].ownership_documents =
+            ownershipDocs.map((doc: any) => doc.file_url);
+        }
+      }
+    }
+
+    setSelectedApplication(transformedApp); // استخدم النسخة الجديدة
     setIsReadOnly(!canEdit);
     setDialogOpen(true);
   };
 
-  // useEffect(()=> {
-  //   console.log(selectedApplication)
   const handleDownloadAppPdf = (app: any) => {
-    generateApplicationPDF(citizen, app, t, language);
-    console.log(app);
+    generateApplicationPDF(app, t, language);
+  };
+
+  const handleOpenComplaint = (app: any) => {
+    setComplaintApp(app);
+    setComplaintDialogOpen(true);
+  };
+  const handleCloseComplaint = () => {
+    setComplaintDialogOpen(false);
+    setComplaintApp(null);
   };
 
   const handleDialogClose = () => {
@@ -235,15 +333,17 @@ const MyApplications = () => {
   // Location Dialog Handlers
   const handleOpenLocationDialog = () => {
     // Pre-fill with existing location if available
-    if (citizen?.current_location) {
-      const lat = parseFloat(citizen.current_location.latitude);
-      const lng = parseFloat(citizen.current_location.longitude);
+    if (citizenInfo?.current_location) {
+      const lat = parseFloat(citizenInfo.current_location.latitude);
+      const lng = parseFloat(citizenInfo.current_location.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setLocationPosition([lat, lng]);
         setMapCenter([lat, lng]);
       }
-      setLocationAddress(citizen.current_location.address || "");
-      setLocationNeighborhood(citizen.current_location.neighborhood || "");
+      setLocationAddress(citizenInfo.current_location.address || "");
+      setLocationNeighborhood(
+        citizenInfo.current_location.neighborhood.name || "",
+      );
     } else {
       setLocationPosition(null);
       setLocationAddress("");
@@ -264,20 +364,55 @@ const MyApplications = () => {
 
   const handleConfirmLocationUpdate = () => {
     if (locationPosition && locationAddress) {
-      updateLocation({
-        latitude: locationPosition[0].toString(),
-        longitude: locationPosition[1].toString(),
-        address: locationAddress,
-        neighborhood: locationNeighborhood,
-      });
+      const selectedLoc = locations.find(
+        (loc) => loc.name === locationNeighborhood,
+      );
+      const neighborhood_id = selectedLoc ? selectedLoc.id : 1;
+      axiosClient
+        .put(
+          `${API.citizen.locations.current}`,
+          {
+            latitude: locationPosition[0].toString(),
+            longitude: locationPosition[1].toString(),
+            address: locationAddress,
+            neighborhood_id,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        )
+        .then((res: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+            variant: "success",
+          });
+          setLocationDialogOpen(false);
+
+          const citizenInfo = JSON.parse(
+            localStorage.getItem("citizenInfo") || "{}",
+          );
+
+          const updated = {
+            ...citizenInfo,
+            current_location: res.data.citizen.current_location,
+          };
+
+          localStorage.setItem("citizenInfo", JSON.stringify(updated));
+          console.log(res.data);
+        })
+        .catch((err: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationError"), {
+            variant: "error",
+          });
+          console.log(err);
+        });
     }
   };
-  // useEffect(() => {
-  //   console.log(locationPosition)
-  //   console.log(locationAddress)
-  //   console.log(locationNeighborhood)
-  //   console.log(selectedApplication)
-  // }, [selectedApplication]);
+
   if (loading) {
     return (
       <Box
@@ -397,6 +532,23 @@ const MyApplications = () => {
               }}
             >
               {t("success.downloadReceipt")}
+            </Button>
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={<ComplaintIcon sx={{ ml: 1 }} />}
+              onClick={() => navigate("/citizen/my-complaints")}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: 2,
+                bgcolor: "error.main",
+                "&:hover": {
+                  bgcolor: "error.dark",
+                },
+              }}
+            >
+              {t("complaint.myComplaints")}
             </Button>
 
             <Menu
@@ -542,6 +694,8 @@ const MyApplications = () => {
                 application={app}
                 onAction={handleAction}
                 onDownloadPdf={handleDownloadAppPdf}
+                onAddComplaint={handleOpenComplaint}
+                onCloseComplaint={handleCloseComplaint}
               />
             ))}
           </Box>
@@ -563,16 +717,23 @@ const MyApplications = () => {
               initialData={selectedApplication}
               location={{
                 position: [
-                  selectedApplication?.location?.latitude,
-                  selectedApplication.location.longitude,
+                  selectedApplication?.latitude,
+                  selectedApplication?.longitude,
                 ],
-                address: `${selectedApplication.location.address}`,
-                neighborhood: `${selectedApplication.location.neighborhood}`,
+                address: `${selectedApplication?.address}`,
+                neighborhood_id: `${selectedApplication?.neighborhood_id}`,
+                landmark: `${selectedApplication?.landmark}`,
               }}
-              onSuccess={refreshApplications}
             />
           )}
         </Dialog>
+
+        {/* Complaint Dialog */}
+        <ComplaintDialog
+          open={complaintDialogOpen}
+          onClose={() => setComplaintDialogOpen(false)}
+          application={complaintApp}
+        />
         <CardContent
           sx={{
             p: 2,
@@ -642,7 +803,7 @@ const MyApplications = () => {
 
               <Typography sx={{ mb: 1 }}>
                 <strong>{t("citizen.address")}:</strong>{" "}
-                {citizen?.current_location?.address || "-"}
+                {citizenInfo?.current_location?.address || "-"}
               </Typography>
 
               <Typography>
@@ -650,6 +811,7 @@ const MyApplications = () => {
                 {citizen?.current_location
                   ? formatDate(new Date(citizen.current_location.createdAt))
                   : "-"}
+                . {/* must edit */}
               </Typography>
 
               <Button
@@ -735,6 +897,10 @@ const MyApplications = () => {
                 height="100%"
                 width="100%"
                 setAddress={setLocationAddress}
+                location={{
+                  neighborhood:
+                    citizenInfo?.current_location?.neighborhood?.name,
+                }}
               />
             </Box>
 
@@ -825,7 +991,7 @@ const MyApplications = () => {
             >
               {t("map.reset")}
             </Button>
-            
+
             <Button
               variant="contained"
               color="primary"

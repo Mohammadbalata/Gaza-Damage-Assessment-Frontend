@@ -48,11 +48,14 @@ const DamageAssessmentDialog = ({
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
+  const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   // Use a local loading state to strictly control the button
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
-  const [isCurrentLocation, setIsCurrentLocation] = useState<boolean>(false);
+  const [isCurrentLocation] = useState<boolean>(
+    citizenInfo.current_location !== null,
+  );
   const { enqueueSnackbar } = useSnackbar();
 
   const {
@@ -75,156 +78,223 @@ const DamageAssessmentDialog = ({
     },
   });
   const { floors: floorsResidential, units: unitsResisential } = useAppSelector(
-    (state) => state.damage.ResidentialBuilding.MixedUsage
+    (state) => state.damage.ResidentialBuilding.MixedUsage,
   );
   const { floors: floorsTower, units: unitsTower } = useAppSelector(
-    (state) => state.damage.tower.MixedUsage
+    (state) => state.damage.tower.MixedUsage,
   );
 
   // Helper to extract URL from either string or {url: "..."} object
+  // في DamageAssessmentDialog.tsx
+
   const getImageUrl = (image: any): string | undefined => {
     if (!image) return undefined;
+
+    // إذا كان string
     if (typeof image === "string") return image;
-    if (typeof image === "object" && image.url) return image.url;
+
+    // إذا كان object ويحتوي على url
+    if (typeof image === "object") {
+      if (image.url) return image.url;
+      if (image.file_url) return image.file_url;
+      if (image.image_url) return image.image_url;
+    }
+
     return undefined;
+  };
+  // Create a cleaning function
+  const cleanSerializableData = (data: any) => {
+    if (!data) return data;
+
+    // Create a deep copy
+    const cleaned = JSON.parse(
+      JSON.stringify(data, (value:any) => {
+        // Skip File objects
+        if (value instanceof File) {
+          return undefined;
+        }
+        return value;
+      }),
+    );
+
+    return cleaned;
   };
 
   // Hydrate form with initial data (especially images)
   useEffect(() => {
     if (initialData) {
-      const type = initialData?.extraData?.buildingType;
+      const type = initialData?.damage_details?.buildingType;
 
-      if (type && initialData.extraData?.[type]) {
+      if (type && initialData.damage_details?.[type]) {
         console.log(
           "Building type specific data:",
-          initialData.extraData[type]
+          initialData.damage_details[type],
         );
       }
 
       // Update Redux state for consistency
       dispatch(setBuildingType(type));
-      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+      dispatch(
+        updatePreviousLocation({
+          previosLocation: cleanSerializableData(initialData),
+        }),
+      );
+      // dispatch(updatePreviousLocation({ previosLocation: initialData }));
 
       // Update Form State
       setValue("buildingType", type);
 
       // Hydrate extra fields
-      if (initialData.extraData && initialData.extraData[type]) {
-        setValue(type as any, initialData.extraData[type]);
-        dispatchByType(dispatch, type, initialData.extraData);
+      if (initialData.damage_details && initialData.damage_details[type]) {
+        setValue(type as any, initialData.damage_details[type]);
+        dispatchByType(dispatch, type, initialData.damage_details);
+      }
+
+      // Create a serializable version for Redux
+      const serializableData = {
+        ...initialData,
+        // Convert any File objects to their metadata or remove them
+        before_damage_image: getImageUrl(initialData.before_damage_image),
+        after_damage_image: getImageUrl(initialData.after_damage_image),
+        ownership_documents: Array.isArray(initialData.ownership_documents)
+          ? initialData.ownership_documents.map((doc: any) => getImageUrl(doc))
+          : initialData.ownership_documents,
+      };
+
+      // Update Redux state with serializable data only
+      dispatch(setBuildingType(type));
+      dispatch(
+        updatePreviousLocation({
+          previosLocation: serializableData,
+        }),
+      );
+
+      const hasFileObjects = JSON.stringify(initialData).includes('"File"');
+      if (!hasFileObjects) {
+        dispatch(updatePreviousLocation({ previosLocation: initialData }));
       }
 
       // Hydrate Images (Critical for Edit Mode)
       // Check multiple possible locations for image URLs
-      const buildingData = initialData.extraData?.[type] || {};
-      const extraDataRoot = initialData.extraData || {};
+      const buildingData = initialData.damage_details?.[type] || {};
+      const damageDetailsRoot = initialData.damage_details || {};
 
-      // Try multiple locations: root level, extraData root, building-specific
+      // Try multiple locations: root level, damage_details root, building-specific
       // Also handle nested {url: "..."} structure from Supabase
-      const beforeWarImage =
-        getImageUrl(initialData.beforeWarImage) ||
-        getImageUrl(extraDataRoot.beforeWarImage) ||
-        getImageUrl(buildingData.beforeWarImage);
+      const before_damage_image =
+        getImageUrl(initialData.before_damage_image) ||
+        getImageUrl(damageDetailsRoot.before_damage_image) ||
+        getImageUrl(buildingData.before_damage_image);
 
-      const afterWarImage =
-        getImageUrl(initialData.afterWarImage) ||
-        getImageUrl(extraDataRoot.afterWarImage) ||
-        getImageUrl(buildingData.afterWarImage);
+      const after_damage_image =
+        getImageUrl(initialData.after_damage_image) ||
+        getImageUrl(damageDetailsRoot.after_damage_image) ||
+        getImageUrl(buildingData.after_damage_image);
 
       // For ownership documents, handle array of objects
-      let ownershipDocuments =
-        initialData.ownershipDocuments ||
-        extraDataRoot.ownershipDocuments ||
-        buildingData.ownershipDocuments;
+      let ownership_documents =
+        initialData.ownership_documents ||
+        damageDetailsRoot.ownership_documents ||
+        buildingData.ownership_documents;
 
-      if (Array.isArray(ownershipDocuments)) {
-        ownershipDocuments = ownershipDocuments
+      if (Array.isArray(ownership_documents)) {
+        ownership_documents = ownership_documents
           .map((doc: any) => getImageUrl(doc) || doc)
           .filter(Boolean);
       }
 
-      if (beforeWarImage) {
-        setValue(`${type}.beforeWarImage` as any, beforeWarImage);
+      if (before_damage_image) {
+        setValue(`${type}.before_damage_image` as any, before_damage_image);
       }
-      if (afterWarImage) {
-        setValue(`${type}.afterWarImage` as any, afterWarImage);
+      if (after_damage_image) {
+        setValue(`${type}.after_damage_image` as any, after_damage_image);
       }
       if (
-        ownershipDocuments &&
-        Array.isArray(ownershipDocuments) &&
-        ownershipDocuments.length > 0
+        ownership_documents &&
+        Array.isArray(ownership_documents) &&
+        ownership_documents.length > 0
       ) {
-        setValue(`${type}.ownershipDocuments` as any, ownershipDocuments);
+        setValue(`${type}.ownership_documents` as any, ownership_documents);
       }
     }
   }, [initialData, dispatch, setValue]);
 
-  const resetBuildingTypeSelect = () => {
-    setValue("buildingType", "");
-    dispatch(setBuildingType(""));
-    dispatch(resetAllBuildings());
-  };
+  // const resetBuildingTypeSelect = () => {
+  //   setValue("buildingType", "");
+  //   dispatch(setBuildingType(""));
+  //   dispatch(resetAllBuildings());
+  // };
 
   const buildApplication = (data: any) => ({
     buildingType: data.buildingType,
-    extraData: data.extraData,
+    damage_details: data.damage_details,
     latitude: data.latitude,
     longitude: data.longitude,
     address: data.address,
-    neighborhood: data.neighborhood,
-    beforeWarImage: data.beforeWarImage,
-    afterWarImage: data.afterWarImage,
-    ownershipDocuments: data.ownershipDocuments,
+    neighborhood_id: data.neighborhood_id,
+    before_damage_image: data.before_damage_image,
+    after_damage_image: data.after_damage_image,
+    ownership_documents: data.ownership_documents,
   });
 
   const createApplicationFormData = (application: any) => {
     const formData = new FormData();
+    formData.append("_method", initialData?.id ? "PUT" : "POST"); // For Laravel method spoofing
 
     // Safety check for numeric values
     if (application.latitude !== undefined && application.latitude !== null) {
       formData.append("latitude", application.latitude);
-      // Also send as nested location object in case backend expects it
-      // formData.append("location[latitude]", application.latitude.toString());
     }
     if (application.longitude !== undefined && application.longitude !== null) {
       formData.append("longitude", application.longitude);
-      // formData.append("location[longitude]", application.longitude.toString());
     }
 
     const address = application?.address || "";
-    const neighborhood = application?.neighborhood || "";
+    const neighborhood_id = application?.neighborhood_id;
+
+    if (!neighborhood_id) {
+      console.warn("neighborhood_id is missing in application data");
+    }
 
     formData.append("address", address);
-    formData.append("neighborhood", neighborhood);
+    formData.append("neighborhood_id", neighborhood_id);
 
     // Nested fallbacks
     formData.append("location[address]", address);
-    formData.append("location[neighborhood]", neighborhood);
+    formData.append("location[neighborhood_id]", neighborhood_id);
 
     formData.append(
-      "extraData",
+      "damage_details",
       JSON.stringify({
         buildingType: application.buildingType,
-        [application.buildingType]: application.extraData,
-      })
+        [application.buildingType]: application.damage_details,
+      }),
     );
 
-    if (application.beforeWarImage instanceof File) {
-      formData.append("beforeWarImage", application.beforeWarImage);
+    // ✅ التعامل مع before_damage_image - فقط إذا كان File جديد
+    if (application.before_damage_image instanceof File) {
+      formData.append("before_damage_image", application.before_damage_image);
     }
-    if (application.afterWarImage instanceof File) {
-      formData.append("afterWarImage", application.afterWarImage);
+    // لا نضيف أي شيء إذا كان string (URL) لأن الصورة موجودة مسبقاً على السيرفر
+
+    // ✅ التعامل مع after_damage_image - فقط إذا كان File جديد
+    if (application.after_damage_image instanceof File) {
+      formData.append("after_damage_image", application.after_damage_image);
     }
 
-    if (Array.isArray(application.ownershipDocuments)) {
-      application.ownershipDocuments.forEach((file: any) => {
-        // Only append actual File objects.
-        // If backend updates files by replacement, verify if we need to send existing string URLs.
-        // Usually FormData for file upload expects Files. Sending strings might break it.
-        // We assume backend keeps existing files if not sent, or we deal with new files only.
+    // ✅ التعامل مع ownership_documents - فقط Files الجديدة
+    if (Array.isArray(application.ownership_documents)) {
+      console.log(
+        "ownership_documents array length",
+        application.ownership_documents.length,
+      );
+      application.ownership_documents.forEach((file: any) => {
+        // فقط أضف الملفات الجديدة (من نوع File)
         if (file instanceof File) {
-          formData.append("ownershipDocuments", file);
+          formData.append("ownership_documents[]", file);
+          console.log("Appending new ownership document file");
         }
+        // لا نضيف URLs لأنها موجودة مسبقاً
       });
     }
 
@@ -263,7 +333,7 @@ const DamageAssessmentDialog = ({
 
   const onSubmit = async (formdata: any) => {
     let data = formdata;
-    // console.log(data);
+    console.log(data);
     if (data.buildingType === "ResidentialBuilding") {
       data = reBuildData(data);
     } else if (data.buildingType === "tower") {
@@ -279,6 +349,16 @@ const DamageAssessmentDialog = ({
     if (isSubmitting) return;
 
     try {
+      if (
+        !isCurrentLocation &&
+        !location?.neighborhood_id &&
+        !initialData?.neighborhood_id
+      ) {
+        enqueueSnackbar(t("The neighborhood id field is required."), {
+          variant: "error",
+        });
+        return;
+      }
       setIsSubmitting(true);
 
       const type = data.buildingType;
@@ -297,68 +377,77 @@ const DamageAssessmentDialog = ({
       const longitude =
         location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
       const address = location?.address ?? initLoc?.address;
-      const neighborhood = location?.neighborhood ?? initLoc?.neighborhood;
+      const neighborhood_id =
+        location?.neighborhood_id || initLoc?.neighborhood_id;
       const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
       console.log("Submitting Data - Address:", address);
-      console.log("Submitting Data - Neighborhood:", neighborhood);
+      console.log("Submitting Data - neighborhood_id:", neighborhood_id);
       console.log("Submitting Data - Nearest Landmark:", landmark);
 
       const reBuildData = {
         buildingType: type,
-        extraData: {
+        damage_details: {
           ...formDataWithoutImg[type],
           landmark,
         },
-        beforeWarImage: data[type]?.beforeWarImage,
-        afterWarImage: data[type]?.afterWarImage,
-        ownershipDocuments: data[type]?.ownershipDocuments,
+        before_damage_image: data[type]?.before_damage_image,
+        after_damage_image: data[type]?.after_damage_image,
+        ownership_documents: data[type]?.ownership_documents,
         latitude,
         longitude,
-        neighborhood,
+        neighborhood_id,
         address,
+        landmark,
       };
 
       const application = buildApplication(reBuildData);
 
       // Update Redux state
-      dispatch(updatePreviousLocation({ previosLocation: application }));
+      // dispatch(updatePreviousLocation({ previousLocation: application }));
 
       // API Call
-      console.log(application);
+      console.log("initialData", initialData);
       const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
 
       const obj = Object.fromEntries(formData.entries());
-      console.log(obj);
+      console.log("formData", obj);
 
       if (initialData?.id) {
         // Update existing application
-        await axiosClient.put(
-          `${API.citizen.applications.update(initialData.id)}`,
+        await axiosClient
+          .post(
+            `${API.citizen.damageReports.update(initialData.id)}`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          )
+          .then(() => {
+            console.log("send edits on dialog form");
+          })
+          .catch((err: any) => {
+            console.log(err);
+          });
+      } else {
+        // Create new application
+        await axiosClient.post(
+          `${API.citizen.damageReports.create}`,
           formData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-        ).then(() => {
-          console.log('send edits on dialog form')
-        }).catch((err:any) => {
-          console.log(err)
-        })
-      } else {
-        // Create new application
-        await axiosClient.post(`${API.citizen.locations.previous}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
           },
-        });
+        );
       }
 
       // Success feedback
-      enqueueSnackbar(t("common.success"), { variant: "success" });
+      // enqueueSnackbar(t("common.success"), { variant: "success" });
 
       if (onSuccess) {
         onSuccess();
@@ -376,10 +465,14 @@ const DamageAssessmentDialog = ({
             navigate(
               isCurrentLocation
                 ? ROUTES.CITIZEN_DASHBOARD
-                : ROUTES.CURRENT_LOCATION
+                : ROUTES.CURRENT_LOCATION,
             );
           }
         }, 1000);
+      }
+      enqueueSnackbar(t("common.success"), { variant: "success" });
+      if (onSuccess) {
+        onSuccess();
       }
     } catch (err) {
       console.error(err);
@@ -388,38 +481,119 @@ const DamageAssessmentDialog = ({
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  // في DamageAssessmentDialog.tsx
 
-    axiosClient
-      .get(`${API.citizen.applications.list}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res: any) => {
-        const isCurrent = res.data.data.citizen.current_location;
-        if (isCurrent) {
-          setIsCurrentLocation(true);
+  useEffect(() => {
+    if (initialData) {
+      const type = initialData?.damage_details?.buildingType;
+
+      if (type && initialData.damage_details?.[type]) {
+        console.log(
+          "Building type specific data:",
+          initialData.damage_details[type],
+        );
+      }
+
+      // تحديث Redux
+      dispatch(setBuildingType(type));
+      // dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // تحديث Form State
+      setValue("buildingType", type);
+
+      // تعبئة الحقول الإضافية
+      if (initialData.damage_details && initialData.damage_details[type]) {
+        setValue(type as any, initialData.damage_details[type]);
+        dispatchByType(dispatch, type, initialData.damage_details);
+      }
+
+      // معالجة الصور - البحث في أماكن متعددة
+      const buildingData = initialData.damage_details?.[type] || {};
+      const damageDetailsRoot = initialData.damage_details || {};
+
+      // 1. البحث عن صورة قبل الضرر
+      let before_damage_image =
+        getImageUrl(initialData.before_damage_image) ||
+        getImageUrl(damageDetailsRoot.before_damage_image) ||
+        getImageUrl(buildingData.before_damage_image);
+
+      // 2. البحث عن صورة بعد الضرر
+      let after_damage_image =
+        getImageUrl(initialData.after_damage_image) ||
+        getImageUrl(damageDetailsRoot.after_damage_image) ||
+        getImageUrl(buildingData.after_damage_image);
+
+      // 3. البحث عن مستندات الملكية
+      let ownership_documents =
+        initialData.ownership_documents ||
+        damageDetailsRoot.ownership_documents ||
+        buildingData.ownership_documents;
+
+      // إذا لم نجد الصور بعد، نحاول البحث في damage_attachments
+      if (
+        initialData.damage_attachments &&
+        initialData.damage_attachments.length > 0
+      ) {
+        if (!before_damage_image) {
+          const beforeAtt = initialData.damage_attachments.find(
+            (att: any) => att.category === "before_damage_image",
+          );
+          before_damage_image = beforeAtt?.file_url;
         }
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }, []);
 
-  useEffect(() => {
-    if (!initialData) {
-      resetBuildingTypeSelect();
+        if (!after_damage_image) {
+          const afterAtt = initialData.damage_attachments.find(
+            (att: any) => att.category === "after_damage_image",
+          );
+          after_damage_image = afterAtt?.file_url;
+        }
+
+        if (!ownership_documents || ownership_documents.length === 0) {
+          const ownershipAtts = initialData.damage_attachments.filter(
+            (att: any) => att.category === "ownership_documents",
+          );
+          if (ownershipAtts.length > 0) {
+            ownership_documents = ownershipAtts.map((att: any) => att.file_url);
+          }
+        }
+      }
+
+      // معالجة ownership_documents إذا كانت مصفوفة
+      if (Array.isArray(ownership_documents)) {
+        ownership_documents = ownership_documents
+          .map((doc: any) => getImageUrl(doc) || doc)
+          .filter(Boolean);
+      }
+
+      // تعيين القيم في الفورم
+      if (before_damage_image) {
+        setValue(`${type}.before_damage_image` as any, before_damage_image);
+      }
+      if (after_damage_image) {
+        setValue(`${type}.after_damage_image` as any, after_damage_image);
+      }
+      if (
+        ownership_documents &&
+        Array.isArray(ownership_documents) &&
+        ownership_documents.length > 0
+      ) {
+        setValue(`${type}.ownership_documents` as any, ownership_documents);
+      }
+
+      console.log("Hydrated images:", {
+        before: before_damage_image,
+        after: after_damage_image,
+        docs: ownership_documents,
+      });
     }
-  }, [onClose]);
+  }, [initialData, dispatch, setValue]);
 
   // Render logic extracted to specific helper or inline
   const renderBuildingContent = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
-      damageAssessmentInfo.buildingType || initialData.extraData.buildingType;
+      damageAssessmentInfo.buildingType ||
+      initialData.damage_details.buildingType;
 
     const commonProps = {
       register,
@@ -556,8 +730,8 @@ const DamageAssessmentDialog = ({
                 {isSubmitting
                   ? ""
                   : isChangeToReviewPage
-                  ? t("common.submit")
-                  : t("common.reviewRequest")}
+                    ? t("common.submit")
+                    : t("common.reviewRequest")}
               </Button>
             </DialogActions>
           )}
