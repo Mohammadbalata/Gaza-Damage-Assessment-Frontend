@@ -13,7 +13,7 @@ const slides = [
     id: 3,
     title: "خبرة وموثوقية",
     subtitle: "نخدمكم منذ أكثر من 10 سنوات في قلب جدة الصناعية",
-    image: "../../../../src/assets/hero-image.jpeg",
+    image: "https://res.cloudinary.com/dopcli6un/image/upload/v1774209425/hero-image_exnabs.jpg",
   },
 ];
 

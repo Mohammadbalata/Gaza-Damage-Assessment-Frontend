@@ -28,7 +28,7 @@ export function Header() {
             alt="logo"
           /> */}
           <div className="flex items-center justify-between py-[16px] gap-8 h-[90px]">
-          <img src="../../../../src/assets/logo-width.png" className=' logo w-80 h-20' alt="this is logo" />
+          <img src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209423/logo-width_vrpocf.png" className=' logo w-80 h-20' alt="this is logo" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-black font-medium">
