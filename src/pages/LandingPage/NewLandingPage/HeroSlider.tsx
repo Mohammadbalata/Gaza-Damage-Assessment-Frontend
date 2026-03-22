@@ -158,7 +158,7 @@ export function HeroSlider() {
               transition={{ delay: 0.4 }}
               className="w-full max-w-2xl mx-auto"
             >
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 mx-5">
                 <div className="flex items-center bg-white rounded-full shadow-xl overflow-hidden border border-gray-200">
                   {/* Search Icon */}
                   <div className="px-4 text-gray-500">
@@ -209,7 +209,7 @@ export function HeroSlider() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-green-700 hover:bg-green-800 text-white py-2  md:py-4 font-medium transition-colors disabled:bg-green-400 disabled:cursor-not-allowed min-w-[50px] md:min-w-[100px] flex items-center justify-center"
+                    className="bg-green-700 hover:bg-green-800 text-white p-4   font-medium transition-colors disabled:bg-green-400 disabled:cursor-not-allowed min-w-[50px] md:min-w-[100px] flex items-center justify-center"
                   >
                     {loading ? (
                       <svg

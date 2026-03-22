@@ -17,14 +17,14 @@ const LandingPage: React.FC = () => {
       <Header />
       <main className="pt-[95px] ">
         <HeroSlider />
-        <AboutSection />
+        {/* <AboutSection />
         <DepartmentsSection />
         <GallerySection />
         <MapSection />
         <WhyUsSection />
-        <ContactSection />
+        <ContactSection /> */}
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
 
   );

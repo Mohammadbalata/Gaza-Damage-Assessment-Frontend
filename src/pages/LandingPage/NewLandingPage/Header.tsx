@@ -18,16 +18,18 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50">
-      <div className="mx-auto max-w-[1200px] px-4 lg:px-8">
+    <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
+      <div className="mx-auto max-w-[1200px] px-4 lg:px-2 ">
         {/* Main navigation */}
-        <div className="flex items-center justify-between h-[80px]">
-          {/* Logo */}
+        {/* <div className="flex items-center justify-between h-[80px]">
+          {/* Logo 
           <img
             src={logo}
             className="w-36 sm:w-44 lg:w-52 h-auto object-contain"
             alt="logo"
-          />
+          /> */}
+          <div className="flex items-center justify-between py-[16px] gap-8 h-[90px]">
+          <img src="../../../../src/assets/logo-width.png" className=' logo w-80 h-20' alt="this is logo" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-black font-medium">
@@ -67,7 +69,7 @@ export function Header() {
             </button>
 
             {/* Auth Buttons */}
-            <div className="flex items-center gap-3 ml-4">
+            <div className="flex items-center gap-3 ml-4 w-1/4 xl:w-auto">
               <button
                 onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
                 className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition"
