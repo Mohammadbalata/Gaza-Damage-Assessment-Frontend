@@ -19,6 +19,8 @@ import BankInformationPage from "../pages/BankInformationPage";
 import EditProfilePage from "../pages/Settings/EditProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import BiometricDataPage from "../pages/Settings/BiometricDataPage";
+import MyComplaintsPage from "../pages/Citizen/MyComplaintsPage";
+import ComplaintDetailsPage from "../pages/Citizen/ComplaintDetailsPage";
 import LandingPage from "../pages/LandingPage/LandingPage";
 import {
   CentralDatabasePage,
@@ -46,7 +48,7 @@ export const ROUTES: IRoutes = {
   REVIEW: "/review",
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
-  ADMIN_LOGIN: "/admin/login",
+  ADMIN_LOGIN: "https://admin.sawabuild.org/dashboard/login",
   ADMIN_DASHBOARD: "/admin",
   ADMIN_LOCATION_MAP: "admin/locations/map",
   ADMIN_RESET_PASSWORD: "/admin/reset-password",
@@ -56,6 +58,8 @@ export const ROUTES: IRoutes = {
   CITIZEN_RESET_PASSWORD: "/citizen/reset-password",
   BANK_INFORMATION: "/citizen/bank-information",
   BIOMETRIC_DATA: "/citizen/settings/biometric-data",
+  MY_COMPLAINTS: "/citizen/my-complaints",
+  COMPLAINT_DETAILS: "/citizen/complaints/:id",
   // Landing Page Features
   CENTRAL_DATABASE: "/central-database",
   PUBLIC_SERVICES: "/public-services",
@@ -172,8 +176,22 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
-
-
+  {
+    path: ROUTES.MY_COMPLAINTS,
+    element: (
+      <ProtectedRoutes>
+        <MyComplaintsPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.COMPLAINT_DETAILS,
+    element: (
+      <ProtectedRoutes>
+        <ComplaintDetailsPage />
+      </ProtectedRoutes>
+    ),
+  },
   { path: ROUTES.CENTRAL_DATABASE, element: <CentralDatabasePage /> },
   { path: ROUTES.PUBLIC_SERVICES, element: <PublicServicesPage /> },
   { path: ROUTES.EMERGENCY_MANAGEMENT, element: <EmergencyManagementPage /> },

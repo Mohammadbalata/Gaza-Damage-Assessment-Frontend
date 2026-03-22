@@ -23,11 +23,11 @@ import { Button, CircularProgress, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
-// import { ROUTES } from "../routes/Routes";
-// import { useNavigate } from "react-router-dom";
-// import { axiosClient } from "../api/baseUrl";
+import { ROUTES } from "../routes/Routes";
+import { useNavigate } from "react-router-dom";
+import { axiosClient } from "../api/baseUrl";
 import { Login as LoginIcon } from "@mui/icons-material";
-// import { API } from "../constants/ApiRoutes";
+import { API } from "../constants/ApiRoutes";
 import { useSnackbar } from "notistack";
 
 interface DamageAssessmentDialogProps {
@@ -46,14 +46,16 @@ const DamageAssessmentDialog = ({
   onSuccess,
 }: DamageAssessmentDialogProps) => {
   const { t, language } = useLanguage();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
   const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   // Use a local loading state to strictly control the button
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
-  const [isCurrentLocation] = useState<boolean>(citizenInfo.current_location !== null);
+  const [isCurrentLocation] = useState<boolean>(
+    citizenInfo.current_location !== null,
+  );
   const { enqueueSnackbar } = useSnackbar();
 
   const {
@@ -76,18 +78,46 @@ const DamageAssessmentDialog = ({
     },
   });
   const { floors: floorsResidential, units: unitsResisential } = useAppSelector(
-    (state) => state.damage.ResidentialBuilding.MixedUsage
+    (state) => state.damage.ResidentialBuilding.MixedUsage,
   );
   const { floors: floorsTower, units: unitsTower } = useAppSelector(
-    (state) => state.damage.tower.MixedUsage
+    (state) => state.damage.tower.MixedUsage,
   );
 
   // Helper to extract URL from either string or {url: "..."} object
+  // في DamageAssessmentDialog.tsx
+
   const getImageUrl = (image: any): string | undefined => {
     if (!image) return undefined;
+
+    // إذا كان string
     if (typeof image === "string") return image;
-    if (typeof image === "object" && image.url) return image.url;
+
+    // إذا كان object ويحتوي على url
+    if (typeof image === "object") {
+      if (image.url) return image.url;
+      if (image.file_url) return image.file_url;
+      if (image.image_url) return image.image_url;
+    }
+
     return undefined;
+  };
+  // Create a cleaning function
+  const cleanSerializableData = (data: any) => {
+    if (!data) return data;
+
+    // Create a deep copy
+    const cleaned = JSON.parse(
+      JSON.stringify(data, (value:any) => {
+        // Skip File objects
+        if (value instanceof File) {
+          return undefined;
+        }
+        return value;
+      }),
+    );
+
+    return cleaned;
   };
 
   // Hydrate form with initial data (especially images)
@@ -98,13 +128,18 @@ const DamageAssessmentDialog = ({
       if (type && initialData.damage_details?.[type]) {
         console.log(
           "Building type specific data:",
-          initialData.damage_details[type]
+          initialData.damage_details[type],
         );
       }
 
       // Update Redux state for consistency
       dispatch(setBuildingType(type));
-      dispatch(updatePreviousLocation({ previosLocation: initialData }));
+      dispatch(
+        updatePreviousLocation({
+          previosLocation: cleanSerializableData(initialData),
+        }),
+      );
+      // dispatch(updatePreviousLocation({ previosLocation: initialData }));
 
       // Update Form State
       setValue("buildingType", type);
@@ -113,6 +148,30 @@ const DamageAssessmentDialog = ({
       if (initialData.damage_details && initialData.damage_details[type]) {
         setValue(type as any, initialData.damage_details[type]);
         dispatchByType(dispatch, type, initialData.damage_details);
+      }
+
+      // Create a serializable version for Redux
+      const serializableData = {
+        ...initialData,
+        // Convert any File objects to their metadata or remove them
+        before_damage_image: getImageUrl(initialData.before_damage_image),
+        after_damage_image: getImageUrl(initialData.after_damage_image),
+        ownership_documents: Array.isArray(initialData.ownership_documents)
+          ? initialData.ownership_documents.map((doc: any) => getImageUrl(doc))
+          : initialData.ownership_documents,
+      };
+
+      // Update Redux state with serializable data only
+      dispatch(setBuildingType(type));
+      dispatch(
+        updatePreviousLocation({
+          previosLocation: serializableData,
+        }),
+      );
+
+      const hasFileObjects = JSON.stringify(initialData).includes('"File"');
+      if (!hasFileObjects) {
+        dispatch(updatePreviousLocation({ previosLocation: initialData }));
       }
 
       // Hydrate Images (Critical for Edit Mode)
@@ -160,11 +219,11 @@ const DamageAssessmentDialog = ({
     }
   }, [initialData, dispatch, setValue]);
 
-  const resetBuildingTypeSelect = () => {
-    setValue("buildingType", "");
-    dispatch(setBuildingType(""));
-    dispatch(resetAllBuildings());
-  };
+  // const resetBuildingTypeSelect = () => {
+  //   setValue("buildingType", "");
+  //   dispatch(setBuildingType(""));
+  //   dispatch(resetAllBuildings());
+  // };
 
   const buildApplication = (data: any) => ({
     buildingType: data.buildingType,
@@ -180,16 +239,14 @@ const DamageAssessmentDialog = ({
 
   const createApplicationFormData = (application: any) => {
     const formData = new FormData();
+    formData.append("_method", initialData?.id ? "PUT" : "POST"); // For Laravel method spoofing
 
     // Safety check for numeric values
     if (application.latitude !== undefined && application.latitude !== null) {
       formData.append("latitude", application.latitude);
-      // Also send as nested location object in case backend expects it
-      // formData.append("location[latitude]", application.latitude.toString());
     }
     if (application.longitude !== undefined && application.longitude !== null) {
       formData.append("longitude", application.longitude);
-      // formData.append("location[longitude]", application.longitude.toString());
     }
 
     const address = application?.address || "";
@@ -211,27 +268,33 @@ const DamageAssessmentDialog = ({
       JSON.stringify({
         buildingType: application.buildingType,
         [application.buildingType]: application.damage_details,
-      })
+      }),
     );
 
+    // ✅ التعامل مع before_damage_image - فقط إذا كان File جديد
     if (application.before_damage_image instanceof File) {
       formData.append("before_damage_image", application.before_damage_image);
     }
+    // لا نضيف أي شيء إذا كان string (URL) لأن الصورة موجودة مسبقاً على السيرفر
+
+    // ✅ التعامل مع after_damage_image - فقط إذا كان File جديد
     if (application.after_damage_image instanceof File) {
       formData.append("after_damage_image", application.after_damage_image);
     }
 
+    // ✅ التعامل مع ownership_documents - فقط Files الجديدة
     if (Array.isArray(application.ownership_documents)) {
-      console.log('array length',application.ownership_documents.length)
+      console.log(
+        "ownership_documents array length",
+        application.ownership_documents.length,
+      );
       application.ownership_documents.forEach((file: any) => {
-        // Only append actual File objects.
-        // If backend updates files by replacement, verify if we need to send existing string URLs.
-        // Usually FormData for file upload expects Files. Sending strings might break it.
-        // We assume backend keeps existing files if not sent, or we deal with new files only.
+        // فقط أضف الملفات الجديدة (من نوع File)
         if (file instanceof File) {
           formData.append("ownership_documents[]", file);
-          console.log('test in application.ownership_documents.forEach ')
+          console.log("Appending new ownership document file");
         }
+        // لا نضيف URLs لأنها موجودة مسبقاً
       });
     }
 
@@ -286,8 +349,14 @@ const DamageAssessmentDialog = ({
     if (isSubmitting) return;
 
     try {
-      if (!isCurrentLocation && !location?.neighborhood_id && !initialData?.neighborhood_id) {
-        enqueueSnackbar(t("The neighborhood id field is required."), { variant: "error" });
+      if (
+        !isCurrentLocation &&
+        !location?.neighborhood_id &&
+        !initialData?.neighborhood_id
+      ) {
+        enqueueSnackbar(t("The neighborhood id field is required."), {
+          variant: "error",
+        });
         return;
       }
       setIsSubmitting(true);
@@ -308,7 +377,8 @@ const DamageAssessmentDialog = ({
       const longitude =
         location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
       const address = location?.address ?? initLoc?.address;
-      const neighborhood_id = location?.neighborhood_id || initLoc?.neighborhood_id;
+      const neighborhood_id =
+        location?.neighborhood_id || initLoc?.neighborhood_id;
       const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
@@ -329,76 +399,81 @@ const DamageAssessmentDialog = ({
         longitude,
         neighborhood_id,
         address,
-        landmark
+        landmark,
       };
 
       const application = buildApplication(reBuildData);
 
       // Update Redux state
-      dispatch(updatePreviousLocation({ previosLocation: application }));
+      // dispatch(updatePreviousLocation({ previousLocation: application }));
 
-    
       // API Call
-      console.log(application);
-      // const token = localStorage.getItem("token");
+      console.log("initialData", initialData);
+      const token = localStorage.getItem("token");
       const formData = createApplicationFormData(application);
 
       const obj = Object.fromEntries(formData.entries());
-      console.log('formData',obj);
+      console.log("formData", obj);
 
-      // if (initialData?.id) {
-      //   // Update existing application
-      //   await axiosClient.put(
-      //     `${API.citizen.damageReports.update(initialData.id)}`,
-      //     formData,
-      //     {
-      //       headers: {
-      //         Authorization: `Bearer ${token}`,
-      //       },
-      //     }
-      //   ).then(() => {
-      //     console.log('send edits on dialog form')
-      //   }).catch((err:any) => {
-      //     console.log(err)
-      //   })
-      // } else {
-      //   // Create new application
-      //   await axiosClient.post(`${API.citizen.damageReports.create}`, formData, {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   });
-      // }
+      if (initialData?.id) {
+        // Update existing application
+        await axiosClient
+          .post(
+            `${API.citizen.damageReports.update(initialData.id)}`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          )
+          .then(() => {
+            console.log("send edits on dialog form");
+          })
+          .catch((err: any) => {
+            console.log(err);
+          });
+      } else {
+        // Create new application
+        await axiosClient.post(
+          `${API.citizen.damageReports.create}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+      }
 
-      // // Success feedback
+      // Success feedback
       // enqueueSnackbar(t("common.success"), { variant: "success" });
 
-      // if (onSuccess) {
-      //   onSuccess();
-      //   onClose();
-      // } else {
-      //   // Navigation / Refresh
-      //   // If closing dialog inside MyApplications, we might want to reload or just close
-      //   // Simple approach: reload to refresh table if updating existing
-      //   setTimeout(() => {
-      //     if (initialData) {
-      //       // Edit mode -> Reload window or navigate to My Apps (force refresh)
-      //       window.location.reload();
-      //     } else {
-      //       // New mode -> Navigate normally
-      //       navigate(
-      //         isCurrentLocation
-      //           ? ROUTES.CITIZEN_DASHBOARD
-      //           : ROUTES.CURRENT_LOCATION
-      //       );
-      //     }
-      //   }, 1000);
-      // }
-            enqueueSnackbar(t("common.success"), { variant: "success" });
-            if (onSuccess) {
-        onSuccess();}
-
-
+      if (onSuccess) {
+        onSuccess();
+        onClose();
+      } else {
+        // Navigation / Refresh
+        // If closing dialog inside MyApplications, we might want to reload or just close
+        // Simple approach: reload to refresh table if updating existing
+        setTimeout(() => {
+          if (initialData) {
+            // Edit mode -> Reload window or navigate to My Apps (force refresh)
+            window.location.reload();
+          } else {
+            // New mode -> Navigate normally
+            navigate(
+              isCurrentLocation
+                ? ROUTES.CITIZEN_DASHBOARD
+                : ROUTES.CURRENT_LOCATION,
+            );
+          }
+        }, 1000);
+      }
+      enqueueSnackbar(t("common.success"), { variant: "success" });
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (err) {
       console.error(err);
       enqueueSnackbar(t("common.error"), { variant: "error" });
@@ -406,19 +481,119 @@ const DamageAssessmentDialog = ({
     }
   };
 
- 
+  // في DamageAssessmentDialog.tsx
 
   useEffect(() => {
-    if (!initialData) {
-      resetBuildingTypeSelect();
+    if (initialData) {
+      const type = initialData?.damage_details?.buildingType;
+
+      if (type && initialData.damage_details?.[type]) {
+        console.log(
+          "Building type specific data:",
+          initialData.damage_details[type],
+        );
+      }
+
+      // تحديث Redux
+      dispatch(setBuildingType(type));
+      // dispatch(updatePreviousLocation({ previosLocation: initialData }));
+
+      // تحديث Form State
+      setValue("buildingType", type);
+
+      // تعبئة الحقول الإضافية
+      if (initialData.damage_details && initialData.damage_details[type]) {
+        setValue(type as any, initialData.damage_details[type]);
+        dispatchByType(dispatch, type, initialData.damage_details);
+      }
+
+      // معالجة الصور - البحث في أماكن متعددة
+      const buildingData = initialData.damage_details?.[type] || {};
+      const damageDetailsRoot = initialData.damage_details || {};
+
+      // 1. البحث عن صورة قبل الضرر
+      let before_damage_image =
+        getImageUrl(initialData.before_damage_image) ||
+        getImageUrl(damageDetailsRoot.before_damage_image) ||
+        getImageUrl(buildingData.before_damage_image);
+
+      // 2. البحث عن صورة بعد الضرر
+      let after_damage_image =
+        getImageUrl(initialData.after_damage_image) ||
+        getImageUrl(damageDetailsRoot.after_damage_image) ||
+        getImageUrl(buildingData.after_damage_image);
+
+      // 3. البحث عن مستندات الملكية
+      let ownership_documents =
+        initialData.ownership_documents ||
+        damageDetailsRoot.ownership_documents ||
+        buildingData.ownership_documents;
+
+      // إذا لم نجد الصور بعد، نحاول البحث في damage_attachments
+      if (
+        initialData.damage_attachments &&
+        initialData.damage_attachments.length > 0
+      ) {
+        if (!before_damage_image) {
+          const beforeAtt = initialData.damage_attachments.find(
+            (att: any) => att.category === "before_damage_image",
+          );
+          before_damage_image = beforeAtt?.file_url;
+        }
+
+        if (!after_damage_image) {
+          const afterAtt = initialData.damage_attachments.find(
+            (att: any) => att.category === "after_damage_image",
+          );
+          after_damage_image = afterAtt?.file_url;
+        }
+
+        if (!ownership_documents || ownership_documents.length === 0) {
+          const ownershipAtts = initialData.damage_attachments.filter(
+            (att: any) => att.category === "ownership_documents",
+          );
+          if (ownershipAtts.length > 0) {
+            ownership_documents = ownershipAtts.map((att: any) => att.file_url);
+          }
+        }
+      }
+
+      // معالجة ownership_documents إذا كانت مصفوفة
+      if (Array.isArray(ownership_documents)) {
+        ownership_documents = ownership_documents
+          .map((doc: any) => getImageUrl(doc) || doc)
+          .filter(Boolean);
+      }
+
+      // تعيين القيم في الفورم
+      if (before_damage_image) {
+        setValue(`${type}.before_damage_image` as any, before_damage_image);
+      }
+      if (after_damage_image) {
+        setValue(`${type}.after_damage_image` as any, after_damage_image);
+      }
+      if (
+        ownership_documents &&
+        Array.isArray(ownership_documents) &&
+        ownership_documents.length > 0
+      ) {
+        setValue(`${type}.ownership_documents` as any, ownership_documents);
+      }
+
+      console.log("Hydrated images:", {
+        before: before_damage_image,
+        after: after_damage_image,
+        docs: ownership_documents,
+      });
     }
-  }, [onClose]);
+  }, [initialData, dispatch, setValue]);
 
   // Render logic extracted to specific helper or inline
   const renderBuildingContent = () => {
     if (!damageAssessmentInfo.buildingType) return null;
     const selected =
-      damageAssessmentInfo.buildingType || initialData.damage_details.buildingType;
+      damageAssessmentInfo.buildingType ||
+      initialData.damage_details.buildingType;
 
     const commonProps = {
       register,
@@ -555,8 +730,8 @@ const DamageAssessmentDialog = ({
                 {isSubmitting
                   ? ""
                   : isChangeToReviewPage
-                  ? t("common.submit")
-                  : t("common.reviewRequest")}
+                    ? t("common.submit")
+                    : t("common.reviewRequest")}
               </Button>
             </DialogActions>
           )}

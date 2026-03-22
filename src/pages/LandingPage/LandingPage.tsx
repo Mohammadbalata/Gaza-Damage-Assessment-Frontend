@@ -1,16 +1,32 @@
 import React from "react";
-import { Box } from "@mui/material";
-import HeroSection from "../../components/landing/HeroSection";
-import FeatureCards from "../../components/landing/FeatureCards";
-import DamageAssessmentSection from "../../components/landing/DamageAssessmentSection";
+import { Header } from "./NewLandingPage/Header";
+import { HeroSlider } from "./NewLandingPage/HeroSlider";
+// import { AboutSection } from "./NewLandingPage/AboutSection";
+// import { DepartmentsSection } from "./NewLandingPage/DepartmentsSection";
+// import { GallerySection } from "./NewLandingPage/GallerySection";
+// import { MapSection } from "./NewLandingPage/MapSection";
+// import { WhyUsSection } from "./NewLandingPage/WhyUsSection";
+// import { ContactSection } from "./NewLandingPage/ContactSection";
+// import { Footer } from "./NewLandingPage/Footer";
 
 const LandingPage: React.FC = () => {
   return (
-    <Box sx={{ minHeight: "100vh" }}>
-      <HeroSection />
-      <FeatureCards />
-      <DamageAssessmentSection />
-    </Box>
+
+
+<div className="min-h-screen font-['Cairo',sans-serif]">
+      <Header />
+      <main className="pt-[95px] ">
+        <HeroSlider />
+        {/* <AboutSection />
+        <DepartmentsSection />
+        <GallerySection />
+        <MapSection />
+        <WhyUsSection />
+        <ContactSection /> */}
+      </main>
+      {/* <Footer /> */}
+    </div>
+
   );
 };
 

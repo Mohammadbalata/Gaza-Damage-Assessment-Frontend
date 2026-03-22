@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
   Box,
@@ -8,7 +7,6 @@ import {
   Typography,
   Stack,
   Button,
-  TextField,
   Alert,
   Chip,
   CircularProgress,
@@ -28,10 +26,9 @@ import {
 } from "@mui/icons-material";
 import { axiosClient } from "../api/baseUrl";
 import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../hooks/redux";
 
-interface FormData {
-  trackingNumber: string;
-}
+
 
 interface StatusHistory {
   status: string;
@@ -49,39 +46,70 @@ const TrackStatusPage: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
 
-  const onSubmit = async (data: FormData) => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await axiosClient.get(`/track/${data.trackingNumber}`);
 
-      if (res) {
-        const app = res.data.damage_report;
-        console.log(app);
-        setApplication({
-          trackingNumber: app.report_code,
-          status: app.status.toLowerCase(),
-          submittedAt: app.created_at,
-          lastUpdate: app.updated_at,
-          statusHistory: [
-            { status: app.status.toLowerCase(), timestamp: app.created_at },
-            { status: app.status.toLowerCase(), timestamp: app.updated_at },
-          ],
-        });
+  const trackingNumber = useAppSelector((state) => state.auth.trackingNumber);
+
+  useEffect(() => {
+    const trackingNumber = localStorage.getItem("trackingNumber");
+    const fetchData = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await axiosClient.get(`/track/${trackingNumber}`);
+
+        if (res) {
+          const app = res.data.damage_report;
+          console.log(app);
+          setApplication({
+            trackingNumber: app.report_code,
+            status: app.status.toLowerCase(),
+            submittedAt: app.created_at,
+            lastUpdate: app.updated_at,
+            statusHistory: [
+              { status: app.status.toLowerCase(), timestamp: app.created_at },
+              { status: app.status.toLowerCase(), timestamp: app.updated_at },
+            ],
+          });
+        }
+      } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to fetch application");
+        console.log(err.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to fetch application");
-      console.log(err.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchData();
+  }, [trackingNumber]);
+
+  // const onSubmit = async (data: FormData) => {
+  //   setLoading(true);
+  //   setError("");
+  //   try {
+  //     const res = await axiosClient.get(`/track/${data.trackingNumber}`);
+
+  //     if (res) {
+  //       const app = res.data.damage_report;
+  //       console.log(app);
+  //       setApplication({
+  //         trackingNumber: app.report_code,
+  //         status: app.status.toLowerCase(),
+  //         submittedAt: app.created_at,
+  //         lastUpdate: app.updated_at,
+  //         statusHistory: [
+  //           { status: app.status.toLowerCase(), timestamp: app.created_at },
+  //           { status: app.status.toLowerCase(), timestamp: app.updated_at },
+  //         ],
+  //       });
+  //     }
+  //   } catch (err: any) {
+  //     setError(err.response?.data?.message || "Failed to fetch application");
+  //     console.log(err.response?.data?.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,6 +152,7 @@ const TrackStatusPage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
       {/* Header Section */}
+
       <Paper
         elevation={0}
         sx={{
@@ -134,6 +163,10 @@ const TrackStatusPage: React.FC = () => {
           color: "white",
           position: "relative",
           overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          justifyContent: "space-between",
         }}
       >
         {/* Decorative circles */}
@@ -184,15 +217,44 @@ const TrackStatusPage: React.FC = () => {
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
               {language === "ar"
-                ? "أدخل رقم التتبع للاستعلام عن حالة طلبك"
-                : "Enter your tracking number to check your application status"}
+                ? "هنا يمكنك الاستعلام عن حالة الطلب الخاص بك"
+                : "Here you can inquire about the status of your application."}
             </Typography>
           </Box>
         </Stack>
+
+        <Button
+          type="button"
+          variant="outlined"
+          color="inherit"
+          size="large"
+          onClick={() => {
+            navigate("/");
+          }}
+          startIcon={
+            <ArrowBack
+              sx={{
+                transform: language === "ar" ? "rotate(180deg)" : "none",
+                ml: language === "ar" ? 1 : 0,
+              }}
+            />
+          }
+          sx={{
+            py: 1.5,
+            borderRadius: 2,
+            fontWeight: 600,
+            borderWidth: 2,
+            "&:hover": {
+              borderWidth: 2,
+            },
+          }}
+        >
+          {t("notFound.backToHome")}
+        </Button>
       </Paper>
 
       {/* Search Form */}
-      <Paper
+      {/* <Paper
         elevation={0}
         sx={{
           p: { xs: 3, md: 4 },
@@ -201,11 +263,11 @@ const TrackStatusPage: React.FC = () => {
           borderColor: "divider",
           mb: 4,
         }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={3}>
-            {/* Tracking Number Input */}
-            <Box>
+      > */}
+      {/* <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3}> */}
+      {/* Tracking Number Input */}
+      {/* <Box>
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
@@ -236,10 +298,10 @@ const TrackStatusPage: React.FC = () => {
                   },
                 }}
               />
-            </Box>
+            </Box> */}
 
-            {/* Submit Button */}
-            <Button
+      {/* Submit Button */}
+      {/* <Button
               type="submit"
               variant="contained"
               color="success"
@@ -294,13 +356,13 @@ const TrackStatusPage: React.FC = () => {
               }}
             >
               {t("notFound.backToHome")}
-            </Button>
-          </Stack>
-        </form>
-      </Paper>
+            </Button> */}
+      {/* </Stack> */}
+      {/* </form>
+      </Paper> */}
 
       {/* Error Alert */}
-      {error && (
+      {error && !loading && (
         <Alert
           severity="error"
           sx={{ mb: 4, borderRadius: 2 }}
@@ -308,6 +370,13 @@ const TrackStatusPage: React.FC = () => {
         >
           {error}
         </Alert>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress color="success" size={60} />
+        </Box>
       )}
 
       {/* Application Status Results */}
@@ -370,7 +439,7 @@ const TrackStatusPage: React.FC = () => {
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   {new Date(application.submittedAt).toLocaleDateString(
                     language === "ar" ? "ar-EG" : "en-US",
-                    { year: "numeric", month: "long", day: "numeric" }
+                    { year: "numeric", month: "long", day: "numeric" },
                   )}
                 </Typography>
               </Box>
@@ -382,7 +451,7 @@ const TrackStatusPage: React.FC = () => {
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   {new Date(application.lastUpdate).toLocaleDateString(
                     language === "ar" ? "ar-EG" : "en-US",
-                    { year: "numeric", month: "long", day: "numeric" }
+                    { year: "numeric", month: "long", day: "numeric" },
                   )}
                 </Typography>
               </Box>
@@ -445,12 +514,12 @@ const TrackStatusPage: React.FC = () => {
                     <StepContent>
                       <Typography variant="caption" color="text.secondary">
                         {new Date(history.timestamp).toLocaleString(
-                          language === "ar" ? "ar-EG" : "en-US"
+                          language === "ar" ? "ar-EG" : "en-US",
                         )}
                       </Typography>
                     </StepContent>
                   </Step>
-                )
+                ),
               )}
             </Stepper>
           </Box>
