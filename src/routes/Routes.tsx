@@ -30,7 +30,6 @@ import {
 } from "../pages/LandingPage/placeholders";
 
 
-
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
   HOME: "/home",

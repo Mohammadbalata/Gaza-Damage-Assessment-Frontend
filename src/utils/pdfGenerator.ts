@@ -246,7 +246,7 @@ export const generateApplicationPDF = async (
     direction:${direction};
   ">`;
 
-    entries.forEach(([key, value]) => {
+    entries.forEach(([key, value]:any) => {
       if (key === "landmark") return;
 
       const translationKey = `form.${key}`;

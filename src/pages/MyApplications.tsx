@@ -249,44 +249,67 @@ const MyApplications = () => {
     }
   };
 
+  // في MyApplications.tsx - داخل handleAction
+
   const handleAction = (app: any) => {
     const status = app.status?.toUpperCase() || "SUBMITTED";
     const canEdit = status === "SUBMITTED";
 
-    setSelectedApplication(app);
+    // إنشاء نسخة عميقة من الكائن بدلاً من تعديله مباشرة
+    const transformedApp = JSON.parse(JSON.stringify(app)); // <-- الحل هنا
+
+    if (app.damage_attachments && app.damage_attachments.length > 0) {
+      // تصنيف المرفقات حسب الفئة
+      const beforeImage = app.damage_attachments.find(
+        (att: any) => att.category === "before_damage_image",
+      );
+      const afterImage = app.damage_attachments.find(
+        (att: any) => att.category === "after_damage_image",
+      );
+      const ownershipDocs = app.damage_attachments.filter(
+        (att: any) => att.category === "ownership_documents",
+      );
+
+      // إضافة الصور إلى الكائن الرئيسي (النسخة الجديدة)
+      if (beforeImage) {
+        transformedApp.before_damage_image = beforeImage.file_url;
+      }
+      if (afterImage) {
+        transformedApp.after_damage_image = afterImage.file_url;
+      }
+      if (ownershipDocs.length > 0) {
+        transformedApp.ownership_documents = ownershipDocs.map(
+          (doc: any) => doc.file_url,
+        );
+      }
+
+      // أيضاً إضافتها داخل damage_details إذا كان الـ buildingType موجود
+      const buildingType = app.damage_details?.buildingType;
+      if (buildingType && app.damage_details[buildingType]) {
+        // تأكد من وجود الكائن
+        if (!transformedApp.damage_details[buildingType]) {
+          transformedApp.damage_details[buildingType] = {};
+        }
+        if (beforeImage) {
+          transformedApp.damage_details[buildingType].before_damage_image =
+            beforeImage.file_url;
+        }
+        if (afterImage) {
+          transformedApp.damage_details[buildingType].after_damage_image =
+            afterImage.file_url;
+        }
+        if (ownershipDocs.length > 0) {
+          transformedApp.damage_details[buildingType].ownership_documents =
+            ownershipDocs.map((doc: any) => doc.file_url);
+        }
+      }
+    }
+
+    setSelectedApplication(transformedApp); // استخدم النسخة الجديدة
     setIsReadOnly(!canEdit);
     setDialogOpen(true);
   };
 
-  const handleOpenComplaint = (app: any) => {
-    setComplaintApp(app);
-    setComplaintDialogOpen(true);
-  };
-
-  const handleCloseComplaint = async (app: any) => {
-    if (!window.confirm(t("complaint.closeConfirm"))) return;
-    
-    try {
-      await axiosClient.put(API.citizen.complaints.close(app.complaint.id), {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      enqueueSnackbar(t("complaint.closeSuccess"), { variant: "success" });
-      // Refresh list
-      const res = await axiosClient.get(API.citizen.applications.list, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setRawData(res.data.damage_reports);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar(t("complaint.closeError"), { variant: "error" });
-    }
-  };
-
-  
   const handleDownloadAppPdf = (app: any) => {
     generateApplicationPDF(app, t, language);
   };
