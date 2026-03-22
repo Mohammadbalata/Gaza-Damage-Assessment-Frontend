@@ -3,7 +3,6 @@ import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../routes/Routes";
 
-import logo from "../../../assets/logo-width.png";
 
 export function Header() {
   const navigate = useNavigate();
