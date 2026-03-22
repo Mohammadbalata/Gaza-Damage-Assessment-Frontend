@@ -35,6 +35,8 @@ export interface IRoutes {
   // ADMIN_BANKING: string;
   BANK_INFORMATION: string;
   BIOMETRIC_DATA: string;
+  MY_COMPLAINTS: string;
+  COMPLAINT_DETAILS: string;
   CENTRAL_DATABASE: string;
   PUBLIC_SERVICES: string;
   EMERGENCY_MANAGEMENT: string;

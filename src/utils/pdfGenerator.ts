@@ -269,7 +269,7 @@ export const generateApplicationPDF = async (
       else if (typeof value === "object") {
         // ⭐ حل MixedUsage
         if (key === "MixedUsage" && value?.units) {
-          displayValue = Object.entries(value?.units)
+          displayValue = Object.entries(value.units)
             .map(([floor, items]: any) => {
               const units = items
                 .map((u: any) => `${u.usage} - ${u.activity}`)
