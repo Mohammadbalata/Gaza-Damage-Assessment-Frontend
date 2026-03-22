@@ -36,6 +36,7 @@ import {
   Edit as EditIcon,
   Close as CloseIcon,
   LocationOn as LocationOnIcon,
+  Feedback as ComplaintIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -46,6 +47,7 @@ import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
+import ComplaintDialog from "../components/Complaints/ComplaintDialog";
 import {
   generatePDFReceipt,
   generateApplicationPDF,
@@ -78,6 +80,10 @@ const MyApplications = () => {
       id: "",
     },
   });
+  
+  // Complaint Dialog State
+  const [complaintDialogOpen, setComplaintDialogOpen] = useState(false);
+  const [complaintApp, setComplaintApp] = useState<any>(null);
 
   // Current Location Edit Dialog State
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -144,33 +150,45 @@ const MyApplications = () => {
   const [error, setError] = useState();
 
   useEffect(() => {
-    axiosClient
-      .get(API.citizen.applications.list, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res: any) => {
-        setRawData(res.data.damage_reports);
-        setLoading(false);
-      })
-      .catch((err: any) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [appsRes, complaintsRes] = await Promise.all([
+          axiosClient.get(API.citizen.applications.list, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+          axiosClient.get(API.citizen.complaints.list, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+        ]);
+
+        const apps = appsRes.data.damage_reports || appsRes.data || [];
+        const complaintsRaw = complaintsRes.data?.complaints || complaintsRes.data?.data?.complaints || complaintsRes.data?.data || [];
+        const complaints = Array.isArray(complaintsRaw) ? complaintsRaw : (complaintsRaw.data || []);
+
+        // Merge complaints into apps
+        const enhancedApps = (Array.isArray(apps) ? apps : []).map((app: any) => {
+          const complaint = complaints.find((c: any) => 
+            String(c.damage_report?.id) === String(app.id) || 
+            String(c.damage_report_id) === String(app.id)
+          );
+          return { ...app, complaint };
+        });
+
+        setRawData(enhancedApps);
+      } catch (err: any) {
         console.log(err);
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Robust data handling
-  const applications: any[] = Array.isArray(rawData)
-    ? rawData
-    : Array.isArray(rawData?.damage_reports)
-      ? rawData.applications
-      : Array.isArray(rawData)
-        ? rawData
-        : rawData?.id // If it's a single application object
-          ? [rawData]
-          : [];
+  const applications: any[] = Array.isArray(rawData) ? rawData : [];
 
   const citizen: any = rawData?.citizen || {}; // Fallback to empty object if citizen is missing
   // useEffect(() => {
@@ -506,6 +524,23 @@ const MyApplications = () => {
             >
               {t("success.downloadReceipt")}
             </Button>
+            <Button
+              variant="contained"
+              size="medium"
+              startIcon={<ComplaintIcon sx={{ ml: 1 }} />}
+              onClick={() => navigate("/citizen/my-complaints")}
+              sx={{
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: 2,
+                bgcolor: "error.main",
+                "&:hover": {
+                  bgcolor: "error.dark",
+                },
+              }}
+            >
+              {t("complaint.myComplaints")}
+            </Button>
 
             <Menu
               anchorEl={anchorEl}
@@ -650,6 +685,8 @@ const MyApplications = () => {
                 application={app}
                 onAction={handleAction}
                 onDownloadPdf={handleDownloadAppPdf}
+                onAddComplaint={handleOpenComplaint}
+                onCloseComplaint={handleCloseComplaint}
               />
             ))}
           </Box>
@@ -681,6 +718,13 @@ const MyApplications = () => {
             />
           )}
         </Dialog>
+
+        {/* Complaint Dialog */}
+        <ComplaintDialog
+          open={complaintDialogOpen}
+          onClose={() => setComplaintDialogOpen(false)}
+          application={complaintApp}
+        />
         <CardContent
           sx={{
             p: 2,
