@@ -9,7 +9,7 @@ import {
   Theme,
 } from "@mui/material";
 import { useLanguage } from "../contexts/LanguageContext";
-import Logo from "../../src/assets/logo.jpg";
+// import Logo from "../../src/assets/logo.jpg";
 
 interface AuthCompProps {
   title?: string;
@@ -92,7 +92,7 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
             alignItems="center"
             sx={{ position: "relative", zIndex: 1 }}
           >
-            <img src={Logo} alt="Logo" style={{ width: 50, height: 50 }} />
+            <img src='https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png' alt="Logo" style={{ width: 50, height: 50 }} />
 
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, mr: 1 }}>

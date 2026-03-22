@@ -19,7 +19,7 @@ import {
   HowToReg as SignUpIcon,
 } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
-import Logo from "../../src/assets/logo.jpg";
+// import Logo from "../../src/assets/logo.jpg";
 /**
  * Home Page - Main entry point
  * الصفحة الرئيسية - نقطة الدخول الرئيسية
@@ -132,7 +132,7 @@ const HomePage: React.FC = () => {
               mb: 1,
             }}
           >
-            <img src={Logo} alt="Logo" />
+            <img src='https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png' alt="Logo" />
           </Box>
 
           {/* Title */}

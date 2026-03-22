@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDate } from "./helpers";
-import Logo from "../../src/assets/logo.jpg";
+// import Logo from "../../src/assets/logo.jpg";
 
 export const generatePDFReceipt = async (
   rawData: any,
@@ -320,7 +320,7 @@ export const generateApplicationPDF = async (
     ">
       <!-- LOGO -->
       <img
-        src="${Logo}"
+        src="$https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png"
         alt="Logo"
         style="
           height:70px;
