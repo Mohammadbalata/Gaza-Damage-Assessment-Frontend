@@ -108,7 +108,7 @@ const DamageAssessmentDialog = ({
 
     // Create a deep copy
     const cleaned = JSON.parse(
-      JSON.stringify(data, (key, value) => {
+      JSON.stringify(data, (value:any) => {
         // Skip File objects
         if (value instanceof File) {
           return undefined;
@@ -219,11 +219,11 @@ const DamageAssessmentDialog = ({
     }
   }, [initialData, dispatch, setValue]);
 
-  const resetBuildingTypeSelect = () => {
-    setValue("buildingType", "");
-    dispatch(setBuildingType(""));
-    dispatch(resetAllBuildings());
-  };
+  // const resetBuildingTypeSelect = () => {
+  //   setValue("buildingType", "");
+  //   dispatch(setBuildingType(""));
+  //   dispatch(resetAllBuildings());
+  // };
 
   const buildApplication = (data: any) => ({
     buildingType: data.buildingType,

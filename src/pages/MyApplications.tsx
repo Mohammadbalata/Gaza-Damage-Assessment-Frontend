@@ -314,6 +314,15 @@ const MyApplications = () => {
     generateApplicationPDF(app, t, language);
   };
 
+  const handleOpenComplaint = (app: any) => {
+    setComplaintApp(app);
+    setComplaintDialogOpen(true);
+  };
+  const handleCloseComplaint = () => {
+    setComplaintDialogOpen(false);
+    setComplaintApp(null);
+  };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedApplication(null);

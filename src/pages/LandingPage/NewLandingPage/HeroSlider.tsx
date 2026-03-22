@@ -18,7 +18,7 @@ const slides = [
 ];
 
 export function HeroSlider() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 

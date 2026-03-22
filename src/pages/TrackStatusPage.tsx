@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
   Box,
@@ -8,7 +7,6 @@ import {
   Typography,
   Stack,
   Button,
-  TextField,
   Alert,
   Chip,
   CircularProgress,
@@ -30,9 +28,7 @@ import { axiosClient } from "../api/baseUrl";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../hooks/redux";
 
-interface FormData {
-  trackingNumber: string;
-}
+
 
 interface StatusHistory {
   status: string;
@@ -50,11 +46,7 @@ const TrackStatusPage: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
+
 
   const trackingNumber = useAppSelector((state) => state.auth.trackingNumber);
 
@@ -370,7 +362,7 @@ const TrackStatusPage: React.FC = () => {
       </Paper> */}
 
       {/* Error Alert */}
-      {/* {error && (
+      {error && !loading && (
         <Alert
           severity="error"
           sx={{ mb: 4, borderRadius: 2 }}
@@ -378,7 +370,14 @@ const TrackStatusPage: React.FC = () => {
         >
           {error}
         </Alert>
-      )} */}
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress color="success" size={60} />
+        </Box>
+      )}
 
       {/* Application Status Results */}
       {application && (
