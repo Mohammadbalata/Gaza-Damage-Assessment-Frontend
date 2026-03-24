@@ -8,6 +8,7 @@ import { ROUTES } from "../../routes/Routes";
 const DamageAssessmentSection: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate(); // Hook for navigation
+  const token = localStorage.getItem("token"); // تعريف هنا
 
   return (
     <Box sx={{ pb: 8 }}>
@@ -59,7 +60,14 @@ const DamageAssessmentSection: React.FC = () => {
               </Typography>
               <Button
                 variant="contained"
-                onClick={() => navigate(ROUTES.HOME)} // Use navigate internally
+                onClick={() => {
+                  const token = localStorage.getItem("token");
+                  if (token) {
+                    navigate(ROUTES.CITIZEN_DASHBOARD);
+                  } else {
+                    navigate(ROUTES.SIGNIN);
+                  }
+                }}
                 endIcon={
                   <ArrowForward
                     sx={{
@@ -74,14 +82,15 @@ const DamageAssessmentSection: React.FC = () => {
                   fontWeight: 700,
                   mt: 2,
                   px: 6,
-                  pl:4,
+                  pl: 4,
                   "&:hover": {
                     bgcolor: "#f0f0f0",
                   },
-                  textAlign:'center'
+                  textAlign: "center",
                 }}
               >
-                {t("auth.login")}
+                {/* استخدم token اللي فوق */}
+                {token ? "الذهاب الى لوحة التحكم" : t("auth.login")}
               </Button>
             </Box>
 

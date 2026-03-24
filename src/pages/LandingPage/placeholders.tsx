@@ -3,6 +3,7 @@ import { Box, Typography, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { ArrowBack } from "@mui/icons-material";
+import { ROUTES } from "../../routes/Routes";
 
 const PlaceholderPage: React.FC<{ titleKey: string }> = ({ titleKey }) => {
   const { t, language } = useLanguage();
@@ -35,7 +36,7 @@ const PlaceholderPage: React.FC<{ titleKey: string }> = ({ titleKey }) => {
             }}
           />
         }
-        onClick={() => navigate("/")}
+        onClick={() => navigate(ROUTES.HOME)}
         size="large"
       >
         {t("common.back")}

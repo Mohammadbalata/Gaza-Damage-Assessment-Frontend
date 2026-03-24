@@ -3,7 +3,6 @@ import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../routes/Routes";
 
-
 export function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,8 +26,12 @@ export function Header() {
             className="w-36 sm:w-44 lg:w-52 h-auto object-contain"
             alt="logo"
           /> */}
-          <div className="flex items-center justify-between py-[16px] gap-8 h-[90px]">
-          <img src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209423/logo-width_vrpocf.png" className=' logo w-80 h-20' alt="this is logo" />
+        <div className="flex items-center justify-between py-[16px] gap-8 h-[90px]">
+          <img
+            src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209423/logo-width_vrpocf.png"
+            className=" logo w-80 h-20"
+            alt="this is logo"
+          />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-black font-medium">

@@ -36,7 +36,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (token) {
-      navigate(ROUTES.CITIZEN_DASHBOARD);
+      navigate(ROUTES.HOME);
     }
   }, [token, navigate]);
 
@@ -45,7 +45,7 @@ const LoginPage = () => {
       .unwrap()
       .then((data) => {
         localStorage.setItem("citizenInfo", JSON.stringify(data.citizenInfo));
-        navigate(ROUTES.CITIZEN_DASHBOARD);
+        navigate(ROUTES.HOME);
       })
       .catch((error) => {
         dispatch(setError(error));
