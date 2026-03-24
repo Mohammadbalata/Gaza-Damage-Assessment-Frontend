@@ -98,71 +98,83 @@ export function DepartmentsSection() {
               </motion.div>
             );
           })} */}
-          {cards.map((card) => (
-          <Box key={card.id}>
-            <Paper
-              elevation={4}
-              onClick={() => navigate(card.route)}
-              sx={{
-                bgcolor: card.bgColor,
-                color: card.textColor || "white",
-                p: 3,
-                height: 220,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "space-between",
-                textAlign: "center",
-                borderRadius: 4,
-                cursor: "pointer",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                "&:hover": {
-                  transform: "translateY(-8px)",
-                  boxShadow: "0 12px 20px rgba(0,0,0,0.2)",
-                },
-              }}
+          {cards.map((card, index) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Box
+              <Paper
+                elevation={4}
+                onClick={() => navigate(card.route)}
                 sx={{
-                  p: 2,
-                  borderRadius: "50%",
-                  bgcolor: "rgba(255,255,255,0.1)",
+                  bgcolor: card.bgColor,
+                  color: card.textColor || "white",
+                  p: 3,
+                  height: 220,
                   display: "flex",
-                  justifyContent: "center",
+                  flexDirection: "column",
                   alignItems: "center",
+                  justifyContent: "space-between",
+                  textAlign: "center",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-8px)",
+                    boxShadow: "0 12px 20px rgba(0,0,0,0.2)",
+                  },
                 }}
               >
-                {card.icon}
-              </Box>
-
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, mt: 2, lineHeight: 1.2 }}
-              >
-                {t(card.titleKey)}
-              </Typography>
-
-              <IconButton
-                size="small"
-                sx={{
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  color: card.iconColor || "white",
-                  "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                }}
-              >
-                <ArrowForward
+                <Box
                   sx={{
-                    transform: language === "ar" ? "rotate(180deg)" : "none",
+                    p: 2,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
-                />
-              </IconButton>
-            </Paper>
-          </Box>
-        ))}
-        <div className="sm:col-span-2 lg:col-span-4">
+                >
+                  {card.icon}
+                </Box>
+
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, mt: 2, lineHeight: 1.2 }}
+                >
+                  {t(card.titleKey)}
+                </Typography>
+
+                <IconButton
+                  size="small"
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    color: card.iconColor || "white",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
+                >
+                  <ArrowForward
+                    sx={{
+                      transform: language === "ar" ? "rotate(180deg)" : "none",
+                    }}
+                  />
+                </IconButton>
+              </Paper>
+            </motion.div>
+          ))}
+        <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 4 * 0.1 }}
+        className="sm:col-span-2 lg:col-span-4"
+        >
 
         <DamageAssessmentSection />
-        </div>
+        </motion.div>
         </div>
       </div>
     </section>
