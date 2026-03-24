@@ -42,7 +42,7 @@ const DamageAssessmentSection: React.FC = () => {
             alignItems="center"
             justifyContent="space-between"
             spacing={4}
-            sx={{ position: "relative", zIndex: 1 , mr: 5 }}
+            sx={{ position: "relative", zIndex: 1, mr: { sm: 5 } }}
           >
             {/* Text Section */}
             <Box
