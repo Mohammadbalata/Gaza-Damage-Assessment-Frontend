@@ -35,7 +35,7 @@ export function AboutSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">نبذة عن المركز</h2>
+          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">نبذة عن المنصة</h2>
           <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-8"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
             يضم مركز المعدات الصناعية فعلياً محلات متخصصة تحت سقف واحد يضم تشكيلة من أي احتياج، 

@@ -2,6 +2,15 @@ import { createTheme, ThemeOptions } from "@mui/material/styles";
 import { arSA } from "@mui/material/locale";
 
 const themeOptions: ThemeOptions = {
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 640,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: "light",
     primary: {
