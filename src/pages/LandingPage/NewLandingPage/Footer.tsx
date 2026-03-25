@@ -1,4 +1,13 @@
-import { Facebook, Instagram, Twitter, Linkedin, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+} from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,19 +18,29 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">مركز المعدات الصناعية</h3>
+            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
+              منصة حصر الأضرار
+            </h3>
             <p className="text-gray-300 leading-relaxed mb-4">
-              وجهتك الأولى لجميع احتياجاتك من المعدات والأدوات الصناعية في جدة. نوفر لك 12 قسماً متخصصاً تحت سقف واحد.
+              منصة رقمية تهدف إلى توثيق وحصر الأضرار التي لحقت بالمنازل
+              والممتلكات، وتسهيل عملية متابعة الطلبات وتقديم البلاغات بشكل سريع
+              وآمن.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">روابط سريعة</h3>
+            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
+              روابط سريعة
+            </h3>
             <ul className="space-y-2">
               <li>
                 <button
-                  onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() =>
+                    document
+                      .getElementById("about")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
                   من نحن
@@ -29,7 +48,11 @@ export function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => document.getElementById('departments')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() =>
+                    document
+                      .getElementById("departments")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
                   أقسامنا
@@ -37,15 +60,23 @@ export function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() =>
+                    document
+                      .getElementById("map")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  معرض الصور
+                  موقعنا
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() =>
+                    document
+                      .getElementById("contact")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
                   تواصل معنا
@@ -56,12 +87,17 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">معلومات التواصل</h3>
+            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
+              معلومات التواصل
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
-                  <a href="tel:050-123-4567" className="text-gray-300 hover:text-[#f5a623] transition-colors">
+                  <a
+                    href="tel:050-123-4567"
+                    className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                  >
                     050-123-4567
                   </a>
                 </div>
@@ -69,7 +105,10 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
-                  <a href="mailto:info@example.com" className="text-gray-300 hover:text-[#f5a623] transition-colors">
+                  <a
+                    href="mailto:info@example.com"
+                    className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                  >
                     info@example.com
                   </a>
                 </div>
@@ -78,8 +117,8 @@ export function Footer() {
                 <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    المنطقة الصناعية - الشعبة<br />
-                    جدة - المملكة العربية السعودية
+                    قطاع غزة - خانيونس <br />
+                    قطاع غزة - مدينة غزة
                   </p>
                 </div>
               </li>
@@ -88,13 +127,16 @@ export function Footer() {
 
           {/* Working Hours */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">ساعات العمل</h3>
+            <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
+              ساعات العمل
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    <span className="font-semibold">السبت - الخميس:</span><br />
+                    <span className="font-semibold">السبت - الخميس:</span>
+                    <br />
                     8:00 ص - 6:00 م
                   </p>
                 </div>
@@ -103,8 +145,11 @@ export function Footer() {
                 <Clock className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    <span className="font-semibold">الجمعة:</span><br />
-                    <span className="text-[#f5a623]">مغلق - استراحة الأسبوع</span>
+                    <span className="font-semibold">الجمعة:</span>
+                    <br />
+                    <span className="text-[#f5a623]">
+                      مغلق - استراحة الأسبوع
+                    </span>
                   </p>
                 </div>
               </li>
@@ -149,9 +194,9 @@ export function Footer() {
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
-            
+
             <p className="text-gray-400 text-center">
-              جميع الحقوق محفوظة © {currentYear} مركز المعدات الصناعية - جدة
+              جميع الحقوق محفوظة © {currentYear} منصة حصر الاضرار - غزة
             </p>
           </div>
         </div>

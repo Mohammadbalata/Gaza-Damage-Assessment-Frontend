@@ -15,7 +15,9 @@ export function MapSection() {
           <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">موقعنا</h2>
           <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            نحن في خدمتكم في موقع استراتيجي بمدينة جدة
+            نحن في قلب قطاع غزة ، حيث يسهل الوصول إلينا من جميع أنحاء المدينة.
+            زورونا لتجربة خدماتنا المتميزة ودعم جهود التعافي والإعمار في
+            مجتمعنا.
           </p>
         </motion.div>
 
@@ -37,9 +39,8 @@ export function MapSection() {
                     العنوان
                   </h3>
                   <p className="text-gray-700">
-                    المنطقة الصناعية - الشعبة
-                    <br />
-                    جدة - المملكة العربية السعودية
+                    قطاع غزة - خانيونس <br />
+                    قطاع غزة - مدينة غزة
                   </p>
                 </div>
               </div>
@@ -55,7 +56,7 @@ export function MapSection() {
                     كيفية الوصول
                   </h3>
                   <p className="text-gray-700 mb-4">
-                    يقع المركز في قلب المنطقة الصناعية بجدة، ويمكن الوصول إليه
+                    يقع المركز في عدة انحاء في قطاع غزة ، ويمكن الوصول إليه
                     بسهولة عبر الطرق الرئيسية
                   </p>
                   <a
@@ -96,14 +97,14 @@ export function MapSection() {
             className="h-[500px] rounded-lg overflow-hidden shadow-lg"
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3710.736789!2d39.172778!3d21.543333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDMyJzM2LjAiTiAzOcKwMTAnMjIuMCJF!5e0!3m2!1sar!2ssa!4v1234567890"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d109901.94627571456!2d34.2527463!3d31.3547228!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14fd844a57b75e71%3A0x3f1a5571b9f96c44!2sGaza!5e0!3m2!1sar!2sps!4v1234567890"
               width="100%"
               height="100%"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="موقع مركز المعدات الصناعية"
+              title="موقع منصة حصر الأضرار - غزة"
             ></iframe>
           </motion.div>
         </div>

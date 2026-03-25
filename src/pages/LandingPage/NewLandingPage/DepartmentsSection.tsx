@@ -71,7 +71,7 @@ export function DepartmentsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold mb-4"> الوصول السريع للخدمات</h2>
-          <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-6"></div>
+          <div className="w-20 h-1 bg-[#4d9a33] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
             يضم المركز 5 أقسام متخصصة .. كل قسم مستقل ومتخصص في مجال عمل محدد
           </p>
