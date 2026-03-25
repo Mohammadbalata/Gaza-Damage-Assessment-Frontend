@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
-      <div className="mx-auto max-w-[1200px] px-4 lg:px-2 ">
+      <div className="mx-auto max-w-[1300px] px-4 lg:px-2 ">
         {/* Main navigation */}
         {/* <div className="flex items-center justify-between h-[80px]">
           {/* Logo 
@@ -53,7 +53,7 @@ export function Header() {
               onClick={() => scrollToSection("departments")}
               className="hover:text-green-600 transition-colors"
             >
-              خريطة الإعمار
+              الوصول السريع للخدمات
             </button>
 
             <button
