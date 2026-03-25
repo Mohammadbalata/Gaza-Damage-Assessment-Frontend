@@ -45,8 +45,7 @@ const HomePage: React.FC = () => {
     {
       key: "central-database",
       title: "landing.cards.database",
-      description:
-        "الذهاب إلى قاعدة البيانات المركزية للوصول إلى المعلومات العامة",
+      description: t("citizen.centralDatabaseDesc"),
       icon: <DatabaseIcon sx={{ fontSize: 40 }} />,
       color: "primary",
       route: "/central-database",
@@ -54,7 +53,7 @@ const HomePage: React.FC = () => {
     {
       key: "public-services",
       title: "landing.cards.services",
-      description: "الاطلاع على الخدمات العامة المتاحة للمواطنين",
+      description: t("citizen.publicServicesDesc"),
       icon: <PeopleIcon sx={{ fontSize: 40 }} />,
       color: "info",
       route: "/public-services",
@@ -62,7 +61,7 @@ const HomePage: React.FC = () => {
     {
       key: "emergency",
       title: "landing.cards.emergency",
-      description: "الوصول إلى إدارة الطوارئ والإبلاغ عن الحالات العاجلة",
+      description: t("citizen.emergencyManagementDesc"),
       icon: <EmergencyIcon sx={{ fontSize: 40 }} />,
       color: "warning",
       route: "/emergency-management",
@@ -70,7 +69,7 @@ const HomePage: React.FC = () => {
     {
       key: "support",
       title: "landing.cards.support",
-      description: "التواصل مع شبكة الدعم للحصول على المساعدة والتوجيه",
+      description: t("citizen.supportNetworkDesc"),
       icon: <HandshakeIcon sx={{ fontSize: 40 }} />,
       color: "success",
       route: "/support-network",

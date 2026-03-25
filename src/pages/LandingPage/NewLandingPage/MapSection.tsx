@@ -1,5 +1,5 @@
-import { MapPin, Navigation } from 'lucide-react';
-import { motion } from 'motion/react';
+import { MapPin, Navigation } from "lucide-react";
+import { motion } from "motion/react";
 
 export function MapSection() {
   return (
@@ -33,9 +33,12 @@ export function MapSection() {
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">العنوان</h3>
+                  <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">
+                    العنوان
+                  </h3>
                   <p className="text-gray-700">
-                    المنطقة الصناعية - الشعبة<br />
+                    المنطقة الصناعية - الشعبة
+                    <br />
                     جدة - المملكة العربية السعودية
                   </p>
                 </div>
@@ -48,9 +51,12 @@ export function MapSection() {
                   <Navigation className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">كيفية الوصول</h3>
+                  <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">
+                    كيفية الوصول
+                  </h3>
                   <p className="text-gray-700 mb-4">
-                    يقع المركز في قلب المنطقة الصناعية بجدة، ويمكن الوصول إليه بسهولة عبر الطرق الرئيسية
+                    يقع المركز في قلب المنطقة الصناعية بجدة، ويمكن الوصول إليه
+                    بسهولة عبر الطرق الرئيسية
                   </p>
                   <a
                     href="https://maps.google.com/?q=21.543333,39.172778"
@@ -74,14 +80,16 @@ export function MapSection() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span>الجمعة</span>
-                  <span className="font-semibold text-[#f5a623]">مغلق - استراحة الأسبوع</span>
+                  <span className="font-semibold text-[#f5a623]">
+                    مغلق - استراحة الأسبوع
+                  </span>
                 </div>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -10 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
