@@ -57,10 +57,10 @@ export function Header() {
             </button>
 
             <button
-              onClick={() => scrollToSection("gallery")}
+              onClick={() => scrollToSection("map")}
               className="hover:text-green-600 transition-colors"
             >
-              شركاء النجاح
+              موقعنا
             </button>
 
             <button
