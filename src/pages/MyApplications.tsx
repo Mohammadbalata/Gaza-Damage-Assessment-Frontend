@@ -46,6 +46,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { ROUTES } from "../routes/Routes";
 import ErrorAlert from "../components/Shared/ErrorAlert";
 import BackButton from "../components/Shared/BackButton";
+import ConfirmDialog from "../components/Shared/ConfirmDialog";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ComplaintDialog from "../components/Complaints/ComplaintDialog";
 import {
@@ -97,6 +98,11 @@ const MyApplications = () => {
   const theme = useTheme();
   const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
   const [locationLoading, setLocationLoading] = useState(false);
+  
+  // Close Complaint Confirmation State
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
+  const [appToClose, setAppToClose] = useState<any>(null);
+  const [closingComplaint, setClosingComplaint] = useState(false);
 
   // // usePut for updating current location
   // const { loading: locationLoading, execute: updateLocation } = usePut(
@@ -338,9 +344,59 @@ const MyApplications = () => {
     setComplaintApp(app);
     setComplaintDialogOpen(true);
   };
-  const handleCloseComplaint = () => {
+  const handleCloseComplaintDialog = () => {
     setComplaintDialogOpen(false);
     setComplaintApp(null);
+  };
+
+  const handleOpenCloseConfirm = (app: any) => {
+    setAppToClose(app);
+    setCloseConfirmOpen(true);
+  };
+
+  const handleConfirmCloseComplaint = async () => {
+    if (!appToClose?.complaint?.id) return;
+    
+    setClosingComplaint(true);
+    try {
+      await axiosClient.put(API.citizen.complaints.close(appToClose.complaint.id), {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      enqueueSnackbar(t("complaint.closeSuccess"), { variant: "success" });
+      setCloseConfirmOpen(false);
+      
+      // Refresh applications to update status
+      const [appsRes, complaintsRes] = await Promise.all([
+        axiosClient.get(API.citizen.applications.list, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }),
+        axiosClient.get(API.citizen.complaints.list, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }),
+      ]);
+
+      const apps = appsRes.data.damage_reports || appsRes.data || [];
+      const complaintsRaw = complaintsRes.data?.complaints || complaintsRes.data?.data?.complaints || complaintsRes.data?.data || [];
+      const complaints = Array.isArray(complaintsRaw) ? complaintsRaw : (complaintsRaw.data || []);
+
+      const enhancedApps = (Array.isArray(apps) ? apps : []).map((app: any) => {
+        const complaint = complaints.find((c: any) => 
+          String(c.damage_report?.id) === String(app.id) || 
+          String(c.damage_report_id) === String(app.id)
+        );
+        return { ...app, complaint };
+      });
+
+      setRawData(enhancedApps);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(t("complaint.closeError"), { variant: "error" });
+    } finally {
+      setClosingComplaint(false);
+      setAppToClose(null);
+    }
   };
 
   const handleDialogClose = () => {
@@ -715,7 +771,7 @@ const MyApplications = () => {
                 onAction={handleAction}
                 onDownloadPdf={handleDownloadAppPdf}
                 onAddComplaint={handleOpenComplaint}
-                onCloseComplaint={handleCloseComplaint}
+                onCloseComplaint={handleOpenCloseConfirm}
                 neighborhoods={neighborhoods}
               />
             ))}
@@ -752,8 +808,18 @@ const MyApplications = () => {
         {/* Complaint Dialog */}
         <ComplaintDialog
           open={complaintDialogOpen}
-          onClose={() => setComplaintDialogOpen(false)}
+          onClose={handleCloseComplaintDialog}
           application={complaintApp}
+        />
+
+        <ConfirmDialog
+          open={closeConfirmOpen}
+          onClose={() => setCloseConfirmOpen(false)}
+          onConfirm={handleConfirmCloseComplaint}
+          title={t("complaint.close")}
+          message={t("complaint.closeConfirm")}
+          type="warning"
+          loading={closingComplaint}
         />
         <CardContent
           sx={{

@@ -18,14 +18,6 @@ export function Header() {
   return (
     <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
       <div className="mx-auto max-w-[1300px] px-4 lg:px-2 ">
-        {/* Main navigation */}
-        {/* <div className="flex items-center justify-between h-[80px]">
-          {/* Logo 
-          <img
-            src={logo}
-            className="w-36 sm:w-44 lg:w-52 h-auto object-contain"
-            alt="logo"
-          /> */}
         <div className="flex items-center justify-between py-[16px] gap-8 h-[90px]">
           <img
             src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209423/logo-width_vrpocf.png"

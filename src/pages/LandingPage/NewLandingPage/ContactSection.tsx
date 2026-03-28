@@ -27,7 +27,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-gray-50 scroll-mt-24">
+    <section id="contact" className="py-20 bg-gray-50 scroll-mt-24 overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -64,10 +64,10 @@ export function ContactSection() {
                   <div>
                     <p className="text-sm text-gray-600">الهاتف</p>
                     <a
-                      href="tel:050-123-4567"
+                      href="tel:00970599366036"
                       className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
                     >
-                      050-123-4567
+                      036 366 599 970 00
                     </a>
                   </div>
                 </div>
@@ -94,10 +94,10 @@ export function ContactSection() {
                   <div>
                     <p className="text-sm text-gray-600">واتساب</p>
                     <a
-                      href="https://wa.me/966501234567"
+                      href="https://wa.me/970599366036"
                       className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
                     >
-                      966+ 50-123-4567
+                      036 366 599 970 00
                     </a>
                   </div>
                 </div>

@@ -25,6 +25,7 @@ import { axiosClient } from "../../api/baseUrl";
 import { API } from "../../constants/ApiRoutes";
 import BackButton from "../../components/Shared/BackButton";
 import { useSnackbar } from "notistack";
+import ConfirmDialog from "../../components/Shared/ConfirmDialog";
 
 const ComplaintDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +35,7 @@ const ComplaintDetailsPage = () => {
   const [complaint, setComplaint] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     axiosClient
@@ -53,9 +55,12 @@ const ComplaintDetailsPage = () => {
       });
   }, [id]);
 
-  const handleCloseComplaint = async () => {
-    if (!window.confirm(t("complaint.closeConfirm"))) return;
-    
+  const handleCloseComplaint = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmClose = async () => {
+    setConfirmOpen(false);
     setClosing(true);
     try {
       await axiosClient.put(API.citizen.complaints.close(id!), {}, {
@@ -289,6 +294,16 @@ const ComplaintDetailsPage = () => {
             )}
           </Stack>
         </Paper>
+
+        <ConfirmDialog
+          open={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          onConfirm={handleConfirmClose}
+          title={t("complaint.close")}
+          message={t("complaint.closeConfirm")}
+          type="warning"
+          loading={closing}
+        />
       </Container>
     </Fade>
   );

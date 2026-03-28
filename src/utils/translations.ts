@@ -58,6 +58,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.widowed": "widowed",
     "common.actions": "Actions",
     "common.noResults": "No results",
+    "common.cofirm": "Confirm",
 
     "validation.required": "Required",
     "validation.passwordMismatch": "Passwords do not match",
@@ -752,6 +753,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
     "common.actions": "الإجراءات",
     "common.noResults": "لا توجد نتائج",
+    "common.confirm": "تأكيد",
+    "common.deleteConfirm": "هل انت متاكد من حذف هذا الطلب؟",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",

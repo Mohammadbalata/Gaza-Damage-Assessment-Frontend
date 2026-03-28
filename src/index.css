@@ -112,11 +112,26 @@
   right: 0;
 }
 
+.thin-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
   
 }
 @media (max-width:400px) {
   .logo{
-    width: 200px;
+    width: 240px;
 }
   
 }

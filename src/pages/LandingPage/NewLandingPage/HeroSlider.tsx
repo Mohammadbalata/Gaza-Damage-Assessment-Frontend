@@ -15,7 +15,7 @@ const slides = [
     title: "خبرة وموثوقية",
     subtitle: "نخدمكم منذ أكثر من 10 سنوات في قلب جدة الصناعية",
     image:
-      "https://res.cloudinary.com/dopcli6un/image/upload/v1774209425/hero-image_exnabs.jpg",
+      "https://res.cloudinary.com/dopcli6un/image/upload/v1774694946/WhatsApp_Image_2026-03-24_at_19.51.44_yvhhh7.jpg",
   },
 ];
 
@@ -253,8 +253,8 @@ export function HeroSlider() {
                   </motion.p>
                 )}
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl">
-                <div className="flex items-center gap-3 py-3 px-5">
+              <div id="system-details" className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar ">
+                <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Home className="w-5 h-5 " />
 
                   <span className="text-sm font-bold text-gray-700">
@@ -262,18 +262,18 @@ export function HeroSlider() {
                   </span>
                 </div>
 
-                <div className="hidden md:block w-[3px] h-6 bg-black " />
+                <div className="flex-shrink-0 w-[2px] h-6 bg-gray-400 " />
 
-                <div className="flex items-center gap-3 py-3 px-5">
+                <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Users className="w-5 h-5" />
                   <span className="text-sm font-bold text-gray-700">
                     45,000 مستفيد
                   </span>
                 </div>
 
-                <div className="hidden md:block w-[3px] h-6 bg-black " />
+                <div className="flex-shrink-0 w-[2px] h-6 bg-gray-400 " />
 
-                <div className="flex items-center gap-3 py-3 px-5">
+                <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm font-bold text-gray-700">
                     99% نسبة الرضا
