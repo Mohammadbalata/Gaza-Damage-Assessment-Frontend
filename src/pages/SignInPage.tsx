@@ -18,6 +18,7 @@ import {
 import { Login as LoginIcon, ArrowBack } from "@mui/icons-material";
 import AuthComp from "./AuthComp";
 import { IAuthState } from "../interfaces/store/IAuthState";
+import LanguageToggle from "../components/LanguageToggle";
 
 export interface FormDataCustom extends IAuthState {}
 
@@ -239,6 +240,7 @@ const LoginPage = () => {
           </Box>
         </Stack>
       </form>
+      <LanguageToggle />
     </AuthComp>
   );
 };

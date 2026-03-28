@@ -53,7 +53,7 @@ export function Header() {
               onClick={() => scrollToSection("departments")}
               className="hover:text-green-600 transition-colors"
             >
-              الوصول السريع للخدمات
+              أقسام المنصة
             </button>
 
             <button
