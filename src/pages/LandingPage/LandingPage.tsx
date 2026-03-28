@@ -7,6 +7,7 @@ import { DepartmentsSection } from "./NewLandingPage/DepartmentsSection";
 // import { WhyUsSection } from "./NewLandingPage/WhyUsSection";
 import { ContactSection } from "./NewLandingPage/ContactSection";
 import { Footer } from "./NewLandingPage/Footer";
+import { PartnersSection } from "./NewLandingPage/PartnersSection";
 
 const LandingPage: React.FC = () => {
   return (
@@ -16,7 +17,9 @@ const LandingPage: React.FC = () => {
         <HeroSlider />
         <AboutSection />
         <DepartmentsSection />
+        <PartnersSection />
         {/* <GallerySection /> */}
+
         {/* <MapSection /> */}
         {/* <WhyUsSection /> */}
         <ContactSection />

@@ -62,12 +62,12 @@ export function Footer() {
                 <button
                   onClick={() =>
                     document
-                      .getElementById("map")
+                      .getElementById("partners")
                       ?.scrollIntoView({ behavior: "smooth" })
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  موقعنا
+                  شركاءالنجاح
                 </button>
               </li>
               <li>

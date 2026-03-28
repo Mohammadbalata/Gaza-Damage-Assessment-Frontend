@@ -1,26 +1,28 @@
-import { useState } from 'react';
-import { Phone, Mail, MessageSquare, Send, User } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useState } from "react";
+import { Phone, Mail, MessageSquare, Send, User } from "lucide-react";
+import { motion } from "motion/react";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // في التطبيق الحقيقي، سيتم إرسال البيانات إلى الخادم
-    alert('شكراً لتواصلك معنا! سنرد عليك في أقرب وقت ممكن.');
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    alert("شكراً لتواصلك معنا! سنرد عليك في أقرب وقت ممكن.");
+    setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -51,7 +53,9 @@ export function ContactSection() {
             className="space-y-6"
           >
             <div>
-              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">معلومات التواصل</h3>
+              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
+                معلومات التواصل
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                   <div className="bg-[#f5a623] p-3 rounded-lg">
@@ -59,7 +63,10 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">الهاتف</p>
-                    <a href="tel:050-123-4567" className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]">
+                    <a
+                      href="tel:050-123-4567"
+                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
+                    >
                       050-123-4567
                     </a>
                   </div>
@@ -71,7 +78,10 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">البريد الإلكتروني</p>
-                    <a href="mailto:info@example.com" className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]">
+                    <a
+                      href="mailto:info@example.com"
+                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
+                    >
                       info@example.com
                     </a>
                   </div>
@@ -83,7 +93,10 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">واتساب</p>
-                    <a href="https://wa.me/966501234567" className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]">
+                    <a
+                      href="https://wa.me/966501234567"
+                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
+                    >
                       966+ 50-123-4567
                     </a>
                   </div>
@@ -113,12 +126,20 @@ export function ContactSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
-              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">أرسل رسالة</h3>
-              
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-8 rounded-lg shadow-lg"
+            >
+              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
+                أرسل رسالة
+              </h3>
+
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     الاسم
                   </label>
                   <div className="relative">
@@ -137,7 +158,10 @@ export function ContactSection() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     البريد الإلكتروني
                   </label>
                   <div className="relative">
@@ -156,7 +180,10 @@ export function ContactSection() {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     رقم الهاتف
                   </label>
                   <div className="relative">
@@ -175,7 +202,10 @@ export function ContactSection() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     الرسالة
                   </label>
                   <textarea

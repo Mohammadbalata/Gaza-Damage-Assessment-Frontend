@@ -57,10 +57,10 @@ export function Header() {
             </button>
 
             <button
-              onClick={() => scrollToSection("map")}
+              onClick={() => scrollToSection("partners")}
               className="hover:text-green-600 transition-colors"
             >
-              موقعنا
+              شركاء النجاح
             </button>
 
             <button
@@ -122,11 +122,11 @@ export function Header() {
               onClick={() => scrollToSection("departments")}
               className="block w-full text-right px-6 py-3 hover:text-green-600"
             >
-              خريطة الإعمار
+              أقسام المنصة
             </button>
 
             <button
-              onClick={() => scrollToSection("gallery")}
+              onClick={() => scrollToSection("partners")}
               className="block w-full text-right px-6 py-3 hover:text-green-600"
             >
               شركاء النجاح
