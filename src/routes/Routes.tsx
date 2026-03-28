@@ -83,6 +83,8 @@ export const routes = [
       },
     ],
   },
+  { path: ROUTES.ADMIN_LOCATION_MAP, element: <PreviousLocationMapPage /> },
+
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
