@@ -155,7 +155,7 @@ const SettingsPage: React.FC = () => {
                   borderRadius: "10px",
                 }}
                 language={language}
-                to={ROUTES.CITIZEN_DASHBOARD}
+                to={ROUTES.Service_Center}
               />
             </Stack>
           </Paper>

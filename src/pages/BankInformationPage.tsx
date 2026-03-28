@@ -75,7 +75,7 @@ const BankInformationPage = () => {
         <Button
           variant="outlined"
           size="large"
-          onClick={() => navigate(ROUTES.CITIZEN_DASHBOARD)}
+          onClick={() => navigate(ROUTES.Service_Center)}
           startIcon={
             <ArrowBack
               sx={{

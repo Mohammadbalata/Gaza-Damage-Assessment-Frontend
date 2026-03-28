@@ -73,9 +73,10 @@ const ApplicationCard = ({
   const status = application.status?.toUpperCase() || "SUBMITTED";
   const isSubmitted = status === "SUBMITTED";
 
-
   const getNeighborhoodName = (id: string) => {
-    const neighborhood = neighborhoods.find((n) => n.id.toString() === id.toString());
+    const neighborhood = neighborhoods.find(
+      (n) => n.id.toString() === id.toString(),
+    );
     if (!neighborhood) return id;
     return language === "ar" ? neighborhood.name : neighborhood.name_en;
   };
@@ -122,7 +123,7 @@ const ApplicationCard = ({
             transform: "translateY(-4px)",
             boxShadow: `0 12px 24px -10px ${alpha(
               theme.palette.primary.main,
-              0.15
+              0.15,
             )}`,
             borderColor: "primary.main",
             "& .card-header-bg": {
@@ -234,7 +235,7 @@ const ApplicationCard = ({
                   color="text.primary"
                 >
                   {new Date(application.created_at).toLocaleDateString(
-                    language === "ar" ? "ar-EG" : "en-US"
+                    language === "ar" ? "ar-EG" : "en-US",
                   )}
                 </Typography>
               </Typography>
@@ -266,7 +267,10 @@ const ApplicationCard = ({
                   }}
                 >
                   {application?.neighborhood_id && (
-                    <span> {getNeighborhoodName(application?.neighborhood_id)}</span>
+                    <span>
+                      {" "}
+                      {getNeighborhoodName(application?.neighborhood_id)}
+                    </span>
                   )}
                   {buildingData?.landmark && (
                     <span> - {buildingData?.landmark}</span>
@@ -339,64 +343,94 @@ const ApplicationCard = ({
               <PdfIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          
-          {application.complaint && application.complaint.status?.toUpperCase().replace("-", "_") !== "CLOSED" && (
-            <>
-              <Tooltip title={t("common.actions")}>
-                <IconButton
-                  onClick={handleMenuOpen}
-                  sx={{
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    color: "primary.main",
-                    borderRadius: 2,
-                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                    "&:hover": {
-                      bgcolor: "primary.main",
-                      color: "white",
-                      borderColor: "primary.main",
-                    },
-                  }}
-                >
-                  <MoreIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                transformOrigin={{ vertical: "top", horizontal: language === "ar" ? "right" : "left" }}
-                anchorOrigin={{ vertical: "bottom", horizontal: language === "ar" ? "right" : "left" }}
-              >
-                <MenuItem 
-                  component={Link} 
-                  to={`/citizen/complaints/${application.complaint.id}`}
-                  onClick={handleMenuClose}
-                >
-                  <ListItemIcon>
-                    <VisibilityIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary={t("citizen.viewDetails")} />
-                </MenuItem>
-                <MenuItem 
-                  onClick={() => {
-                    handleMenuClose();
-                    onCloseComplaint(application);
-                  }}
-                  disabled={application.complaint.status?.toUpperCase().replace("-", "_") !== "RESOLVED"}
-                >
-                  <ListItemIcon>
-                    <ClosedIcon fontSize="small" color={application.complaint.status?.toUpperCase().replace("-", "_") === "RESOLVED" ? "error" : "disabled"} />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={t("complaint.close")} 
-                    secondary={application.complaint.status?.toUpperCase().replace("-", "_") !== "RESOLVED" ? t("complaint.waitingForResponse") : null}
-                  />
-                </MenuItem>
-              </Menu>
-            </>
-          )}
 
-          {(!application.complaint || ["RESOLVED", "CLOSED"].includes(application.complaint.status?.toUpperCase().replace("-", "_"))) && (
+          {application.complaint &&
+            application.complaint.status?.toUpperCase().replace("-", "_") !==
+              "CLOSED" && (
+              <>
+                <Tooltip title={t("common.actions")}>
+                  <IconButton
+                    onClick={handleMenuOpen}
+                    sx={{
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      color: "primary.main",
+                      borderRadius: 2,
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      "&:hover": {
+                        bgcolor: "primary.main",
+                        color: "white",
+                        borderColor: "primary.main",
+                      },
+                    }}
+                  >
+                    <MoreIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: language === "ar" ? "right" : "left",
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: language === "ar" ? "right" : "left",
+                  }}
+                >
+                  <MenuItem
+                    component={Link}
+                    to={`/citizen/complaints/${application.complaint.id}`}
+                    onClick={handleMenuClose}
+                  >
+                    <ListItemIcon>
+                      <VisibilityIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary={t("citizen.viewDetails")} />
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      onCloseComplaint(application);
+                    }}
+                    disabled={
+                      application.complaint.status
+                        ?.toUpperCase()
+                        .replace("-", "_") !== "RESOLVED"
+                    }
+                  >
+                    <ListItemIcon>
+                      <ClosedIcon
+                        fontSize="small"
+                        color={
+                          application.complaint.status
+                            ?.toUpperCase()
+                            .replace("-", "_") === "RESOLVED"
+                            ? "error"
+                            : "disabled"
+                        }
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t("complaint.close")}
+                      secondary={
+                        application.complaint.status
+                          ?.toUpperCase()
+                          .replace("-", "_") !== "RESOLVED"
+                          ? t("complaint.waitingForResponse")
+                          : null
+                      }
+                    />
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+
+          {(!application.complaint ||
+            ["RESOLVED", "CLOSED"].includes(
+              application.complaint.status?.toUpperCase().replace("-", "_"),
+            )) && (
             <Tooltip title={t("complaint.add")}>
               <IconButton
                 onClick={() => onAddComplaint(application)}
@@ -417,28 +451,27 @@ const ApplicationCard = ({
             </Tooltip>
           )}
 
-          {application?.latitude &&
-            application?.longitude && (
-              <Tooltip title={t("map.showonmap")}>
-                <IconButton
-                  component={Link}
-                  to={`/admin/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
-                  sx={{
-                    bgcolor: alpha(theme.palette.info.main, 0.05),
-                    color: "info.main",
-                    borderRadius: 2,
-                    border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-                    "&:hover": {
-                      bgcolor: "info.main",
-                      color: "white",
-                      borderColor: "info.main",
-                    },
-                  }}
-                >
-                  <MapIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
+          {application?.latitude && application?.longitude && (
+            <Tooltip title={t("map.showonmap")}>
+              <IconButton
+                component={Link}
+                to={`/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
+                sx={{
+                  bgcolor: alpha(theme.palette.info.main, 0.05),
+                  color: "info.main",
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+                  "&:hover": {
+                    bgcolor: "info.main",
+                    color: "white",
+                    borderColor: "info.main",
+                  },
+                }}
+              >
+                <MapIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       </Card>
     </Fade>

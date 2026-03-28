@@ -28,8 +28,6 @@ import { axiosClient } from "../api/baseUrl";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../hooks/redux";
 
-
-
 interface StatusHistory {
   status: string;
   timestamp: string;
@@ -45,8 +43,9 @@ const TrackStatusPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-
+  const params = new URLSearchParams(location.search);
+  const track = params.get("track");
+  console.log("track", track);
 
   const trackingNumber = useAppSelector((state) => state.auth.trackingNumber);
 
@@ -56,7 +55,7 @@ const TrackStatusPage: React.FC = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await axiosClient.get(`/track/${trackingNumber}`);
+        const res = await axiosClient.get(`/track/${track}`);
 
         if (res) {
           const app = res.data.damage_report;

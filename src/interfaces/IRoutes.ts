@@ -1,6 +1,7 @@
 export interface IRoutes {
   LAYOUT: string;
   HOME: string;
+  Service_Center: string;
   SIGNIN: string;
   SIGNUP: string;
   VERIFICATION_QUESTIONS: string;

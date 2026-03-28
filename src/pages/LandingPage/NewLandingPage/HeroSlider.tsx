@@ -45,7 +45,7 @@ export function HeroSlider() {
         dispatch(setTrackingNumber(app.report_code));
         localStorage.setItem("trackingNumber", app.report_code);
         console.log(app);
-        navigate(ROUTES.TRACK_STATUS);
+        navigate(`${ROUTES.TRACK_STATUS}?track=${app.report_code}`); // Navigate to the tracking status page with the tracking number as a query parameter
       }
     } catch (err: any) {
       if (err.response?.status === 404) {
@@ -253,7 +253,10 @@ export function HeroSlider() {
                   </motion.p>
                 )}
               </div>
-              <div id="system-details" className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar ">
+              <div
+                id="system-details"
+                className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar "
+              >
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Home className="w-5 h-5 " />
 

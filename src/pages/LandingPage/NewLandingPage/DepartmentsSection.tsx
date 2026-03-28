@@ -31,7 +31,7 @@ export function DepartmentsSection() {
       titleKey: "landing.cards.services",
       icon: <PeopleIcon sx={{ fontSize: 50, color: "white" }} />,
       bgColor: "#d32f2f", // Red
-      route: "/public-services",
+      route: ROUTES.Service_Center,
     },
     {
       id: "emergency",
@@ -61,7 +61,10 @@ export function DepartmentsSection() {
     }
   };
   return (
-    <section id="departments" className="py-20 bg-[#d7d8e2]  text-[#1e3a5f] scroll-mt-24 overflow-hidden">
+    <section
+      id="departments"
+      className="py-20 bg-[#d7d8e2]  text-[#1e3a5f] scroll-mt-24 overflow-hidden"
+    >
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -77,6 +80,16 @@ export function DepartmentsSection() {
           </p>
         </motion.div>
         <div className="grid grid-cols-[300px] sm:grid-cols-[250px_250px] md:grid-cols-[300px_300px] justify-center   lg:grid-cols-4  gap-6 lg:gap-y-14  ">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 4 * 0.1 }}
+            className="sm:col-span-2 lg:col-span-4"
+          >
+            <DamageAssessmentSection />
+          </motion.div>
+
           {cards.map((card, index) => (
             <motion.div
               key={card.id}
@@ -144,15 +157,6 @@ export function DepartmentsSection() {
               </Paper>
             </motion.div>
           ))}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 4 * 0.1 }}
-            className="sm:col-span-2 lg:col-span-4"
-          >
-            <DamageAssessmentSection />
-          </motion.div>
         </div>
       </div>
     </section>
