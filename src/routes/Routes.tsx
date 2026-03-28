@@ -12,7 +12,7 @@ import CitizenDashboard from "../pages/CitizenDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
 import ChangePasswordPage from "../pages/Settings/ChangePasswordPage";
-import MyApplications from "../pages/MyApplications"; 
+import MyApplications from "../pages/MyApplications";
 import CitizenForgotPasswordPage from "../pages/Citizen/CitizenForgotPasswordPage";
 import CitizenResetPasswordPage from "../pages/Citizen/CitizenResetPasswordPage";
 import BankInformationPage from "../pages/BankInformationPage";
@@ -29,10 +29,10 @@ import {
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
 
-
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
   HOME: "/home",
+  DEPARTMENT_SECTION: "/departments",
   SIGNIN: "/auth/signIn",
   SIGNUP: "/auth/signUp",
   VERIFICATION_QUESTIONS: "/verification-questions",
@@ -73,7 +73,14 @@ export const routes = [
     element: <Layout />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: ROUTES.HOME, element: <HomePage /> },
+      {
+        path: ROUTES.HOME,
+        element: (
+          <ProtectedRoutes>
+            <HomePage />
+          </ProtectedRoutes>
+        ),
+      },
     ],
   },
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
@@ -111,6 +118,7 @@ export const routes = [
       </ProtectedRoutes>
     ),
   },
+
   {
     path: ROUTES.SETTINGS,
     element: (
@@ -158,7 +166,6 @@ export const routes = [
     ),
   },
 
-             
   // Citizen Password Routes
   {
     path: ROUTES.CITIZEN_FORGOT_PASSWORD,

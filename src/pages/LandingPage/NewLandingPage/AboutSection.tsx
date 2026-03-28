@@ -1,27 +1,27 @@
-import { MapPin, Shield, Users, TrendingUp } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ClipboardList, ShieldCheck, Users, BarChart2 } from "lucide-react";
+import { motion } from "motion/react";
 
 const features = [
   {
-    icon: MapPin,
-    title: 'موقع واحد',
-    description: 'جميع المعدات في مكان واحد'
+    icon: ClipboardList,
+    title: "تسجيل الأضرار",
+    description: "توثيق شامل لجميع الأضرار في مكان واحد",
   },
   {
-    icon: Shield,
-    title: 'ضمان الجودة',
-    description: 'معدات موثوقة ومعتمدة'
+    icon: ShieldCheck,
+    title: "دقة وموثوقية",
+    description: "بيانات موثّقة ومعتمدة رسمياً",
   },
   {
     icon: Users,
-    title: 'خدمة عملاء',
-    description: 'فريق متخصص لخدمتكم'
+    title: "دعم المتضررين",
+    description: "فريق متخصص لمساعدتكم في كل خطوة",
   },
   {
-    icon: TrendingUp,
-    title: 'تنظيم وتنوع',
-    description: 'منتجات منظمة ومتنوعة'
-  }
+    icon: BarChart2,
+    title: "تقارير وإحصاءات",
+    description: "تحليل شامل لحجم الأضرار المرصودة",
+  },
 ];
 
 export function AboutSection() {
@@ -35,11 +35,15 @@ export function AboutSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">نبذة عن المنصة</h2>
-          <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-8"></div>
+          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">
+            نبذة عن المنصة
+          </h2>
+          <div className="w-20 h-1 bg-[#4d9a33] mx-auto mb-8"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            يضم مركز المعدات الصناعية فعلياً محلات متخصصة تحت سقف واحد يضم تشكيلة من أي احتياج، 
-            بيت تجميعي في تخصص واحد من مكان واحد، معا نجعل المركز واحدا تلبي احتياجات القطاع الصناعي المتنوع.
+            منصة متخصصة في حصر وتوثيق الأضرار الذاتية بشكل دقيق ومنظم، تتيح
+            للمتضررين تسجيل أضرارهم بسهولة والحصول على تقارير موثّقة تُعينهم في
+            المطالبة بحقوقهم. معاً نبني سجلاً شاملاً يخدم المتضررين ويدعم جهود
+            التعافي والإعمار.
           </p>
         </motion.div>
 
@@ -55,10 +59,12 @@ export function AboutSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="text-center p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#f5a623] rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[#4d9a33] rounded-full mb-4">
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">{feature.title}</h3>
+                <h3 className="text-xl font-bold text-[#1e3a5f] mb-2">
+                  {feature.title}
+                </h3>
                 <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             );

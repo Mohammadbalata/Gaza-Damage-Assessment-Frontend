@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
@@ -12,56 +12,93 @@ import {
   CardContent,
 } from "@mui/material";
 import {
-  Login as LoginIcon,
   Search as SearchIcon,
   AdminPanelSettings as AdminIcon,
   ArrowForward,
-  HowToReg as SignUpIcon,
+  ArrowBack,
+} from "@mui/icons-material";
+import {
+  Storage as DatabaseIcon,
+  Groups as PeopleIcon,
+  Warning as EmergencyIcon,
+  Handshake as HandshakeIcon,
 } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
-// import Logo from "../../src/assets/logo.jpg";
-/**
- * Home Page - Main entry point
- * الصفحة الرئيسية - نقطة الدخول الرئيسية
- */
+import { LogOutIcon } from "lucide-react";
+import { enqueueSnackbar } from "notistack";
+import { Assignment as ClipboardIcon } from "@mui/icons-material";
+import { DashboardCard } from "./CitizenDashboard";
+
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const token = localStorage.getItem("token");
 
-
-  useEffect(() => {
-      if (token) {
-        navigate(ROUTES.CITIZEN_DASHBOARD);
-      }
-    }, [token, navigate]);
-
-  const actionCards = [
+  const dashboardCards = [
     {
-      key: "signIn",
-      title: t("common.signIn"),
-      description:
-        language === "ar"
-          ? "قم بتسجيل دخولك في موقع حصر الأضرار الذاتي باستخدام رقمك الوطني"
-          : "Sign in to the self-damage assessment portal using your National ID",
-      icon: <LoginIcon sx={{ fontSize: 32 }} />,
-      color: "primary" as const,
-      route: ROUTES.SIGNIN,
-      buttonText: t("common.signIn"),
+      key: "damage-assessment",
+      title: "landing.damageAssessment",
+      description: t("citizen.addDamageRequestDesc"),
+      icon: <ClipboardIcon sx={{ fontSize: 40 }} />,
+      color: "success",
+      route: ROUTES.CITIZEN_DASHBOARD,
     },
     {
-      key: "signUp",
-      title: t("auth.signUp"),
-      description:
-        language === "ar"
-          ? "قم بتسجيل حساب جديد في موقع حصر الأضرار الذاتي باستخدام رقمك الوطني"
-          : "Sign up to the self-damage assessment portal using your National ID",
-      icon: <SignUpIcon sx={{ fontSize: 32 }} />,
-      color: "primary" as const,
-      route: ROUTES.SIGNUP,
-      buttonText: t("auth.signUp"),
+      key: "central-database",
+      title: "landing.cards.database",
+      description: t("citizen.centralDatabaseDesc"),
+      icon: <DatabaseIcon sx={{ fontSize: 40 }} />,
+      color: "primary",
+      route: "/central-database",
+    },
+    {
+      key: "public-services",
+      title: "landing.cards.services",
+      description: t("citizen.publicServicesDesc"),
+      icon: <PeopleIcon sx={{ fontSize: 40 }} />,
+      color: "info",
+      route: "/public-services",
+    },
+    {
+      key: "emergency",
+      title: "landing.cards.emergency",
+      description: t("citizen.emergencyManagementDesc"),
+      icon: <EmergencyIcon sx={{ fontSize: 40 }} />,
+      color: "warning",
+      route: "/emergency-management",
+    },
+    {
+      key: "support",
+      title: "landing.cards.support",
+      description: t("citizen.supportNetworkDesc"),
+      icon: <HandshakeIcon sx={{ fontSize: 40 }} />,
+      color: "success",
+      route: "/support-network",
     },
   ];
+
+  const handleCardClick = (route: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate(ROUTES.SIGNIN);
+    } else {
+      navigate(route);
+    }
+  };
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("citizenInfo");
+    localStorage.removeItem("citizen_user");
+
+    // Navigate to sign in page
+    navigate(`/`);
+
+    // Show success notification
+    enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
@@ -80,6 +117,7 @@ const HomePage: React.FC = () => {
         }}
       >
         {/* Decorative circles */}
+
         <Box
           sx={{
             position: "absolute",
@@ -132,7 +170,11 @@ const HomePage: React.FC = () => {
               mb: 1,
             }}
           >
-            <img src='https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png' alt="Logo" />
+            <img
+              src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png"
+              alt="Logo"
+              style={{ width: 90, height: 90 }}
+            />
           </Box>
 
           {/* Title */}
@@ -171,122 +213,15 @@ const HomePage: React.FC = () => {
           mb: 4,
         }}
       >
-        {actionCards.map((card) => (
-          <Card
+        {dashboardCards.map((card) => (
+          <DashboardCard
             key={card.key}
-            onClick={() => navigate(card.route)}
-            sx={{
-              cursor: "pointer",
-              height: "100%",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              border: "1px solid",
-              borderColor: "divider",
-              position: "relative",
-              overflow: "hidden",
-              "&:hover": {
-                boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
-                transform: "translateY(-4px)",
-                "& .card-arrow": {
-                  transform:
-                    language === "en" ? "translateX(4px)" : "translateX(-4px)",
-                },
-              },
+            card={{
+              ...card,
+              onClick: () => handleCardClick(card.route),
             }}
-          >
-            {/* Decorative corner */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                right: language === "ar" ? "auto" : 0,
-                left: language === "ar" ? 0 : "auto",
-                width: 100,
-                height: 100,
-                background:
-                  card.color === "primary"
-                    ? "linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, transparent 100%)"
-                    : "linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, transparent 100%)",
-                borderRadius: language === "ar" ? "0 0 100% 0" : "0 0 0 100%",
-              }}
-            />
-
-            <CardContent sx={{ p: 3, position: "relative" }}>
-              <Stack spacing={2}>
-                {/* Icon */}
-                <Box
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    bgcolor:
-                      card.color === "primary"
-                        ? "rgba(25, 118, 210, 0.1)"
-                        : "rgba(46, 125, 50, 0.1)",
-                    color:
-                      card.color === "primary"
-                        ? "primary.main"
-                        : "success.main",
-                    display: "inline-flex",
-                    width: "fit-content",
-                  }}
-                >
-                  {card.icon}
-                </Box>
-
-                {/* Title */}
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  {card.title}
-                </Typography>
-
-                {/* Description */}
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ lineHeight: 1.7 }}
-                >
-                  {card.description}
-                </Typography>
-
-                {/* Button */}
-                <Button
-                  variant="contained"
-                  color={card.color}
-                  size="large"
-                  fullWidth
-                  endIcon={
-                    <ArrowForward
-                      className="card-arrow"
-                      sx={{
-                        color: "white",
-                        mr: 1,
-                        transition: "transform 0.2s ease",
-                        transform:
-                          language === "ar" ? "rotate(180deg)" : "none",
-                      }}
-                    />
-                  }
-                  sx={{
-                    color: "white",
-                    mt: 1,
-                    py: 1.5,
-                    borderRadius: 2,
-                    fontWeight: 600,
-                    boxShadow:
-                      card.color === "primary"
-                        ? "0 4px 12px rgba(25, 118, 210, 0.25)"
-                        : "0 4px 12px rgba(46, 125, 50, 0.25)",
-                    "&:hover": {
-                      boxShadow:
-                        card.color === "primary"
-                          ? "0 6px 16px rgba(25, 118, 210, 0.35)"
-                          : "0 6px 16px rgba(46, 125, 50, 0.35)",
-                    },
-                  }}
-                >
-                  {card.buttonText}
-                </Button>
-              </Stack>
-            </CardContent>
-          </Card>
+            language={language}
+          />
         ))}
       </Box>
       {/* Track Application Status */}
@@ -448,6 +383,65 @@ const HomePage: React.FC = () => {
           </Stack>
         </CardContent>
       </Card>
+
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mt: 4,
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "error.light",
+          bgcolor: "error.50",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            borderColor: "error.main",
+            bgcolor: "rgba(244, 67, 54, 0.08)",
+          },
+        }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={2}
+        >
+          <Box>
+            <Typography
+              variant="h6"
+              color="error.dark"
+              sx={{ fontWeight: 600 }}
+            >
+              {t("common.logout")}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {language === "ar"
+                ? "تسجيل الخروج من حسابك بشكل آمن"
+                : "Securely sign out of your account"}
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="error"
+            size="large"
+            startIcon={<LogOutIcon style={{ marginLeft: "10px" }} />}
+            onClick={handleLogout}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              borderRadius: 2,
+              boxShadow: "0 4px 12px rgba(244, 67, 54, 0.3)",
+              "&:hover": {
+                boxShadow: "0 6px 16px rgba(244, 67, 54, 0.4)",
+                transform: "translateY(-2px)",
+              },
+            }}
+          >
+            {t("common.logout")}
+          </Button>
+        </Stack>
+      </Paper>
 
       {/* Footer */}
       <Typography
