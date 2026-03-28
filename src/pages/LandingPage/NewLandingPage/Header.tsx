@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { LogOut, Menu, X } from "lucide-react";
+import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../routes/Routes";
 import { enqueueSnackbar } from "notistack";
 import { useLanguage } from "../../../contexts/LanguageContext";
-
+import { Avatar, Paper, Stack, Typography } from "@mui/material";
+import { useAppSelector } from "../../../hooks/redux";
+import { Person as PersonIcon } from "@mui/icons-material";
 export function Header() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
+  const authState: any = useAppSelector((state) => state.auth);
+  const citizenInfo = authState.citizenInfo;
+  const citizenName = citizenInfo
+    ? `${citizenInfo?.full_name}`.split(" ")[0]
+    : citizenInfo.national_id;
+
+  const avatarUrl = citizenInfo?.avatar_url || null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
@@ -32,6 +42,7 @@ export function Header() {
     // Show success notification
     enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
   };
+
   return (
     <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
       <div className="mx-auto max-w-[1300px] px-4 lg:px-2 ">
@@ -44,6 +55,91 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-black font-medium">
+            {token && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  background: "inherit",
+                  color: "white",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Background Pattern */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: -50,
+                    right: language === "ar" ? "auto" : -50,
+                    left: language === "ar" ? -50 : "auto",
+                    width: 200,
+                    height: 200,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.1)",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: -30,
+                    right: language === "ar" ? -30 : "auto",
+                    left: language === "ar" ? "auto" : -30,
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.08)",
+                  }}
+                />
+
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", md: "center" }}
+                  spacing={2}
+                  sx={{ position: "relative", zIndex: 1 }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    useFlexGap={true}
+                  >
+                    <Avatar
+                      src={avatarUrl || undefined}
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        border: "2px solid rgba(255,255,255,0.3)",
+                        "& img": {
+                          objectFit: "cover",
+                        },
+                      }}
+                    >
+                      {/* Fallback when no avatar */}
+                      <PersonIcon sx={{ fontSize: 36 }} />
+                    </Avatar>
+                    <Box sx={{ display: "flex", gap: 1, color: "black" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        {t("citizen.welcome")}
+                      </Typography>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        {citizenName}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Paper>
+            )}
+
             <button
               onClick={() => {
                 if (!token) {
@@ -56,7 +152,6 @@ export function Header() {
             >
               الرئيسية
             </button>
-
             {!token && (
               <>
                 <button
@@ -85,7 +180,6 @@ export function Header() {
                 </button>
               </>
             )}
-
             {/* Auth Buttons */}
             <div className="flex items-center gap-3 ml-4 w-1/4 xl:w-auto">
               {token ? (
@@ -136,8 +230,93 @@ export function Header() {
         </div>
 
         {/* Mobile Navigation */}
+
         {isMenuOpen && (
           <nav className="lg:hidden bg-[#ffffff] text-black rounded-xl mt-2 py-4 shadow-lg">
+            {token && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  background: "inherit",
+                  color: "white",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Background Pattern */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: -50,
+                    right: language === "ar" ? "auto" : -50,
+                    left: language === "ar" ? -50 : "auto",
+                    width: 200,
+                    height: 200,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.1)",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: -30,
+                    right: language === "ar" ? -30 : "auto",
+                    left: language === "ar" ? "auto" : -30,
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.08)",
+                  }}
+                />
+
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", md: "center" }}
+                  spacing={2}
+                  sx={{ position: "relative", zIndex: 1 }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    useFlexGap={true}
+                  >
+                    <Avatar
+                      src={avatarUrl || undefined}
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        border: "2px solid rgba(255,255,255,0.3)",
+                        "& img": {
+                          objectFit: "cover",
+                        },
+                      }}
+                    >
+                      {/* Fallback when no avatar */}
+                      <PersonIcon sx={{ fontSize: 36 }} />
+                    </Avatar>
+                    <Box sx={{ display: "flex", gap: 1, color: "black" }}>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        {t("citizen.welcome")}
+                      </Typography>
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        {citizenName}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Paper>
+            )}
             <button
               onClick={() => {
                 if (!token) {

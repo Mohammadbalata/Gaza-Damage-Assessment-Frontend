@@ -146,45 +146,57 @@ const CitizenDashboard: React.FC = () => {
           sx={{ position: "relative", zIndex: 1 }}
         >
           <Stack
-            direction="row"
+            direction="column"
             spacing={2}
-            alignItems="center"
+            // alignItems="center"
             useFlexGap={true}
           >
-            <Avatar
-              src={avatarUrl || undefined}
+            <Box>
+              <Chip
+                label={t("citizen.dashboard")}
+                sx={{
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: 600,
+                  px: 1,
+                  
+                }}
+              />
+            </Box>
+            <Box
               sx={{
-                width: 64,
-                height: 64,
-                bgcolor: "rgba(255,255,255,0.2)",
-                border: "2px solid rgba(255,255,255,0.3)",
-                "& img": {
-                  objectFit: "cover",
-                },
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
               }}
             >
-              {/* Fallback when no avatar */}
-              <PersonIcon sx={{ fontSize: 36 }} />
-            </Avatar>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {t("citizen.welcome")}
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {citizenName}
-              </Typography>
+              <Avatar
+                src={avatarUrl || undefined}
+                sx={{
+                  width: 64,
+                  height: 64,
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  "& img": {
+                    objectFit: "cover",
+                  },
+                }}
+              >
+                {/* Fallback when no avatar */}
+                <PersonIcon sx={{ fontSize: 36 }} />
+              </Avatar>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {t("citizen.welcome")}
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {citizenName}
+                </Typography>
+              </Box>
             </Box>
           </Stack>
-          <Chip
-            label={t("citizen.dashboard")}
-            sx={{
-              bgcolor: "rgba(255,255,255,0.2)",
-              color: "white",
-              fontWeight: 600,
-              px: 1,
-              fontSize: "1.2rem",
-            }}
-          />
+
           <BackButton
             language={language}
             to={ROUTES.HOME}

@@ -9,38 +9,36 @@ import {
   Stack,
   Button,
   IconButton,
+  Avatar,
+  Chip,
 } from "@mui/material";
-import {
-  Storage as DatabaseIcon,
-  Groups as PeopleIcon,
-  Warning as EmergencyIcon,
-  Handshake as HandshakeIcon,
-  ArrowForward,
-} from "@mui/icons-material";
+  import {
+    Storage as DatabaseIcon,
+    Groups as PeopleIcon,
+    Warning as EmergencyIcon,
+    Handshake as HandshakeIcon,
+    ArrowForward,
+    Person as PersonIcon,
+  } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
 import { LogOutIcon } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
 import DamageAssessmentSection from "../components/landing/DamageAssessmentSection";
 import { motion } from "motion/react";
 import { Header } from "./LandingPage/NewLandingPage/Header";
+import BackButton from "../components/Shared/BackButton";
+import { useAppSelector } from "../hooks/redux";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const authState: any = useAppSelector((state) => state.auth);
+  const citizenInfo = authState.citizenInfo;
+  const citizenName = citizenInfo
+    ? `${citizenInfo?.full_name}`.split(" ")[0]
+    : citizenInfo.national_id;
 
-  const handleLogout = () => {
-    // Clear localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("citizenInfo");
-    localStorage.removeItem("citizen_user");
-
-    // Navigate to sign in page
-    navigate(`/`);
-
-    // Show success notification
-    enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
-  };
+  const avatarUrl = citizenInfo?.avatar_url || null;
 
   const cards = [
     {

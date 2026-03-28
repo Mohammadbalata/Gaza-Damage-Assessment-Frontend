@@ -8,16 +8,20 @@ import {
   Typography,
   Stack,
   Paper,
+  Avatar,
+  Chip,
 } from "@mui/material";
 import {
   AccountBalance as BankIcon,
   ArrowBack,
   Settings,
-  Groups as PeopleIcon,
+  Person as PersonIcon,
 } from "@mui/icons-material";
+
 import { useLanguage } from "../../contexts/LanguageContext";
 import { ROUTES } from "../../routes/Routes";
 import BackButton from "../../components/Shared/BackButton";
+import { useAppSelector } from "../../hooks/redux";
 
 /**
  * Citizen Dashboard Page
@@ -26,7 +30,13 @@ import BackButton from "../../components/Shared/BackButton";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const authState: any = useAppSelector((state) => state.auth);
+  const citizenInfo = authState.citizenInfo;
+  const citizenName = citizenInfo
+    ? `${citizenInfo?.full_name}`.split(" ")[0]
+    : citizenInfo.national_id;
 
+  const avatarUrl = citizenInfo?.avatar_url || null;
   interface DashboardCardConfig {
     key: string;
     title: string;
@@ -104,18 +114,56 @@ const CitizenDashboard: React.FC = () => {
           sx={{ position: "relative", zIndex: 1 }}
         >
           <Stack
-            direction="row"
+            direction="column"
             spacing={2}
-            alignItems="center"
+            // alignItems="center"
             useFlexGap={true}
           >
-            <PeopleIcon sx={{ fontSize: 50, color: "white" }} />
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                مركز الخدمات
-              </Typography>
+            <Box>
+              <Chip
+                label={"مركز الخدمات"}
+                sx={{
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  fontWeight: 600,
+                  px: 1,
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Avatar
+                src={avatarUrl || undefined}
+                sx={{
+                  width: 64,
+                  height: 64,
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  "& img": {
+                    objectFit: "cover",
+                  },
+                }}
+              >
+                {/* Fallback when no avatar */}
+                <PersonIcon sx={{ fontSize: 36 }} />
+              </Avatar>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {t("citizen.welcome")}
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {citizenName}
+                </Typography>
+              </Box>
             </Box>
           </Stack>
+
           <BackButton
             language={language}
             to={ROUTES.HOME}
