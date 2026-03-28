@@ -80,7 +80,7 @@ const CitizenDashboard: React.FC = () => {
   const dashboardCards: DashboardCardConfig[] = [
     {
       key: "addRequest",
-      title: t("citizen.addDamageRequest"),
+      title: "citizen.addDamageRequest",
       description: t("citizen.addDamageRequestDesc"),
       icon: <AddIcon sx={{ fontSize: 40 }} />,
       color: "primary",
@@ -88,7 +88,7 @@ const CitizenDashboard: React.FC = () => {
     },
     {
       key: "myRequests",
-      title: t("citizen.myRequests"),
+      title: "citizen.myRequests",
       description: t("citizen.myRequestsDesc"),
       icon: <ListIcon sx={{ fontSize: 40 }} />,
       color: "info",
@@ -96,7 +96,7 @@ const CitizenDashboard: React.FC = () => {
     },
     {
       key: "bankInfo",
-      title: t("citizen.bankInfo"),
+      title: "citizen.bankInfo",
       description: t("citizen.bankInfoDesc"),
       icon: <BankIcon sx={{ fontSize: 40 }} />,
       color: "success",
@@ -104,7 +104,7 @@ const CitizenDashboard: React.FC = () => {
     },
     {
       key: "electronicServices",
-      title: t("citizen.electronicServices"),
+      title: "citizen.electronicServices",
       description: t("citizen.electronicServicesDesc"),
       icon: <Settings sx={{ fontSize: 40 }} />,
       color: "warning",
@@ -294,7 +294,10 @@ interface DashboardCardProps {
   language: string;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ card, language }) => {
+export const DashboardCard: React.FC<DashboardCardProps> = ({
+  card,
+  language,
+}) => {
   const { t } = useLanguage();
 
   const colorMap = {
@@ -396,7 +399,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ card, language }) => {
                 color: "text.primary",
               }}
             >
-              {card.title}
+              {t(card.title)}
             </Typography>
             <Typography
               variant="body2"

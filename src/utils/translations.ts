@@ -579,8 +579,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.dashboard": "Citizen Dashboard",
     "citizen.welcome": "Welcome",
     "citizen.addDamageRequest": "Add New Damage Application",
-    "citizen.addDamageRequestDesc":
-      "Register a new damage assessment application",
     "citizen.myRequests": "My Applications",
     "citizen.myRequestsDesc": "View the status of your submitted applications",
     "citizen.noApplications": "You have no applications yet",
@@ -610,12 +608,24 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.updateLocationError": "Failed to update location",
     "citizen.selectNewLocation": "Select New Location",
 
+    "citizen.addDamageRequestDesc":
+      "Register a new damage assessment application",
+    "citizen.centralDatabaseDesc":
+      "Going to the central database to access public information",
+    "citizen.publicServicesDesc":
+      "Access to public services available to citizens",
+    "citizen.emergencyManagementDesc":
+      "Access to emergency management and reporting of urgent cases",
+    "citizen.supportNetworkDesc":
+      "Connect with the support network for help and guidance.",
+
     // Complaints
     "complaint.add": "Add Complaint",
     "complaint.title": "Complaints",
     "complaint.myComplaints": "My Complaints",
     "complaint.description": "Complaint Description",
-    "complaint.descriptionPlaceholder": "Please describe your complaint in detail...",
+    "complaint.descriptionPlaceholder":
+      "Please describe your complaint in detail...",
     "complaint.submit": "Submit Complaint",
     "complaint.success": "Complaint submitted successfully",
     "complaint.error": "Failed to submit complaint",
@@ -1252,7 +1262,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.dashboard": "لوحة تحكم المواطن",
     "citizen.welcome": "مرحباً",
     "citizen.addDamageRequest": "إضافة طلب ضرر جديد",
-    "citizen.addDamageRequestDesc": "تسجيل تقييم أضرار جديد للممتلكات",
     "citizen.myRequests": "طلباتي",
     "citizen.myRequestsDesc": "عرض حالة الطلبات المقدمة",
     "citizen.noApplications": "ليس لديك أي طلبات حتى الآن",
@@ -1282,6 +1291,16 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.updateLocationSuccess": "تم تحديث الموقع بنجاح",
     "citizen.updateLocationError": "فشل تحديث الموقع",
     "citizen.selectNewLocation": "اختر الموقع الجديد",
+
+    "citizen.addDamageRequestDesc": "تسجيل تقييم أضرار جديد للممتلكات",
+    "citizen.centralDatabaseDesc":
+      "الذهاب إلى قاعدة البيانات المركزية للوصول إلى المعلومات العامة",
+    "citizen.publicServicesDesc":
+      "الاطلاع على الخدمات العامة المتاحة للمواطنين",
+    "citizen.emergencyManagementDesc":
+      "الوصول إلى إدارة الطوارئ والإبلاغ عن الحالات العاجلة",
+    "citizen.supportNetworkDesc":
+      "التواصل مع شبكة الدعم للحصول على المساعدة والتوجيه",
 
     // Reset Password
     "auth.resetPasswordTitle": "إعادة تعيين كلمة المرور",
