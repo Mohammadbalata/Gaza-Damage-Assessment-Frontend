@@ -90,7 +90,7 @@ const DamageAssessmentSection: React.FC = () => {
                 }}
               >
                 {/* استخدم token اللي فوق */}
-                {token ? "الذهاب الى لوحة التحكم" : t("auth.login")}
+                {token ? "الذهاب الى لوحة التحكم" : t("landing.login")}
               </Button>
             </Box>
 

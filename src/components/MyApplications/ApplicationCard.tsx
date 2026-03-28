@@ -32,8 +32,7 @@ import {
 import { MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { axiosClient } from "../../api/baseUrl";
+import { useState } from "react";
 
 export interface ApplicationCardProps {
   application: any;
@@ -41,6 +40,7 @@ export interface ApplicationCardProps {
   onDownloadPdf: (app: any) => void;
   onAddComplaint: (app: any) => void;
   onCloseComplaint: (app: any) => void;
+  neighborhoods?: any[];
   index?: number; // For staggered animation
 }
 
@@ -50,11 +50,11 @@ const ApplicationCard = ({
   onDownloadPdf,
   onAddComplaint,
   onCloseComplaint,
+  neighborhoods = [],
   index = 0,
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
-  const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -74,18 +74,8 @@ const ApplicationCard = ({
   const isSubmitted = status === "SUBMITTED";
 
 
-   useEffect(() => {
-      axiosClient
-      .get(`/neighborhoods`)
-        .then((res:any) => {
-          setNeighborhoodLocations(res.data.neighborhoods);
-        })
-        .catch((error:any) => {
-          console.log(error);
-        });
-    }, []);
   const getNeighborhoodName = (id: string) => {
-    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === id.toString());
+    const neighborhood = neighborhoods.find((n) => n.id.toString() === id.toString());
     if (!neighborhood) return id;
     return language === "ar" ? neighborhood.name : neighborhood.name_en;
   };
@@ -350,7 +340,7 @@ const ApplicationCard = ({
             </IconButton>
           </Tooltip>
           
-          {application.complaint ? (
+          {application.complaint && application.complaint.status?.toUpperCase().replace("-", "_") !== "CLOSED" && (
             <>
               <Tooltip title={t("common.actions")}>
                 <IconButton
@@ -392,19 +382,21 @@ const ApplicationCard = ({
                     handleMenuClose();
                     onCloseComplaint(application);
                   }}
-                  disabled={!application.complaint.response}
+                  disabled={application.complaint.status?.toUpperCase().replace("-", "_") !== "RESOLVED"}
                 >
                   <ListItemIcon>
-                    <ClosedIcon fontSize="small" color={application.complaint.response ? "error" : "disabled"} />
+                    <ClosedIcon fontSize="small" color={application.complaint.status?.toUpperCase().replace("-", "_") === "RESOLVED" ? "error" : "disabled"} />
                   </ListItemIcon>
                   <ListItemText 
                     primary={t("complaint.close")} 
-                    secondary={!application.complaint.response ? t("complaint.waitingForResponse") : null}
+                    secondary={application.complaint.status?.toUpperCase().replace("-", "_") !== "RESOLVED" ? t("complaint.waitingForResponse") : null}
                   />
                 </MenuItem>
               </Menu>
             </>
-          ) : (
+          )}
+
+          {(!application.complaint || ["RESOLVED", "CLOSED"].includes(application.complaint.status?.toUpperCase().replace("-", "_"))) && (
             <Tooltip title={t("complaint.add")}>
               <IconButton
                 onClick={() => onAddComplaint(application)}

@@ -87,7 +87,7 @@ export function HeroSlider() {
   return (
     <section
       id="hero"
-      className="relative h-[600px] md:h-[700px] overflow-hidden"
+      className="relative h-[600px] md:h-[700px] overflow-hidden scroll-mt-24"
     >
       <AnimatePresence mode="wait">
         <motion.div

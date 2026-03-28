@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 
 export function MapSection() {
   return (
-    <section id="map" className="py-20 bg-white">
+    <section id="map" className="py-20 bg-white scroll-mt-24">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

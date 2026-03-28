@@ -14,6 +14,8 @@ import {
   Card,
   CardContent,
   Button,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import {
   Feedback as ComplaintIcon,
@@ -34,6 +36,7 @@ const MyComplaintsPage = () => {
   const theme = useTheme();
   const [complaints, setComplaints] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("ALL");
 
   useEffect(() => {
     axiosClient
@@ -55,17 +58,24 @@ const MyComplaintsPage = () => {
   }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
+    switch (status.toUpperCase().replace("-", "_")) {
       case "PENDING":
         return "warning";
-      case "RECEIVED":
+      case "UNDER_REVIEW":
         return "info";
+      case "RESOLVED":
+        return "success";
       case "CLOSED":
         return "default";
       default:
         return "primary";
     }
   };
+
+  const filteredComplaints = complaints.filter((c) => {
+    if (filter === "ALL") return true;
+    return c.status?.toUpperCase().replace("-", "_") === filter;
+  });
 
   if (loading) {
     return (
@@ -99,7 +109,41 @@ const MyComplaintsPage = () => {
           <BackButton language={language} to={ROUTES.MY_APPLICATIONS} />
         </Stack>
 
-        {complaints.length === 0 ? (
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            overflow: "hidden",
+          }}
+        >
+          <Tabs
+            value={filter}
+            onChange={(_, newValue) => setFilter(newValue)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              px: 2,
+              "& .MuiTab-root": {
+                py: 2,
+                fontWeight: "bold",
+                fontSize: "0.9rem",
+                minWidth: 100,
+              },
+            }}
+          >
+            <Tab label={t("common.all")} value="ALL" />
+            <Tab label={t("complaint.status.pending")} value="PENDING" />
+            <Tab label={t("complaint.status.under_review")} value="UNDER_REVIEW" />
+            <Tab label={t("complaint.status.resolved")} value="RESOLVED" />
+            <Tab label={t("complaint.status.closed")} value="CLOSED" />
+          </Tabs>
+        </Paper>
+
+        {filteredComplaints.length === 0 ? (
           <Paper
             elevation={0}
             sx={{
@@ -128,7 +172,7 @@ const MyComplaintsPage = () => {
               <ComplaintIcon sx={{ fontSize: 40 }} />
             </Box>
             <Typography variant="h6" gutterBottom fontWeight="bold">
-              {t("complaint.noComplaints")}
+              {filter === "ALL" ? t("complaint.noComplaints") : t("common.noResults")}
             </Typography>
           </Paper>
         ) : (
@@ -139,7 +183,7 @@ const MyComplaintsPage = () => {
               gap: 2,
             }}
           >
-            {complaints?.map((complaint) => (
+            {filteredComplaints?.map((complaint) => (
               <Card
                 key={complaint.id}
                 elevation={0}
@@ -185,7 +229,7 @@ const MyComplaintsPage = () => {
                       </Box>
                     </Stack>
                     <Chip
-                      label={t(`complaint.status.${complaint.status.toLowerCase()}`)}
+                      label={t(`complaint.status.${complaint.status.toLowerCase().replace("-", "_")}`)}
                       color={getStatusColor(complaint.status) as any}
                       size="small"
                       sx={{ fontWeight: "bold", borderRadius: 2 }}

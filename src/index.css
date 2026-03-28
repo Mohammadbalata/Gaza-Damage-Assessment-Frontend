@@ -7,13 +7,13 @@
 @layer base {
   body {
     @apply bg-gray-50 text-gray-800;
-    font-family: "Inter", "SF Pro", "Segoe UI" ,"Cairo", system-ui, sans-serif;
+    font-family: "Cairo", sans-serif;
   }
 
   [dir="rtl"] {
     direction: rtl;
     text-align: right;
-    font-family: "Noto Sans Arabic", sans-serif;
+    font-family: "Cairo", sans-serif;
   }
 
   [dir="rtl"] input,

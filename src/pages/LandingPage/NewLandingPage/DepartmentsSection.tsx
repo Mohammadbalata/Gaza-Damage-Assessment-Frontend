@@ -61,7 +61,7 @@ export function DepartmentsSection() {
     }
   };
   return (
-    <section id="departments" className="py-20 bg-[#d7d8e2]  text-[#1e3a5f]">
+    <section id="departments" className="py-20 bg-[#d7d8e2]  text-[#1e3a5f] scroll-mt-24">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -81,11 +81,13 @@ const ComplaintDetailsPage = () => {
 
   const getStatusColor = (status: string) => {
     if (!status) return "primary";
-    switch (status.toUpperCase()) {
+    switch (status.toUpperCase().replace("-", "_")) {
       case "PENDING":
         return "warning";
-      case "RECEIVED":
+      case "UNDER_REVIEW":
         return "info";
+      case "RESOLVED":
+        return "success";
       case "CLOSED":
         return "default";
       default:
@@ -167,13 +169,13 @@ const ComplaintDetailsPage = () => {
               </Box>
             </Stack>
             <Chip
-              label={t(`complaint.status.${complaint.status.toLowerCase()}`)}
+              label={t(`complaint.status.${complaint.status.toLowerCase().replace("-", "_")}`)}
               color={getStatusColor(complaint.status) as any}
               sx={{ fontWeight: "bold", borderRadius: 2, px: 2, py: 2 }}
             />
           </Stack>
 
-          {complaint.status.toUpperCase() !== "CLOSED" && (
+          {complaint.status.toUpperCase().replace("-", "_") === "RESOLVED" && (
             <Box mb={4}>
               <Button
                 variant="outlined"
@@ -262,7 +264,7 @@ const ComplaintDetailsPage = () => {
             {(complaint.resolution_type || complaint.response) && (
               <Box>
                 <Typography variant="subtitle1" fontWeight="bold" gutterBottom color="primary">
-                  Official Response
+                  {t("complaint.officialResponse")}
                 </Typography>
                 <Paper
                   elevation={0}
@@ -275,11 +277,11 @@ const ComplaintDetailsPage = () => {
                   }}
                 >
                   <Typography variant="body1">
-                    {complaint.response || "No detailed response provided."}
+                    {complaint.response || t("complaint.noResponse")}
                   </Typography>
                   {complaint.resolved_at && (
                     <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-                      Resolved at: {new Date(complaint.resolved_at).toLocaleString()}
+                      {t("complaint.resolvedAt")}: {new Date(complaint.resolved_at).toLocaleString(language === "ar" ? "ar-EG" : "en-US")}
                     </Typography>
                   )}
                 </Paper>

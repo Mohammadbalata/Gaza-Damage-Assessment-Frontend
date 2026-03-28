@@ -146,6 +146,7 @@ const MyApplications = () => {
   //   immediate: true,
   // });
   const [rawData, setRawData] = useState<any>([]);
+  const [neighborhoods, setNeighborhoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
@@ -153,13 +154,14 @@ const MyApplications = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [appsRes, complaintsRes] = await Promise.all([
+        const [appsRes, complaintsRes, neighborhoodsRes] = await Promise.all([
           axiosClient.get(API.citizen.applications.list, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
           axiosClient.get(API.citizen.complaints.list, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
+          axiosClient.get("/neighborhoods"),
         ]);
 
         const apps = appsRes.data.damage_reports || appsRes.data || [];
@@ -176,6 +178,7 @@ const MyApplications = () => {
         });
 
         setRawData(enhancedApps);
+        setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
       } catch (err: any) {
         console.log(err);
         setError(err.message);
@@ -201,18 +204,35 @@ const MyApplications = () => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
 
-    // Search by ID
-    const idMatch = app.id?.toString().includes(lowerSearch);
+    // Search by ID or Report Code (Tracking Number)
+    const idMatch =
+      app.id?.toString().includes(lowerSearch) ||
+      app.report_code?.toLowerCase().includes(lowerSearch);
 
-    // Search by Address/Neighborhood
-    const locationMatch =
-      app.location?.address?.toLowerCase().includes(lowerSearch) ||
-      app.location?.neighborhood?.toLowerCase().includes(lowerSearch);
+    // Search by Neighborhood Name (Localized)
+    const neighborhood = neighborhoods.find(
+      (n) => n.id.toString() === app.neighborhood_id?.toString(),
+    );
+    const neighborhoodMatch =
+      neighborhood &&
+      (neighborhood.name?.toLowerCase().includes(lowerSearch) ||
+        neighborhood.name_en?.toLowerCase().includes(lowerSearch));
 
-    // Search by Status
-    const statusMatch = app.status?.toLowerCase().includes(lowerSearch);
+    // Search by Status (Localized Label)
+    const statusLabel = t(`status.${app.status?.toLowerCase()}`)?.toLowerCase();
+    const statusMatch =
+      statusLabel?.includes(lowerSearch) ||
+      app.status?.toLowerCase().includes(lowerSearch);
 
-    return idMatch || locationMatch || statusMatch;
+    // Search by Address, Landmark, or Street
+    const buildingType = app.damage_details?.buildingType;
+    const buildingData = app.damage_details?.[buildingType] || {};
+    const addressMatch =
+      app.address?.toLowerCase().includes(lowerSearch) ||
+      buildingData.landmark?.toLowerCase().includes(lowerSearch) ||
+      buildingData.nameOfStreet?.toLowerCase().includes(lowerSearch);
+
+    return idMatch || neighborhoodMatch || statusMatch || addressMatch;
   });
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -696,6 +716,7 @@ const MyApplications = () => {
                 onDownloadPdf={handleDownloadAppPdf}
                 onAddComplaint={handleOpenComplaint}
                 onCloseComplaint={handleCloseComplaint}
+                neighborhoods={neighborhoods}
               />
             ))}
           </Box>

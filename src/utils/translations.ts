@@ -56,6 +56,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.married": "married",
     "common.divorced": "divorced",
     "common.widowed": "widowed",
+    "common.actions": "Actions",
+    "common.noResults": "No results",
 
     "validation.required": "Required",
     "validation.passwordMismatch": "Passwords do not match",
@@ -98,6 +100,12 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Your password has been reset successfully. You can now login with your new password.",
     "auth.resetPasswordSuccessDescription":
       "Your password has been reset successfully. You can now login with your new password.",
+
+      
+      "landing.login":"Login",
+
+
+      
     "citizen.currentPassword": "Current Password",
     "citizen.newPassword": "New Password",
     "citizen.confirmPassword": "Confirm Password",
@@ -638,11 +646,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.status.received": "Received",
     "complaint.status.under_review": "Under Review",
     "complaint.status.closed": "Closed",
+    "complaint.status.resolved": "Resolved",
     "complaint.close": "Close Complaint",
     "complaint.closeConfirm": "Are you sure you want to close this complaint?",
     "complaint.closeSuccess": "Complaint closed successfully",
     "complaint.closeError": "Failed to close complaint",
     "complaint.waitingForResponse": "Waiting for official response",
+    "complaint.officialResponse": "Official Response",
+    "complaint.noResponse": "No detailed response provided.",
+    "complaint.resolvedAt": "Resolved at",
 
     // Reset Password
     "auth.resetPasswordTitle": "Reset Password",
@@ -738,6 +750,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.all": "الكل",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
+    "common.actions": "الإجراءات",
+    "common.noResults": "لا توجد نتائج",
 
     // Auth
     "auth.nationalId": "رقم الهوية الوطنية",
@@ -777,6 +791,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
     "landing.damageAssessment": "حصر الأضرار الذاتي",
+    "landing.login": "سجل طلب ضرر الآن",
 
     // Reset Password
     "auth.resetPassword": "إعادة تعيين كلمة المرور",
@@ -851,11 +866,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.status.received": "تم الاستلام",
     "complaint.status.under_review": "قيد المراجعة",
     "complaint.status.closed": "مغلقة",
+    "complaint.status.resolved": "تم الرد",
     "complaint.close": "إغلاق الشكوى",
     "complaint.closeConfirm": "هل أنت متأكد من إغلاق هذه الشكوى؟",
     "complaint.closeSuccess": "تم إغلاق الشكوى بنجاح",
     "complaint.closeError": "فشل في إغلاق الشكوى",
     "complaint.waitingForResponse": "في انتظار رد رسمي",
+    "complaint.officialResponse": "الرد الرسمي",
+    "complaint.noResponse": "لا يوجد رد تفصيلي حالياً",
+    "complaint.resolvedAt": "تم الرد في",
     "form.currentPlaceholder": "أدخل العنوان الحالي ",
     "form.numberOfChildrenPlaceholder": "أدخل عدد الأطفال",
     "form.wifeNamePlaceholder": "أدخل اسم الزوجة",
