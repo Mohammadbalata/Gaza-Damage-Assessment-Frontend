@@ -19,9 +19,9 @@ const LandingPage: React.FC = () => {
         <HeroSlider />
         <AboutSection />
         <DepartmentsSection />
-        <GallerySection />
+        {/* <GallerySection />
         <MapSection />
-        <WhyUsSection />
+        <WhyUsSection /> */}
         <ContactSection />
       </main>
       <Footer />

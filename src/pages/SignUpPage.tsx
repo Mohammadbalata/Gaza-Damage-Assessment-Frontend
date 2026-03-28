@@ -19,6 +19,7 @@ import {
 import { ArrowForward, ArrowBack } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import { useEffect } from "react";
+import LanguageToggle from "../components/LanguageToggle";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -228,6 +229,7 @@ const SignUpPage = () => {
           </Box>
         </Stack>
       </form>
+      <LanguageToggle />
     </AuthComp>
   );
 };

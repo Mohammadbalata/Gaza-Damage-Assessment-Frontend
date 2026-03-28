@@ -826,7 +826,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Complaints
     "complaint.add": "إضافة شكوى",
     "complaint.title": "الشكاوى",
-    "complaint.myComplaints": "شكاواي",
+    "complaint.myComplaints": "الشكاوي والمقترحات",
     "complaint.description": "وصف الشكوى",
     "complaint.descriptionPlaceholder": "يرجى وصف شكواك بالتفصيل...",
     "complaint.submit": "إرسال الشكوى",
