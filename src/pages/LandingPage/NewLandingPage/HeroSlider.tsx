@@ -7,13 +7,15 @@ import { ROUTES } from "../../../routes/Routes";
 import { setTrackingNumber } from "../../../redux/slices/authSlice";
 import { useAppDispatch } from "../../../hooks/redux";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { CheckCircle, Home, Users } from "lucide-react";
 
 const slides = [
   {
     id: 3,
     title: "خبرة وموثوقية",
     subtitle: "نخدمكم منذ أكثر من 10 سنوات في قلب جدة الصناعية",
-    image: "https://res.cloudinary.com/dopcli6un/image/upload/v1774209425/hero-image_exnabs.jpg",
+    image:
+      "https://res.cloudinary.com/dopcli6un/image/upload/v1774209425/hero-image_exnabs.jpg",
   },
 ];
 
@@ -105,7 +107,7 @@ export function HeroSlider() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
           </div>
 
-          <div className="absolute w-full bottom-[15%] flex flex-col items-center px-4">
+          <div className="absolute w-full bottom-[5%] flex flex-col items-center px-4">
             {/* رسالة الخطأ */}
             <AnimatePresence>
               {error && (
@@ -156,7 +158,7 @@ export function HeroSlider() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="w-full max-w-2xl mx-auto"
+              className="w-full max-w-2xl mx-auto "
             >
               <div className="flex flex-col gap-2 mx-5">
                 <div className="flex items-center bg-white rounded-full shadow-xl overflow-hidden border border-gray-200">
@@ -250,6 +252,33 @@ export function HeroSlider() {
                     {errors.trackingNumber.message as string}
                   </motion.p>
                 )}
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl">
+                <div className="flex items-center gap-3 py-3 px-5">
+                  <Home className="w-5 h-5 " />
+
+                  <span className="text-sm font-bold text-gray-700">
+                    1,200 منزل مرمم
+                  </span>
+                </div>
+
+                <div className="hidden md:block w-[3px] h-6 bg-black " />
+
+                <div className="flex items-center gap-3 py-3 px-5">
+                  <Users className="w-5 h-5" />
+                  <span className="text-sm font-bold text-gray-700">
+                    45,000 مستفيد
+                  </span>
+                </div>
+
+                <div className="hidden md:block w-[3px] h-6 bg-black " />
+
+                <div className="flex items-center gap-3 py-3 px-5">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-bold text-gray-700">
+                    99% نسبة الرضا
+                  </span>
+                </div>
               </div>
             </motion.form>
           </div>
