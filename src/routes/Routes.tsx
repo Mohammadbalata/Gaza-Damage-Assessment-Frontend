@@ -28,6 +28,7 @@ import {
   EmergencyManagementPage,
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
+import ViewLocationMapPage from "../pages/ViewLocationMapPage";
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -83,7 +84,7 @@ export const routes = [
       },
     ],
   },
-  { path: ROUTES.ADMIN_LOCATION_MAP, element: <PreviousLocationMapPage /> },
+  { path: ROUTES.ADMIN_LOCATION_MAP, element: <ViewLocationMapPage /> },
 
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
