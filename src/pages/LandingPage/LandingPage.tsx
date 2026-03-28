@@ -4,7 +4,6 @@ import { HeroSlider } from "./NewLandingPage/HeroSlider";
 import { AboutSection } from "./NewLandingPage/AboutSection";
 import { DepartmentsSection } from "./NewLandingPage/DepartmentsSection";
 // import { GallerySection } from "./NewLandingPage/GallerySection";
-import { MapSection } from "./NewLandingPage/MapSection";
 // import { WhyUsSection } from "./NewLandingPage/WhyUsSection";
 import { ContactSection } from "./NewLandingPage/ContactSection";
 import { Footer } from "./NewLandingPage/Footer";
@@ -18,7 +17,7 @@ const LandingPage: React.FC = () => {
         <AboutSection />
         <DepartmentsSection />
         {/* <GallerySection /> */}
-        <MapSection />
+        {/* <MapSection /> */}
         {/* <WhyUsSection /> */}
         <ContactSection />
       </main>

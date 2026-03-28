@@ -8,15 +8,7 @@ import {
   Typography,
   Stack,
   Button,
-  Card,
-  CardContent,
 } from "@mui/material";
-import {
-  Search as SearchIcon,
-  AdminPanelSettings as AdminIcon,
-  ArrowForward,
-  ArrowBack,
-} from "@mui/icons-material";
 import {
   Storage as DatabaseIcon,
   Groups as PeopleIcon,
@@ -213,7 +205,7 @@ const HomePage: React.FC = () => {
           mb: 4,
         }}
       >
-        {dashboardCards.map((card) => (
+        {dashboardCards.map((card:any) => (
           <DashboardCard
             key={card.key}
             card={{
@@ -224,165 +216,6 @@ const HomePage: React.FC = () => {
           />
         ))}
       </Box>
-      {/* Track Application Status */}
-      <Card
-        onClick={() => navigate("/track-status")}
-        sx={{
-          mb: 4,
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "success.50",
-          "&:hover": {
-            boxShadow: "0 8px 20px rgba(51, 185, 58, 0.15)",
-            transform: "translateY(-2px)",
-            bgcolor: "success.100",
-          },
-        }}
-      >
-        <CardContent sx={{ p: 2 }}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
-            alignItems={{ xs: "stretch", sm: "center" }}
-            spacing={2}
-          >
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: "success.100",
-                  color: "success.700",
-                  display: "flex",
-                }}
-              >
-                <SearchIcon sx={{ fontSize: 28, color: "#388E3C" }} />
-              </Box>
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, color: "#127a17ff" }}
-                >
-                  {t("auth.trackStatus")}
-                </Typography>
-                <Typography variant="body2" color="#559658ff">
-                  {language === "ar"
-                    ? "تتبع حالة طلبك المقدم باستخدام رقم التتبع الخاص بك"
-                    : "Track your submitted application status using your tracking number"}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Button
-              variant="outlined"
-              color="success"
-              endIcon={
-                <ArrowForward
-                  sx={{
-                    transform: language === "ar" ? "rotate(180deg)" : "none",
-                    mr: 1,
-                  }}
-                />
-              }
-              sx={{
-                borderRadius: 2,
-                fontWeight: 600,
-                px: 3,
-                "&:hover": {
-                  bgcolor: "success.200",
-                },
-              }}
-            >
-              {t("auth.trackStatus")}
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      {/* Admin Access Card */}
-      <Card
-        onClick={() => navigate("/admin/login")}
-        sx={{
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "grey.50",
-          "&:hover": {
-            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
-            transform: "translateY(-2px)",
-            bgcolor: "grey.100",
-          },
-        }}
-      >
-        <CardContent sx={{ p: 2 }}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
-            alignItems={{ xs: "stretch", sm: "center" }}
-            spacing={2}
-          >
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: "grey.200",
-                  color: "grey.700",
-                  display: "flex",
-                }}
-              >
-                <AdminIcon sx={{ fontSize: 28 }} />
-              </Box>
-              <Box>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, color: "grey.800", mr: 1 }}
-                >
-                  {t("auth.adminLogin")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mr: 1 }}
-                >
-                  {language === "ar"
-                    ? "الوصول إلى لوحة المعلومات الإدارية للمسؤولين"
-                    : "Access the admin dashboard for government officials"}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Button
-              variant="outlined"
-              color="inherit"
-              endIcon={
-                <ArrowForward
-                  sx={{
-                    transform: language === "ar" ? "rotate(180deg)" : "none",
-                    mr: 1,
-                  }}
-                />
-              }
-              sx={{
-                borderRadius: 2,
-                borderColor: "grey.400",
-                color: "grey.700",
-                fontWeight: 600,
-                px: 3,
-                "&:hover": {
-                  borderColor: "grey.600",
-                  bgcolor: "grey.200",
-                },
-              }}
-            >
-              {t("auth.adminLogin")}
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
 
       <Paper
         elevation={0}
