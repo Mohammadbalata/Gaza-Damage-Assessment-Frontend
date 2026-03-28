@@ -29,6 +29,7 @@ import {
   SupportNetworkPage,
 } from "../pages/LandingPage/placeholders";
 import ViewLocationMapPage from "../pages/ViewLocationMapPage";
+import ServiceCenterPage from "../pages/Settings/ServiceCenterPage";
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -36,6 +37,7 @@ export const ROUTES: IRoutes = {
   DEPARTMENT_SECTION: "/departments",
   SIGNIN: "/auth/signIn",
   SIGNUP: "/auth/signUp",
+  Service_Center: "/service-center",
   VERIFICATION_QUESTIONS: "/verification-questions",
   PASSWORD_DISPLAY: "/password-display",
   CHANGE_PASSWORD: "/citizen/settings/change-password",
@@ -51,7 +53,7 @@ export const ROUTES: IRoutes = {
   TRACK_STATUS: "/track-status",
   ADMIN_LOGIN: "https://admin.sawabuild.org/dashboard/login",
   ADMIN_DASHBOARD: "/admin",
-  ADMIN_LOCATION_MAP: "admin/locations/map",
+  ADMIN_LOCATION_MAP: "locations/map",
   ADMIN_RESET_PASSWORD: "/admin/reset-password",
   ADMIN_FORGOT_PASSWORD: "/admin/forgot-password",
   CITIZEN_DASHBOARD: "/citizen/dashboard",
@@ -127,6 +129,14 @@ export const routes = [
     element: (
       <ProtectedRoutes>
         <SettingsPage />
+      </ProtectedRoutes>
+    ),
+  },
+  {
+    path: ROUTES.Service_Center,
+    element: (
+      <ProtectedRoutes>
+        <ServiceCenterPage />
       </ProtectedRoutes>
     ),
   },

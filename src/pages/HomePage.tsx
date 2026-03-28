@@ -8,75 +8,25 @@ import {
   Typography,
   Stack,
   Button,
+  IconButton,
 } from "@mui/material";
 import {
   Storage as DatabaseIcon,
   Groups as PeopleIcon,
   Warning as EmergencyIcon,
   Handshake as HandshakeIcon,
+  ArrowForward,
 } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
 import { LogOutIcon } from "lucide-react";
 import { enqueueSnackbar } from "notistack";
-import { Assignment as ClipboardIcon } from "@mui/icons-material";
-import { DashboardCard } from "./CitizenDashboard";
+import DamageAssessmentSection from "../components/landing/DamageAssessmentSection";
+import { motion } from "motion/react";
+import { Header } from "./LandingPage/NewLandingPage/Header";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-
-  const dashboardCards = [
-    {
-      key: "damage-assessment",
-      title: "landing.damageAssessment",
-      description: t("citizen.addDamageRequestDesc"),
-      icon: <ClipboardIcon sx={{ fontSize: 40 }} />,
-      color: "success",
-      route: ROUTES.CITIZEN_DASHBOARD,
-    },
-    {
-      key: "central-database",
-      title: "landing.cards.database",
-      description: t("citizen.centralDatabaseDesc"),
-      icon: <DatabaseIcon sx={{ fontSize: 40 }} />,
-      color: "primary",
-      route: "/central-database",
-    },
-    {
-      key: "public-services",
-      title: "landing.cards.services",
-      description: t("citizen.publicServicesDesc"),
-      icon: <PeopleIcon sx={{ fontSize: 40 }} />,
-      color: "info",
-      route: "/public-services",
-    },
-    {
-      key: "emergency",
-      title: "landing.cards.emergency",
-      description: t("citizen.emergencyManagementDesc"),
-      icon: <EmergencyIcon sx={{ fontSize: 40 }} />,
-      color: "warning",
-      route: "/emergency-management",
-    },
-    {
-      key: "support",
-      title: "landing.cards.support",
-      description: t("citizen.supportNetworkDesc"),
-      icon: <HandshakeIcon sx={{ fontSize: 40 }} />,
-      color: "success",
-      route: "/support-network",
-    },
-  ];
-
-  const handleCardClick = (route: string) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate(ROUTES.SIGNIN);
-    } else {
-      navigate(route);
-    }
-  };
 
   const handleLogout = () => {
     // Clear localStorage
@@ -92,206 +42,161 @@ const HomePage: React.FC = () => {
     enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
   };
 
+  const cards = [
+    {
+      id: "central-database",
+      titleKey: "landing.cards.database",
+      icon: (
+        <DatabaseIcon sx={{ fontSize: 50, color: "white ", background: "" }} />
+      ),
+      bgColor: "#2d5f3f ", // Green
+      route: "/central-database",
+    },
+    {
+      id: "public-services",
+      titleKey: "landing.cards.services",
+      icon: <PeopleIcon sx={{ fontSize: 50, color: "white" }} />,
+      bgColor: "#d32f2f", // Red
+      route: ROUTES.Service_Center,
+    },
+    {
+      id: "emergency",
+      titleKey: "landing.cards.emergency",
+      icon: <EmergencyIcon sx={{ fontSize: 50, color: "white" }} />,
+      bgColor: "#424242", // Dark Gray
+      route: "/emergency-management",
+    },
+    {
+      id: "support",
+      titleKey: "landing.cards.support",
+      icon: <HandshakeIcon sx={{ fontSize: 50, color: "#333" }} />,
+      bgColor: "#e0e0e0", // Light Gray
+      textColor: "#333",
+      iconColor: "#333",
+      route: "/support-network",
+    },
+  ];
+
+  const handleCardClick = (route: string) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate(ROUTES.SIGNIN);
+    } else {
+      navigate(route);
+    }
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
-      {/* Hero Section */}
-      <Paper
-        elevation={0}
-        sx={{
-          mb: 4,
-          p: { xs: 3, md: 5 },
-          borderRadius: 3,
-          background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          textAlign: "center",
-        }}
-      >
-        {/* Decorative circles */}
+    <>
+      <Header />
 
-        <Box
-          sx={{
-            position: "absolute",
-            top: -60,
-            right: language === "ar" ? "auto" : -60,
-            left: language === "ar" ? -60 : "auto",
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.08)",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -40,
-            right: language === "ar" ? -40 : "auto",
-            left: language === "ar" ? "auto" : -40,
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.06)",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 300,
-            height: 300,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.03)",
-          }}
-        />
-
-        <Stack
-          spacing={2}
-          alignItems="center"
-          sx={{ position: "relative", zIndex: 1 }}
+      <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
+        <section
+          id="departments"
+          className="pt-20 pb-10  text-[#1e3a5f] scroll-mt-24 overflow-hidden"
         >
-          {/* Logo */}
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              bgcolor: "rgba(255,255,255,0.15)",
-              display: "inline-flex",
-              mb: 1,
-            }}
-          >
-            <img
-              src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png"
-              alt="Logo"
-              style={{ width: 90, height: 90 }}
-            />
-          </Box>
-
-          {/* Title */}
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              fontSize: { xs: "1.5rem", md: "2rem" },
-            }}
-          >
-            {t("app.title")}
-          </Typography>
-
-          {/* Subtitle */}
-          <Typography
-            variant="body1"
-            sx={{
-              opacity: 0.9,
-              maxWidth: 600,
-              mx: "auto",
-            }}
-          >
-            {language === "ar"
-              ? "منصة إلكترونية موحدة لتسجيل وتتبع طلبات حصر الأضرار"
-              : "A unified electronic platform for registering and tracking damage assessment requests"}
-          </Typography>
-        </Stack>
-      </Paper>
-
-      {/* Action Cards Grid */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-          gap: 3,
-          mb: 4,
-        }}
-      >
-        {dashboardCards.map((card:any) => (
-          <DashboardCard
-            key={card.key}
-            card={{
-              ...card,
-              onClick: () => handleCardClick(card.route),
-            }}
-            language={language}
-          />
-        ))}
-      </Box>
-
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          mt: 4,
-          borderRadius: 2,
-          border: "1px solid",
-          borderColor: "error.light",
-          bgcolor: "error.50",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            borderColor: "error.main",
-            bgcolor: "rgba(244, 67, 54, 0.08)",
-          },
-        }}
-      >
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "stretch", sm: "center" }}
-          spacing={2}
-        >
-          <Box>
-            <Typography
-              variant="h6"
-              color="error.dark"
-              sx={{ fontWeight: 600 }}
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 4 * 0.1 }}
+              className="sm:col-span-2 lg:col-span-4 mt-5"
             >
-              {t("common.logout")}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {language === "ar"
-                ? "تسجيل الخروج من حسابك بشكل آمن"
-                : "Securely sign out of your account"}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            color="error"
-            size="large"
-            startIcon={<LogOutIcon style={{ marginLeft: "10px" }} />}
-            onClick={handleLogout}
-            sx={{
-              px: 4,
-              py: 1.5,
-              fontWeight: 600,
-              borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(244, 67, 54, 0.3)",
-              "&:hover": {
-                boxShadow: "0 6px 16px rgba(244, 67, 54, 0.4)",
-                transform: "translateY(-2px)",
-              },
-            }}
-          >
-            {t("common.logout")}
-          </Button>
-        </Stack>
-      </Paper>
+              <DamageAssessmentSection />
+            </motion.div>
 
-      {/* Footer */}
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{
-          display: "block",
-          textAlign: "center",
-          mt: 4,
-          opacity: 0.7,
-        }}
-      >
-        {language === "ar"
-          ? `© ${new Date().getFullYear()} بلدية خان يونس - جميع الحقوق محفوظة`
-          : `© ${new Date().getFullYear()} Khan Younis Municipality - All Rights Reserved`}
-      </Typography>
-    </Container>
+            <div className="grid grid-cols-[300px] sm:grid-cols-[250px_250px] md:grid-cols-[300px_300px] justify-center   lg:grid-cols-4  gap-6 lg:gap-y-14  ">
+              {cards.map((card, index) => (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Paper
+                    elevation={4}
+                    onClick={() => handleCardClick(card.route)}
+                    sx={{
+                      bgcolor: card.bgColor,
+                      color: card.textColor || "white",
+                      p: 3,
+                      height: 220,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      textAlign: "center",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: "0 12px 20px rgba(0,0,0,0.2)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: "50%",
+                        bgcolor: "rgba(255,255,255,0.1)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      {card.icon}
+                    </Box>
+
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, mt: 2, lineHeight: 1.2 }}
+                    >
+                      {t(card.titleKey)}
+                    </Typography>
+
+                    <IconButton
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        color: card.iconColor || "white",
+                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                      }}
+                    >
+                      <ArrowForward
+                        sx={{
+                          transform:
+                            language === "ar" ? "rotate(180deg)" : "none",
+                        }}
+                      />
+                    </IconButton>
+                  </Paper>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{
+            display: "block",
+            textAlign: "center",
+            mt: 4,
+            opacity: 0.7,
+          }}
+        >
+          {language === "ar"
+            ? `© ${new Date().getFullYear()} بلدية خان يونس - جميع الحقوق محفوظة`
+            : `© ${new Date().getFullYear()} Khan Younis Municipality - All Rights Reserved`}
+        </Typography>
+      </Container>
+    </>
   );
 };
 

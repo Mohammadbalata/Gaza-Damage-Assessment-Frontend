@@ -455,7 +455,7 @@ const ApplicationCard = ({
             <Tooltip title={t("map.showonmap")}>
               <IconButton
                 component={Link}
-                to={`/admin/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
+                to={`/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
                 sx={{
                   bgcolor: alpha(theme.palette.info.main, 0.05),
                   color: "info.main",

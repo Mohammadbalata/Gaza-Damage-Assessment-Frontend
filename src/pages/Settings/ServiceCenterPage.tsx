@@ -7,25 +7,17 @@ import {
   CardContent,
   Typography,
   Stack,
-  Button,
   Paper,
-  Avatar,
-  Chip,
 } from "@mui/material";
 import {
-  AddCircleOutline as AddIcon,
-  ListAlt as ListIcon,
   AccountBalance as BankIcon,
-  Logout as LogoutIcon,
-  Person as PersonIcon,
   ArrowBack,
   Settings,
+  Groups as PeopleIcon,
 } from "@mui/icons-material";
-import { useLanguage } from "../contexts/LanguageContext";
-import { useAppSelector } from "../hooks/redux";
-import { ROUTES } from "../routes/Routes";
-import { useSnackbar } from "notistack";
-import BackButton from "../components/Shared/BackButton";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { ROUTES } from "../../routes/Routes";
+import BackButton from "../../components/Shared/BackButton";
 
 /**
  * Citizen Dashboard Page
@@ -34,41 +26,7 @@ import BackButton from "../components/Shared/BackButton";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { enqueueSnackbar } = useSnackbar();
 
-  // Get user info from Redux store
-  const authState: any = useAppSelector((state) => state.auth);
-  const citizenInfo = authState.citizenInfo;
-  const citizenName = citizenInfo
-    ? `${citizenInfo?.full_name}`.split(" ")[0]
-    : citizenInfo.national_id;
-
-  // Get avatar URL from citizenInfo (can be from API or local upload)
-  const avatarUrl = citizenInfo?.avatar_url || null;
-
-  // Get citizenFirst_name from citizenInfo
-  // const citizenName = citizenInfo?.first_name || "";
-  // console.log(authState.citizenInfo);
-  /**
-   * Handle logout - clears auth state and redirects to sign in
-   */
-  const handleLogout = () => {
-    // Clear localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("citizenInfo");
-    localStorage.removeItem("citizen_user");
-
-    // Navigate to sign in page
-    navigate(`/`);
-
-    // Show success notification
-    enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
-  };
-
-  /**
-   * Dashboard card configuration
-   */
   interface DashboardCardConfig {
     key: string;
     title: string;
@@ -80,20 +38,20 @@ const CitizenDashboard: React.FC = () => {
 
   const dashboardCards: DashboardCardConfig[] = [
     {
-      key: "addRequest",
-      title: "citizen.addDamageRequest",
-      description: t("citizen.addDamageRequestDesc"),
-      icon: <AddIcon sx={{ fontSize: 40 }} />,
-      color: "primary",
-      onClick: () => navigate(ROUTES.PREVIOUS_LOCATION),
+      key: "bankInfo",
+      title: "citizen.bankInfo",
+      description: t("citizen.bankInfoDesc"),
+      icon: <BankIcon sx={{ fontSize: 40 }} />,
+      color: "success",
+      onClick: () => navigate(ROUTES.BANK_INFORMATION),
     },
     {
-      key: "myRequests",
-      title: "citizen.myRequests",
-      description: t("citizen.myRequestsDesc"),
-      icon: <ListIcon sx={{ fontSize: 40 }} />,
-      color: "info",
-      onClick: () => navigate(ROUTES.MY_APPLICATIONS),
+      key: "electronicServices",
+      title: "citizen.electronicServices",
+      description: t("citizen.electronicServicesDesc"),
+      icon: <Settings sx={{ fontSize: 40 }} />,
+      color: "warning",
+      onClick: () => navigate(ROUTES.SETTINGS),
     },
   ];
 
@@ -151,40 +109,13 @@ const CitizenDashboard: React.FC = () => {
             alignItems="center"
             useFlexGap={true}
           >
-            <Avatar
-              src={avatarUrl || undefined}
-              sx={{
-                width: 64,
-                height: 64,
-                bgcolor: "rgba(255,255,255,0.2)",
-                border: "2px solid rgba(255,255,255,0.3)",
-                "& img": {
-                  objectFit: "cover",
-                },
-              }}
-            >
-              {/* Fallback when no avatar */}
-              <PersonIcon sx={{ fontSize: 36 }} />
-            </Avatar>
+            <PeopleIcon sx={{ fontSize: 50, color: "white" }} />
             <Box sx={{ display: "flex", gap: 1 }}>
               <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {t("citizen.welcome")}
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {citizenName}
+                مركز الخدمات
               </Typography>
             </Box>
           </Stack>
-          <Chip
-            label={t("citizen.dashboard")}
-            sx={{
-              bgcolor: "rgba(255,255,255,0.2)",
-              color: "white",
-              fontWeight: 600,
-              px: 1,
-              fontSize: "1.2rem",
-            }}
-          />
           <BackButton
             language={language}
             to={ROUTES.HOME}
@@ -211,65 +142,6 @@ const CitizenDashboard: React.FC = () => {
           <DashboardCard key={card.key} card={card} language={language} />
         ))}
       </Box>
-
-      {/* Logout Section */}
-      {/* <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          borderRadius: 2,
-          border: "1px solid",
-          borderColor: "error.light",
-          bgcolor: "error.50",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            borderColor: "error.main",
-            bgcolor: "rgba(244, 67, 54, 0.08)",
-          },
-        }}
-      >
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "stretch", sm: "center" }}
-          spacing={2}
-        >
-          <Box>
-            <Typography
-              variant="h6"
-              color="error.dark"
-              sx={{ fontWeight: 600 }}
-            >
-              {t("common.logout")}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {language === "ar"
-                ? "تسجيل الخروج من حسابك بشكل آمن"
-                : "Securely sign out of your account"}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            color="error"
-            size="large"
-            startIcon={<LogoutIcon style={{ marginLeft: "10px" }} />}
-            onClick={handleLogout}
-            sx={{
-              px: 4,
-              py: 1.5,
-              fontWeight: 600,
-              borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(244, 67, 54, 0.3)",
-              "&:hover": {
-                boxShadow: "0 6px 16px rgba(244, 67, 54, 0.4)",
-                transform: "translateY(-2px)",
-              },
-            }}
-          >
-            {t("common.logout")}
-          </Button>
-        </Stack>
-      </Paper> */}
     </Container>
   );
 };

@@ -20,7 +20,7 @@ export function PartnersSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">
-            شركاء النجاح
+            الشركاء 
           </h2>
           <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
