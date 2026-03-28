@@ -15,7 +15,7 @@ const slides = [
     title: "خبرة وموثوقية",
     subtitle: "نخدمكم منذ أكثر من 10 سنوات في قلب جدة الصناعية",
     image:
-      "https://res.cloudinary.com/dopcli6un/image/upload/v1774694946/WhatsApp_Image_2026-03-24_at_19.51.44_yvhhh7.jpg",
+      "https://res.cloudinary.com/dopcli6un/image/upload/v1774704209/WhatsApp_Image_2026-03-28_at_16.17.11_hmudmu.jpg",
   },
 ];
 
@@ -258,7 +258,7 @@ export function HeroSlider() {
                   <Home className="w-5 h-5 " />
 
                   <span className="text-sm font-bold text-gray-700">
-                    1,200 منزل مرمم
+                    0 منزل مرمم
                   </span>
                 </div>
 
@@ -267,7 +267,7 @@ export function HeroSlider() {
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Users className="w-5 h-5" />
                   <span className="text-sm font-bold text-gray-700">
-                    45,000 مستفيد
+                    0 مستفيد
                   </span>
                 </div>
 
@@ -276,7 +276,7 @@ export function HeroSlider() {
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm font-bold text-gray-700">
-                    99% نسبة الرضا
+                    0% نسبة الرضا
                   </span>
                 </div>
               </div>
