@@ -103,14 +103,14 @@ const PasswordDisplayPage = () => {
         .unwrap()
         .then((res) => {
           localStorage.setItem("token", res.token);
-          navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
+          navigate(`${ROUTES.HOME}`);
           console.log(data);
         })
         .catch((error) => {
           console.log(error);
         });
     } else {
-      navigate(`${ROUTES.SIGNUP}`);
+      navigate(`${ROUTES.SIGNIN}`);
     }
   };
 
