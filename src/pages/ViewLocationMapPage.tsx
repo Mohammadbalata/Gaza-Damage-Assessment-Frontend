@@ -67,7 +67,7 @@ const ViewLocationMapPage = () => {
 
           {!isValid ? (
             <Alert severity="error" sx={{ borderRadius: 2 }}>
-              {t("map.invalidCoords", "الإحداثيات غير صالحة")}
+              {t("map.invalidCoords")}
             </Alert>
           ) : (
             <>

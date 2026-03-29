@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { setError, signIn } from "../redux/slices/authSlice";
+import { setError, signUp } from "../redux/slices/authSlice";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../routes/Routes";
 import FormInput from "../components/FormInput";
@@ -12,13 +12,15 @@ import {
   Stack,
   Typography,
   Alert,
-  Divider,
+  // Divider,
   CircularProgress,
 } from "@mui/material";
-import { Login as LoginIcon, ArrowBack } from "@mui/icons-material";
+import { ArrowForward, ArrowBack } from "@mui/icons-material";
+import LanguageToggle from "../components/LanguageToggle";
+import { API } from "../constants/ApiRoutes";
+import { useState } from "react";
 import AuthComp from "./AuthComp";
 import { IAuthState } from "../interfaces/store/IAuthState";
-import LanguageToggle from "../components/LanguageToggle";
 
 export interface FormDataCustom extends IAuthState {}
 
@@ -32,7 +34,10 @@ const LoginPage = () => {
     formState: { errors },
     handleSubmit,
   } = useForm<FormDataCustom>();
-  const { error, loading } = useAppSelector((state) => state.auth);
+  const { error } = useAppSelector((state) => state.auth);
+  
+  const [checkingId, setCheckingId] = useState(false);
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -41,16 +46,76 @@ const LoginPage = () => {
     }
   }, [token, navigate]);
 
-  const onSubmit = (data: FormDataCustom) => {
-    dispatch(signIn({ national_id: data.national_id, password: data.password }))
-      .unwrap()
-      .then((data) => {
-        localStorage.setItem("citizenInfo", JSON.stringify(data.citizenInfo));
-        navigate(ROUTES.HOME);
-      })
-      .catch((error) => {
-        dispatch(setError(error));
-      });
+  const onSubmit = async (data: FormDataCustom) => {
+    setCheckingId(true);
+    dispatch(setError(""));
+    
+    try {
+      // Use signUp thunk to verify ID - this will automatically save questions to state if returned
+      const action = await dispatch(
+        signUp({
+          national_id: data.national_id,
+          password: "",
+          pathSignUp: `${API.citizen.auth.verifyId}`,
+        })
+      );
+      
+      if (signUp.rejected.match(action)) {
+        throw { response: { data: { message: action.payload }, status: 400 } };
+      }
+
+      const resData = (action.payload as any).data;
+      console.log("VerifyId Full Response Data:", resData);
+      const status = resData?.verification_status;
+      const questions = resData?.questions || [];
+      const isActuallyRegistered = status === "VERIFIED" || status === "REGISTERED";
+      
+      console.log("VerifyId Processed Data:", { status, questionsCount: questions.length, isActuallyRegistered });
+
+      // Branching logic
+      if (isActuallyRegistered) {
+        // User has a password/fully registered
+        navigate(`${ROUTES.SIGNIN_PASSWORD}?id=${data.national_id}`);
+      } else if (questions && questions.length > 0) {
+        // New user needs to answer questions - questions are already in store!
+        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.national_id}`);
+      } else if (status === "QUESTIONS_VERIFIED") {
+        // Questions answered, but no password yet
+        navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${data.national_id}`);
+      } else if (status === "NATIONAL_ID_VERIFIED" || !status) {
+        // ID verified but questions not yet fetched or answered
+        navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${data.national_id}`);
+      } else {
+        // Fallback
+        navigate(`${ROUTES.SIGNIN_PASSWORD}?id=${data.national_id}`);
+      }
+      
+    } catch (err: any) {
+      console.log("Verify error details:", err.response?.status, err.response?.data);
+      
+      const resData = err.response?.data?.data || err.response?.data;
+      const errorMessage = resData?.message || "";
+      const errorStatus = err.response?.status;
+      
+      // If the error explicitly says they exist/are registered
+      const isAlreadyRegistered = 
+        errorStatus === 400 || 
+        errorStatus === 409 || 
+        errorStatus === 422 ||
+        errorMessage.includes("registered") || 
+        errorMessage.includes("exists") || 
+        errorMessage.includes("مسجل") ||
+        errorMessage.includes("موجود");
+
+      if (isAlreadyRegistered) {
+        navigate(`${ROUTES.SIGNIN_PASSWORD}?id=${data.national_id}`);
+        dispatch(setError(""));
+      } else {
+        dispatch(setError(errorMessage || t("common.error")));
+      }
+    } finally {
+      setCheckingId(false);
+    }
   };
 
   return (
@@ -73,6 +138,24 @@ const LoginPage = () => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
+          {/* Instructions */}
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              bgcolor: "primary.light",
+              border: "1px solid",
+              borderColor: "primary.main",
+              mb: 1,
+            }}
+          >
+            <Typography variant="body2" color="white">
+              {language === "ar"
+                ? "أدخل رقمك الوطني للمتابعة. إذا كان لديك حساب سيطلب منك كلمة المرور، وإذا لم يكن لديك سيتم توجيهك لإنشاء حساب."
+                : "Enter your National ID to continue. If you have an account, you will be asked for a password. If not, you will be directed to register."}
+            </Typography>
+          </Box>
+
           {/* National ID Field */}
           <Box>
             <Typography
@@ -101,46 +184,6 @@ const LoginPage = () => {
             />
           </Box>
 
-          {/* Password Field */}
-          <Box>
-            <Typography
-              variant="body2"
-              color="primary.light"
-              sx={{ mb: 1 }}
-              fontWeight={600}
-            >
-              {t("auth.password")}
-            </Typography>
-            <FormInput
-              id="password"
-              type="password"
-              placeholder={t("auth.passwordPlaceholder")}
-              register={register}
-              validation={{
-                required: t("common.required"),
-              }}
-              errors={errors}
-              setPassword={null}
-            />
-          </Box>
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: -2 }}>
-            <Typography
-              variant="body2"
-              color="primary.light"
-              onClick={() => {
-                navigate(ROUTES.CITIZEN_FORGOT_PASSWORD);
-              }}
-              sx={{
-                cursor: "pointer",
-                fontWeight: 600,
-                "&:hover": { textDecoration: "underline" },
-              }}
-            >
-              {t("auth.forgotPassword")}
-            </Typography>
-          </Box>
-
           {/* Action Buttons */}
           <Stack direction="column" spacing={2} useFlexGap={true}>
             <Button
@@ -148,12 +191,17 @@ const LoginPage = () => {
               variant="contained"
               fullWidth
               size="large"
-              disabled={loading}
-              startIcon={
-                loading ? (
+              disabled={checkingId}
+              endIcon={
+                checkingId ? (
                   <CircularProgress sx={{ ml: 1 }} size={20} color="inherit" />
                 ) : (
-                  <LoginIcon sx={{ ml: language === "ar" ? 1 : 0 }} />
+                  <ArrowForward
+                    sx={{
+                      transform: language === "ar" ? "rotate(180deg)" : "none",
+                      mr: language === "ar" ? 1 : 0,
+                    }}
+                  />
                 )
               }
               sx={{
@@ -166,7 +214,7 @@ const LoginPage = () => {
                 },
               }}
             >
-              {loading ? "" : t("common.signIn")}
+              {checkingId ? "" : t("common.next")}
             </Button>
             <Button
               type="button"
@@ -200,13 +248,13 @@ const LoginPage = () => {
           </Stack>
 
           {/* Divider */}
-          <Divider sx={{ my: 1 }}>
+          {/* <Divider sx={{ my: 1 }}>
             <Typography variant="body2" color="text.secondary">
               {t("common.or")}
             </Typography>
           </Divider>
 
-          {/* Sign Up Link */}
+          {/* Sign Up Link 
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="body2"
@@ -237,7 +285,7 @@ const LoginPage = () => {
             >
               {t("common.signUp")}
             </Button>
-          </Box>
+          </Box> */}
         </Stack>
       </form>
       <LanguageToggle />

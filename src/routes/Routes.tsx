@@ -30,12 +30,14 @@ import {
 } from "../pages/LandingPage/placeholders";
 import ViewLocationMapPage from "../pages/ViewLocationMapPage";
 import ServiceCenterPage from "../pages/Settings/ServiceCenterPage";
+import SignInPasswordPage from "../pages/SignInPasswordPage";
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
   HOME: "/home",
   DEPARTMENT_SECTION: "/departments",
   SIGNIN: "/auth/signIn",
+  SIGNIN_PASSWORD: "/auth/signin-password",
   SIGNUP: "/auth/signUp",
   Service_Center: "/service-center",
   VERIFICATION_QUESTIONS: "/verification-questions",
@@ -89,6 +91,7 @@ export const routes = [
   { path: ROUTES.ADMIN_LOCATION_MAP, element: <ViewLocationMapPage /> },
 
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
+  { path: ROUTES.SIGNIN_PASSWORD, element: <SignInPasswordPage /> },
   { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
     path: ROUTES.VERIFICATION_QUESTIONS,

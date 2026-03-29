@@ -7,7 +7,7 @@ import {
   CardContent,
   Typography,
   Stack,
-  Button,
+  // Button,
   Paper,
   Avatar,
   Chip,
@@ -15,16 +15,16 @@ import {
 import {
   AddCircleOutline as AddIcon,
   ListAlt as ListIcon,
-  AccountBalance as BankIcon,
-  Logout as LogoutIcon,
+  // AccountBalance as BankIcon,
+  // Logout as LogoutIcon,
   Person as PersonIcon,
   ArrowBack,
-  Settings,
+  // Settings,
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppSelector } from "../hooks/redux";
 import { ROUTES } from "../routes/Routes";
-import { useSnackbar } from "notistack";
+// import { useSnackbar } from "notistack";
 import BackButton from "../components/Shared/BackButton";
 
 /**
@@ -34,7 +34,7 @@ import BackButton from "../components/Shared/BackButton";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { enqueueSnackbar } = useSnackbar();
+  // const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store
   const authState: any = useAppSelector((state) => state.auth);
@@ -52,19 +52,19 @@ const CitizenDashboard: React.FC = () => {
   /**
    * Handle logout - clears auth state and redirects to sign in
    */
-  const handleLogout = () => {
-    // Clear localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("citizenInfo");
-    localStorage.removeItem("citizen_user");
+  // const handleLogout = () => {
+  //   // Clear localStorage
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("user");
+  //   localStorage.removeItem("citizenInfo");
+  //   localStorage.removeItem("citizen_user");
 
-    // Navigate to sign in page
-    navigate(`/`);
+  //   // Navigate to sign in page
+  //   navigate(`/`);
 
-    // Show success notification
-    enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
-  };
+  //   // Show success notification
+  //   enqueueSnackbar(t("common.logout") + " ✓", { variant: "success" });
+  // };
 
   /**
    * Dashboard card configuration

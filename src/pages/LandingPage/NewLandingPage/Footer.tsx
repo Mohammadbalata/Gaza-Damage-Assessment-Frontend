@@ -67,7 +67,7 @@ export function Footer() {
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  شركاءالنجاح
+                  الشركاء
                 </button>
               </li>
               <li>

@@ -6,11 +6,10 @@ import {
   Container,
   Paper,
   Typography,
-  Stack,
-  Button,
+
   IconButton,
-  Avatar,
-  Chip,
+
+
 } from "@mui/material";
   import {
     Storage as DatabaseIcon,
@@ -18,27 +17,24 @@ import {
     Warning as EmergencyIcon,
     Handshake as HandshakeIcon,
     ArrowForward,
-    Person as PersonIcon,
   } from "@mui/icons-material";
 import { ROUTES } from "../routes/Routes";
-import { LogOutIcon } from "lucide-react";
-import { enqueueSnackbar } from "notistack";
 import DamageAssessmentSection from "../components/landing/DamageAssessmentSection";
 import { motion } from "motion/react";
 import { Header } from "./LandingPage/NewLandingPage/Header";
-import BackButton from "../components/Shared/BackButton";
-import { useAppSelector } from "../hooks/redux";
+
+// import { useAppSelector } from "../hooks/redux";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const authState: any = useAppSelector((state) => state.auth);
-  const citizenInfo = authState.citizenInfo;
-  const citizenName = citizenInfo
-    ? `${citizenInfo?.full_name}`.split(" ")[0]
-    : citizenInfo.national_id;
+  // const authState: any = useAppSelector((state) => state.auth);
+  // const citizenInfo = authState.citizenInfo;
+  // const citizenName = citizenInfo
+  //   ? `${citizenInfo?.full_name}`.split(" ")[0]
+  //   : citizenInfo.national_id;
 
-  const avatarUrl = citizenInfo?.avatar_url || null;
+  // const avatarUrl = citizenInfo?.avatar_url || null;
 
   const cards = [
     {
@@ -92,9 +88,9 @@ const HomePage: React.FC = () => {
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
         <section
           id="departments"
-          className="pt-20 pb-10  text-[#1e3a5f] scroll-mt-24 overflow-hidden"
+          className="pt-20 pb-10  text-[#1e3a5f] scroll-mt-24 overflow-hidden lg:h-[80vh] flex items-center justify-center"
         >
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 ">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

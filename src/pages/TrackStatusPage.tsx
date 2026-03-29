@@ -50,7 +50,7 @@ const TrackStatusPage: React.FC = () => {
   const trackingNumber = useAppSelector((state) => state.auth.trackingNumber);
 
   useEffect(() => {
-    const trackingNumber = localStorage.getItem("trackingNumber");
+    // const trackingNumber = localStorage.getItem("trackingNumber");
     const fetchData = async () => {
       setLoading(true);
       setError("");

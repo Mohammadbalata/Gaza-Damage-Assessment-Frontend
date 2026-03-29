@@ -3,6 +3,7 @@ export interface IRoutes {
   HOME: string;
   Service_Center: string;
   SIGNIN: string;
+  SIGNIN_PASSWORD: string;
   SIGNUP: string;
   VERIFICATION_QUESTIONS: string;
   PREVIOUS_LOCATION: string;

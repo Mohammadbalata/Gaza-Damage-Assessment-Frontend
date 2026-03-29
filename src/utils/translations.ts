@@ -256,6 +256,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Choose your place of origin/current residence (post-war)",
     "map.currentLocationDescription":
       "Please select the location of your property after the war. (Where are you staying now?)",
+      "map.invalidCoords": "Invalid Coordinates",
+      
 
     // Review
     "review.title": "Review Your Application",
@@ -983,6 +985,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocation": "اختر موقع النزوح / الإقامة الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
+      "map.invalidCoords": "الإحداثيات غير صالحة",
 
     // Review
     "review.title": "مراجعة طلبك",

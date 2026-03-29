@@ -49,6 +49,7 @@ const VerificationQuestionsPage = () => {
   } = useForm<FormData>();
 
   useEffect(() => {
+    console.log("VerificationQuestionsPage Mount - Questions Length:", verificationQuestion?.length);
     if (verificationQuestion?.length === 0) {
       setLoading(true);
       dispatch(
@@ -59,13 +60,19 @@ const VerificationQuestionsPage = () => {
         })
       )
         .unwrap()
-        .catch(() => {
-          navigate(`${ROUTES.SIGNUP}`);
+        .then(() => {
+          console.log('Fetch questions success');
+        })
+        .catch((err) => {
+          console.error("Fetch questions failed:", err);
+          setError(err || "Failed to fetch verification questions");
+          setLoading(false);
+          // Don't redirect immediately so the user can see the error
         });
     } else {
       setQuestions(verificationQuestion);
       setLoading(loadingStore);
-      console.log(verificationQuestion);
+      console.log("Using questions from store:", verificationQuestion);
     }
   }, [verificationQuestion, dispatch, id, loadingStore, navigate]);
   console.log(questions);
@@ -117,7 +124,7 @@ const VerificationQuestionsPage = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate(`/${ROUTES.SIGNUP}`)}
+            onClick={() => navigate(`${ROUTES.SIGNIN}`)}
             startIcon={
               <ArrowBack
                 sx={{
@@ -191,7 +198,7 @@ const VerificationQuestionsPage = () => {
               variant="outlined"
               fullWidth
               size="large"
-              onClick={() => navigate(`${ROUTES.SIGNUP}`)}
+              onClick={() => navigate(`${ROUTES.SIGNIN}`)}
               startIcon={
                 <ArrowBack
                   sx={{

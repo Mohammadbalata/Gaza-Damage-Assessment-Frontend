@@ -4,14 +4,20 @@ import { Assignment as ClipboardIcon, ArrowForward } from "@mui/icons-material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
+import classNames from "classnames";
 
 const DamageAssessmentSection: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate(); // Hook for navigation
   const token = localStorage.getItem("token"); // تعريف هنا
+  const widowPathname = window.location.pathname 
+
+  
 
   return (
-    <Box sx={{ pb: 8 }}>
+    <Box className={classNames({
+      "pb-16" : widowPathname === '/home'
+    })} >
       <Container maxWidth="md">
         <Box
           sx={{
