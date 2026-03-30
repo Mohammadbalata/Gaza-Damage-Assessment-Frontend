@@ -48,7 +48,12 @@ export function Header() {
   return (
     <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
       <div className="mx-auto max-w-[1300px] px-4 lg:px-2 ">
-        <div className={classNames(" flex items-center justify-between py-[16px] gap-8 h-[90px] ",{'xl:last:ml-20 xl:first:pl-12':token})}>
+        <div
+          className={classNames(
+            " flex items-center justify-between py-[16px] gap-8 h-[90px] ",
+            { "xl:last:ml-20 xl:first:pl-12": token },
+          )}
+        >
           <img
             src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209423/logo-width_vrpocf.png"
             className=" logo w-80 h-20"
@@ -59,25 +64,25 @@ export function Header() {
           <nav className="hidden lg:flex items-center gap-8 xl:gap-8 text-black font-medium">
             {token && windowPathname !== "/" ? (
               <button
-              onClick={() => {
-                if (!token) {
-                  scrollToSection("hero");
-                } else {
-                  navigate(ROUTES.LAYOUT);
-                }
-              }}
-              className="hover:text-green-600 transition-colors "
-            >
-              الرئيسية
-            </button>
-            ) : 
-            <button
-                  onClick={() => navigate(ROUTES.HOME)}
-                  className="hover:text-green-600 transition-colors  "
-                >
-                  لوحة التحكم
-                </button>
-             }
+                onClick={() => {
+                  if (!token) {
+                    scrollToSection("hero");
+                  } else {
+                    navigate(ROUTES.LAYOUT);
+                  }
+                }}
+                className="hover:text-green-600 transition-colors "
+              >
+                الرئيسية
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate(ROUTES.HOME)}
+                className="hover:text-green-600 transition-colors  "
+              >
+                لوحة التحكم
+              </button>
+            )}
             {windowPathname !== "/home" && (
               <>
                 <button
@@ -96,7 +101,7 @@ export function Header() {
                   onClick={() => scrollToSection("partners")}
                   className="hover:text-green-600 transition-colors "
                 >
-                 الشركاء
+                  الشركاء
                 </button>
                 <button
                   onClick={() => scrollToSection("contact")}
@@ -107,7 +112,7 @@ export function Header() {
               </>
             )}
             {/* Background Pattern */}
-                {/* <Box
+            {/* <Box
                   sx={{
                     position: "absolute",
                     top: -50,
@@ -119,7 +124,7 @@ export function Header() {
                     background: "rgba(255,255,255,0.1)",
                   }}
                 /> */}
-                {/* <Box
+            {/* <Box
                   sx={{
                     position: "absolute",
                     bottom: -30,
@@ -131,74 +136,74 @@ export function Header() {
                     background: "rgba(255,255,255,0.08)",
                   }}
                 /> */}
-            
 
-            
             {/* Auth Buttons */}
 
-              <div className={classNames("flex items-center gap-2  ml-4 w-1/4 xl:w-auto",{
-                'flex-col': token
-              })} >
-            {token && (
-              <Paper
-                elevation={0}
-                sx={{
-
-                  borderRadius: 3,
-                  background: "inherit",
-                  color: "white",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                
-
-                <Stack
-                  direction={{ xs: "column", md: "row" }}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "flex-start", md: "center" }}
-                  spacing={2}
-                  sx={{ position: "relative", zIndex: 1 }}
+            <div
+              className={classNames(
+                "flex items-center gap-2  ml-4 w-1/4 xl:w-auto",
+                {
+                  "flex-col": token,
+                },
+              )}
+            >
+              {token && (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    borderRadius: 3,
+                    background: "inherit",
+                    color: "white",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
                 >
                   <Stack
-                    direction="row"
-                    spacing={3}
-                    alignItems="center"
-                    useFlexGap={true}
+                    direction={{ xs: "column", md: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "flex-start", md: "center" }}
+                    spacing={2}
+                    sx={{ position: "relative", zIndex: 1 }}
                   >
-                    <Avatar
-                      src={avatarUrl || undefined}
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: "rgba(255,255,255,0.2)",
-                        border: "2px solid rgba(255,255,255,0.3)",
-                        "& img": {
-                          objectFit: "cover",
-                        },
-                      }}
+                    <Stack
+                      direction="row"
+                      spacing={3}
+                      alignItems="center"
+                      useFlexGap={true}
                     >
-                      {/* Fallback when no avatar */}
-                      <PersonIcon sx={{ fontSize: 36 }} />
-                    </Avatar>
-                    <Box sx={{ display: "flex", gap: 1, color: "black" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 500, mb: 0.5 }}
+                      <Avatar
+                        src={avatarUrl || undefined}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          bgcolor: "rgba(255,255,255,0.2)",
+                          border: "2px solid rgba(255,255,255,0.3)",
+                          "& img": {
+                            objectFit: "cover",
+                          },
+                        }}
                       >
-                        {t("citizen.welcome")}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 500, mb: 0.5 }}
-                      >
-                        {citizenName}
-                      </Typography>
-                    </Box>
+                        {/* Fallback when no avatar */}
+                        <PersonIcon sx={{ fontSize: 36 }} />
+                      </Avatar>
+                      <Box sx={{ display: "flex", gap: 1, color: "black" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 500, mb: 0.5 }}
+                        >
+                          {t("citizen.welcome")}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 500, mb: 0.5 }}
+                        >
+                          {citizenName}
+                        </Typography>
+                      </Box>
+                    </Stack>
                   </Stack>
-                </Stack>
-              </Paper>
-            )}
+                </Paper>
+              )}
               {token ? (
                 <button
                   onClick={handleLogout}
@@ -219,19 +224,18 @@ export function Header() {
                     onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
                     className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition"
                   >
-                    تسجيل الدخول
+                    تسجيل دخول المسؤول
                   </button>
 
                   <button
                     onClick={() => navigate(ROUTES.SIGNIN)}
                     className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
                   >
-                    دخول المواطن
+                    تسجيل دخول المواطن
                   </button>
                 </>
               )}
             </div>
-
           </nav>
 
           {/* Mobile menu button */}
@@ -400,14 +404,14 @@ export function Header() {
                   onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
                   className="w-full px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition"
                 >
-                  تسجيل الدخول
+                  تسجيل دخول المسؤول
                 </button>
 
                 <button
                   onClick={() => navigate(ROUTES.SIGNIN)}
                   className="w-full px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
                 >
-                  دخول المواطن
+                  تسجيل دخول المواطن
                 </button>
               </div>
             )}
