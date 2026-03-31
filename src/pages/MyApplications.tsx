@@ -81,7 +81,7 @@ const MyApplications = () => {
       id: "",
     },
   });
-  
+
   // Complaint Dialog State
   const [complaintDialogOpen, setComplaintDialogOpen] = useState(false);
   const [complaintApp, setComplaintApp] = useState<any>(null);
@@ -98,7 +98,7 @@ const MyApplications = () => {
   const theme = useTheme();
   const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
   const [locationLoading, setLocationLoading] = useState(false);
-  
+
   // Close Complaint Confirmation State
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const [appToClose, setAppToClose] = useState<any>(null);
@@ -162,26 +162,39 @@ const MyApplications = () => {
       try {
         const [appsRes, complaintsRes, neighborhoodsRes] = await Promise.all([
           axiosClient.get(API.citizen.applications.list, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }),
           axiosClient.get(API.citizen.complaints.list, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }),
           axiosClient.get("/neighborhoods"),
         ]);
 
         const apps = appsRes.data.damage_reports || appsRes.data || [];
-        const complaintsRaw = complaintsRes.data?.complaints || complaintsRes.data?.data?.complaints || complaintsRes.data?.data || [];
-        const complaints = Array.isArray(complaintsRaw) ? complaintsRaw : (complaintsRaw.data || []);
+        const complaintsRaw =
+          complaintsRes.data?.complaints ||
+          complaintsRes.data?.data?.complaints ||
+          complaintsRes.data?.data ||
+          [];
+        const complaints = Array.isArray(complaintsRaw)
+          ? complaintsRaw
+          : complaintsRaw.data || [];
 
         // Merge complaints into apps
-        const enhancedApps = (Array.isArray(apps) ? apps : []).map((app: any) => {
-          const complaint = complaints.find((c: any) => 
-            String(c.damage_report?.id) === String(app.id) || 
-            String(c.damage_report_id) === String(app.id)
-          );
-          return { ...app, complaint };
-        });
+        const enhancedApps = (Array.isArray(apps) ? apps : []).map(
+          (app: any) => {
+            const complaint = complaints.find(
+              (c: any) =>
+                String(c.damage_report?.id) === String(app.id) ||
+                String(c.damage_report_id) === String(app.id),
+            );
+            return { ...app, complaint };
+          },
+        );
 
         setRawData(enhancedApps);
         setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
@@ -356,17 +369,21 @@ const MyApplications = () => {
 
   const handleConfirmCloseComplaint = async () => {
     if (!appToClose?.complaint?.id) return;
-    
+
     setClosingComplaint(true);
     try {
-      await axiosClient.put(API.citizen.complaints.close(appToClose.complaint.id), {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      await axiosClient.put(
+        API.citizen.complaints.close(appToClose.complaint.id),
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
+      );
       enqueueSnackbar(t("complaint.closeSuccess"), { variant: "success" });
       setCloseConfirmOpen(false);
-      
+
       // Refresh applications to update status
       const [appsRes, complaintsRes] = await Promise.all([
         axiosClient.get(API.citizen.applications.list, {
@@ -378,13 +395,20 @@ const MyApplications = () => {
       ]);
 
       const apps = appsRes.data.damage_reports || appsRes.data || [];
-      const complaintsRaw = complaintsRes.data?.complaints || complaintsRes.data?.data?.complaints || complaintsRes.data?.data || [];
-      const complaints = Array.isArray(complaintsRaw) ? complaintsRaw : (complaintsRaw.data || []);
+      const complaintsRaw =
+        complaintsRes.data?.complaints ||
+        complaintsRes.data?.data?.complaints ||
+        complaintsRes.data?.data ||
+        [];
+      const complaints = Array.isArray(complaintsRaw)
+        ? complaintsRaw
+        : complaintsRaw.data || [];
 
       const enhancedApps = (Array.isArray(apps) ? apps : []).map((app: any) => {
-        const complaint = complaints.find((c: any) => 
-          String(c.damage_report?.id) === String(app.id) || 
-          String(c.damage_report_id) === String(app.id)
+        const complaint = complaints.find(
+          (c: any) =>
+            String(c.damage_report?.id) === String(app.id) ||
+            String(c.damage_report_id) === String(app.id),
         );
         return { ...app, complaint };
       });
@@ -547,24 +571,41 @@ const MyApplications = () => {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header Section */}
         <Stack
-          direction={{ xs: "column", md: "row" }}
+          direction={{ xs: "column", md: "column" }}
           justifyContent="space-between"
           alignItems={{ xs: "stretch", md: "center" }}
           spacing={3}
           sx={{ mb: 4 }}
         >
-          <Box>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {t("citizen.myRequests")}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {t("citizen.myRequestsDesc")}
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
+              width: "100%",
+            }}
+          >
+            <Box>
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
+                {t("citizen.myRequests")}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {t("citizen.myRequestsDesc")}
+              </Typography>
+            </Box>
+
+            <BackButton
+              sx={{ mb: 0, mt: 0 }}
+              language={language}
+              to={ROUTES.CITIZEN_DASHBOARD}
+            />
           </Box>
 
           <Box
             sx={{
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
               ml: "0 !important",
               flexWrap: "wrap",
               gap: 2,
@@ -572,12 +613,6 @@ const MyApplications = () => {
               justifyContent: "flex-end",
             }}
           >
-            <BackButton
-              sx={{ marginBottom: 3.5 }}
-              language={language}
-              to={ROUTES.CITIZEN_DASHBOARD}
-            />
-
             <Button
               variant="contained"
               size="medium"
@@ -588,6 +623,7 @@ const MyApplications = () => {
                 textTransform: "none",
                 fontWeight: "bold",
                 boxShadow: 2,
+                width: { xs: "100%", sm: "auto" },
               }}
             >
               {t("citizen.addDamageRequest")}
@@ -597,7 +633,12 @@ const MyApplications = () => {
               size="medium"
               startIcon={
                 <DescriptionIcon
-                  sx={{ fontSize: 40, marginLeft: 1, flexBasis: "1" }}
+                  sx={{
+                    fontSize: 40,
+                    marginLeft: 1,
+                    flexBasis: "1",
+                    width: { xs: "100%", sm: "auto" },
+                  }}
                 />
               }
               onClick={handleGeneratePdf}
@@ -605,6 +646,7 @@ const MyApplications = () => {
                 textTransform: "none",
                 fontWeight: "bold",
                 boxShadow: 2,
+                width: { xs: "100%", sm: "auto" },
               }}
             >
               {t("success.downloadReceipt")}
@@ -622,6 +664,7 @@ const MyApplications = () => {
                 "&:hover": {
                   bgcolor: "error.dark",
                 },
+                width: { xs: "100%", sm: "auto" },
               }}
             >
               {t("complaint.myComplaints")}

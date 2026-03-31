@@ -12,6 +12,13 @@ import {
   IconButton,
   useTheme,
   alpha,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Avatar,
+  TextField,
+  CircularProgress,
+  Paper,
 } from "@mui/material";
 import {
   Description as DescriptionIcon,
@@ -28,11 +35,24 @@ import {
   Lock as ClosedIcon,
   Feedback as ComplaintIcon,
   MoreVert as MoreIcon,
+  Comment as CommentIcon,
+  Close as CloseIcon,
+  Reply as ReplyIcon,
 } from "@mui/icons-material";
 import { MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import PendingActionsIcon from "@mui/icons-material/PendingActions"; // UNDER_REVIEW
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn"; // SUBMITTED
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"; // PRE_APPROVED
+import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { ReportStatus } from "../../constants/ReportStatus";
 
 export interface ApplicationCardProps {
   application: any;
@@ -40,9 +60,481 @@ export interface ApplicationCardProps {
   onDownloadPdf: (app: any) => void;
   onAddComplaint: (app: any) => void;
   onCloseComplaint: (app: any) => void;
+  onSendCommentReply?: (
+    applicationId: string,
+    commentId: string,
+    replyText: string,
+  ) => Promise<void>;
+  onFetchComments?: (applicationId: string) => Promise<any[]>;
   neighborhoods?: any[];
-  index?: number; // For staggered animation
+  index?: number;
 }
+
+// Comments Dialog Component
+const CommentsDialog = ({
+  open,
+  onClose,
+  application,
+  onSendReply,
+  language,
+  onFetchComments,
+}: {
+  open: boolean;
+  onClose: () => void;
+  application: any;
+  onSendReply: (commentId: string, replyText: string) => Promise<void>;
+  language: string;
+  onFetchComments?: (applicationId: string) => Promise<any[]>;
+}) => {
+  const theme = useTheme();
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [localComments, setLocalComments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load comments from application or fetch them
+  useEffect(() => {
+    const loadComments = async () => {
+      if (open && application?.id) {
+        setIsLoading(true);
+        try {
+          if (onFetchComments) {
+            const fetchedComments = await onFetchComments(application.id);
+            setLocalComments(fetchedComments);
+          } else if (application?.supervisor_comments) {
+            setLocalComments(application.supervisor_comments);
+          } else {
+            setLocalComments([]);
+          }
+        } catch (error) {
+          console.error("Error loading comments:", error);
+          setLocalComments([]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadComments();
+  }, [
+    open,
+    application?.id,
+    onFetchComments,
+    application?.supervisor_comments,
+  ]);
+
+  const handleReplyClick = (commentId: string) => {
+    setReplyingTo(commentId);
+    setReplyText("");
+  };
+
+  const handleCancelReply = () => {
+    setReplyingTo(null);
+    setReplyText("");
+  };
+
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !replyingTo) return;
+    setIsSending(true);
+    try {
+      await onSendReply(replyingTo, replyText);
+
+      // Update comments locally to add the reply
+      const updatedComments = localComments.map((comment) => {
+        if (comment.id === replyingTo) {
+          const newReply = {
+            id: Date.now().toString(),
+            author: language === "ar" ? "أنت" : "You",
+            role: "citizen",
+            message: replyText,
+            timestamp: new Date().toISOString(),
+          };
+          return {
+            ...comment,
+            replies: [...(comment.replies || []), newReply],
+          };
+        }
+        return comment;
+      });
+
+      setLocalComments(updatedComments);
+      setReplyText("");
+      setReplyingTo(null);
+    } catch (error) {
+      console.error("Error sending reply:", error);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          maxHeight: "90vh",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          pb: 1,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Stack direction="row" spacing={1} alignItems="center">
+          <CommentIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            {language === "ar"
+              ? "ملاحظات المشرف والردود"
+              : "Supervisor Comments & Replies"}
+          </Typography>
+        </Stack>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ p: 0 }}>
+        <Box sx={{ p: 3, maxHeight: "60vh", overflowY: "auto" }}>
+          {isLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                py: 8,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : localComments.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 8,
+                color: "text.secondary",
+              }}
+            >
+              <CommentIcon sx={{ fontSize: 48, opacity: 0.5, mb: 2 }} />
+              <Typography>
+                {language === "ar" ? "لا توجد ملاحظات بعد" : "No comments yet"}
+              </Typography>
+            </Box>
+          ) : (
+            <Stack spacing={3}>
+              {localComments.map((comment: any) => (
+                <Box key={comment.id}>
+                  {/* Main Comment */}
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      borderRadius: 2,
+                      borderLeft: `4px solid ${theme.palette.primary.main}`,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="flex-start"
+                      mb={1}
+                    >
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: "primary.main",
+                            fontSize: "0.875rem",
+                          }}
+                        >
+                          {comment.author?.charAt(0) || "C"}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            {comment.author ||
+                              (comment.role === "supervisor"
+                                ? language === "ar"
+                                  ? "مشرف"
+                                  : "Supervisor"
+                                : language === "ar"
+                                  ? "مواطن"
+                                  : "Citizen")}
+                          </Typography>
+                          <Chip
+                            label={
+                              comment.role === "supervisor"
+                                ? language === "ar"
+                                  ? "مشرف"
+                                  : "Supervisor"
+                                : language === "ar"
+                                  ? "مواطن"
+                                  : "Citizen"
+                            }
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: "0.625rem",
+                              bgcolor:
+                                comment.role === "supervisor"
+                                  ? alpha(theme.palette.info.main, 0.1)
+                                  : alpha(theme.palette.success.main, 0.1),
+                              color:
+                                comment.role === "supervisor"
+                                  ? "info.main"
+                                  : "success.main",
+                            }}
+                          />
+                        </Box>
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(comment.timestamp).toLocaleString(
+                          language === "ar" ? "ar-EG" : "en-US",
+                        )}
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {comment.message}
+                    </Typography>
+
+                    {/* Reply Button for Main Comment */}
+                    <Box
+                      sx={{
+                        mt: 1.5,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Button
+                        size="small"
+                        startIcon={<ReplyIcon fontSize="small" />}
+                        onClick={() => handleReplyClick(comment.id)}
+                        sx={{
+                          textTransform: "none",
+                          color: "primary.main",
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.05),
+                          },
+                        }}
+                      >
+                        {language === "ar" ? "رد" : "Reply"}
+                      </Button>
+                    </Box>
+                  </Paper>
+
+                  {/* Reply Input for this specific comment */}
+                  {replyingTo === comment.id && (
+                    <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 2,
+                          bgcolor: alpha(theme.palette.primary.main, 0.02),
+                          borderRadius: 2,
+                          border: `1px solid ${alpha(
+                            theme.palette.primary.main,
+                            0.1,
+                          )}`,
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="flex-end"
+                        >
+                          <TextField
+                            fullWidth
+                            multiline
+                            rows={2}
+                            placeholder={
+                              language === "ar"
+                                ? `اكتب ردك على ${
+                                    comment.author || "المشرف"
+                                  }...`
+                                : `Write your reply to ${
+                                    comment.author || "supervisor"
+                                  }...`
+                            }
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            variant="outlined"
+                            size="small"
+                            autoFocus
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                                bgcolor: "background.paper",
+                              },
+                            }}
+                          />
+                          <Stack direction="row" spacing={1}>
+                            <Button
+                              variant="outlined"
+                              onClick={handleCancelReply}
+                              size="small"
+                              sx={{
+                                borderRadius: 2,
+                                textTransform: "none",
+                              }}
+                            >
+                              {language === "ar" ? "إلغاء" : "Cancel"}
+                            </Button>
+                            <Button
+                              variant="contained"
+                              onClick={handleSendReply}
+                              disabled={!replyText.trim() || isSending}
+                              size="small"
+                              sx={{
+                                borderRadius: 2,
+                                textTransform: "none",
+                              }}
+                            >
+                              {isSending ? (
+                                <CircularProgress size={20} color="inherit" />
+                              ) : language === "ar" ? (
+                                "إرسال"
+                              ) : (
+                                "Send"
+                              )}
+                            </Button>
+                          </Stack>
+                        </Stack>
+                      </Paper>
+                    </Box>
+                  )}
+
+                  {/* Existing Replies */}
+                  {comment.replies && comment.replies.length > 0 && (
+                    <Stack spacing={1.5} sx={{ mt: 1.5, ml: 4 }}>
+                      {comment.replies.map((reply: any) => (
+                        <Paper
+                          key={reply.id}
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            bgcolor: alpha(theme.palette.grey[500], 0.05),
+                            borderRadius: 2,
+                            borderRight:
+                              reply.role === "citizen"
+                                ? `2px solid ${theme.palette.success.main}`
+                                : "none",
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="flex-start"
+                            mb={1}
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor:
+                                    reply.role === "supervisor"
+                                      ? "info.main"
+                                      : "success.main",
+                                  fontSize: "0.75rem",
+                                }}
+                              >
+                                {reply.author?.charAt(0) ||
+                                  (reply.role === "supervisor" ? "م" : "م")}
+                              </Avatar>
+                              <Typography variant="caption" fontWeight="bold">
+                                {reply.author ||
+                                  (reply.role === "supervisor"
+                                    ? language === "ar"
+                                      ? "مشرف"
+                                      : "Supervisor"
+                                    : language === "ar"
+                                      ? "مواطن"
+                                      : "Citizen")}
+                              </Typography>
+                              <Chip
+                                label={
+                                  reply.role === "supervisor"
+                                    ? language === "ar"
+                                      ? "مشرف"
+                                      : "Supervisor"
+                                    : language === "ar"
+                                      ? "مواطن"
+                                      : "Citizen"
+                                }
+                                size="small"
+                                sx={{
+                                  height: 18,
+                                  fontSize: "0.625rem",
+                                }}
+                              />
+                            </Stack>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {new Date(reply.timestamp).toLocaleString(
+                                language === "ar" ? "ar-EG" : "en-US",
+                              )}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="body2" sx={{ mt: 0.5 }}>
+                            {reply.message}
+                          </Typography>
+
+                          {/* Add Reply button to replies as well */}
+                          <Box
+                            sx={{
+                              mt: 1,
+                              display: "flex",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <Button
+                              size="small"
+                              startIcon={<ReplyIcon fontSize="small" />}
+                              onClick={() => handleReplyClick(comment.id)}
+                              sx={{
+                                textTransform: "none",
+                                color: "primary.main",
+                                fontSize: "0.75rem",
+                                "&:hover": {
+                                  bgcolor: alpha(
+                                    theme.palette.primary.main,
+                                    0.05,
+                                  ),
+                                },
+                              }}
+                            >
+                              {language === "ar" ? "رد" : "Reply"}
+                            </Button>
+                          </Box>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          )}
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const ApplicationCard = ({
   application,
@@ -50,12 +542,25 @@ const ApplicationCard = ({
   onDownloadPdf,
   onAddComplaint,
   onCloseComplaint,
+  onSendCommentReply,
+  onFetchComments,
   neighborhoods = [],
   index = 0,
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
+  const [comments, setComments] = useState<any[]>([]);
+
+  // Load comments if fetch function is provided
+  useEffect(() => {
+    if (onFetchComments && application?.id) {
+      onFetchComments(application.id).then(setComments).catch(console.error);
+    } else if (application?.supervisor_comments) {
+      setComments(application.supervisor_comments);
+    }
+  }, [application?.id, onFetchComments, application?.supervisor_comments]);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -65,11 +570,26 @@ const ApplicationCard = ({
     setAnchorEl(null);
   };
 
+  const handleSendReply = async (commentId: string, replyText: string) => {
+    if (onSendCommentReply) {
+      await onSendCommentReply(application.id, commentId, replyText);
+    } else {
+      // Mock implementation if no handler provided
+      console.log(
+        "Sending reply for application:",
+        application.id,
+        commentId,
+        replyText,
+      );
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  };
+
   if (!application) return null;
 
   const buildingType = application?.damage_details.buildingType;
   const buildingData = application?.damage_details[buildingType];
-
   const status = application.status?.toUpperCase() || "SUBMITTED";
   const isSubmitted = status === "SUBMITTED";
 
@@ -81,19 +601,73 @@ const ApplicationCard = ({
     return language === "ar" ? neighborhood.name : neighborhood.name_en;
   };
 
-  const getStatusConfig = (status: string) => {
+  const getStatusConfig = (status: ReportStatus) => {
     switch (status) {
-      case "APPROVED":
-        return { color: "success", icon: <ValidIcon fontSize="small" /> };
-      case "REJECTED":
-        return { color: "error", icon: <RejectedIcon fontSize="small" /> };
-      case "VERIFIED":
-        return { color: "info", icon: <VerifiedIcon fontSize="small" /> };
-      case "CLOSED":
-        return { color: "default", icon: <ClosedIcon fontSize="small" /> };
-      case "PENDING":
+      case ReportStatus.SUBMITTED:
+        return {
+          color: "primary",
+          icon: <AssignmentTurnedInIcon fontSize="small" />,
+        };
+
+      case ReportStatus.UNDER_REVIEW:
+        return {
+          color: "warning",
+          icon: <PendingActionsIcon fontSize="small" />,
+        };
+
+      case ReportStatus.NEED_COMPLETION:
+        return {
+          color: "default",
+          icon: <EditNoteIcon fontSize="small" />,
+        };
+
+      case ReportStatus.PRE_APPROVED:
+        return {
+          color: "info",
+          icon: <CheckCircleOutlineIcon fontSize="small" />,
+        };
+
+      case ReportStatus.FIELD_VERIFICATION_REQUIRED:
+        return {
+          color: "warning",
+          icon: <AssignmentLateIcon fontSize="small" />,
+        };
+
+      case ReportStatus.FIELD_VERIFICATION_IN_PROGRESS:
+        return {
+          color: "info",
+          icon: <AutorenewIcon fontSize="small" />,
+        };
+
+      case ReportStatus.FIELD_VERIFIED:
+        return {
+          color: "success",
+          icon: <FactCheckIcon fontSize="small" />,
+        };
+
+      case ReportStatus.APPROVED:
+        return {
+          color: "success",
+          icon: <CheckCircleIcon fontSize="small" />,
+        };
+
+      case ReportStatus.REJECTED:
+        return {
+          color: "error",
+          icon: <CancelIcon fontSize="small" />,
+        };
+
+      case ReportStatus.ESCALATED:
+        return {
+          color: "error",
+          icon: <CancelIcon fontSize="small" />,
+        };
+
       default:
-        return { color: "warning", icon: <PendingIcon fontSize="small" /> };
+        return {
+          color: "default",
+          icon: <PendingIcon fontSize="small" />,
+        };
     }
   };
 
@@ -101,380 +675,444 @@ const ApplicationCard = ({
   const statusLabel =
     t(`status.${application.status?.toLowerCase()}`) || application.status;
 
+  // Check if application has comments
+  const hasComments = comments && comments.length > 0;
+
   // Staggered animation delay based on index
   const animationDelay = `${index * 100}ms`;
 
   return (
-    <Fade in={true} style={{ transitionDelay: animationDelay }} timeout={500}>
-      <Card
-        elevation={0}
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: 4,
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.paper",
-          position: "relative",
-          overflow: "hidden",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          "&:hover": {
-            transform: "translateY(-4px)",
-            boxShadow: `0 12px 24px -10px ${alpha(
-              theme.palette.primary.main,
-              0.15,
-            )}`,
-            borderColor: "primary.main",
-            "& .card-header-bg": {
-              opacity: 1,
-            },
-          },
-        }}
-      >
-        {/* Subtle Background Decoration on Hover */}
-        <Box
-          className="card-header-bg"
+    <>
+      <Fade in={true} style={{ transitionDelay: animationDelay }} timeout={500}>
+        <Card
+          elevation={0}
           sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "6px",
-            bgcolor: "primary.main",
-            opacity: 0,
-            transition: "opacity 0.3s ease",
-          }}
-        />
-
-        <CardContent sx={{ p: 3, flexGrow: 1 }}>
-          {/* Header: ID and Status */}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-            spacing={2}
-            mb={3}
-          >
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              useFlexGap={true}
-            >
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 3,
-                  bgcolor: isSubmitted
-                    ? alpha(theme.palette.warning.main, 0.1)
-                    : alpha(theme.palette.primary.main, 0.1),
-                  color: isSubmitted ? "warning.main" : "primary.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <DescriptionIcon />
-              </Box>
-              <Box>
-                <Typography
-                  variant="overline"
-                  color="text.secondary"
-                  lineHeight={1}
-                >
-                  {t("citizen.applicationId")}
-                </Typography>
-                <Typography variant="h6" fontWeight="bold" lineHeight={1.2}>
-                  #{application.report_code}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Tooltip
-              title={
-                t(`status.tooltip.${application.status?.toLowerCase()}`) || ""
-              }
-            >
-              <Chip
-                label={statusLabel}
-                icon={statusConfig.icon}
-                color={statusConfig.color as any}
-                size="small"
-                sx={{
-                  fontWeight: "bold",
-                  borderRadius: 2,
-                  px: 1,
-                  direction: "ltr",
-                  "& .MuiChip-label": {
-                    px: 1,
-                  },
-                }}
-              />
-            </Tooltip>
-          </Stack>
-
-          <Divider sx={{ my: 2, borderStyle: "dashed" }} />
-
-          {/* Body: Metadata */}
-          <Stack spacing={2}>
-            <Stack
-              direction="row"
-              spacing={1.5}
-              alignItems="center"
-              useFlexGap={true}
-            >
-              <EventIcon fontSize="small" color="action" />
-              <Typography variant="body2" color="text.secondary">
-                {t("citizen.submittedOn")}:{" "}
-                <Typography
-                  component="span"
-                  variant="body2"
-                  fontWeight="medium"
-                  color="text.primary"
-                >
-                  {new Date(application.created_at).toLocaleDateString(
-                    language === "ar" ? "ar-EG" : "en-US",
-                  )}
-                </Typography>
-              </Typography>
-            </Stack>
-
-            <Stack
-              direction="row"
-              spacing={1.5}
-              alignItems="flex-start"
-              useFlexGap={true}
-            >
-              <LocationOnIcon
-                fontSize="small"
-                color="action"
-                sx={{ mt: 0.3 }}
-              />
-              <Typography variant="body2" color="text.secondary">
-                {t("citizen.address")}:{" "}
-                <Typography
-                  component="span"
-                  variant="body2"
-                  sx={{
-                    fontWeight: 500,
-                    color: "text.secondary",
-                    lineHeight: 1.6,
-                    display: "inline-flex",
-                    gap: 0.5,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {application?.neighborhood_id && (
-                    <span>
-                      {" "}
-                      {getNeighborhoodName(application?.neighborhood_id)}
-                    </span>
-                  )}
-                  {buildingData?.landmark && (
-                    <span> - {buildingData?.landmark}</span>
-                  )}
-                  {buildingData?.nameOfStreet && (
-                    <span> - {buildingData?.nameOfStreet}</span>
-                  )}
-
-                  {buildingData?.buildingNumber && (
-                    <span> - {buildingData?.buildingNumber}</span>
-                  )}
-                </Typography>
-              </Typography>
-            </Stack>
-          </Stack>
-        </CardContent>
-
-        {/* Footer: Actions */}
-        <Box
-          sx={{
-            p: 2,
-            pt: 0,
+            height: "100%",
             display: "flex",
-            gap: 1,
-            justifyContent: "space-between",
-            alignItems: "center",
+            flexDirection: "column",
+            borderRadius: 4,
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            position: "relative",
+            overflow: "hidden",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            "&:hover": {
+              transform: "translateY(-4px)",
+              boxShadow: `0 12px 24px -10px ${alpha(
+                theme.palette.primary.main,
+                0.15,
+              )}`,
+              borderColor: "primary.main",
+              "& .card-header-bg": {
+                opacity: 1,
+              },
+            },
           }}
         >
-          {/* Primary Action */}
-          <Button
-            variant={isSubmitted ? "contained" : "outlined"}
-            color={isSubmitted ? "primary" : "inherit"}
-            startIcon={
-              isSubmitted ? (
-                <EditIcon sx={{ ml: 2 }} />
-              ) : (
-                <VisibilityIcon sx={{ ml: 2 }} />
-              )
-            }
-            onClick={() => onAction(application)}
+          {/* Subtle Background Decoration on Hover */}
+          <Box
+            className="card-header-bg"
             sx={{
-              flexGrow: 1,
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: "bold",
-              boxShadow: isSubmitted ? 2 : 0,
-              borderWidth: isSubmitted ? 0 : "1px",
-              borderColor: isSubmitted ? "primary.main" : "divider",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "6px",
+              bgcolor: "primary.main",
+              opacity: 0,
+              transition: "opacity 0.3s ease",
             }}
-          >
-            {isSubmitted ? t("common.editRequest") : t("common.reviewRequest")}
-          </Button>
-
-          {/* Secondary Actions (Icons) */}
-          <Tooltip title={t("app.receipt")}>
-            <IconButton
-              onClick={() => onDownloadPdf(application)}
-              sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                color: "primary.main",
-                borderRadius: 2,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                "&:hover": {
-                  bgcolor: "primary.main",
-                  color: "white",
-                  borderColor: "primary.main",
-                },
-              }}
+          />
+          <CardContent sx={{ p: 3, flexGrow: 1 }}>
+            {/* Header: ID and Status */}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="flex-start"
+              spacing={2}
+              mb={3}
             >
-              <PdfIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          {application.complaint &&
-            application.complaint.status?.toUpperCase().replace("-", "_") !==
-              "CLOSED" && (
-              <>
-                <Tooltip title={t("common.actions")}>
-                  <IconButton
-                    onClick={handleMenuOpen}
-                    sx={{
-                      bgcolor: alpha(theme.palette.primary.main, 0.05),
-                      color: "primary.main",
-                      borderRadius: 2,
-                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                      "&:hover": {
-                        bgcolor: "primary.main",
-                        color: "white",
-                        borderColor: "primary.main",
-                      },
-                    }}
-                  >
-                    <MoreIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: language === "ar" ? "right" : "left",
-                  }}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: language === "ar" ? "right" : "left",
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                useFlexGap={true}
+              >
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 3,
+                    bgcolor: isSubmitted
+                      ? alpha(theme.palette.primary.main, 0.1)
+                      : alpha(theme.palette.warning.main, 0.1),
+                    color: isSubmitted ? "primary.main" : "warning.main",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <MenuItem
-                    component={Link}
-                    to={`/citizen/complaints/${application.complaint.id}`}
-                    onClick={handleMenuClose}
+                  <DescriptionIcon />
+                </Box>
+                <Box>
+                  <Typography
+                    variant="overline"
+                    color="text.secondary"
+                    lineHeight={1}
                   >
-                    <ListItemIcon>
-                      <VisibilityIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={t("citizen.viewDetails")} />
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleMenuClose();
-                      onCloseComplaint(application);
+                    {t("citizen.applicationId")}
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold" lineHeight={1.2}>
+                    #{application.report_code}
+                  </Typography>
+                </Box>
+              </Stack>
+              <Tooltip
+                title={
+                  t(`status.tooltip.${application.status?.toLowerCase()}`) || ""
+                }
+              >
+                <Chip
+                  label={statusLabel}
+                  icon={statusConfig.icon}
+                  color={statusConfig.color as any}
+                  size="small"
+                  sx={{
+                    fontWeight: "bold",
+                    borderRadius: 2,
+                    px: 1,
+                    direction: "ltr",
+                    "& .MuiChip-label": {
+                      px: 1,
+                    },
+                  }}
+                />
+              </Tooltip>
+            </Stack>
+
+            <Divider sx={{ my: 2, borderStyle: "dashed" }} />
+
+            {/* Body: Metadata */}
+            <Stack spacing={2}>
+              <Stack
+                direction="row"
+                spacing={1.5}
+                alignItems="center"
+                useFlexGap={true}
+              >
+                <EventIcon fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  {t("citizen.submittedOn")}:{" "}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    fontWeight="medium"
+                    color="text.primary"
+                  >
+                    {new Date(application.created_at).toLocaleDateString(
+                      language === "ar" ? "ar-EG" : "en-US",
+                    )}
+                  </Typography>
+                </Typography>
+              </Stack>
+
+              <Stack
+                direction="row"
+                spacing={1.5}
+                alignItems="flex-start"
+                useFlexGap={true}
+              >
+                <LocationOnIcon
+                  fontSize="small"
+                  color="action"
+                  sx={{ mt: 0.3 }}
+                />
+                <Typography variant="body2" color="text.secondary">
+                  {t("citizen.address")}:{" "}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      color: "text.secondary",
+                      lineHeight: 1.6,
+                      display: "inline-flex",
+                      gap: 0.5,
+                      flexWrap: "wrap",
                     }}
-                    disabled={
-                      application.complaint.status
-                        ?.toUpperCase()
-                        .replace("-", "_") !== "RESOLVED"
-                    }
                   >
-                    <ListItemIcon>
-                      <ClosedIcon
-                        fontSize="small"
-                        color={
-                          application.complaint.status
-                            ?.toUpperCase()
-                            .replace("-", "_") === "RESOLVED"
-                            ? "error"
-                            : "disabled"
-                        }
-                      />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t("complaint.close")}
-                      secondary={
+                    {application?.neighborhood_id && (
+                      <span>
+                        {" "}
+                        {getNeighborhoodName(application?.neighborhood_id)}{" "}
+                      </span>
+                    )}
+                    {buildingData?.landmark && (
+                      <span> - {buildingData?.landmark}</span>
+                    )}
+                    {buildingData?.nameOfStreet && (
+                      <span> - {buildingData?.nameOfStreet}</span>
+                    )}
+                    {buildingData?.buildingNumber && (
+                      <span> - {buildingData?.buildingNumber}</span>
+                    )}
+                  </Typography>
+                </Typography>
+              </Stack>
+            </Stack>
+          </CardContent>
+
+          {/* Footer: Actions */}
+          <Box
+            sx={{
+              p: 2,
+              pt: 0,
+              display: "flex",
+              gap: 1,
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            {/* Primary Action */}
+            <Button
+              variant={isSubmitted ? "contained" : "outlined"}
+              color={isSubmitted ? "primary" : "inherit"}
+              startIcon={
+                isSubmitted ? (
+                  <EditIcon sx={{ ml: 2 }} />
+                ) : (
+                  <VisibilityIcon sx={{ ml: 2 }} />
+                )
+              }
+              onClick={() => onAction(application)}
+              sx={{
+                flexGrow: 1,
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: "bold",
+                boxShadow: isSubmitted ? 2 : 0,
+                borderWidth: isSubmitted ? 0 : "1px",
+                borderColor: isSubmitted ? "primary.main" : "divider",
+              }}
+            >
+              {isSubmitted
+                ? t("common.editRequest")
+                : t("common.reviewRequest")}
+            </Button>
+
+            {/* Comments Button - New Button */}
+            <Tooltip
+              title={
+                t("common.viewComments") ||
+                (language === "ar" ? "عرض الملاحظات" : "View Comments")
+              }
+            >
+              <IconButton
+                onClick={() => setCommentsDialogOpen(true)}
+                sx={{
+                  bgcolor: hasComments
+                    ? alpha(theme.palette.warning.main, 0.1)
+                    : alpha(theme.palette.info.main, 0.05),
+                  color: hasComments ? "warning.main" : "info.main",
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(
+                    hasComments
+                      ? theme.palette.warning.main
+                      : theme.palette.info.main,
+                    0.2,
+                  )}`,
+                  position: "relative",
+                  "&:hover": {
+                    bgcolor: hasComments ? "warning.main" : "info.main",
+                    color: "white",
+                    borderColor: hasComments ? "warning.main" : "info.main",
+                  },
+                }}
+              >
+                <CommentIcon fontSize="small" />
+                {hasComments && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: -4,
+                      right: -4,
+                      width: 12,
+                      height: 12,
+                      bgcolor: "warning.main",
+                      borderRadius: "50%",
+                      border: "2px solid white",
+                    }}
+                  />
+                )}
+              </IconButton>
+            </Tooltip>
+
+            {/* Secondary Actions (Icons) */}
+            <Tooltip title={t("app.receipt")}>
+              <IconButton
+                onClick={() => onDownloadPdf(application)}
+                sx={{
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  color: "primary.main",
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  "&:hover": {
+                    bgcolor: "primary.main",
+                    color: "white",
+                    borderColor: "primary.main",
+                  },
+                }}
+              >
+                <PdfIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            {application.complaint &&
+              application.complaint.status?.toUpperCase().replace("-", "_") !==
+                "CLOSED" && (
+                <>
+                  <Tooltip title={t("common.actions")}>
+                    <IconButton
+                      onClick={handleMenuOpen}
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        color: "primary.main",
+                        borderRadius: 2,
+                        border: `1px solid ${alpha(
+                          theme.palette.primary.main,
+                          0.1,
+                        )}`,
+                        "&:hover": {
+                          bgcolor: "primary.main",
+                          color: "white",
+                          borderColor: "primary.main",
+                        },
+                      }}
+                    >
+                      <MoreIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: language === "ar" ? "right" : "left",
+                    }}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: language === "ar" ? "right" : "left",
+                    }}
+                  >
+                    <MenuItem
+                      component={Link}
+                      to={`/citizen/complaints/${application.complaint.id}`}
+                      onClick={handleMenuClose}
+                    >
+                      <ListItemIcon>
+                        <VisibilityIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary={t("citizen.viewDetails")} />
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        handleMenuClose();
+                        onCloseComplaint(application);
+                      }}
+                      disabled={
                         application.complaint.status
                           ?.toUpperCase()
                           .replace("-", "_") !== "RESOLVED"
-                          ? t("complaint.waitingForResponse")
-                          : null
                       }
-                    />
-                  </MenuItem>
-                </Menu>
-              </>
+                    >
+                      <ListItemIcon>
+                        <ClosedIcon
+                          fontSize="small"
+                          color={
+                            application.complaint.status
+                              ?.toUpperCase()
+                              .replace("-", "_") === "RESOLVED"
+                              ? "error"
+                              : "disabled"
+                          }
+                        />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={t("complaint.close")}
+                        secondary={
+                          application.complaint.status
+                            ?.toUpperCase()
+                            .replace("-", "_") !== "RESOLVED"
+                            ? t("complaint.waitingForResponse")
+                            : null
+                        }
+                      />
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
+
+            {(!application.complaint ||
+              ["RESOLVED", "CLOSED"].includes(
+                application.complaint.status?.toUpperCase().replace("-", "_"),
+              )) && (
+              <Tooltip title={t("complaint.add")}>
+                <IconButton
+                  onClick={() => onAddComplaint(application)}
+                  sx={{
+                    bgcolor: alpha(theme.palette.error.main, 0.05),
+                    color: "error.main",
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                    "&:hover": {
+                      bgcolor: "error.main",
+                      color: "white",
+                      borderColor: "error.main",
+                    },
+                  }}
+                >
+                  <ComplaintIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             )}
 
-          {(!application.complaint ||
-            ["RESOLVED", "CLOSED"].includes(
-              application.complaint.status?.toUpperCase().replace("-", "_"),
-            )) && (
-            <Tooltip title={t("complaint.add")}>
-              <IconButton
-                onClick={() => onAddComplaint(application)}
-                sx={{
-                  bgcolor: alpha(theme.palette.error.main, 0.05),
-                  color: "error.main",
-                  borderRadius: 2,
-                  border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
-                  "&:hover": {
-                    bgcolor: "error.main",
-                    color: "white",
-                    borderColor: "error.main",
-                  },
-                }}
-              >
-                <ComplaintIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
+            {application?.latitude && application?.longitude && (
+              <Tooltip title={t("map.showonmap")}>
+                <IconButton
+                  component={Link}
+                  to={`/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
+                  sx={{
+                    bgcolor: alpha(theme.palette.info.main, 0.05),
+                    color: "info.main",
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+                    "&:hover": {
+                      bgcolor: "info.main",
+                      color: "white",
+                      borderColor: "info.main",
+                    },
+                  }}
+                >
+                  <MapIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        </Card>
+      </Fade>
 
-          {application?.latitude && application?.longitude && (
-            <Tooltip title={t("map.showonmap")}>
-              <IconButton
-                component={Link}
-                to={`/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
-                sx={{
-                  bgcolor: alpha(theme.palette.info.main, 0.05),
-                  color: "info.main",
-                  borderRadius: 2,
-                  border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-                  "&:hover": {
-                    bgcolor: "info.main",
-                    color: "white",
-                    borderColor: "info.main",
-                  },
-                }}
-              >
-                <MapIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-      </Card>
-    </Fade>
+      {/* Comments Dialog */}
+      <CommentsDialog
+        open={commentsDialogOpen}
+        onClose={() => setCommentsDialogOpen(false)}
+        application={application}
+        onSendReply={handleSendReply}
+        language={language}
+        onFetchComments={onFetchComments}
+      />
+    </>
   );
 };
 

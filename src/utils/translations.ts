@@ -51,6 +51,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.lettersRemaining": "letters remaining",
     "common.filters": "Filters",
     "common.all": "All",
+    "common.viewComments": "View Comments",
 
     "common.single": "single",
     "common.married": "married",
@@ -102,11 +103,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.resetPasswordSuccessDescription":
       "Your password has been reset successfully. You can now login with your new password.",
 
-      
-      "landing.login":"Login",
+    "landing.login": "Login",
 
-
-      
     "citizen.currentPassword": "Current Password",
     "citizen.newPassword": "New Password",
     "citizen.confirmPassword": "Confirm Password",
@@ -256,8 +254,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Choose your place of origin/current residence (post-war)",
     "map.currentLocationDescription":
       "Please select the location of your property after the war. (Where are you staying now?)",
-      "map.invalidCoords": "Invalid Coordinates",
-      
+    "map.invalidCoords": "Invalid Coordinates",
 
     // Review
     "review.title": "Review Your Application",
@@ -286,7 +283,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "Public Services Center",
     "landing.cards.emergency": "Emergency Management & Rapid Response",
     "landing.cards.support": "Institutions, Initiatives & Support Network",
-    "landing.damageAssessment": "Damage Assessment Registry",
+    "landing.damageAssessment": "Damage Assessment Registration and Review",
 
     // Status
     status: "statusOfApplication",
@@ -298,6 +295,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "status.rejected": "Rejected",
     "status.closed": "Closed",
     "status.pending": "Pending",
+    "status.escalated": "Escalated",
+
+    "status.need_completion": "Need Completion",
+    "status.under_review": "Under Review",
+    "status.pre_approved": "Pre-Approved",
+    "status.field_verification_required": "Field Verification Required",
+    "status.field_verification_in_progress": "Field Verification In Progress",
+    "status.field_verified": "Field Verified",
 
     "status.tooltip.pending":
       "Your request is under review and has not been processed yet.",
@@ -310,7 +315,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "This request is closed and no further actions can be taken.",
     "statue.tooltip.submitted": "Your request has been submitted successfully.",
     "status.tooltip.underreview": "Your request is currently being reviewed.",
-
+    "status.tooltip.need_completion":
+      "Please provide the required information or documents.",
+    "status.tooltip.under_review":
+      "Your request is currently being reviewed by our team.",
     // Admin - common
     "admin.dashboard": "Dashboard",
     "admin.supervisorDashboard": "Supervisor Dashboard",
@@ -590,7 +598,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.dashboard": "Citizen Dashboard",
     "citizen.welcome": "Welcome",
     "citizen.addDamageRequest": "Add New Damage Application",
-    "citizen.myRequests": "My Applications",
+    "citizen.myRequests": "Inquiry about Submitted Requests",
     "citizen.myRequestsDesc": "View the status of your submitted applications",
     "citizen.noApplications": "You have no applications yet",
     "citizen.createFirstApplication": "Create your first application",
@@ -751,6 +759,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.lettersRemaining": "عدد الحروف المتبقية",
     "common.filters": "الفلاتر",
     "common.all": "الكل",
+    "common.viewComments": "عرض التعليقات",
+
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
     "common.actions": "الإجراءات",
@@ -795,7 +805,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "مركز الخدمات",
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
-    "landing.damageAssessment": "حصر الأضرار الذاتي",
+    "landing.damageAssessment": "تسجيل ومراجعة طلبات الأضرار",
     "landing.login": "سجل طلب ضرر الآن",
 
     // Reset Password
@@ -985,7 +995,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocation": "اختر موقع النزوح / الإقامة الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
-      "map.invalidCoords": "الإحداثيات غير صالحة",
+    "map.invalidCoords": "الإحداثيات غير صالحة",
 
     // Review
     "review.title": "مراجعة طلبك",
@@ -1015,6 +1025,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "status.rejected": "تم الرفض",
     "status.closed": "مغلق",
     "status.pending": "قيد الانتظار",
+    "status.escalated": "تم تصعيده",
+    "status.need_completion": "تحتاج إلى إكمال",
+    "status.under_review": "قيد المراجعة",
+
+    "status.pre_approved": "موافقة مبدئية",
+    "status.field_verification_required": " تحتاج إلى التحقق الميداني",
+    "status.field_verification_in_progress": "  جارٍ التحقق الميداني",
+    "status.field_verified": "تم التحقق ميدانياً",
 
     "status.tooltip.pending": "طلبك قيد المراجعة ولم يتم معالجته بعد.",
     "status.tooltip.verified":
@@ -1025,6 +1043,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "status.tooltip.closed": "هذا الطلب مغلق ولا يمكن اتخاذ كزيد من الإجراءات.",
     "status.tooltip.submitted": "تم إرسال طلبك بنجاح.",
     "status.tooltip.underreview": "طلبك قيد المراجعة حالياً.",
+    "status.tooltip.need_completion":
+      "طلبك يحتاج إلى إكمال. يرجى تقديم المعلومات أو المستندات المطلوبة.",
+    "status.tooltip.under_review":
+      "طلبك قيد المراجعة من قبل فريقنا. يرجى الانتظار للحصول على التحديثات.",
 
     // Admin - common
     "admin.dashboard": "لوحة التحكم",
@@ -1287,7 +1309,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.dashboard": "لوحة تحكم المواطن",
     "citizen.welcome": "مرحباً",
     "citizen.addDamageRequest": "إضافة طلب ضرر جديد",
-    "citizen.myRequests": "طلباتي",
+    "citizen.myRequests": "استعلام عن طلباتي المقدمة",
     "citizen.myRequestsDesc": "عرض حالة الطلبات المقدمة",
     "citizen.noApplications": "ليس لديك أي طلبات حتى الآن",
     "citizen.createFirstApplication": "قم بإنشاء طلبك الأول",
