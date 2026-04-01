@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
 
-const PROD_URL = "https://admin.sawabuild.org/api";
+const PROD_URL = "https://admin.sawabuildgaza.com/api";
 
 const api: AxiosInstance = axios.create({
   baseURL: PROD_URL,

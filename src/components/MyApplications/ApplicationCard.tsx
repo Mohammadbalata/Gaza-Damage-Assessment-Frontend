@@ -42,6 +42,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { ReportStatus } from "../../constants/ReportStatus";
 import { CommentsDialog } from "../CommentsDialog";
+import StepperRTL from "./StepperRTL";
 
 export interface ApplicationCardProps {
   application: any;
@@ -53,7 +54,9 @@ export interface ApplicationCardProps {
   onFetchComments?: (applicationId: string) => Promise<any[]>;
   neighborhoods?: any[];
   index?: number;
+  statusReport: string;
 }
+
 
 // Comments Dialog Component
 
@@ -67,6 +70,7 @@ const ApplicationCard = ({
   neighborhoods = [],
   index = 0,
   notes = [],
+  statusReport,
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
@@ -187,25 +191,27 @@ const ApplicationCard = ({
             flexDirection: "column",
             borderRadius: 4,
             border: "1px solid",
-            borderColor: "divider",
+            borderColor: alpha(theme.palette.divider, 0.8),
             bgcolor: "background.paper",
             position: "relative",
             overflow: "hidden",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.03)}`,
             "&:hover": {
-              transform: "translateY(-4px)",
-              boxShadow: `0 12px 24px -10px ${alpha(
+              transform: "translateY(-6px)",
+              boxShadow: `0 20px 40px -12px ${alpha(
                 theme.palette.primary.main,
-                0.15,
+                0.12,
               )}`,
-              borderColor: "primary.main",
+              borderColor: "primary.light",
               "& .card-header-bg": {
+                height: "8px",
                 opacity: 1,
               },
             },
           }}
         >
-          {/* Subtle Background Decoration on Hover */}
+          {/* Top accent line */}
           <Box
             className="card-header-bg"
             sx={{
@@ -213,53 +219,56 @@ const ApplicationCard = ({
               top: 0,
               left: 0,
               right: 0,
-              height: "6px",
+              height: "4px",
               bgcolor: "primary.main",
-              opacity: 0,
-              transition: "opacity 0.3s ease",
+              opacity: 0.8,
+              transition: "all 0.3s ease",
             }}
           />
+
           <CardContent sx={{ p: 3, flexGrow: 1 }}>
             {/* Header: ID and Status */}
             <Stack
               direction="row"
               justifyContent="space-between"
-              alignItems="flex-start"
+              alignItems="center"
               spacing={2}
               mb={3}
             >
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                useFlexGap={true}
-              >
-                <Box
+              <Stack direction="row" spacing={2} className="gap-4" alignItems="center">
+                <Avatar
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 3,
-                    bgcolor: isSubmitted
-                      ? alpha(theme.palette.primary.main, 0.1)
-                      : alpha(theme.palette.warning.main, 0.1),
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
+                    bgcolor: alpha(
+                      isSubmitted
+                        ? theme.palette.primary.main
+                        : theme.palette.warning.main,
+                      0.1,
+                    ),
                     color: isSubmitted ? "primary.main" : "warning.main",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
                   }}
                 >
-                  <DescriptionIcon />
-                </Box>
+                  <DescriptionIcon sx={{ fontSize: 22 }} />
+                </Avatar>
                 <Box>
                   <Typography
-                    variant="overline"
+                    variant="caption"
                     color="text.secondary"
-                    lineHeight={1}
+                    sx={{
+                      fontWeight: 600,
+                      letterSpacing: 0.5,
+                      textTransform: "uppercase",
+                      display: "block",
+                      mb: 0.5,
+                    }}
                   >
                     {t("citizen.applicationId")}
                   </Typography>
-                  <Typography variant="h6" fontWeight="bold" lineHeight={1.2}>
-                    #{application.report_code}
+                  <Typography variant="h6" fontWeight={800} lineHeight={1}>
+                    {application.report_code}
+                    {console.log(application.address)}
                   </Typography>
                 </Box>
               </Stack>
@@ -267,128 +276,150 @@ const ApplicationCard = ({
                 title={
                   t(`status.tooltip.${application.status?.toLowerCase()}`) || ""
                 }
+                className="w-36"
               >
                 <Chip
                   label={statusLabel}
                   icon={statusConfig.icon}
                   color={statusConfig.color as any}
-                  size="small"
+                  size="medium"
+                  className="flex "
                   sx={{
-                    fontWeight: "bold",
+                    fontWeight: 700,
                     borderRadius: 2,
-                    px: 1,
-                    direction: "ltr",
-                    "& .MuiChip-label": {
-                      px: 1,
-                    },
+                    fontSize: "0.75rem",
+                    height: 32,
+                    boxShadow: (theme) =>
+                      `0 2px 8px ${alpha(
+                        (theme.palette as any)[statusConfig.color]?.main ||
+                          theme.palette.grey[500],
+                        0.25,
+                      )}`,
+                    "& .MuiChip-label": {  },
                   }}
                 />
               </Tooltip>
             </Stack>
 
-            <Divider sx={{ my: 2, borderStyle: "dashed" }} />
+            <Divider sx={{ mb: 3, opacity: 0.6 }} />
+             {/* Stepper Section (Inset background) */}
+          <Box sx={{ mt: 1 }}>
+            <StepperRTL {...{ statusReport }} />
+          </Box>
 
-            {/* Body: Metadata */}
+            {/* Metadata Section */}
             <Stack spacing={2}>
-              <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="center"
-                useFlexGap={true}
-              >
-                <EventIcon fontSize="small" color="action" />
-                <Typography variant="body2" color="text.secondary">
-                  {t("citizen.submittedOn")}:{" "}
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    fontWeight="medium"
-                    color="text.primary"
-                  >
+              <Stack direction="row" spacing={2} alignItems="center" className="flex gap-2">
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 1.5,
+                    bgcolor: alpha(theme.palette.action.selected, 0.5),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <EventIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    {t("citizen.submittedOn")}
+                  </Typography>
+                  <Typography variant="body2" fontWeight={600}>
                     {new Date(application.created_at).toLocaleDateString(
                       language === "ar" ? "ar-EG" : "en-US",
+                      { day: "numeric", month: "long", year: "numeric" },
                     )}
                   </Typography>
-                </Typography>
+                </Box>
               </Stack>
 
-              <Stack
-                direction="row"
-                spacing={1.5}
-                alignItems="flex-start"
-                useFlexGap={true}
-              >
-                <LocationOnIcon
-                  fontSize="small"
-                  color="action"
-                  sx={{ mt: 0.3 }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  {t("citizen.address")}:{" "}
+              <Stack direction="row" spacing={2} alignItems="" className="flex gap-2 items-center">
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 1.5,
+                    bgcolor: alpha(theme.palette.action.selected, 0.5),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mt: 0.5,
+                  }}
+                >
+                  <LocationOnIcon
+                    sx={{ fontSize: 18, color: "text.secondary" }}
+                  />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    {t("citizen.address")}
+                  </Typography>
                   <Typography
-                    component="span"
                     variant="body2"
+                    fontWeight={600}
                     sx={{
-                      fontWeight: 500,
-                      color: "text.secondary",
-                      lineHeight: 1.6,
-                      display: "inline-flex",
-                      gap: 0.5,
-                      flexWrap: "wrap",
+                      lineHeight: 1.5,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
                     }}
                   >
-                    {application?.neighborhood_id && (
-                      <span>
-                        {" "}
-                        {getNeighborhoodName(application?.neighborhood_id)}{" "}
-                      </span>
-                    )}
-                    {buildingData?.landmark && (
-                      <span> - {buildingData?.landmark}</span>
-                    )}
-                    {buildingData?.nameOfStreet && (
-                      <span> - {buildingData?.nameOfStreet}</span>
-                    )}
-                    {buildingData?.buildingNumber && (
-                      <span> - {buildingData?.buildingNumber}</span>
-                    )}
+                    {[
+                      getNeighborhoodName(application?.neighborhood_id),
+                      buildingData?.landmark,
+                      buildingData?.nameOfStreet,
+                      buildingData?.buildingNumber,
+                    ]
+                      .filter(Boolean)
+                      .join(" - ")}
                   </Typography>
-                </Typography>
+                </Box>
               </Stack>
             </Stack>
           </CardContent>
 
+         
+
+          <Divider sx={{ opacity: 0.6 }} />
+
           {/* Footer: Actions */}
           <Box
             sx={{
-              p: 2,
-              pt: 0,
+              p: 2.5,
               display: "flex",
-              gap: 1,
-              justifyContent: "space-between",
+              gap: 1.5,
+              flexWrap: "wrap",
               alignItems: "center",
             }}
           >
             {/* Primary Action */}
             <Button
               variant={isSubmitted ? "contained" : "outlined"}
-              color={isSubmitted ? "primary" : "inherit"}
+              fullWidth
+              size="large"
               startIcon={
                 isSubmitted ? (
-                  <EditIcon sx={{ ml: 2 }} />
+                  <EditIcon sx={{ ml: 1, fontSize: 20 }} />
                 ) : (
-                  <VisibilityIcon sx={{ ml: 2 }} />
+                  <VisibilityIcon sx={{ ml: 1, fontSize: 20 }} />
                 )
               }
               onClick={() => onAction(application)}
               sx={{
-                flexGrow: 1,
-                borderRadius: 2,
+                borderRadius: 2.5,
+                height: 48,
+                fontSize: "0.95rem",
+                fontWeight: 800,
                 textTransform: "none",
-                fontWeight: "bold",
-                boxShadow: isSubmitted ? 2 : 0,
-                borderWidth: isSubmitted ? 0 : "1px",
-                borderColor: isSubmitted ? "primary.main" : "divider",
+                boxShadow: isSubmitted
+                  ? `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`
+                  : 0,
+                transition: "all 0.2s",
+                "&:active": { transform: "scale(0.98)" },
               }}
             >
               {isSubmitted
@@ -402,198 +433,182 @@ const ApplicationCard = ({
                 t("common.viewComments") ||
                 (language === "ar" ? "عرض الملاحظات" : "View Comments")
               }
+            {/* Icon Actions Row */}
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ width: "100%", justifyContent: "center", mt: 0.5 }}
             >
-              <IconButton
-                onClick={() => setCommentsDialogOpen(true)}
-                sx={{
-                  bgcolor: hasComments
-                    ? alpha(theme.palette.warning.main, 0.1)
-                    : alpha(theme.palette.info.main, 0.05),
-                  color: hasComments ? "warning.main" : "info.main",
-                  borderRadius: 2,
-                  border: `1px solid ${alpha(
-                    hasComments
-                      ? theme.palette.warning.main
-                      : theme.palette.info.main,
-                    0.2,
-                  )}`,
-                  position: "relative",
-                  "&:hover": {
-                    bgcolor: hasComments ? "warning.main" : "info.main",
-                    color: "white",
-                    borderColor: hasComments ? "warning.main" : "info.main",
-                  },
-                }}
-              >
-                <CommentIcon fontSize="small" />
-                {hasComments && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: -4,
-                      right: -4,
-                      width: 12,
-                      height: 12,
-                      bgcolor: "warning.main",
-                      borderRadius: "50%",
-                      border: "2px solid white",
-                    }}
-                  />
-                )}
-              </IconButton>
-            </Tooltip>
-
-            {/* Secondary Actions (Icons) */}
-            <Tooltip title={t("app.receipt")}>
-              <IconButton
-                onClick={() => onDownloadPdf(application)}
-                sx={{
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  color: "primary.main",
-                  borderRadius: 2,
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                  "&:hover": {
-                    bgcolor: "primary.main",
-                    color: "white",
-                    borderColor: "primary.main",
-                  },
-                }}
-              >
-                <PdfIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            {application.complaint &&
-              application.complaint.status?.toUpperCase().replace("-", "_") !==
-                "CLOSED" && (
-                <>
-                  <Tooltip title={t("common.actions")}>
+              {[
+                {
+                  icon: <CommentIcon fontSize="small" className="" />,
+                  onClick: () => setCommentsDialogOpen(true),
+                  tooltip:
+                    t("common.viewComments") ||
+                    (language === "ar" ? "عرض الملاحظات" : "View Comments"),
+                  color: hasComments ? "warning" : "info",
+                  badge: hasComments,
+                  show: true,
+                },
+                {
+                  icon: <PdfIcon fontSize="small" />,
+                  onClick: () => onDownloadPdf(application),
+                  tooltip: t("app.receipt"),
+                  color: "primary",
+                  show: true,
+                },
+                {
+                  icon: <MoreIcon fontSize="small" />,
+                  onClick: handleMenuOpen,
+                  tooltip: t("common.actions"),
+                  color: "primary",
+                  show:
+                    application.complaint &&
+                    application.complaint.status
+                      ?.toUpperCase()
+                      .replace("-", "_") !== "CLOSED",
+                },
+                {
+                  icon: <ComplaintIcon fontSize="small" />,
+                  onClick: () => onAddComplaint(application),
+                  tooltip: t("complaint.add"),
+                  color: "error",
+                  show:
+                    !application.complaint ||
+                    ["RESOLVED", "CLOSED"].includes(
+                      application.complaint.status
+                        ?.toUpperCase()
+                        .replace("-", "_"),
+                    ),
+                },
+                {
+                  icon: <MapIcon fontSize="small" />,
+                  link: `/locations/map?lat=${application.latitude}&lng=${application.longitude}`,
+                  tooltip: t("map.showonmap"),
+                  color: "secondary",
+                  show: application?.latitude && application?.longitude,
+                },
+              ]
+                .filter((action) => action.show)
+                .map((action, idx) => (
+                  <Tooltip key={idx} title={action.tooltip}>
                     <IconButton
-                      onClick={handleMenuOpen}
+                      component={action.link ? Link : "button"}
+                      to={action.link}
+                      onClick={action.onClick}
+                      className="first:ml-2"
                       sx={{
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                        color: "primary.main",
+                        width: 40,
+                        height: 40,
                         borderRadius: 2,
-                        border: `1px solid ${alpha(
-                          theme.palette.primary.main,
-                          0.1,
-                        )}`,
+                        bgcolor: (theme) =>
+                          alpha((theme.palette as any)[action.color].main, 0.08),
+                        color: `${action.color as any}.main`,
+                        border: "1px solid",
+                        borderColor: (theme) =>
+                          alpha((theme.palette as any)[action.color].main, 0.15),
+                        position: "relative",
+                        transition: "all 0.2s",
                         "&:hover": {
-                          bgcolor: "primary.main",
+                          bgcolor: `${action.color as any}.main`,
                           color: "white",
-                          borderColor: "primary.main",
+                          transform: "translateY(-2px)",
+                          boxShadow: (theme) =>
+                            `0 4px 12px ${alpha(
+                              (theme.palette as any)[action.color].main,
+                              0.3,
+                            )}`,
                         },
                       }}
                     >
-                      <MoreIcon fontSize="small" />
+                      {action.icon}
+                      {action.badge && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: -3,
+                            right: -3,
+                            width: 10,
+                            height: 10,
+                            bgcolor: "error.main",
+                            borderRadius: "50%",
+                            border: "2px solid white",
+                            boxShadow: "0 0 0 1px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                      )}
                     </IconButton>
                   </Tooltip>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: language === "ar" ? "right" : "left",
-                    }}
-                    anchorOrigin={{
-                      vertical: "bottom",
-                      horizontal: language === "ar" ? "right" : "left",
-                    }}
-                  >
-                    <MenuItem
-                      component={Link}
-                      to={`/citizen/complaints/${application.complaint.id}`}
-                      onClick={handleMenuClose}
-                    >
-                      <ListItemIcon>
-                        <VisibilityIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary={t("citizen.viewDetails")} />
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        handleMenuClose();
-                        onCloseComplaint(application);
-                      }}
-                      disabled={
-                        application.complaint.status
-                          ?.toUpperCase()
-                          .replace("-", "_") !== "RESOLVED"
-                      }
-                    >
-                      <ListItemIcon>
-                        <ClosedIcon
-                          fontSize="small"
-                          color={
-                            application.complaint.status
-                              ?.toUpperCase()
-                              .replace("-", "_") === "RESOLVED"
-                              ? "error"
-                              : "disabled"
-                          }
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={t("complaint.close")}
-                        secondary={
-                          application.complaint.status
-                            ?.toUpperCase()
-                            .replace("-", "_") !== "RESOLVED"
-                            ? t("complaint.waitingForResponse")
-                            : null
-                        }
-                      />
-                    </MenuItem>
-                  </Menu>
-                </>
-              )}
+                ))}
+            </Stack>
 
-            {(!application.complaint ||
-              ["RESOLVED", "CLOSED"].includes(
-                application.complaint.status?.toUpperCase().replace("-", "_"),
-              )) && (
-              <Tooltip title={t("complaint.add")}>
-                <IconButton
-                  onClick={() => onAddComplaint(application)}
-                  sx={{
-                    bgcolor: alpha(theme.palette.error.main, 0.05),
-                    color: "error.main",
-                    borderRadius: 2,
-                    border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
-                    "&:hover": {
-                      bgcolor: "error.main",
-                      color: "white",
-                      borderColor: "error.main",
-                    },
-                  }}
-                >
-                  <ComplaintIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-
-            {application?.latitude && application?.longitude && (
-              <Tooltip title={t("map.showonmap")}>
-                <IconButton
-                  component={Link}
-                  to={`/locations/map?lat=${application.latitude}&lng=${application.longitude}`}
-                  sx={{
-                    bgcolor: alpha(theme.palette.info.main, 0.05),
-                    color: "info.main",
-                    borderRadius: 2,
-                    border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-                    "&:hover": {
-                      bgcolor: "info.main",
-                      color: "white",
-                      borderColor: "info.main",
-                    },
-                  }}
-                >
-                  <MapIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
+            {/* Menu for Complaint Actions */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: language === "ar" ? "right" : "left",
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: language === "ar" ? "right" : "left",
+              }}
+              PaperProps={{
+                sx: {
+                  mt: 0.5,
+                  minWidth: 180,
+                  borderRadius: 2,
+                  boxShadow: "0 10px 40px -10px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              <MenuItem
+                component={Link}
+                to={`/citizen/complaints/${application.complaint?.id}`}
+                onClick={handleMenuClose}
+              >
+                <ListItemIcon>
+                  <VisibilityIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary={t("citizen.viewDetails")} />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  onCloseComplaint(application);
+                }}
+                disabled={
+                  application.complaint?.status
+                    ?.toUpperCase()
+                    .replace("-", "_") !== "RESOLVED"
+                }
+              >
+                <ListItemIcon>
+                  <ClosedIcon
+                    fontSize="small"
+                    color={
+                      application.complaint?.status
+                        ?.toUpperCase()
+                        .replace("-", "_") === "RESOLVED"
+                        ? "error"
+                        : "disabled"
+                    }
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t("complaint.close")}
+                  secondary={
+                    application.complaint?.status
+                      ?.toUpperCase()
+                      .replace("-", "_") !== "RESOLVED"
+                      ? t("complaint.waitingForResponse")
+                      : null
+                  }
+                />
+              </MenuItem>
+            </Menu>
           </Box>
         </Card>
       </Fade>

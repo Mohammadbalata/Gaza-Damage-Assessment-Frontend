@@ -53,7 +53,7 @@ export const ROUTES: IRoutes = {
   REVIEW: "/review",
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
-  ADMIN_LOGIN: "https://admin.sawabuild.org/dashboard/login",
+  ADMIN_LOGIN: "https://admin.sawabuildgaza.com/dashboard/login",
   ADMIN_DASHBOARD: "/admin",
   ADMIN_LOCATION_MAP: "locations/map",
   ADMIN_RESET_PASSWORD: "/admin/reset-password",

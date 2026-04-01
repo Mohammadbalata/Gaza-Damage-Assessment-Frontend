@@ -800,11 +800,13 @@ const MyApplications = () => {
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                sm: "repeat(2, 1fr)",
+                sm: "1fr",
                 md: "repeat(2, 1fr)",
               },
-              gap: 2,
+              gap: 5,
+              
             }}
+            className='sm:px-10 lg:px-0'
           >
             {filteredApplications.map((app: any, index: number) => (
               <ApplicationCard
@@ -817,6 +819,7 @@ const MyApplications = () => {
                 onCloseComplaint={handleOpenCloseConfirm}
                 neighborhoods={neighborhoods}
                 notes={app.notes}
+                statusReport={app.report_process_stage}
               />
             ))}
           </Box>

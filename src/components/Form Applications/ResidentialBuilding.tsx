@@ -275,7 +275,21 @@ const ResidentialBuilding = ({
         {...{ errors }}
         usageTypePath="ResidentialBuilding.usageType"
         otherUsageTypePath="ResidentialBuilding.otherUsageType"
-        selector={(state) => state.damage.ResidentialBuilding.MixedUsage}
+        selector={(state) => {
+          const rb = state.damage.ResidentialBuilding;
+          return {
+            floors: {
+              ground: rb.MixedUsage_floors_ground,
+              mezzanine: rb.MixedUsage_floors_mezzanine,
+              roof: rb.MixedUsage_floors_roof,
+            },
+            units: {
+              ground: rb.MixedUsage_units_ground,
+              mezzanine: rb.MixedUsage_units_mezzanine,
+              roof: rb.MixedUsage_units_roof,
+            },
+          };
+        }}
         entityKey="ResidentialBuilding"
       />
       {/* عمر المبنى */}
