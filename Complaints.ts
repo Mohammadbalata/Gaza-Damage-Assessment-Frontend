@@ -1,5 +1,5 @@
 // create Complaint
-// post request for complaints 'https://admin.sawabuild.org/api/complaints'
+// post request for complaints 'https://admin.sawabuildgaza.com/api/complaints'
 
 const bodyRequest = {
     "damage_report_id": 230,
@@ -36,7 +36,7 @@ const responseForCreateComplaint = {
 }
 
 // List my Complaints
-// GET 'https://admin.sawabuild.org/api/complaints'
+// GET 'https://admin.sawabuildgaza.com/api/complaints'
 
 const responseForGetComplaint = {
     "status": true,
@@ -98,7 +98,7 @@ const responseForGetComplaint = {
 
 
 //Close Complaint
-//Put 'https://admin.sawabuild.org/api/complaints/{id}/close'
+//Put 'https://admin.sawabuildgaza.com/api/complaints/{id}/close'
 
 const responseForCloseComplaint = {
     "status": true,
@@ -128,7 +128,7 @@ const responseForCloseComplaint = {
 
 
 // View Complaint Details
-// GET 'https://admin.sawabuild.org/api/complaints/{id}'
+// GET 'https://admin.sawabuildgaza.com/api/complaints/{id}'
 
 const responseForViewComplaint = {
     "status": true,
