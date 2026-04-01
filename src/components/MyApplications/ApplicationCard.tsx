@@ -63,11 +63,6 @@ export interface ApplicationCardProps {
   onDownloadPdf: (app: any) => void;
   onAddComplaint: (app: any) => void;
   onCloseComplaint: (app: any) => void;
-  onSendCommentReply?: (
-    applicationId: string,
-    commentId: string,
-    replyText: string,
-  ) => Promise<void>;
   onFetchComments?: (applicationId: string) => Promise<any[]>;
   neighborhoods?: any[];
   index?: number;
@@ -83,7 +78,6 @@ const CommentsDialog = ({
   open: boolean;
   onClose: () => void;
   application: any;
-  onSendReply: (commentId: string, replyText: string) => Promise<void>;
   language: string;
   onFetchComments?: (applicationId: string) => Promise<any[]>;
   notes: any[];
@@ -98,9 +92,11 @@ const CommentsDialog = ({
     setLocalNotes(notes);
   }, [notes]);
 
-  const handleReplyClick = (commentId: string) => {
-    setReplyingTo(commentId);
+  const handleReplyClick = (noteId: string) => {
+    setReplyingTo(noteId);
     setReplyText("");
+    console.log("noteId", noteId);
+    console.log("replyingTo", replyingTo);
   };
 
   const handleCancelReply = () => {
@@ -293,6 +289,85 @@ const CommentsDialog = ({
                       </Button>
                     </Box>
 
+                    {/* Reply Input for this specific comment */}
+                    {replyingTo === note.id && (
+                      <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                            borderRadius: 2,
+                            border: `1px solid ${alpha(
+                              theme.palette.primary.main,
+                              0.1,
+                            )}`,
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="flex-end"
+                          >
+                            <TextField
+                              fullWidth
+                              multiline
+                              rows={2}
+                              placeholder={
+                                language === "ar"
+                                  ? `اكتب ردك على ${note.author || "المشرف"}...`
+                                  : `Write your reply to ${
+                                      note.author || "supervisor"
+                                    }...`
+                              }
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              variant="outlined"
+                              size="small"
+                              autoFocus
+                              sx={{
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: 2,
+                                  bgcolor: "background.paper",
+                                },
+                              }}
+                            />
+                            <Stack direction="row" spacing={1}>
+                              <Button
+                                variant="outlined"
+                                onClick={handleCancelReply}
+                                size="small"
+                                sx={{
+                                  borderRadius: 2,
+                                  textTransform: "none",
+                                }}
+                              >
+                                {language === "ar" ? "إلغاء" : "Cancel"}
+                              </Button>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleSendReply(note.id)}
+                                disabled={!replyText.trim() || isSending}
+                                size="small"
+                                sx={{
+                                  borderRadius: 2,
+                                  textTransform: "none",
+                                }}
+                              >
+                                {isSending ? (
+                                  <CircularProgress size={20} color="inherit" />
+                                ) : language === "ar" ? (
+                                  "إرسال"
+                                ) : (
+                                  "Send"
+                                )}
+                              </Button>
+                            </Stack>
+                          </Stack>
+                        </Paper>
+                      </Box>
+                    )}
+
                     {/* Existing Replies */}
                     {note.replies && note.replies.length > 0 && (
                       <Stack spacing={1.5} sx={{ mt: 1.5, ml: 4 }}>
@@ -347,91 +422,6 @@ const CommentsDialog = ({
                             </Typography>
                           </Paper>
                         ))}
-
-                        {/* Reply Input for this specific comment */}
-                        {replyingTo === note.id && (
-                          <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
-                            <Paper
-                              elevation={0}
-                              sx={{
-                                p: 2,
-                                bgcolor: alpha(
-                                  theme.palette.primary.main,
-                                  0.02,
-                                ),
-                                borderRadius: 2,
-                                border: `1px solid ${alpha(
-                                  theme.palette.primary.main,
-                                  0.1,
-                                )}`,
-                              }}
-                            >
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="flex-end"
-                              >
-                                <TextField
-                                  fullWidth
-                                  multiline
-                                  rows={2}
-                                  placeholder={
-                                    language === "ar"
-                                      ? `اكتب ردك على ${note.author || "المشرف"}...`
-                                      : `Write your reply to ${
-                                          note.author || "supervisor"
-                                        }...`
-                                  }
-                                  value={replyText}
-                                  onChange={(e) => setReplyText(e.target.value)}
-                                  variant="outlined"
-                                  size="small"
-                                  autoFocus
-                                  sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                      borderRadius: 2,
-                                      bgcolor: "background.paper",
-                                    },
-                                  }}
-                                />
-                                <Stack direction="row" spacing={1}>
-                                  <Button
-                                    variant="outlined"
-                                    onClick={handleCancelReply}
-                                    size="small"
-                                    sx={{
-                                      borderRadius: 2,
-                                      textTransform: "none",
-                                    }}
-                                  >
-                                    {language === "ar" ? "إلغاء" : "Cancel"}
-                                  </Button>
-                                  <Button
-                                    variant="contained"
-                                    onClick={() => handleSendReply(note.id)}
-                                    disabled={!replyText.trim() || isSending}
-                                    size="small"
-                                    sx={{
-                                      borderRadius: 2,
-                                      textTransform: "none",
-                                    }}
-                                  >
-                                    {isSending ? (
-                                      <CircularProgress
-                                        size={20}
-                                        color="inherit"
-                                      />
-                                    ) : language === "ar" ? (
-                                      "إرسال"
-                                    ) : (
-                                      "Send"
-                                    )}
-                                  </Button>
-                                </Stack>
-                              </Stack>
-                            </Paper>
-                          </Box>
-                        )}
                       </Stack>
                     )}
                   </Paper>
@@ -451,7 +441,6 @@ const ApplicationCard = ({
   onDownloadPdf,
   onAddComplaint,
   onCloseComplaint,
-  onSendCommentReply,
   onFetchComments,
   neighborhoods = [],
   index = 0,
@@ -468,20 +457,6 @@ const ApplicationCard = ({
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleSendReply = async (commentId: string, replyText: string) => {
-    if (onSendCommentReply) {
-      await onSendCommentReply(application.id, commentId, replyText);
-    } else {
-      console.log(
-        "Sending reply for application:",
-        application.id,
-        commentId,
-        replyText,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
   };
 
   if (!application) return null;
@@ -1007,7 +982,7 @@ const ApplicationCard = ({
         onClose={() => setCommentsDialogOpen(false)}
         application={application}
         notes={notes}
-        onSendReply={handleSendReply}
+        // onSendReply={handleSendReply}
         language={language}
         onFetchComments={onFetchComments}
       />
