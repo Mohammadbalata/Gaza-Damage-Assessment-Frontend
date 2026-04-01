@@ -28,10 +28,9 @@ import {
   LocationOn as LocationOnIcon,
   Map as MapIcon,
   PictureAsPdf as PdfIcon,
-  CheckCircle as ValidIcon,
   HourglassEmpty as PendingIcon,
-  Cancel as RejectedIcon,
-  TaskAlt as VerifiedIcon,
+
+
   Lock as ClosedIcon,
   Feedback as ComplaintIcon,
   MoreVert as MoreIcon,
@@ -773,6 +772,7 @@ const ApplicationCard = ({
                   </Typography>
                   <Typography variant="h6" fontWeight={800} lineHeight={1}>
                     {application.report_code}
+                    {console.log(application.address)}
                   </Typography>
                 </Box>
               </Stack>
@@ -840,7 +840,7 @@ const ApplicationCard = ({
                 </Box>
               </Stack>
 
-              <Stack direction="row" spacing={2} alignItems="flex-start" className="flex gap-2">
+              <Stack direction="row" spacing={2} alignItems="" className="flex gap-2 items-center">
                 <Box
                   sx={{
                     width: 32,
