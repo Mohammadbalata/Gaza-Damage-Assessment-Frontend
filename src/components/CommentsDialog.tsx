@@ -27,18 +27,6 @@ import { API } from "../constants/ApiRoutes";
 
 
 
-export interface ApplicationCardProps {
-  application: any;
-  notes: any[];
-  onAction: (app: any) => void;
-  onDownloadPdf: (app: any) => void;
-  onAddComplaint: (app: any) => void;
-  onCloseComplaint: (app: any) => void;
-  onFetchComments?: (applicationId: string) => Promise<any[]>;
-  neighborhoods?: any[];
-  index?: number;
-}
-
 // Comments Dialog Component
 
 export const CommentsDialog = ({
@@ -49,9 +37,7 @@ export const CommentsDialog = ({
 }: {
   open: boolean;
   onClose: () => void;
-  application: any;
   language: string;
-  onFetchComments?: (applicationId: string) => Promise<any[]>;
   notes: any[];
 }) => {
   const theme = useTheme();
@@ -60,6 +46,7 @@ export const CommentsDialog = ({
   const [isSending, setIsSending] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [localNotes, setLocalNotes] = useState(notes || []);
+
   useEffect(() => {
     setLocalNotes(notes);
   }, [notes]);
@@ -67,8 +54,6 @@ export const CommentsDialog = ({
   const handleReplyClick = (noteId: string) => {
     setReplyingTo(noteId);
     setReplyText("");
-    console.log("noteId", noteId);
-    console.log("replyingTo", replyingTo);
   };
 
   const handleCancelReply = () => {
@@ -77,6 +62,7 @@ export const CommentsDialog = ({
   };
 
   const handleSendReply = async (id: any) => {
+    if (!replyText.trim()) return;
     try {
       setIsSending(true);
       setIsLoading(true);
@@ -93,7 +79,6 @@ export const CommentsDialog = ({
       );
 
       if (res) {
-        console.log("response", res.data.note_reply.content);
         setLocalNotes((prevNotes) =>
           prevNotes.map((note) =>
             note.id === id
@@ -112,10 +97,9 @@ export const CommentsDialog = ({
               : note,
           ),
         );
-        setIsLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error sending reply:", error);
     } finally {
       setIsSending(false);
       setReplyingTo(null);

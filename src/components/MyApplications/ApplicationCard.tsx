@@ -12,6 +12,11 @@ import {
   IconButton,
   useTheme,
   alpha,
+  Avatar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   Description as DescriptionIcon,
@@ -27,14 +32,13 @@ import {
   MoreVert as MoreIcon,
   Comment as CommentIcon,
 } from "@mui/icons-material";
-import { MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import PendingActionsIcon from "@mui/icons-material/PendingActions"; // UNDER_REVIEW
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn"; // SUBMITTED
+import PendingActionsIcon from "@mui/icons-material/PendingActions"; 
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn"; 
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"; // PRE_APPROVED
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"; 
 import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
@@ -57,16 +61,12 @@ export interface ApplicationCardProps {
   statusReport: string;
 }
 
-
-// Comments Dialog Component
-
 const ApplicationCard = ({
   application,
   onAction,
   onDownloadPdf,
   onAddComplaint,
   onCloseComplaint,
-  onFetchComments,
   neighborhoods = [],
   index = 0,
   notes = [],
@@ -268,7 +268,6 @@ const ApplicationCard = ({
                   </Typography>
                   <Typography variant="h6" fontWeight={800} lineHeight={1}>
                     {application.report_code}
-                    {console.log(application.address)}
                   </Typography>
                 </Box>
               </Stack>
@@ -427,12 +426,6 @@ const ApplicationCard = ({
                 : t("common.reviewRequest")}
             </Button>
 
-            {/* Notes/Comments Button */}
-            <Tooltip
-              title={
-                t("common.viewComments") ||
-                (language === "ar" ? "عرض الملاحظات" : "View Comments")
-              }
             {/* Icon Actions Row */}
             <Stack
               direction="row"
@@ -617,10 +610,8 @@ const ApplicationCard = ({
       <CommentsDialog
         open={commentsDialogOpen}
         onClose={() => setCommentsDialogOpen(false)}
-        application={application}
         notes={notes}
         language={language}
-        onFetchComments={onFetchComments}
       />
     </>
   );
