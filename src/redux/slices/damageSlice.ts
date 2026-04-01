@@ -211,10 +211,16 @@ export const damageAssessmentSlice = createSlice({
       state.ApartmentInsideBuilding = action.payload;
     },
     resetResidentialBuilding: (state, action: PayloadAction<any>) => {
-      state.ResidentialBuilding = action.payload;
+      state.ResidentialBuilding = {
+        ...initialState.ResidentialBuilding,
+        ...action.payload,
+      };
     },
     saveTowerData: (state, action: PayloadAction<any>) => {
-      state.tower = action.payload;
+      state.tower = {
+        ...initialState.tower,
+        ...action.payload,
+      };
     },
     resetCompHouse: (state, action: PayloadAction<any>) => {
       state.compHouse = action.payload;

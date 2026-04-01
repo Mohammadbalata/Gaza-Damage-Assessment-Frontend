@@ -71,8 +71,17 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
   /* ========= Init from Redux ========= */
   useEffect(() => {
     if (mixedUsageData) {
-      setFloorsState(mixedUsageData.floors);
-      setUnitsState(mixedUsageData.units);
+      if (mixedUsageData.floors) {
+        setFloorsState(mixedUsageData.floors);
+      }
+      if (mixedUsageData.units) {
+        setUnitsState((prev) => ({
+          ...prev,
+          ground: mixedUsageData.units.ground || [],
+          mezzanine: mixedUsageData.units.mezzanine || [],
+          roof: mixedUsageData.units.roof || [],
+        }));
+      }
     }
   }, [mixedUsageData]);
 
@@ -98,7 +107,7 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
 
     setUnitsState((prev) => ({
       ...prev,
-      [floor]: [...prev[floor], { usage: "", activity: "" }],
+      [floor]: [...(prev[floor] || []), { usage: "", activity: "" }],
     }));
   };
 
@@ -106,7 +115,7 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
     if (isChangeToReviewPage) return;
 
     setUnitsState((prev) => {
-      const updated = [...prev[floor]];
+      const updated = [...(prev[floor] || [])];
       updated.splice(index, 1);
       return { ...prev, [floor]: updated };
     });
@@ -121,7 +130,7 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
     value: string
   ) => {
     setUnitsState((prev) => {
-      const updated = [...prev[floor]];
+      const updated = [...(prev[floor] || [])];
       updated[index] = { ...updated[index], [field]: value };
       return { ...prev, [floor]: updated };
     });
@@ -176,7 +185,7 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={floorsState[floorKey]}
+                    checked={floorsState[floorKey] || false}
                     disabled={isChangeToReviewPage}
                     onChange={(e) => {
                       const updated = {
@@ -206,7 +215,7 @@ const MixedUsageComponent: React.FC<MixedUsageProps> = ({
                   </Button>
                 )}
 
-                {unitsState[floorKey].map((unit: any, index: number) => (
+                {(unitsState[floorKey] || []).map((unit: any, index: number) => (
                   <div
                     key={index}
                     className="mt-3 mr-4 space-y-2 border p-3 rounded-md flex flex-col items-end"
