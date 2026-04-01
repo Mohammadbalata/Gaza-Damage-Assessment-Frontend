@@ -74,6 +74,7 @@ export const API = {
       resetPassword: `/auth/citizen/reset-password`,
     },
     applications: {
+      notes: (id: string) => `/notes/${id}/reply`,
       list: `/damage-reports`,
       create: `/damage-reports`,
       update: (id: string) => `/citizen/applications/${id}`,

@@ -818,6 +818,7 @@ const MyApplications = () => {
                 onAddComplaint={handleOpenComplaint}
                 onCloseComplaint={handleOpenCloseConfirm}
                 neighborhoods={neighborhoods}
+                notes={app.notes}
                 statusReport={app.report_process_stage}
               />
             ))}
