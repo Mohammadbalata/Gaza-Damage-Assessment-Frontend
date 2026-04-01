@@ -126,8 +126,12 @@ export interface ResidentialBuilding {
   after_damage_image?: any;
   ownership_documents?: any[];
   BuildingContent?: any[];
-  MixedUsage: IMixedUsage;
-  
+  MixedUsage_floors_ground?: boolean;
+  MixedUsage_floors_mezzanine?: boolean;
+  MixedUsage_floors_roof?: boolean;
+  MixedUsage_units_ground?: any[];
+  MixedUsage_units_mezzanine?: any[];
+  MixedUsage_units_roof?: any[];
 }
 
 export interface ITower {
@@ -165,7 +169,12 @@ export interface ITower {
   after_damage_image?: any;
   ownership_documents?: any[];
   BuildingContent?: any[];
-  MixedUsage: IMixedUsage;
+  MixedUsage_floors_ground?: boolean;
+  MixedUsage_floors_mezzanine?: boolean;
+  MixedUsage_floors_roof?: boolean;
+  MixedUsage_units_ground?: any[];
+  MixedUsage_units_mezzanine?: any[];
+  MixedUsage_units_roof?: any[];
 }
 
 export interface ICompHouse {

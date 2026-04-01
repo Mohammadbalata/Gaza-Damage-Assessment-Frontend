@@ -231,12 +231,29 @@ export const generateApplicationPDF = async (
 
     const direction = language === "ar" ? "rtl" : "ltr";
 
-    const entries = Object.entries(data).filter(
-      ([_, value]) =>
+    const mixedUsageUnits: any = {};
+    const mixedUsageFloors: any = {};
+
+    const entries = Object.entries(data).filter(([key, value]) => {
+      if (key.startsWith("MixedUsage_floors_")) {
+        const floor = key.replace("MixedUsage_floors_", "");
+        mixedUsageFloors[floor] = value;
+        return false;
+      }
+      if (key.startsWith("MixedUsage_units_")) {
+        const floor = key.replace("MixedUsage_units_", "");
+        mixedUsageUnits[floor] = value;
+        return false;
+      }
+      if (key === "MixedUsage") return false;
+      if (key === "landmark") return false;
+
+      return (
         value !== null &&
         value !== "" &&
-        !(Array.isArray(value) && value.length === 0),
-    );
+        !(Array.isArray(value) && value.length === 0)
+      );
+    });
 
     let html = `
   <div style="
@@ -246,9 +263,7 @@ export const generateApplicationPDF = async (
     direction:${direction};
   ">`;
 
-    entries.forEach(([key, value]:any) => {
-      if (key === "landmark") return;
-
+    entries.forEach(([key, value]: any) => {
       const translationKey = `form.${key}`;
       const label =
         t(translationKey) !== translationKey ? t(translationKey) : key;
@@ -259,30 +274,9 @@ export const generateApplicationPDF = async (
       if (typeof value === "boolean") {
         displayValue = value ? "نعم" : "لا";
       }
-
       // array
       else if (Array.isArray(value)) {
         displayValue = value.join(" , ");
-      }
-
-      // object
-      else if (typeof value === "object") {
-        // ⭐ حل MixedUsage
-        if (key === "MixedUsage" && value?.units) {
-          displayValue = Object.entries(value.units)
-            .map(([floor, items]: any) => {
-              const units = items
-                .map((u: any) => `${u.usage} - ${u.activity}`)
-                .join(" , ");
-
-              return `${floor} : ${units}`;
-            })
-            .join(" | ");
-        } else {
-          displayValue = Object.entries(value)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(" , ");
-        }
       }
 
       html += `
@@ -291,6 +285,29 @@ export const generateApplicationPDF = async (
       </div>
     `;
     });
+
+    // ⭐ عرض بيانات الاستخدام المزدوج بشكل مجمع
+    if (Object.keys(mixedUsageFloors).length > 0) {
+      const floorsSummary = Object.entries(mixedUsageFloors)
+        .filter(([_, checked]) => checked)
+        .map(([floor, _]) => {
+          const units = mixedUsageUnits[floor] || [];
+          const unitsSummary = units
+            .map((u: any) => `${u.usage}${u.activity ? ` - ${u.activity}` : ""}`)
+            .join(" , ");
+          return `<strong>${floor}:</strong> ${unitsSummary || "لا يوجد وحدات"}`;
+        })
+        .join("<br/>");
+
+      if (floorsSummary) {
+        html += `
+        <div style="grid-column: span 2; margin-top:10px; padding:10px; background:#f0f7ff; border-radius:8px;">
+          <strong>${t("form.MixedUsage")}:</strong><br/>
+          ${floorsSummary}
+        </div>
+      `;
+      }
+    }
 
     html += "</div>";
 

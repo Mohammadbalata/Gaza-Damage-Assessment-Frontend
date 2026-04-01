@@ -3,7 +3,7 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { DamageState, IDamageAssessmentState, IFloorsState, IUnitsState } from "../../interfaces/store/IDamageAssessmentState";
+import { IDamageAssessmentState, IFloorsState, IUnitsState } from "../../interfaces/store/IDamageAssessmentState";
 import { AppDispatch } from "../store";
 
 const initialState: IDamageAssessmentState = {
@@ -81,18 +81,12 @@ const initialState: IDamageAssessmentState = {
     before_damage_image: null,
     after_damage_image: null,
     ownership_documents: [],
-    MixedUsage: {
-      floors: {
-        ground: false,
-        mezzanine: false,
-        roof: false,
-      },
-      units: {
-        ground: [],
-        mezzanine: [],
-        roof: [],
-      },
-    },
+    MixedUsage_floors_ground: false,
+    MixedUsage_floors_mezzanine: false,
+    MixedUsage_floors_roof: false,
+    MixedUsage_units_ground: [],
+    MixedUsage_units_mezzanine: [],
+    MixedUsage_units_roof: [],
   },
 
   tower: {
@@ -127,18 +121,12 @@ const initialState: IDamageAssessmentState = {
     before_damage_image: null,
     after_damage_image: null,
     ownership_documents: [],
-    MixedUsage: {
-      floors: {
-        ground: false,
-        mezzanine: false,
-        roof: false,
-      },
-      units: {
-        ground: [],
-        mezzanine: [],
-        roof: [],
-      },
-    },
+    MixedUsage_floors_ground: false,
+    MixedUsage_floors_mezzanine: false,
+    MixedUsage_floors_roof: false,
+    MixedUsage_units_ground: [],
+    MixedUsage_units_mezzanine: [],
+    MixedUsage_units_roof: [],
   },
 
   compHouse: {
@@ -254,21 +242,27 @@ export const damageAssessmentSlice = createSlice({
     setMixedUsageUnits: (
       state,
       action: PayloadAction<{
-        entity: keyof DamageState;
+        entity: "ResidentialBuilding" | "tower";
         units: IUnitsState;
       }>
     ) => {
-      state[action.payload.entity].MixedUsage.units = action.payload.units;
+      const { entity, units } = action.payload;
+      state[entity].MixedUsage_units_ground = units.ground;
+      state[entity].MixedUsage_units_mezzanine = units.mezzanine;
+      state[entity].MixedUsage_units_roof = units.roof;
     },
 
     setMixedUsageFloors: (
       state,
       action: PayloadAction<{
-        entity: keyof DamageState;
+        entity: "ResidentialBuilding" | "tower";
         floors: IFloorsState;
       }>
     ) => {
-      state[action.payload.entity].MixedUsage.floors = action.payload.floors;
+      const { entity, floors } = action.payload;
+      state[entity].MixedUsage_floors_ground = floors.ground;
+      state[entity].MixedUsage_floors_mezzanine = floors.mezzanine;
+      state[entity].MixedUsage_floors_roof = floors.roof;
     },
   },
 });

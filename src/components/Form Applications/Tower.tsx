@@ -271,7 +271,21 @@ const Tower = ({
           {...{ errors }}
           usageTypePath="tower.usageType"
           otherUsageTypePath="tower.otherUsageType"
-          selector={(state) => state.damage.tower.MixedUsage}
+          selector={(state) => {
+            const t = state.damage.tower;
+            return {
+              floors: {
+                ground: t.MixedUsage_floors_ground,
+                mezzanine: t.MixedUsage_floors_mezzanine,
+                roof: t.MixedUsage_floors_roof,
+              },
+              units: {
+                ground: t.MixedUsage_units_ground,
+                mezzanine: t.MixedUsage_units_mezzanine,
+                roof: t.MixedUsage_units_roof,
+              },
+            };
+          }}
           entityKey="tower"
         />
         {/* عمر المبنى */}

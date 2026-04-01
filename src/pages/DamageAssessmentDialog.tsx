@@ -77,12 +77,27 @@ const DamageAssessmentDialog = ({
       error: damageAssessmentInfo.error,
     },
   });
-  const { floors: floorsResidential, units: unitsResisential } = useAppSelector(
-    (state) => state.damage.ResidentialBuilding.MixedUsage,
-  );
-  const { floors: floorsTower, units: unitsTower } = useAppSelector(
-    (state) => state.damage.tower.MixedUsage,
-  );
+  const floorsResidential = useAppSelector((state) => ({
+    ground: state.damage.ResidentialBuilding.MixedUsage_floors_ground,
+    mezzanine: state.damage.ResidentialBuilding.MixedUsage_floors_mezzanine,
+    roof: state.damage.ResidentialBuilding.MixedUsage_floors_roof,
+  }));
+  const unitsResisential = useAppSelector((state) => ({
+    ground: state.damage.ResidentialBuilding.MixedUsage_units_ground,
+    mezzanine: state.damage.ResidentialBuilding.MixedUsage_units_mezzanine,
+    roof: state.damage.ResidentialBuilding.MixedUsage_units_roof,
+  }));
+
+  const floorsTower = useAppSelector((state) => ({
+    ground: state.damage.tower.MixedUsage_floors_ground,
+    mezzanine: state.damage.tower.MixedUsage_floors_mezzanine,
+    roof: state.damage.tower.MixedUsage_floors_roof,
+  }));
+  const unitsTower = useAppSelector((state) => ({
+    ground: state.damage.tower.MixedUsage_units_ground,
+    mezzanine: state.damage.tower.MixedUsage_units_mezzanine,
+    roof: state.damage.tower.MixedUsage_units_roof,
+  }));
 
   // Helper to extract URL from either string or {url: "..."} object
   // في DamageAssessmentDialog.tsx
@@ -301,39 +316,62 @@ const DamageAssessmentDialog = ({
     return formData;
   };
   const reBuildData = (formdata: any) => {
+    const filterEmptyMixedUsage = (buildingData: any) => {
+      const filtered: any = { ...buildingData };
+      const mixedUsageKeys = [
+        "MixedUsage_floors_ground",
+        "MixedUsage_floors_mezzanine",
+        "MixedUsage_floors_roof",
+        "MixedUsage_units_ground",
+        "MixedUsage_units_mezzanine",
+        "MixedUsage_units_roof",
+      ];
+
+      mixedUsageKeys.forEach((key) => {
+        const value = filtered[key];
+        if (value === false || (Array.isArray(value) && value.length === 0)) {
+          delete filtered[key];
+        }
+      });
+      return filtered;
+    };
+
     if (formdata.buildingType === "ResidentialBuilding") {
-      const data = {
-        ...formdata,
-        ResidentialBuilding: {
-          ...formdata.ResidentialBuilding,
-          MixedUsage: {
-            floors: floorsResidential,
-            units: unitsResisential,
-          },
-        },
+      const residentialData = {
+        ...formdata.ResidentialBuilding,
+        MixedUsage_floors_ground: floorsResidential.ground,
+        MixedUsage_floors_mezzanine: floorsResidential.mezzanine,
+        MixedUsage_floors_roof: floorsResidential.roof,
+        MixedUsage_units_ground: unitsResisential.ground,
+        MixedUsage_units_mezzanine: unitsResisential.mezzanine,
+        MixedUsage_units_roof: unitsResisential.roof,
       };
-      // console.log("final payload", data);
-      return data;
+
+      return {
+        ...formdata,
+        ResidentialBuilding: filterEmptyMixedUsage(residentialData),
+      };
     } else if (formdata.buildingType === "tower") {
-      const data = {
-        ...formdata,
-        tower: {
-          ...formdata.tower,
-          MixedUsage: {
-            floors: floorsTower,
-            units: unitsTower,
-          },
-        },
+      const towerData = {
+        ...formdata.tower,
+        MixedUsage_floors_ground: floorsTower.ground,
+        MixedUsage_floors_mezzanine: floorsTower.mezzanine,
+        MixedUsage_floors_roof: floorsTower.roof,
+        MixedUsage_units_ground: unitsTower.ground,
+        MixedUsage_units_mezzanine: unitsTower.mezzanine,
+        MixedUsage_units_roof: unitsTower.roof,
       };
-      // console.log("into tower");
-      // console.log("final payload", data);
-      return data;
+
+      return {
+        ...formdata,
+        tower: filterEmptyMixedUsage(towerData),
+      };
     }
+    return formdata;
   };
 
   const onSubmit = async (formdata: any) => {
     let data = formdata;
-    console.log(data);
     if (data.buildingType === "ResidentialBuilding") {
       data = reBuildData(data);
     } else if (data.buildingType === "tower") {
