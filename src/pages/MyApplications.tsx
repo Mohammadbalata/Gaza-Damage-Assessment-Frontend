@@ -816,6 +816,7 @@ const MyApplications = () => {
                 onAddComplaint={handleOpenComplaint}
                 onCloseComplaint={handleOpenCloseConfirm}
                 neighborhoods={neighborhoods}
+                notes={app.notes}
               />
             ))}
           </Box>

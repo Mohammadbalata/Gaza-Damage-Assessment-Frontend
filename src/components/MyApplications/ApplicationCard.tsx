@@ -53,9 +53,12 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { ReportStatus } from "../../constants/ReportStatus";
+import { axiosClient } from "../../api/baseUrl";
+import { API } from "../../constants/ApiRoutes";
 
 export interface ApplicationCardProps {
   application: any;
+  notes: any[];
   onAction: (app: any) => void;
   onDownloadPdf: (app: any) => void;
   onAddComplaint: (app: any) => void;
@@ -74,10 +77,8 @@ export interface ApplicationCardProps {
 const CommentsDialog = ({
   open,
   onClose,
-  application,
-  onSendReply,
   language,
-  onFetchComments,
+  notes = [],
 }: {
   open: boolean;
   onClose: () => void;
@@ -85,44 +86,17 @@ const CommentsDialog = ({
   onSendReply: (commentId: string, replyText: string) => Promise<void>;
   language: string;
   onFetchComments?: (applicationId: string) => Promise<any[]>;
+  notes: any[];
 }) => {
   const theme = useTheme();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [localComments, setLocalComments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Load comments from application or fetch them
+  const [localNotes, setLocalNotes] = useState(notes || []);
   useEffect(() => {
-    const loadComments = async () => {
-      if (open && application?.id) {
-        setIsLoading(true);
-        try {
-          if (onFetchComments) {
-            const fetchedComments = await onFetchComments(application.id);
-            setLocalComments(fetchedComments);
-          } else if (application?.supervisor_comments) {
-            setLocalComments(application.supervisor_comments);
-          } else {
-            setLocalComments([]);
-          }
-        } catch (error) {
-          console.error("Error loading comments:", error);
-          setLocalComments([]);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadComments();
-  }, [
-    open,
-    application?.id,
-    onFetchComments,
-    application?.supervisor_comments,
-  ]);
+    setLocalNotes(notes);
+  }, [notes]);
 
   const handleReplyClick = (commentId: string) => {
     setReplyingTo(commentId);
@@ -134,37 +108,51 @@ const CommentsDialog = ({
     setReplyText("");
   };
 
-  const handleSendReply = async () => {
-    if (!replyText.trim() || !replyingTo) return;
-    setIsSending(true);
+  const handleSendReply = async (id: any) => {
     try {
-      await onSendReply(replyingTo, replyText);
+      setIsSending(true);
+      setIsLoading(true);
+      const res = await axiosClient.post(
+        API.citizen.applications.notes(id),
+        {
+          content: replyText,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
 
-      // Update comments locally to add the reply
-      const updatedComments = localComments.map((comment) => {
-        if (comment.id === replyingTo) {
-          const newReply = {
-            id: Date.now().toString(),
-            author: language === "ar" ? "أنت" : "You",
-            role: "citizen",
-            message: replyText,
-            timestamp: new Date().toISOString(),
-          };
-          return {
-            ...comment,
-            replies: [...(comment.replies || []), newReply],
-          };
-        }
-        return comment;
-      });
-
-      setLocalComments(updatedComments);
-      setReplyText("");
-      setReplyingTo(null);
+      if (res) {
+        console.log("response", res.data.note_reply.content);
+        setLocalNotes((prevNotes) =>
+          prevNotes.map((note) =>
+            note.id === id
+              ? {
+                  ...note,
+                  replies: [
+                    ...(note.replies || []),
+                    {
+                      id: res.data.note_reply.id,
+                      content: res.data.note_reply.content,
+                      created_at: res.data.note_reply.created_at,
+                      role: "citizen",
+                    },
+                  ],
+                }
+              : note,
+          ),
+        );
+        setIsLoading(false);
+      }
     } catch (error) {
-      console.error("Error sending reply:", error);
+      console.log(error);
     } finally {
       setIsSending(false);
+      setReplyingTo(null);
+      setReplyText("");
+      setIsLoading(false);
     }
   };
 
@@ -216,7 +204,7 @@ const CommentsDialog = ({
             >
               <CircularProgress />
             </Box>
-          ) : localComments.length === 0 ? (
+          ) : localNotes.length === 0 ? (
             <Box
               sx={{
                 textAlign: "center",
@@ -231,8 +219,8 @@ const CommentsDialog = ({
             </Box>
           ) : (
             <Stack spacing={3}>
-              {localComments.map((comment: any) => (
-                <Box key={comment.id}>
+              {localNotes.map((note: any) => (
+                <Box key={note.id}>
                   {/* Main Comment */}
                   <Paper
                     elevation={0}
@@ -249,7 +237,12 @@ const CommentsDialog = ({
                       alignItems="flex-start"
                       mb={1}
                     >
-                      <Stack direction="row" spacing={1} alignItems="center">
+                      <Stack
+                        sx={{ display: "flex", gap: 1 }}
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                      >
                         <Avatar
                           sx={{
                             width: 32,
@@ -258,53 +251,22 @@ const CommentsDialog = ({
                             fontSize: "0.875rem",
                           }}
                         >
-                          {comment.author?.charAt(0) || "C"}
+                          {note.user.name?.charAt(0) || "C"}
                         </Avatar>
                         <Box>
                           <Typography variant="subtitle2" fontWeight="bold">
-                            {comment.author ||
-                              (comment.role === "supervisor"
-                                ? language === "ar"
-                                  ? "مشرف"
-                                  : "Supervisor"
-                                : language === "ar"
-                                  ? "مواطن"
-                                  : "Citizen")}
+                            {note.user.name}
                           </Typography>
-                          <Chip
-                            label={
-                              comment.role === "supervisor"
-                                ? language === "ar"
-                                  ? "مشرف"
-                                  : "Supervisor"
-                                : language === "ar"
-                                  ? "مواطن"
-                                  : "Citizen"
-                            }
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: "0.625rem",
-                              bgcolor:
-                                comment.role === "supervisor"
-                                  ? alpha(theme.palette.info.main, 0.1)
-                                  : alpha(theme.palette.success.main, 0.1),
-                              color:
-                                comment.role === "supervisor"
-                                  ? "info.main"
-                                  : "success.main",
-                            }}
-                          />
                         </Box>
                       </Stack>
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(comment.timestamp).toLocaleString(
+                        {new Date(note.created_at).toLocaleString(
                           language === "ar" ? "ar-EG" : "en-US",
                         )}
                       </Typography>
                     </Stack>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      {comment.message}
+                      {note.note}
                     </Typography>
 
                     {/* Reply Button for Main Comment */}
@@ -318,7 +280,7 @@ const CommentsDialog = ({
                       <Button
                         size="small"
                         startIcon={<ReplyIcon fontSize="small" />}
-                        onClick={() => handleReplyClick(comment.id)}
+                        onClick={() => handleReplyClick(note.id)}
                         sx={{
                           textTransform: "none",
                           color: "primary.main",
@@ -330,202 +292,149 @@ const CommentsDialog = ({
                         {language === "ar" ? "رد" : "Reply"}
                       </Button>
                     </Box>
-                  </Paper>
 
-                  {/* Reply Input for this specific comment */}
-                  {replyingTo === comment.id && (
-                    <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
-                      <Paper
-                        elevation={0}
-                        sx={{
-                          p: 2,
-                          bgcolor: alpha(theme.palette.primary.main, 0.02),
-                          borderRadius: 2,
-                          border: `1px solid ${alpha(
-                            theme.palette.primary.main,
-                            0.1,
-                          )}`,
-                        }}
-                      >
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          alignItems="flex-end"
-                        >
-                          <TextField
-                            fullWidth
-                            multiline
-                            rows={2}
-                            placeholder={
-                              language === "ar"
-                                ? `اكتب ردك على ${
-                                    comment.author || "المشرف"
-                                  }...`
-                                : `Write your reply to ${
-                                    comment.author || "supervisor"
-                                  }...`
-                            }
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            variant="outlined"
-                            size="small"
-                            autoFocus
+                    {/* Existing Replies */}
+                    {note.replies && note.replies.length > 0 && (
+                      <Stack spacing={1.5} sx={{ mt: 1.5, ml: 4 }}>
+                        {note.replies.map((reply: any) => (
+                          <Paper
+                            key={reply.id}
+                            elevation={0}
                             sx={{
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                                bgcolor: "background.paper",
-                              },
+                              p: 2,
+                              bgcolor: alpha(theme.palette.grey[500], 0.05),
+                              borderRadius: 2,
+                              borderRight:
+                                reply.role === "citizen"
+                                  ? `2px solid ${theme.palette.success.main}`
+                                  : "none",
                             }}
-                          />
-                          <Stack direction="row" spacing={1}>
-                            <Button
-                              variant="outlined"
-                              onClick={handleCancelReply}
-                              size="small"
-                              sx={{
-                                borderRadius: 2,
-                                textTransform: "none",
-                              }}
-                            >
-                              {language === "ar" ? "إلغاء" : "Cancel"}
-                            </Button>
-                            <Button
-                              variant="contained"
-                              onClick={handleSendReply}
-                              disabled={!replyText.trim() || isSending}
-                              size="small"
-                              sx={{
-                                borderRadius: 2,
-                                textTransform: "none",
-                              }}
-                            >
-                              {isSending ? (
-                                <CircularProgress size={20} color="inherit" />
-                              ) : language === "ar" ? (
-                                "إرسال"
-                              ) : (
-                                "Send"
-                              )}
-                            </Button>
-                          </Stack>
-                        </Stack>
-                      </Paper>
-                    </Box>
-                  )}
-
-                  {/* Existing Replies */}
-                  {comment.replies && comment.replies.length > 0 && (
-                    <Stack spacing={1.5} sx={{ mt: 1.5, ml: 4 }}>
-                      {comment.replies.map((reply: any) => (
-                        <Paper
-                          key={reply.id}
-                          elevation={0}
-                          sx={{
-                            p: 2,
-                            bgcolor: alpha(theme.palette.grey[500], 0.05),
-                            borderRadius: 2,
-                            borderRight:
-                              reply.role === "citizen"
-                                ? `2px solid ${theme.palette.success.main}`
-                                : "none",
-                          }}
-                        >
-                          <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="flex-start"
-                            mb={1}
                           >
                             <Stack
                               direction="row"
-                              spacing={1}
-                              alignItems="center"
+                              justifyContent="space-between"
+                              alignItems="flex-start"
+                              mb={1}
                             >
-                              <Avatar
-                                sx={{
-                                  width: 28,
-                                  height: 28,
-                                  bgcolor:
-                                    reply.role === "supervisor"
-                                      ? "info.main"
-                                      : "success.main",
-                                  fontSize: "0.75rem",
-                                }}
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
                               >
-                                {reply.author?.charAt(0) ||
-                                  (reply.role === "supervisor" ? "م" : "م")}
-                              </Avatar>
-                              <Typography variant="caption" fontWeight="bold">
-                                {reply.author ||
-                                  (reply.role === "supervisor"
-                                    ? language === "ar"
-                                      ? "مشرف"
-                                      : "Supervisor"
-                                    : language === "ar"
-                                      ? "مواطن"
-                                      : "Citizen")}
+                                <Avatar
+                                  sx={{
+                                    width: 28,
+                                    height: 28,
+                                    bgcolor:
+                                      reply.role === "supervisor"
+                                        ? "info.main"
+                                        : "success.main",
+                                    fontSize: "0.75rem",
+                                  }}
+                                ></Avatar>
+                              </Stack>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {new Date(reply.created_at).toLocaleString(
+                                  language === "ar" ? "ar-EG" : "en-US",
+                                )}
                               </Typography>
-                              <Chip
-                                label={
-                                  reply.role === "supervisor"
-                                    ? language === "ar"
-                                      ? "مشرف"
-                                      : "Supervisor"
-                                    : language === "ar"
-                                      ? "مواطن"
-                                      : "Citizen"
-                                }
-                                size="small"
-                                sx={{
-                                  height: 18,
-                                  fontSize: "0.625rem",
-                                }}
-                              />
                             </Stack>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {new Date(reply.timestamp).toLocaleString(
-                                language === "ar" ? "ar-EG" : "en-US",
-                              )}
+                            <Typography variant="body2" sx={{ mt: 0.5 }}>
+                              {reply.content}
                             </Typography>
-                          </Stack>
-                          <Typography variant="body2" sx={{ mt: 0.5 }}>
-                            {reply.message}
-                          </Typography>
+                          </Paper>
+                        ))}
 
-                          {/* Add Reply button to replies as well */}
-                          <Box
-                            sx={{
-                              mt: 1,
-                              display: "flex",
-                              justifyContent: "flex-end",
-                            }}
-                          >
-                            <Button
-                              size="small"
-                              startIcon={<ReplyIcon fontSize="small" />}
-                              onClick={() => handleReplyClick(comment.id)}
+                        {/* Reply Input for this specific comment */}
+                        {replyingTo === note.id && (
+                          <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
+                            <Paper
+                              elevation={0}
                               sx={{
-                                textTransform: "none",
-                                color: "primary.main",
-                                fontSize: "0.75rem",
-                                "&:hover": {
-                                  bgcolor: alpha(
-                                    theme.palette.primary.main,
-                                    0.05,
-                                  ),
-                                },
+                                p: 2,
+                                bgcolor: alpha(
+                                  theme.palette.primary.main,
+                                  0.02,
+                                ),
+                                borderRadius: 2,
+                                border: `1px solid ${alpha(
+                                  theme.palette.primary.main,
+                                  0.1,
+                                )}`,
                               }}
                             >
-                              {language === "ar" ? "رد" : "Reply"}
-                            </Button>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="flex-end"
+                              >
+                                <TextField
+                                  fullWidth
+                                  multiline
+                                  rows={2}
+                                  placeholder={
+                                    language === "ar"
+                                      ? `اكتب ردك على ${note.author || "المشرف"}...`
+                                      : `Write your reply to ${
+                                          note.author || "supervisor"
+                                        }...`
+                                  }
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  variant="outlined"
+                                  size="small"
+                                  autoFocus
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: 2,
+                                      bgcolor: "background.paper",
+                                    },
+                                  }}
+                                />
+                                <Stack direction="row" spacing={1}>
+                                  <Button
+                                    variant="outlined"
+                                    onClick={handleCancelReply}
+                                    size="small"
+                                    sx={{
+                                      borderRadius: 2,
+                                      textTransform: "none",
+                                    }}
+                                  >
+                                    {language === "ar" ? "إلغاء" : "Cancel"}
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    onClick={() => handleSendReply(note.id)}
+                                    disabled={!replyText.trim() || isSending}
+                                    size="small"
+                                    sx={{
+                                      borderRadius: 2,
+                                      textTransform: "none",
+                                    }}
+                                  >
+                                    {isSending ? (
+                                      <CircularProgress
+                                        size={20}
+                                        color="inherit"
+                                      />
+                                    ) : language === "ar" ? (
+                                      "إرسال"
+                                    ) : (
+                                      "Send"
+                                    )}
+                                  </Button>
+                                </Stack>
+                              </Stack>
+                            </Paper>
                           </Box>
-                        </Paper>
-                      ))}
-                    </Stack>
-                  )}
+                        )}
+                      </Stack>
+                    )}
+                  </Paper>
                 </Box>
               ))}
             </Stack>
@@ -546,21 +455,12 @@ const ApplicationCard = ({
   onFetchComments,
   neighborhoods = [],
   index = 0,
+  notes = [],
 }: ApplicationCardProps) => {
   const { t, language } = useLanguage();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
-  const [comments, setComments] = useState<any[]>([]);
-
-  // Load comments if fetch function is provided
-  useEffect(() => {
-    if (onFetchComments && application?.id) {
-      onFetchComments(application.id).then(setComments).catch(console.error);
-    } else if (application?.supervisor_comments) {
-      setComments(application.supervisor_comments);
-    }
-  }, [application?.id, onFetchComments, application?.supervisor_comments]);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -574,14 +474,12 @@ const ApplicationCard = ({
     if (onSendCommentReply) {
       await onSendCommentReply(application.id, commentId, replyText);
     } else {
-      // Mock implementation if no handler provided
       console.log(
         "Sending reply for application:",
         application.id,
         commentId,
         replyText,
       );
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   };
@@ -675,8 +573,8 @@ const ApplicationCard = ({
   const statusLabel =
     t(`status.${application.status?.toLowerCase()}`) || application.status;
 
-  // Check if application has comments
-  const hasComments = comments && comments.length > 0;
+  // Check if application has notes
+  const hasComments = notes && notes.length > 0;
 
   // Staggered animation delay based on index
   const animationDelay = `${index * 100}ms`;
@@ -901,7 +799,7 @@ const ApplicationCard = ({
                 : t("common.reviewRequest")}
             </Button>
 
-            {/* Comments Button - New Button */}
+            {/* Notes/Comments Button */}
             <Tooltip
               title={
                 t("common.viewComments") ||
@@ -1108,6 +1006,7 @@ const ApplicationCard = ({
         open={commentsDialogOpen}
         onClose={() => setCommentsDialogOpen(false)}
         application={application}
+        notes={notes}
         onSendReply={handleSendReply}
         language={language}
         onFetchComments={onFetchComments}
