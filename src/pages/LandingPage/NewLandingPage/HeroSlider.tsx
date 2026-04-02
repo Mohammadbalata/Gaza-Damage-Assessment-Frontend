@@ -8,6 +8,7 @@ import { setTrackingNumber } from "../../../redux/slices/authSlice";
 import { useAppDispatch } from "../../../hooks/redux";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { CheckCircle, Home, Users } from "lucide-react";
+import classNames from "classnames";
 
 const slides = [
   {
@@ -23,6 +24,7 @@ export function HeroSlider() {
   const [currentSlide] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -104,6 +106,27 @@ export function HeroSlider() {
             className="absolute inset-0 xl:bg-origin-content background-hero bg-center w-full"
             style={{ backgroundImage: `url(${slides[currentSlide].image})` }}
           >
+            <motion.div
+            initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+             className={classNames(" absolute flex items-center w-full justify-around  mt-8 z-10 flex-wrap gap-3 ",{
+              'hidden': token
+            })}>
+                  <button
+                    onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
+                    className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition hidden sm:flex"
+                  >
+                    تسجيل دخول المسؤول
+                  </button>
+
+                  <button
+                    onClick={() => navigate(ROUTES.SIGNIN)}
+                    className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
+                  >
+                    تسجيل دخول المواطن
+                  </button>
+                </motion.div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
           </div>
 
@@ -253,9 +276,10 @@ export function HeroSlider() {
                   </motion.p>
                 )}
               </div>
+              
               <div
                 id="system-details"
-                className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar "
+                className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar justify-center "
               >
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Home className="w-5 h-5 " />

@@ -47,10 +47,10 @@ export function Header() {
 
   return (
     <header className="fixed top-0 w-full bg-[#ffffff] h-24 shadow-lg z-50 bg-header">
-      <div className="mx-auto max-w-[1300px] px-4 lg:px-2 ">
+      <div className="mx-auto max-w-[1300px] px-4 lg:px-4 ">
         <div
           className={classNames(
-            " flex items-center justify-between py-[16px] gap-8 h-[90px] ",
+            " flex items-center justify-between py-[16px]  h-[90px] ",
             { "xl:last:ml-20 xl:first:pl-12": token },
           )}
         >
@@ -61,8 +61,10 @@ export function Header() {
           />
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8 xl:gap-8 text-black font-medium">
-            {token && windowPathname !== "/" ? (
+          <nav className={classNames("hidden lg:flex items-center gap-6 xl:gap-10 text-black font-medium", {
+            "gap-16": token && windowPathname !== "/",
+          })}>
+            {!token || windowPathname !== "/" ? (
               <button
                 onClick={() => {
                   if (!token) {
@@ -78,7 +80,9 @@ export function Header() {
             ) : (
               <button
                 onClick={() => navigate(ROUTES.HOME)}
-                className="hover:text-green-600 transition-colors  "
+                className={classNames("hover:text-green-600 transition-colors xl:w-auto ",{
+                  "w-[160px]": !token,
+                })}
               >
                 لوحة التحكم
               </button>
@@ -87,55 +91,31 @@ export function Header() {
               <>
                 <button
                   onClick={() => scrollToSection("about")}
-                  className="hover:text-green-600 transition-colors  "
+                  className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
                   عن المنصة
                 </button>
                 <button
                   onClick={() => scrollToSection("departments")}
-                  className="hover:text-green-600 transition-colors "
+                  className="hover:text-green-600 transition-colors whitespace-nowrap text-center"
                 >
                   أقسام المنصة
                 </button>
                 <button
                   onClick={() => scrollToSection("partners")}
-                  className="hover:text-green-600 transition-colors "
+                  className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
                   الشركاء
                 </button>
                 <button
                   onClick={() => scrollToSection("contact")}
-                  className="hover:text-green-600 transition-colors"
+                  className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
                   اتصل بنا
                 </button>
               </>
             )}
-            {/* Background Pattern */}
-            {/* <Box
-                  sx={{
-                    position: "absolute",
-                    top: -50,
-                    right: language === "ar" ? "auto" : -50,
-                    left: language === "ar" ? -50 : "auto",
-                    width: 200,
-                    height: 200,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,0.1)",
-                  }}
-                /> */}
-            {/* <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: -30,
-                    right: language === "ar" ? -30 : "auto",
-                    left: language === "ar" ? "auto" : -30,
-                    width: 120,
-                    height: 120,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,0.08)",
-                  }}
-                /> */}
+          
 
             {/* Auth Buttons */}
 
@@ -222,14 +202,14 @@ export function Header() {
                 <>
                   <button
                     onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
-                    className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition"
+                    className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition hidden"
                   >
                     تسجيل دخول المسؤول
                   </button>
 
                   <button
                     onClick={() => navigate(ROUTES.SIGNIN)}
-                    className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
+                    className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md hidden"
                   >
                     تسجيل دخول المواطن
                   </button>
@@ -339,7 +319,28 @@ export function Header() {
                 </Stack>
               </Paper>
             )}
-            <button
+            {!token || windowPathname !== "/" ? (
+              <button
+                onClick={() => {
+                  if (!token) {
+                    scrollToSection("hero");
+                  } else {
+                    navigate(ROUTES.LAYOUT);
+                  }
+                }}
+                className="block w-full text-right px-6 py-3 hover:text-green-600"
+              >
+                الرئيسية
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate(ROUTES.HOME)}
+                className={classNames("block w-full text-right px-6 py-3 hover:text-green-600")}
+              >
+                لوحة التحكم
+              </button>
+            )}
+            {/* <button
               onClick={() => {
                 if (!token) {
                   scrollToSection("hero");
@@ -350,7 +351,7 @@ export function Header() {
               className="block w-full text-right px-6 py-3 hover:text-green-600"
             >
               الرئيسية
-            </button>
+            </button> */}
 
             {!token && (
               <>
@@ -372,7 +373,7 @@ export function Header() {
                   onClick={() => scrollToSection("partners")}
                   className="block w-full text-right px-6 py-3 hover:text-green-600"
                 >
-                  شركاء النجاح
+                  الشركاء 
                 </button>
 
                 <button
@@ -402,14 +403,14 @@ export function Header() {
               <div className="border-t border-black/20 mt-3 pt-3 space-y-2 px-4">
                 <button
                   onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
-                  className="w-full px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition"
+                  className="w-full px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition sm:hidden"
                 >
                   تسجيل دخول المسؤول
                 </button>
 
                 <button
                   onClick={() => navigate(ROUTES.SIGNIN)}
-                  className="w-full px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
+                  className="w-full px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md hidden"
                 >
                   تسجيل دخول المواطن
                 </button>

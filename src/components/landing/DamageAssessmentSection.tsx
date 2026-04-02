@@ -48,8 +48,9 @@ const DamageAssessmentSection: React.FC = () => {
             direction={{ xs: "column-reverse", sm: "row" }}
             alignItems="center"
             justifyContent="space-between"
-            spacing={4}
+            spacing={6}
             sx={{ position: "relative", zIndex: 1, mr: { sm: 5 } }}
+            className="sm:gap-10"
           >
             {/* Text Section */}
             <Box
