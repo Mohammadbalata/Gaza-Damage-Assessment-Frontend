@@ -13,6 +13,7 @@ import {
   TextField,
   CircularProgress,
   Paper,
+  useMediaQuery,
 } from "@mui/material";
 
 import {
@@ -370,7 +371,7 @@ export const CommentsDialog = ({
                                 )}
                               </Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ mt: 0.5, pr: 3 }}>
+                            <Typography variant="body2" sx={{ mt: 0.5 }}>
                               {reply.content}
                             </Typography>
                           </Paper>
