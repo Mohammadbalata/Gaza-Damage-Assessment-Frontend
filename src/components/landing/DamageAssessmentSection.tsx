@@ -12,8 +12,6 @@ const DamageAssessmentSection: React.FC = () => {
   const token = localStorage.getItem("token"); // تعريف هنا
   const widowPathname = window.location.pathname 
 
-  
-
   return (
     <Box className={classNames({
       "pb-16" : widowPathname === '/home'
