@@ -340,20 +340,9 @@ export function Header() {
                 لوحة التحكم
               </button>
             )}
-            {/* <button
-              onClick={() => {
-                if (!token) {
-                  scrollToSection("hero");
-                } else {
-                  navigate(ROUTES.LAYOUT);
-                }
-              }}
-              className="block w-full text-right px-6 py-3 hover:text-green-600"
-            >
-              الرئيسية
-            </button> */}
+            
 
-            {!token && (
+            {windowPathname !== "/home" && (
               <>
                 <button
                   onClick={() => scrollToSection("about")}
@@ -389,11 +378,12 @@ export function Header() {
               <button
                 onClick={handleLogout}
                 className="
-                flex items-center justify-center gap-2 w-full
-                px-4 py-3 rounded-xl font-semibold text-sm
+                flex items-center justify-center gap-2 w-[90%]
+                px-0 py-3 rounded-xl font-semibold text-sm
                 bg-red-50 text-red-600 border border-red-200
                 hover:bg-red-600 hover:text-white
                 transition-all duration-200
+                 mx-auto
               "
               >
                 <LogOut size={16} />
