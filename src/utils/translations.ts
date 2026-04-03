@@ -234,7 +234,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.MixedUsage": "Mixed Usage",
     "form.BuildingContent": "Building Content",
     "form.buildingDetails": "Building Details :",
-
+    "floors.roof": "roof",
+    "floors.ground": "ground",
+    "floors.mezzanine": "mezzanine",
     // Documents
     "form.uploadDocuments": "Upload Documents",
     "form.dragDrop": "Click to upload or drag and drop",
@@ -931,7 +933,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.compHouse": "منازل شعبية (سقف زينكو / كرميد / أسبست)",
     "form.additionalBuildings":
       "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
-
+    "floors.roof": "الروف",
+    "floors.ground": "الطابق الأرضي",
+    "floors.mezzanine": "السدة",
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
     "form.propertyType": "نوع العقار",
