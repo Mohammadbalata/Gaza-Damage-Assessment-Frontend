@@ -3,7 +3,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Common
     "app.title": "Self-Damage Assessment System - Khan Younis Municipality",
     "app.subtitle": "Khan Younis Municipality",
-    "app.receipt": "receipt",
+    "app.receipt": "PDF copy of the request",
     "common.submit": "Submit",
     "common.logout": "Logout",
     "common.cancel": "Cancel",
@@ -283,7 +283,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "Public Services Center",
     "landing.cards.emergency": "Emergency Management & Rapid Response",
     "landing.cards.support": "Institutions, Initiatives & Support Network",
-    "landing.damageAssessment": "Damage Assessment Registration and Review",
+    "landing.damageAssessment.title": "Damage Assessment Registration and Review",
+    "landing.damageAssessment.button": "Damage Assessment Registration and Review",
 
     // Status
     status: "statusOfApplication",
@@ -639,9 +640,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Connect with the support network for help and guidance.",
 
     // Complaints
-    "complaint.add": "Add Complaint",
+    "complaint.add": "Add a note or complaint about the application",
     "complaint.title": "Complaints",
-    "complaint.myComplaints": "My Complaints",
+    "complaint.myComplaints": "Notes and Complaints",
+    "complaint.validation.descriptionMinLength": "The description field must be at least 10 characters.",
     "complaint.description": "Complaint Description",
     "complaint.descriptionPlaceholder":
       "Please describe your complaint in detail...",
@@ -707,7 +709,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Common
     "app.title": "نظام حصر الاضرار الذاتي - بلدية خان يونس",
     "app.subtitle": "بلدية خانيونس",
-    "app.receipt": "إيصال",
+    "app.receipt": "نسخة PDF عن الطلب",
     "common.submit": "إرسال",
     "common.continue": "متابعة",
     "common.logout": "تسجيل الخروج",
@@ -805,8 +807,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "مركز الخدمات",
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
-    "landing.damageAssessment": "تسجيل ومراجعة طلبات الأضرار",
-    "landing.login": "سجل طلب ضرر الآن",
+    "landing.damageAssessment.title": "نظام حصر الأضرار الذاتي",
+    "landing.damageAssessment.button": "تسجيل ومراجعة الطلبات ",
 
     // Reset Password
     "auth.resetPassword": "إعادة تعيين كلمة المرور",
@@ -864,9 +866,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.addressBeforeWarPlaceholder": "أدخل العنوان قبل الحرب",
 
     // Complaints
-    "complaint.add": "إضافة شكوى",
+    "complaint.add": "اضافة ملاحظة أو شكوى على الطلب",
     "complaint.title": "الشكاوى",
-    "complaint.myComplaints": "الشكاوي والمقترحات",
+    "complaint.myComplaints": "الملاحظات والشكاوي",
+    "complaint.validation.descriptionMinLength": "يجب أن يكون حقل الوصف 10 أحرف على الأقل.",
     "complaint.description": "وصف الشكوى",
     "complaint.descriptionPlaceholder": "يرجى وصف شكواك بالتفصيل...",
     "complaint.submit": "إرسال الشكوى",

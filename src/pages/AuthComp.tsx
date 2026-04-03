@@ -98,9 +98,9 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, mr: 1 }}>
                 {displayTitle}
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
+              {/* <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
                 {t("app.subtitle")}
-              </Typography>
+              </Typography> */}
             </Box>
           </Stack>
         </Box>
@@ -109,7 +109,7 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
         <Box sx={{ p: { xs: 3, md: 4 } }}>{children}</Box>
       </Paper>
 
-      {/* Footer Text */}
+      {/* Footer Text
       <Typography
         variant="caption"
         color="text.secondary"
@@ -121,9 +121,9 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
         }}
       >
         {language === "ar"
-          ? "نظام حصر الأضرار الذاتي - بلدية خان يونس"
-          : "Self-Damage Assessment System - Khan Younis Municipality"}
-      </Typography>
+          ? "منصة سوا بنعمرها"
+          : "Sawa - We Rebuild It"}
+      </Typography> */}
     </Container>
   );
 };

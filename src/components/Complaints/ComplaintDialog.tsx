@@ -32,7 +32,7 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
   onClose,
   application,
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = React.useState(false);
@@ -62,9 +62,14 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
       enqueueSnackbar(t("complaint.success"), { variant: "success" });
       reset();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      enqueueSnackbar(t("complaint.error"), { variant: "error" });
+      const backendMessage = language === "ar" 
+        ? error.response?.data?.message_ar 
+        : error.response?.data?.message_en;
+      
+      const message = backendMessage || error.response?.data?.message || t("complaint.error");
+      enqueueSnackbar(message, { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -114,9 +119,15 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
             rows={4}
             label={t("complaint.description")}
             placeholder={t("complaint.descriptionPlaceholder")}
-            {...register("description", { required: true })}
+            {...register("description", { required: true, minLength: 10 })}
             error={!!errors.description}
-            helperText={errors.description ? t("common.required") : ""}
+            helperText={
+              errors.description 
+                ? (errors.description.type === "required" 
+                    ? t("common.required") 
+                    : t("complaint.validation.descriptionMinLength"))
+                : ""
+            }
           />
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
