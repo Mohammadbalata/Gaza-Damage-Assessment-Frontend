@@ -15,6 +15,7 @@ export interface IAuthState {
   familyName?: string;
   familyMembersNumber?: number;
   phoneNumber?: string;
+  alternatePhoneNumber?: string;
   email?: string;
   whatsappNumber?: string;
   pathSignUp?: string;

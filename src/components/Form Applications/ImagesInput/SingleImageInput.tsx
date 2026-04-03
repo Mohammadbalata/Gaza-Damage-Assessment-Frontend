@@ -24,7 +24,6 @@ const SingleImageInput = ({
   isChangeToReviewPage,
   previewAPI,
   isOptional = false,
-  isRequired = false,
 }: {
   control: any;
   name: string;

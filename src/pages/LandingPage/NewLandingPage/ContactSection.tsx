@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Mail, MessageSquare, Send, User } from "lucide-react";
+import { Phone, Mail, Send, User } from "lucide-react";
 import { motion } from "motion/react";
 import ContactInfo from "../../../components/ContactInfo";
 

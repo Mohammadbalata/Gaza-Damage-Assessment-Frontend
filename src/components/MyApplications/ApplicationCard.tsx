@@ -9,7 +9,6 @@ import {
   Tooltip,
   Divider,
   Fade,
-  IconButton,
   useTheme,
   alpha,
   Avatar,
@@ -454,7 +453,7 @@ const ApplicationCard = ({
                 },
               ]
                 .filter((action) => action.show)
-                .map((action, idx) => (
+                .map((action) => (
 
                     <Button
                       component={action.link ? Link : "button"}

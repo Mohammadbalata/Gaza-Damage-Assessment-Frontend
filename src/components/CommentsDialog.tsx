@@ -13,7 +13,6 @@ import {
   TextField,
   CircularProgress,
   Paper,
-  useMediaQuery,
 } from "@mui/material";
 
 import {
