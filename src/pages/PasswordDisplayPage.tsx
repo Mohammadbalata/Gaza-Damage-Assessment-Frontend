@@ -32,6 +32,7 @@ import {
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
+import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
@@ -64,7 +65,7 @@ const PasswordDisplayPage = () => {
         national_id: id ?? "",
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
-      })
+      }),
     )
       .unwrap()
       .then((res) => {
@@ -79,6 +80,7 @@ const PasswordDisplayPage = () => {
   }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: any) => {
+    console.log(data);
     const formData = new FormData();
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
@@ -88,9 +90,12 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
+    formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
-    formData.append("avatar", data.avatar);
+    if (data.avatar) {
+      formData.append("avatar", data.avatar);
+    }
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
     console.log(formData);
     if (id) {
@@ -98,7 +103,7 @@ const PasswordDisplayPage = () => {
         signUp({
           pathSignUp: `${API.citizen.auth.completeSignup}`,
           formData,
-        })
+        }),
       )
         .unwrap()
         .then((res) => {
@@ -107,7 +112,10 @@ const PasswordDisplayPage = () => {
           console.log(data);
         })
         .catch((error) => {
-          console.log(error);
+          console.log("error", error);
+          enqueueSnackbar(error || "Something went wrong", {
+            variant: "error",
+          });
         });
     } else {
       navigate(`${ROUTES.SIGNIN}`);
@@ -334,6 +342,29 @@ const PasswordDisplayPage = () => {
               />
             )}
           />
+          {/* alternatePhoneNumber   */}
+          <Box my={1}>
+            <Typography variant="body2" fontWeight="medium" gutterBottom>
+              {t("form.alternatePhoneNumber")}
+            </Typography>
+          </Box>
+          <Controller
+            name="alternatePhoneNumber"
+            control={control}
+            defaultValue=""
+            render={({ field, fieldState }) => (
+              <PhoneNumberInput
+                id="phoneNumber"
+                placeholder={t("form.alternatePhoneNumberPlaceholder")}
+                {...field}
+                value={field.value || ""}
+                onChange={(v: any) => field.onChange(v)}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+              />
+            )}
+          />
+
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
               {t("form.whatsappNumber")} <span style={{ color: "red" }}>*</span>

@@ -152,6 +152,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.whatsappNumber": "Whatsapp Number",
     "form.numberOfChildren": "Number of Children",
     "form.wifeName": "Wife's Name",
+    "form.alternatePhoneNumber": " Alternate Phone Number",
     "form.wifeNationalId": "Wife's National ID",
     "citizen.biometricData": "Biometric Data",
     "citizen.biometricDataDesc": "Manage your biometric data",
@@ -176,7 +177,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Your identity has been verified, please fill in your personal information",
     "form.familyMembersNumber": "Family Members Number",
     "form.familyMembersNumberPlaceholder": "Enter Family Members Number",
-
+    "form.alternatePhoneNumberPlaceholder":
+      " Enter Alternate Phone Number (if available)",
     // BuildingsType
     "form.IndependentBuilding": "Independent Building",
     "form.ApartmentInsideBuilding": "Apartment Inside Building",
@@ -232,7 +234,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.MixedUsage": "Mixed Usage",
     "form.BuildingContent": "Building Content",
     "form.buildingDetails": "Building Details :",
-
+    "floors.roof": "roof",
+    "floors.ground": "ground",
+    "floors.mezzanine": "mezzanine",
     // Documents
     "form.uploadDocuments": "Upload Documents",
     "form.dragDrop": "Click to upload or drag and drop",
@@ -862,7 +866,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.motherNamePlaceholder": "أدخل اسم الأم",
     "form.dateOfBirthPlaceholder": "أدخل تاريخ الميلاد",
     "form.addressBeforeWarPlaceholder": "أدخل العنوان قبل الحرب",
-
+    "form.alternatePhoneNumber": " رقم هاتف بديل",
+    "form.alternatePhoneNumberPlaceholder":
+      " أدخل رقم الهاتف البديل ( ان وجد ) ",
     // Complaints
     "complaint.add": "إضافة شكوى",
     "complaint.title": "الشكاوى",
@@ -927,7 +933,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.compHouse": "منازل شعبية (سقف زينكو / كرميد / أسبست)",
     "form.additionalBuildings":
       "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
-
+    "floors.roof": "الروف",
+    "floors.ground": "الطابق الأرضي",
+    "floors.mezzanine": "السدة",
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
     "form.propertyType": "نوع العقار",
