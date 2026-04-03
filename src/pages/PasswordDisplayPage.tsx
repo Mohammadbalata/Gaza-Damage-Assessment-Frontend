@@ -108,6 +108,7 @@ const PasswordDisplayPage = () => {
         })
         .catch((error) => {
           console.log(error);
+          errors.password = error.message;
         });
     } else {
       navigate(`${ROUTES.SIGNIN}`);

@@ -151,8 +151,8 @@ const LoginPage = () => {
           >
             <Typography variant="body2" color="white">
               {language === "ar"
-                ? "أدخل رقمك الوطني للمتابعة. إذا كان لديك حساب سيطلب منك كلمة المرور، وإذا لم يكن لديك سيتم توجيهك لإنشاء حساب."
-                : "Enter your National ID to continue. If you have an account, you will be asked for a password. If not, you will be directed to register."}
+                ? "أدخل رقمك الوطني لتسجيل الدخول أو إنشاء حساب جديد"
+                : "Enter your National ID to login or create a new account"}
             </Typography>
           </Box>
 
@@ -247,45 +247,7 @@ const LoginPage = () => {
             </Button>
           </Stack>
 
-          {/* Divider */}
-          {/* <Divider sx={{ my: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              {t("common.or")}
-            </Typography>
-          </Divider>
-
-          {/* Sign Up Link 
-          <Box sx={{ textAlign: "center" }}>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              component="span"
-              sx={{
-                mr: language === "en" ? 1 : 0,
-                ml: language === "ar" ? 1 : 0,
-              }}
-            >
-              {t("common.signUp-qesution")}
-            </Typography>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => {
-                dispatch(setError(""));
-                navigate(`${ROUTES.SIGNUP}`);
-              }}
-              sx={{
-                fontWeight: 600,
-                textDecoration: "underline",
-                "&:hover": {
-                  textDecoration: "underline",
-                  backgroundColor: "transparent",
-                },
-              }}
-            >
-              {t("common.signUp")}
-            </Button>
-          </Box> */}
+          
         </Stack>
       </form>
       <LanguageToggle />

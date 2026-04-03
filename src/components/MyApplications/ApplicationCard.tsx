@@ -395,50 +395,21 @@ const ApplicationCard = ({
               alignItems: "center",
             }}
           >
-            {/* Primary Action */}
-            <Button
-              variant={isSubmitted ? "contained" : "outlined"}
-              fullWidth
-              size="large"
-              startIcon={
-                isSubmitted ? (
-                  <EditIcon sx={{ ml: 1, fontSize: 20 }} />
-                ) : (
-                  <VisibilityIcon sx={{ ml: 1, fontSize: 20 }} />
-                )
-              }
-              onClick={() => onAction(application)}
-              sx={{
-                borderRadius: 2.5,
-                height: 48,
-                fontSize: "0.95rem",
-                fontWeight: 800,
-                textTransform: "none",
-                boxShadow: isSubmitted
-                  ? `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`
-                  : 0,
-                transition: "all 0.2s",
-                "&:active": { transform: "scale(0.98)" },
-              }}
-            >
-              {isSubmitted
-                ? t("common.editRequest")
-                : t("common.reviewRequest")}
-            </Button>
+            
 
             {/* Icon Actions Row */}
             <Stack
-              direction="row"
+              direction="column"
               spacing={1}
               sx={{ width: "100%", justifyContent: "center", mt: 0.5 }}
+              
             >
               {[
                 {
                   icon: <CommentIcon fontSize="small" className="" />,
                   onClick: () => setCommentsDialogOpen(true),
                   tooltip:
-                    t("common.viewComments") ||
-                    (language === "ar" ? "عرض الملاحظات" : "View Comments"),
+                    (language === "ar" ? "النافذة التفاعلية للطلب" : "Interactive window for the request"),
                   color: hasComments ? "warning" : "info",
                   badge: hasComments,
                   show: true,
@@ -484,12 +455,12 @@ const ApplicationCard = ({
               ]
                 .filter((action) => action.show)
                 .map((action, idx) => (
-                  <Tooltip key={idx} title={action.tooltip}>
-                    <IconButton
+
+                    <Button
                       component={action.link ? Link : "button"}
                       to={action.link}
                       onClick={action.onClick}
-                      className="first:ml-2"
+                      className="first:ml-2 !w-full"
                       sx={{
                         width: 40,
                         height: 40,
@@ -514,7 +485,8 @@ const ApplicationCard = ({
                         },
                       }}
                     >
-                      {action.icon}
+                      {action.tooltip}
+                      {/* {action.icon} */}
                       {action.badge && (
                         <Box
                           sx={{
@@ -530,10 +502,39 @@ const ApplicationCard = ({
                           }}
                         />
                       )}
-                    </IconButton>
-                  </Tooltip>
+                    </Button>
                 ))}
             </Stack>
+            {/* Primary Action */}
+            <Button
+              variant={isSubmitted ? "contained" : "outlined"}
+              fullWidth
+              size="large"
+              startIcon={
+                isSubmitted ? (
+                  <EditIcon sx={{ ml: 1, fontSize: 20 }} />
+                ) : (
+                  <VisibilityIcon sx={{ ml: 1, fontSize: 20 }} />
+                )
+              }
+              onClick={() => onAction(application)}
+              sx={{
+                borderRadius: 2.5,
+                height: 48,
+                fontSize: "0.95rem",
+                fontWeight: 800,
+                textTransform: "none",
+                boxShadow: isSubmitted
+                  ? `0 8px 16px -4px ${alpha(theme.palette.primary.main, 0.3)}`
+                  : 0,
+                transition: "all 0.2s",
+                "&:active": { transform: "scale(0.98)" },
+              }}
+            >
+              {isSubmitted
+                ? t("common.editRequest")
+                : t("common.reviewRequest")}
+            </Button>
 
             {/* Menu for Complaint Actions */}
             <Menu
