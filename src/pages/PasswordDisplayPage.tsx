@@ -36,7 +36,7 @@ import {
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
-// import { useSnackbar } from "notistack";
+import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-  // const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
