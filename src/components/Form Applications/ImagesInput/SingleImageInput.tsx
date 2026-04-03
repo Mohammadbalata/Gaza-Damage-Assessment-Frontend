@@ -94,11 +94,11 @@ const SingleImageInput = ({
                 }}
               >
                 {label}
-                {isRequired && (
+                {/* {isRequired && (
                   <span style={{ color: "red", marginInlineStart: "4px" }}>
                     *
                   </span>
-                )}
+                )} */}
                 {isOptional && (
                   <Typography
                     component="span"

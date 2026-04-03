@@ -93,7 +93,9 @@ const PasswordDisplayPage = () => {
     formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
-    formData.append("avatar", data.avatar);
+    if (data.avatar) {
+      formData.append("avatar", data.avatar);
+    }
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
     console.log(formData);
     if (id) {
