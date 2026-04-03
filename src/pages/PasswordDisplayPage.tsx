@@ -32,6 +32,7 @@ import {
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
+import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
@@ -109,7 +110,10 @@ const PasswordDisplayPage = () => {
           console.log(data);
         })
         .catch((error) => {
-          console.log(error);
+          console.log("error", error);
+          enqueueSnackbar(error || "Something went wrong", {
+            variant: "error",
+          });
         });
     } else {
       navigate(`${ROUTES.SIGNIN}`);
