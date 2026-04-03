@@ -89,7 +89,7 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
-    // formData.append("alternate_phone_number", data.alternatePhoneNumber);
+    formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
     formData.append("avatar", data.avatar);
@@ -337,7 +337,7 @@ const PasswordDisplayPage = () => {
             )}
           />
           {/* alternatePhoneNumber   */}
-          {/* <Box my={1}>
+          <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
               {t("form.alternatePhoneNumber")}
             </Typography>
@@ -357,7 +357,7 @@ const PasswordDisplayPage = () => {
                 helperText={fieldState.error?.message}
               />
             )}
-          /> */}
+          />
 
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>

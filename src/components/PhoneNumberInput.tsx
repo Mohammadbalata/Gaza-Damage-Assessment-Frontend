@@ -11,12 +11,11 @@ export default function PhoneNumberInput({
 }: any) {
   const val = typeof value === "string" ? value : "";
 
-  // تحديد الدولة الحالية حسب الكود
   const selectedCountry =
-    countries.find((c) => val.startsWith(c.code)) || countries[0];
+    countries.find((c) => val.startsWith(c.phone)) || countries[0];
 
   // استخراج الرقم بدون الكود
-  const numberWithoutCode = val.replace(selectedCountry.code, "");
+  const numberWithoutCode = val.replace(selectedCountry.phone, "");
 
   return (
     <Box display="flex" gap={1} width="100%">
@@ -24,8 +23,9 @@ export default function PhoneNumberInput({
       {id !== "phoneNumber" && (
         <TextField
           select
-          value={selectedCountry.code}
+          value={selectedCountry.phone}
           onChange={(e) => {
+            console.log(e.target.value);
             const newCode = e.target.value;
             onChange(newCode + numberWithoutCode);
           }}
@@ -60,7 +60,7 @@ export default function PhoneNumberInput({
           {countries.map((country) => (
             <MenuItem
               key={country.code + country.label}
-              value={country.code}
+              value={country.phone}
               sx={{
                 width: "100%",
                 display: "flex",
@@ -102,7 +102,7 @@ export default function PhoneNumberInput({
             onlyDigits = onlyDigits.slice(1);
           }
 
-          onChange(selectedCountry.code + onlyDigits);
+          onChange(selectedCountry.phone + onlyDigits);
         }}
         placeholder={placeholder}
         // className="!h-8 text-[1.09rem] !pr-7"
