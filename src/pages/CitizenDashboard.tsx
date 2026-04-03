@@ -139,9 +139,9 @@ const CitizenDashboard: React.FC = () => {
         />
 
         <Stack
-          direction={{ xs: "column", md: "row" }}
+          direction={{ xs: "column", sm: "row", md: "row" }}
           justifyContent="space-between"
-          alignItems={{ xs: "flex-start", md: "center" }}
+          alignItems={{ xs: "flex-start", sm: "center", md: "center" }}
           spacing={2}
           sx={{ position: "relative", zIndex: 1 }}
         >
@@ -159,7 +159,6 @@ const CitizenDashboard: React.FC = () => {
                   color: "white",
                   fontWeight: 600,
                   px: 1,
-                  
                 }}
               />
             </Box>
@@ -186,13 +185,24 @@ const CitizenDashboard: React.FC = () => {
                 {/* Fallback when no avatar */}
                 <PersonIcon sx={{ fontSize: 36 }} />
               </Avatar>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  {t("citizen.welcome")}
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  {citizenName}
-                </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "start",
+                  justifyContent: "start",
+                }}
+              >
+                <Box sx={{ display: "flex", gap: 0.5 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {t("citizen.welcome")}
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {citizenName}
+                  </Typography>
+                </Box>
+
+                <Typography>{citizenInfo.national_id}</Typography>
               </Box>
             </Box>
           </Stack>

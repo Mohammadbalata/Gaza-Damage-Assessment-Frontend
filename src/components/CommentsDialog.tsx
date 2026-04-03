@@ -13,9 +13,10 @@ import {
   TextField,
   CircularProgress,
   Paper,
+  useMediaQuery,
 } from "@mui/material";
-import {
 
+import {
   Comment as CommentIcon,
   Close as CloseIcon,
   Reply as ReplyIcon,
@@ -24,10 +25,6 @@ import {
 import { useState, useEffect } from "react";
 import { axiosClient } from "../api/baseUrl";
 import { API } from "../constants/ApiRoutes";
-
-
-
-// Comments Dialog Component
 
 export const CommentsDialog = ({
   open,
@@ -41,11 +38,35 @@ export const CommentsDialog = ({
   notes: any[];
 }) => {
   const theme = useTheme();
+
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [localNotes, setLocalNotes] = useState(notes || []);
+
+  const rolesMap: any = {
+    super_admin: {
+      ar: "مدير النظام",
+      en: "Super Admin",
+    },
+    general_supervisor: {
+      ar: "المشرف العام",
+      en: "General Supervisor",
+    },
+    district_supervisor: {
+      ar: "مشرف المنطقة",
+      en: "District Supervisor",
+    },
+    field_team_member: {
+      ar: "عضو الفريق الميداني",
+      en: "Field Team Member",
+    },
+    gis_reviewer: {
+      ar: "مراجع GIS",
+      en: "GIS Reviewer",
+    },
+  };
 
   useEffect(() => {
     setLocalNotes(notes);
@@ -63,14 +84,14 @@ export const CommentsDialog = ({
 
   const handleSendReply = async (id: any) => {
     if (!replyText.trim()) return;
+
     try {
       setIsSending(true);
       setIsLoading(true);
+
       const res = await axiosClient.post(
         API.citizen.applications.notes(id),
-        {
-          content: replyText,
-        },
+        { content: replyText },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -116,7 +137,7 @@ export const CommentsDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: { xs: 3, sm: 3 },
           maxHeight: "90vh",
         },
       }}
@@ -139,12 +160,14 @@ export const CommentsDialog = ({
               : "Supervisor Comments & Replies"}
           </Typography>
         </Stack>
+
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
+
       <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ p: 3, maxHeight: "60vh", overflowY: "auto" }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, maxHeight: "60vh", overflowY: "auto" }}>
           {isLoading ? (
             <Box
               sx={{
@@ -157,13 +180,7 @@ export const CommentsDialog = ({
               <CircularProgress />
             </Box>
           ) : localNotes.length === 0 ? (
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 8,
-                color: "text.secondary",
-              }}
-            >
+            <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
               <CommentIcon sx={{ fontSize: 48, opacity: 0.5, mb: 2 }} />
               <Typography>
                 {language === "ar" ? "لا توجد ملاحظات بعد" : "No comments yet"}
@@ -173,7 +190,6 @@ export const CommentsDialog = ({
             <Stack spacing={3}>
               {localNotes.map((note: any) => (
                 <Box key={note.id}>
-                  {/* Main Comment */}
                   <Paper
                     elevation={0}
                     sx={{
@@ -184,44 +200,62 @@ export const CommentsDialog = ({
                     }}
                   >
                     <Stack
-                      direction="row"
+                      direction={{ xs: "column", sm: "row" }}
                       justifyContent="space-between"
-                      alignItems="flex-start"
+                      spacing={1}
                       mb={1}
                     >
                       <Stack
-                        sx={{ display: "flex", gap: 1 }}
                         direction="row"
                         spacing={1}
                         alignItems="center"
+                        flexWrap="wrap"
                       >
                         <Avatar
                           sx={{
                             width: 32,
                             height: 32,
                             bgcolor: "primary.main",
-                            fontSize: "0.875rem",
                           }}
                         >
                           {note.user.name?.charAt(0) || "C"}
                         </Avatar>
-                        <Box>
-                          <Typography variant="subtitle2" fontWeight="bold">
-                            {note.user.name}
-                          </Typography>
-                        </Box>
+
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {rolesMap[note.user.roles]
+                            ? rolesMap[note.user.roles][
+                                language === "ar" ? "ar" : "en"
+                              ]
+                            : note.user.name}
+                          :
+                        </Typography>
+
+                        <Typography variant="subtitle2">
+                          {note.user.name}
+                        </Typography>
                       </Stack>
-                      <Typography variant="caption" color="text.secondary">
+
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                          alignSelf: { xs: "flex-end", sm: "flex-end" },
+                        }}
+                      >
                         {new Date(note.created_at).toLocaleString(
                           language === "ar" ? "ar-EG" : "en-US",
                         )}
                       </Typography>
                     </Stack>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      {note.note}
+                    <Typography
+                      sx={{
+                        pr: 3,
+                      }}
+                      variant="body2"
+                    >
+                      {note.content}
                     </Typography>
 
-                    {/* Reply Button for Main Comment */}
                     <Box
                       sx={{
                         mt: 1.5,
@@ -236,34 +270,25 @@ export const CommentsDialog = ({
                         sx={{
                           textTransform: "none",
                           color: "primary.main",
-                          "&:hover": {
-                            bgcolor: alpha(theme.palette.primary.main, 0.05),
-                          },
                         }}
                       >
                         {language === "ar" ? "رد" : "Reply"}
                       </Button>
                     </Box>
 
-                    {/* Reply Input for this specific comment */}
                     {replyingTo === note.id && (
-                      <Box sx={{ mt: 1.5, ml: 4, mb: 2 }}>
+                      <Box sx={{ mt: 1.5, ml: { xs: 1, sm: 4 } }}>
                         <Paper
                           elevation={0}
                           sx={{
                             p: 2,
                             bgcolor: alpha(theme.palette.primary.main, 0.02),
                             borderRadius: 2,
-                            border: `1px solid ${alpha(
-                              theme.palette.primary.main,
-                              0.1,
-                            )}`,
                           }}
                         >
                           <Stack
-                            direction="row"
+                            direction={{ xs: "column", sm: "row" }}
                             spacing={1}
-                            alignItems="flex-end"
                           >
                             <TextField
                               fullWidth
@@ -271,47 +296,29 @@ export const CommentsDialog = ({
                               rows={2}
                               placeholder={
                                 language === "ar"
-                                  ? `اكتب ردك على ${note.author || "المشرف"}...`
-                                  : `Write your reply to ${
-                                      note.author || "supervisor"
-                                    }...`
+                                  ? "اكتب ردك..."
+                                  : "Write your reply..."
                               }
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              variant="outlined"
                               size="small"
-                              autoFocus
-                              sx={{
-                                "& .MuiOutlinedInput-root": {
-                                  borderRadius: 2,
-                                  bgcolor: "background.paper",
-                                },
-                              }}
                             />
+
                             <Stack direction="row" spacing={1}>
                               <Button
                                 variant="outlined"
                                 onClick={handleCancelReply}
-                                size="small"
-                                sx={{
-                                  borderRadius: 2,
-                                  textTransform: "none",
-                                }}
                               >
                                 {language === "ar" ? "إلغاء" : "Cancel"}
                               </Button>
+
                               <Button
                                 variant="contained"
                                 onClick={() => handleSendReply(note.id)}
                                 disabled={!replyText.trim() || isSending}
-                                size="small"
-                                sx={{
-                                  borderRadius: 2,
-                                  textTransform: "none",
-                                }}
                               >
                                 {isSending ? (
-                                  <CircularProgress size={20} color="inherit" />
+                                  <CircularProgress size={18} color="inherit" />
                                 ) : language === "ar" ? (
                                   "إرسال"
                                 ) : (
@@ -324,9 +331,11 @@ export const CommentsDialog = ({
                       </Box>
                     )}
 
-                    {/* Existing Replies */}
                     {note.replies && note.replies.length > 0 && (
-                      <Stack spacing={1.5} sx={{ mt: 1.5, ml: 4 }}>
+                      <Stack
+                        spacing={1.5}
+                        sx={{ mt: 1.5, ml: { xs: 1, sm: 4 } }}
+                      >
                         {note.replies.map((reply: any) => (
                           <Paper
                             key={reply.id}
@@ -335,45 +344,34 @@ export const CommentsDialog = ({
                               p: 2,
                               bgcolor: alpha(theme.palette.grey[500], 0.05),
                               borderRadius: 2,
-                              borderRight:
-                                reply.role === "citizen"
-                                  ? `2px solid ${theme.palette.success.main}`
-                                  : "none",
                             }}
                           >
-                            <Stack
-                              direction="row"
-                              justifyContent="space-between"
-                              alignItems="flex-start"
-                              mb={1}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                              }}
                             >
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                              >
-                                <Avatar
-                                  sx={{
-                                    width: 28,
-                                    height: 28,
-                                    bgcolor:
-                                      reply.role === "supervisor"
-                                        ? "info.main"
-                                        : "success.main",
-                                    fontSize: "0.75rem",
-                                  }}
-                                ></Avatar>
-                              </Stack>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
+                              <Avatar
+                                sx={{
+                                  width: 28,
+                                  height: 28,
+                                  bgcolor:
+                                    reply.role === "supervisor"
+                                      ? "info.main"
+                                      : "success.main",
+                                  fontSize: "0.75rem",
+                                }}
+                              ></Avatar>
+
+                              <Typography variant="caption">
                                 {new Date(reply.created_at).toLocaleString(
                                   language === "ar" ? "ar-EG" : "en-US",
                                 )}
                               </Typography>
-                            </Stack>
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
+                            </Box>
+                            <Typography variant="body2" sx={{ mt: 0.5, pr: 3 }}>
                               {reply.content}
                             </Typography>
                           </Paper>

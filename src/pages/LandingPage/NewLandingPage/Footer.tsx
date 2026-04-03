@@ -22,9 +22,14 @@ export function Footer() {
               منصة سوا بنعمرها
             </h3>
             <p className="text-gray-300 leading-relaxed mb-4">
-هي مبادرة شبابية مستقلة، بعيدة عن التجاذبات السياسية والفئوية، تهدف إلى جمع جهود المواطنين والجهات العاملة والمانحين في إطار واحد يخدم المجتمع، ويعزز المشاركة المجتمعية من خلال توفير منصة شفافة تتيح للمواطنين متابعة الخدمات، والإبلاغ عن احتياجاتهم، والتواصل المباشر مع الجهات المعنية، وتقييم مستوى الخدمات ومدى سرعة الاستجابة لها. كما تسعى المبادرة إلى توحيد الجهود وتسهيل التعاون بين جميع الأطراف لدعم جهود إعادة الإعمار وتحسين الخدمات، بما يخدم مصلحة المجتمع ويعزز مبادئ العدالة والشفافية.
-
-
+              هي مبادرة شبابية مستقلة، بعيدة عن التجاذبات السياسية والفئوية،
+              تهدف إلى جمع جهود المواطنين والجهات العاملة والمانحين في إطار واحد
+              يخدم المجتمع، ويعزز المشاركة المجتمعية من خلال توفير منصة شفافة
+              تتيح للمواطنين متابعة الخدمات، والإبلاغ عن احتياجاتهم، والتواصل
+              المباشر مع الجهات المعنية، وتقييم مستوى الخدمات ومدى سرعة
+              الاستجابة لها. كما تسعى المبادرة إلى توحيد الجهود وتسهيل التعاون
+              بين جميع الأطراف لدعم جهود إعادة الإعمار وتحسين الخدمات، بما يخدم
+              مصلحة المجتمع ويعزز مبادئ العدالة والشفافية.
             </p>
           </div>
 
@@ -90,39 +95,75 @@ export function Footer() {
             <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
               معلومات التواصل
             </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
-                <div>
-                  <a
-                    href="tel:00970599366036"
-                    className="text-gray-300 hover:text-[#f5a623] transition-colors"
-                  >
-                    036 366 599 970 00
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
-                <div>
-                  <a
-                    href="mailto:info@example.com"
-                    className="text-gray-300 hover:text-[#f5a623] transition-colors"
-                  >
-                    info@example.com
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
-                <div>
-                  <p className="text-gray-300">
-                    قطاع غزة - خانيونس <br />
-                    قطاع غزة - مدينة غزة
-                  </p>
-                </div>
-              </li>
-            </ul>
+            <div className="flex flex-col gap-5">
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="tel:00970599366036"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      036 366 599 970 00
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="mailto:info@example.com"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      info@example.com
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="text-gray-300">
+                      قطاع غزة - خانيونس <br />
+                      قطاع غزة - مدينة غزة
+                    </p>
+                  </div>
+                </li>
+              </ul>
+              <div className="border-b-2 border-dashed border-b-white/50 w-[60%]"></div>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="tel:00970599366036"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      036 366 599 970 00
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="mailto:info@example.com"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      info@example.com
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="text-gray-300">
+                      قطاع غزة - خانيونس <br />
+                      قطاع غزة - مدينة غزة
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Working Hours */}

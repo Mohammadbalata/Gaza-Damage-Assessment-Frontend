@@ -1,9 +1,5 @@
 import { TextField, MenuItem, Box } from "@mui/material";
-
-const countries = [
-  { code: "+970", label: "🇵🇸 فلسطين" },
-  { code: "+972", label: "🇮🇱 إسرائيل" },
-];
+import { Countries as countries } from "../constants/Countries";
 
 export default function PhoneNumberInput({
   id,
@@ -15,12 +11,11 @@ export default function PhoneNumberInput({
 }: any) {
   const val = typeof value === "string" ? value : "";
 
-  // تحديد الدولة الحالية حسب الكود
   const selectedCountry =
-    countries.find((c) => val.startsWith(c.code)) || countries[0];
+    countries.find((c) => val.startsWith(c.phone)) || countries[0];
 
   // استخراج الرقم بدون الكود
-  const numberWithoutCode = val.replace(selectedCountry.code, "");
+  const numberWithoutCode = val.replace(selectedCountry.phone, "");
 
   return (
     <Box display="flex" gap={1} width="100%">
@@ -28,13 +23,14 @@ export default function PhoneNumberInput({
       {id !== "phoneNumber" && (
         <TextField
           select
-          value={selectedCountry.code}
+          value={selectedCountry.phone}
           onChange={(e) => {
+            console.log(e.target.value);
             const newCode = e.target.value;
             onChange(newCode + numberWithoutCode);
           }}
           sx={{
-            width: 120,
+            width: 140,
             "& .MuiOutlinedInput-root": {
               height: "48px",
               borderRadius: "0.5rem",
@@ -55,12 +51,30 @@ export default function PhoneNumberInput({
             // إزالة أي تأثير إضافي
             "& .MuiOutlinedInput-input": {
               outline: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
             },
           }}
         >
           {countries.map((country) => (
-            <MenuItem key={country.code} value={country.code}>
-              {country.code}
+            <MenuItem
+              key={country.code + country.label}
+              value={country.phone}
+              sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <img
+                loading="lazy"
+                srcSet={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png 2x`}
+                src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}
+                alt=""
+              />
+              <span style={{ color: "gray" }}>+ {country.phone}</span>
             </MenuItem>
           ))}
         </TextField>
@@ -88,7 +102,7 @@ export default function PhoneNumberInput({
             onlyDigits = onlyDigits.slice(1);
           }
 
-          onChange(selectedCountry.code + onlyDigits);
+          onChange(selectedCountry.phone + onlyDigits);
         }}
         placeholder={placeholder}
         // className="!h-8 text-[1.09rem] !pr-7"
