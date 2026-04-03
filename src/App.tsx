@@ -16,7 +16,6 @@ function App() {
       const a = [
         ROUTES.LAYOUT,
         ROUTES.SIGNIN,
-        ROUTES.SIGNUP,
         ROUTES.VERIFICATION_QUESTIONS,
         ROUTES.PASSWORD_DISPLAY,
         ROUTES.ADMIN_LOGIN,

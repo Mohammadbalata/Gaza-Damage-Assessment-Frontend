@@ -28,6 +28,10 @@ import {
   Stack,
   Typography,
   Paper,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText,
+  Link,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
@@ -49,6 +53,7 @@ const PasswordDisplayPage = () => {
     handleSubmit,
     setValue,
     control,
+    setError,
   } = useForm<FormDataCustom>();
 
   const [password, setPassword] = useState(generatePassword());
@@ -75,7 +80,7 @@ const PasswordDisplayPage = () => {
         }
       })
       .catch(() => {
-        navigate(`${ROUTES.SIGNUP}`);
+        navigate(`${ROUTES.SIGNIN}`);
       });
   }, [navigate, dispatch, id]);
 
@@ -97,6 +102,7 @@ const PasswordDisplayPage = () => {
       formData.append("avatar", data.avatar);
     }
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
+    
     console.log(formData);
     if (id) {
       await dispatch(
@@ -112,7 +118,25 @@ const PasswordDisplayPage = () => {
           console.log(data);
         })
         .catch((error) => {
-          console.log("error", error);
+          console.log(error);
+          const errorMessage = error || "";
+          if (errorMessage.includes("Email already registered")) {
+            setError("email", {
+              type: "manual",
+              message: t("auth.emailAlreadyRegistered"),
+            });
+          } else if (errorMessage.includes("Phone number already registered")) {
+            setError("phoneNumber", {
+              type: "manual",
+              message: t("auth.phoneAlreadyRegistered"),
+            });
+          } else {
+            // Default to showing on password field or using existing logic
+            setError("password", {
+              type: "manual",
+              message: errorMessage,
+            });
+          }
           enqueueSnackbar(error || "Something went wrong", {
             variant: "error",
           });
@@ -493,6 +517,50 @@ const PasswordDisplayPage = () => {
               </Stack>
             </Box>
           </Box>
+        </Box>
+
+        <Box sx={{ mt: 3 }}>
+          <Controller
+            name="agreeToTerms"
+            control={control}
+            defaultValue={false}
+            rules={{ required: t("common.required") }}
+            render={({ field, fieldState }) => (
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      {t("form.agreeToTerms")}{" "}
+                      <Link
+                        href="#"
+                        underline="always"
+                        sx={{ fontWeight: "medium", color: "primary.main" }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Handle privacy policy click if needed
+                        }}
+                      >
+                        {t("form.termsAndPrivacy")}
+                      </Link>
+                    </Typography>
+                  }
+                />
+                {fieldState.error && (
+                  <FormHelperText error sx={{ px: 2 }}>
+                    {fieldState.error.message}
+                  </FormHelperText>
+                )}
+              </Box>
+            )}
+          />
         </Box>
 
         <Button

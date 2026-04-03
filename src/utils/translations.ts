@@ -3,7 +3,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Common
     "app.title": "Self-Damage Assessment System - Khan Younis Municipality",
     "app.subtitle": "Khan Younis Municipality",
-    "app.receipt": "receipt",
+    "app.receipt": "PDF copy of the request",
     "common.submit": "Submit",
     "common.logout": "Logout",
     "common.cancel": "Cancel",
@@ -103,6 +103,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.resetPasswordSuccessDescription":
       "Your password has been reset successfully. You can now login with your new password.",
 
+    "auth.emailAlreadyRegistered": "Email already registered",
+    "auth.phoneAlreadyRegistered": "Phone number already registered",
+
     "landing.login": "Login",
 
     "citizen.currentPassword": "Current Password",
@@ -177,6 +180,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Your identity has been verified, please fill in your personal information",
     "form.familyMembersNumber": "Family Members Number",
     "form.familyMembersNumberPlaceholder": "Enter Family Members Number",
+    "form.agreeToTerms": "I agree to the",
+    "form.termsAndPrivacy": "Terms of Use and Privacy Policy",
+
     "form.alternatePhoneNumberPlaceholder":
       " Enter Alternate Phone Number (if available)",
     // BuildingsType
@@ -287,7 +293,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "Public Services Center",
     "landing.cards.emergency": "Emergency Management & Rapid Response",
     "landing.cards.support": "Institutions, Initiatives & Support Network",
-    "landing.damageAssessment": "Damage Assessment Registration and Review",
+    "landing.damageAssessment.title": "Damage Assessment Registration and Review",
+    "landing.damageAssessment.button": "Damage Assessment Registration and Review",
 
     // Status
     status: "statusOfApplication",
@@ -643,9 +650,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Connect with the support network for help and guidance.",
 
     // Complaints
-    "complaint.add": "Add Complaint",
+    "complaint.add": "Add a note or complaint about the application",
     "complaint.title": "Complaints",
-    "complaint.myComplaints": "My Complaints",
+    "complaint.myComplaints": "Notes and Complaints",
+    "complaint.validation.descriptionMinLength": "The description field must be at least 10 characters.",
     "complaint.description": "Complaint Description",
     "complaint.descriptionPlaceholder":
       "Please describe your complaint in detail...",
@@ -692,7 +700,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.backToHome": "Back to Home",
 
     "imageUpload.clickOrDrag": "Click or drag image here",
-    "imageUpload.sizeError": "Image size must not exceed 2MB",
+    "imageUpload.sizeError": "Image size must not exceed 5MB",
     "imageUpload.avatar": "Profile Picture",
     "imageUpload.avatarOptional": "Profile Picture (Optional)",
     "imageUpload.editPhoto": "Edit photo",
@@ -711,7 +719,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     // Common
     "app.title": "نظام حصر الاضرار الذاتي - بلدية خان يونس",
     "app.subtitle": "بلدية خانيونس",
-    "app.receipt": "إيصال",
+    "app.receipt": "نسخة PDF عن الطلب",
     "common.submit": "إرسال",
     "common.continue": "متابعة",
     "common.logout": "تسجيل الخروج",
@@ -809,8 +817,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "مركز الخدمات",
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
-    "landing.damageAssessment": "تسجيل ومراجعة طلبات الأضرار",
-    "landing.login": "سجل طلب ضرر الآن",
+    "landing.damageAssessment.title": "نظام حصر الأضرار الذاتي",
+    "landing.damageAssessment.button": "تسجيل ومراجعة الطلبات ",
 
     // Reset Password
     "auth.resetPassword": "إعادة تعيين كلمة المرور",
@@ -821,6 +829,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
     "auth.resetPasswordSuccessDescription":
       "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+
+    "auth.emailAlreadyRegistered": "البريد الإلكتروني مسجل مسبقاً",
+    "auth.phoneAlreadyRegistered": "رقم الهاتف مسجل مسبقاً",
+
     "citizen.currentPassword": "كلمة المرور الحالية",
     "citizen.newPassword": "كلمة المرور الجديدة",
     "citizen.confirmNewPassword": "تأكيد كلمة المرور الجديدة",
@@ -870,9 +882,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.alternatePhoneNumberPlaceholder":
       " أدخل رقم الهاتف البديل ( ان وجد ) ",
     // Complaints
-    "complaint.add": "إضافة شكوى",
+    "complaint.add": "اضافة ملاحظة أو شكوى على الطلب",
     "complaint.title": "الشكاوى",
-    "complaint.myComplaints": "الشكاوي والمقترحات",
+    "complaint.myComplaints": "الملاحظات والشكاوي",
+    "complaint.validation.descriptionMinLength": "يجب أن يكون حقل الوصف 10 أحرف على الأقل.",
     "complaint.description": "وصف الشكوى",
     "complaint.descriptionPlaceholder": "يرجى وصف شكواك بالتفصيل...",
     "complaint.submit": "إرسال الشكوى",
@@ -920,6 +933,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
     "form.familyMembersNumber": "عدد أفراد العائلة",
     "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
+    "form.agreeToTerms": "أوافق على",
+    "form.termsAndPrivacy": "سياسة الاستخدام والخصوصية",
     "form.placeOfBirth": "مكان الولادة",
     "form.country": "الدولة",
     "form.gender": "الجنس",
@@ -1377,7 +1392,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.backToHome": "العودة إلى الصفحة الرئيسية",
 
     "imageUpload.clickOrDrag": "اضغط أو اسحب الصورة هنا",
-    "imageUpload.sizeError": "حجم الصورة يجب أن لا يتجاوز 2MB",
+    "imageUpload.sizeError": "حجم الصورة يجب أن لا يتجاوز 5MB",
     "imageUpload.avatar": "الصورة الشخصية",
     "imageUpload.avatarOptional": "الصورة الشخصية (اختياري)",
     "imageUpload.editPhoto": "تعديل الصورة",

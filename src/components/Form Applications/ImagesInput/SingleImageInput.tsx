@@ -15,7 +15,7 @@ import { ImageCropDialog } from "./ImageCropDialog";
 import classNames from "classnames";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
-const MAX_SIZE = 2 * 1024 * 1024;
+const MAX_SIZE = 5 * 1024 * 1024;
 
 const SingleImageInput = ({
   control,

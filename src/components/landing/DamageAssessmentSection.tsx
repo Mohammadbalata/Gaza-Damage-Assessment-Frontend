@@ -63,7 +63,7 @@ const DamageAssessmentSection: React.FC = () => {
                 variant="h4"
                 sx={{ color: "white", fontWeight: 700, mb: 1 }}
               >
-                {t("landing.damageAssessment")}
+                {t("landing.damageAssessment.title")}
               </Typography>
               <Button
                 variant="contained"
@@ -97,7 +97,8 @@ const DamageAssessmentSection: React.FC = () => {
                 }}
               >
                 {/* استخدم token اللي فوق */}
-                {token ? "الذهاب الى لوحة التحكم" : t("landing.login")}
+                {/* {token ? "الذهاب الى لوحة التحكم" : t("landing.login")} */}
+                {t("landing.damageAssessment.button")}
               </Button>
             </Box>
 

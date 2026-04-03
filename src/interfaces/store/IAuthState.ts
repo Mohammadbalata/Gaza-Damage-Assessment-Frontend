@@ -22,4 +22,5 @@ export interface IAuthState {
   avatar?: File | null;
   formData?: any;
   trackingNumber?: string;
+  agreeToTerms?: boolean;
 }
