@@ -247,8 +247,14 @@ export const CommentsDialog = ({
                         )}
                       </Typography>
                     </Stack>
-
-                    <Typography variant="body2">{note.note}</Typography>
+                    <Typography
+                      sx={{
+                        pr: 3,
+                      }}
+                      variant="body2"
+                    >
+                      {note.content}
+                    </Typography>
 
                     <Box
                       sx={{
@@ -365,7 +371,7 @@ export const CommentsDialog = ({
                                 )}
                               </Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
+                            <Typography variant="body2" sx={{ mt: 0.5, pr: 3 }}>
                               {reply.content}
                             </Typography>
                           </Paper>

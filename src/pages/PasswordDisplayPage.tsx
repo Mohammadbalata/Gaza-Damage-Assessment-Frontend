@@ -64,7 +64,7 @@ const PasswordDisplayPage = () => {
         national_id: id ?? "",
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
-      })
+      }),
     )
       .unwrap()
       .then((res) => {
@@ -79,6 +79,7 @@ const PasswordDisplayPage = () => {
   }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: any) => {
+    console.log(data);
     const formData = new FormData();
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
@@ -88,6 +89,7 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
+    // formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
     formData.append("avatar", data.avatar);
@@ -98,7 +100,7 @@ const PasswordDisplayPage = () => {
         signUp({
           pathSignUp: `${API.citizen.auth.completeSignup}`,
           formData,
-        })
+        }),
       )
         .unwrap()
         .then((res) => {
@@ -334,6 +336,29 @@ const PasswordDisplayPage = () => {
               />
             )}
           />
+          {/* alternatePhoneNumber   */}
+          {/* <Box my={1}>
+            <Typography variant="body2" fontWeight="medium" gutterBottom>
+              {t("form.alternatePhoneNumber")}
+            </Typography>
+          </Box>
+          <Controller
+            name="alternatePhoneNumber"
+            control={control}
+            defaultValue=""
+            render={({ field, fieldState }) => (
+              <PhoneNumberInput
+                id="phoneNumber"
+                placeholder={t("form.alternatePhoneNumberPlaceholder")}
+                {...field}
+                value={field.value || ""}
+                onChange={(v: any) => field.onChange(v)}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+              />
+            )}
+          /> */}
+
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
               {t("form.whatsappNumber")} <span style={{ color: "red" }}>*</span>

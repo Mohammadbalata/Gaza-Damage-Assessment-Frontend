@@ -1,9 +1,5 @@
 import { TextField, MenuItem, Box } from "@mui/material";
-
-const countries = [
-  { code: "+970", label: "🇵🇸 فلسطين" },
-  { code: "+972", label: "🇮🇱 إسرائيل" },
-];
+import { Countries as countries } from "../constants/Countries";
 
 export default function PhoneNumberInput({
   id,
@@ -34,7 +30,7 @@ export default function PhoneNumberInput({
             onChange(newCode + numberWithoutCode);
           }}
           sx={{
-            width: 120,
+            width: 140,
             "& .MuiOutlinedInput-root": {
               height: "48px",
               borderRadius: "0.5rem",
@@ -55,12 +51,30 @@ export default function PhoneNumberInput({
             // إزالة أي تأثير إضافي
             "& .MuiOutlinedInput-input": {
               outline: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
             },
           }}
         >
           {countries.map((country) => (
-            <MenuItem key={country.code} value={country.code}>
-              {country.code}
+            <MenuItem
+              key={country.code + country.label}
+              value={country.code}
+              sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <img
+                loading="lazy"
+                srcSet={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png 2x`}
+                src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}
+                alt=""
+              />
+              <span style={{ color: "gray" }}>+ {country.phone}</span>
             </MenuItem>
           ))}
         </TextField>
