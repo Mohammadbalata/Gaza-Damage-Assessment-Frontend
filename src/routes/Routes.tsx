@@ -7,7 +7,7 @@ import PasswordDisplayPage from "../pages/PasswordDisplayPage";
 import CurrentLocationMapPage from "../pages/CurrentLocationMapPage";
 import TrackStatusPage from "../pages/TrackStatusPage";
 import SignInPage from "../pages/SignInPage";
-import SignUpPage from "../pages/SignUpPage";
+// import SignUpPage from "../pages/SignUpPage";
 import CitizenDashboard from "../pages/CitizenDashboard";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoutes from "./ProtectedRoutes";
@@ -92,7 +92,7 @@ export const routes = [
 
   { path: ROUTES.SIGNIN, element: <SignInPage /> },
   { path: ROUTES.SIGNIN_PASSWORD, element: <SignInPasswordPage /> },
-  { path: ROUTES.SIGNUP, element: <SignUpPage /> },
+  // { path: ROUTES.SIGNUP, element: <SignUpPage /> },
   {
     path: ROUTES.VERIFICATION_QUESTIONS,
     element: <VerificationQuestionsPage />,

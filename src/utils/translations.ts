@@ -103,6 +103,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.resetPasswordSuccessDescription":
       "Your password has been reset successfully. You can now login with your new password.",
 
+    "auth.emailAlreadyRegistered": "Email already registered",
+    "auth.phoneAlreadyRegistered": "Phone number already registered",
+
     "landing.login": "Login",
 
     "citizen.currentPassword": "Current Password",
@@ -176,6 +179,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Your identity has been verified, please fill in your personal information",
     "form.familyMembersNumber": "Family Members Number",
     "form.familyMembersNumberPlaceholder": "Enter Family Members Number",
+    "form.agreeToTerms": "I agree to the",
+    "form.termsAndPrivacy": "Terms of Use and Privacy Policy",
 
     // BuildingsType
     "form.IndependentBuilding": "Independent Building",
@@ -690,7 +695,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.backToHome": "Back to Home",
 
     "imageUpload.clickOrDrag": "Click or drag image here",
-    "imageUpload.sizeError": "Image size must not exceed 2MB",
+    "imageUpload.sizeError": "Image size must not exceed 5MB",
     "imageUpload.avatar": "Profile Picture",
     "imageUpload.avatarOptional": "Profile Picture (Optional)",
     "imageUpload.editPhoto": "Edit photo",
@@ -819,6 +824,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
     "auth.resetPasswordSuccessDescription":
       "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+
+    "auth.emailAlreadyRegistered": "البريد الإلكتروني مسجل مسبقاً",
+    "auth.phoneAlreadyRegistered": "رقم الهاتف مسجل مسبقاً",
+
     "citizen.currentPassword": "كلمة المرور الحالية",
     "citizen.newPassword": "كلمة المرور الجديدة",
     "citizen.confirmNewPassword": "تأكيد كلمة المرور الجديدة",
@@ -917,6 +926,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
     "form.familyMembersNumber": "عدد أفراد العائلة",
     "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
+    "form.agreeToTerms": "أوافق على",
+    "form.termsAndPrivacy": "سياسة الاستخدام والخصوصية",
     "form.placeOfBirth": "مكان الولادة",
     "form.country": "الدولة",
     "form.gender": "الجنس",
@@ -1372,7 +1383,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "notFound.backToHome": "العودة إلى الصفحة الرئيسية",
 
     "imageUpload.clickOrDrag": "اضغط أو اسحب الصورة هنا",
-    "imageUpload.sizeError": "حجم الصورة يجب أن لا يتجاوز 2MB",
+    "imageUpload.sizeError": "حجم الصورة يجب أن لا يتجاوز 5MB",
     "imageUpload.avatar": "الصورة الشخصية",
     "imageUpload.avatarOptional": "الصورة الشخصية (اختياري)",
     "imageUpload.editPhoto": "تعديل الصورة",
