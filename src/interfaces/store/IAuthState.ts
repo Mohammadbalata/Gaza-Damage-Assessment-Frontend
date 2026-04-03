@@ -15,6 +15,7 @@ export interface IAuthState {
   familyName?: string;
   familyMembersNumber?: number;
   phoneNumber?: string;
+  alternatePhoneNumber?: string;
   email?: string;
   whatsappNumber?: string;
   pathSignUp?: string;
@@ -22,4 +23,5 @@ export interface IAuthState {
   avatar?: File | null;
   formData?: any;
   trackingNumber?: string;
+  agreeToTerms?: boolean;
 }

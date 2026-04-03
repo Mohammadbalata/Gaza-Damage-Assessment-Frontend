@@ -297,15 +297,15 @@ const MyApplications = () => {
     // إنشاء نسخة عميقة من الكائن بدلاً من تعديله مباشرة
     const transformedApp = JSON.parse(JSON.stringify(app)); // <-- الحل هنا
 
-    if (app.damage_attachments && app.damage_attachments.length > 0) {
+    if (app.damageAttachments && app.damageAttachments.length > 0) {
       // تصنيف المرفقات حسب الفئة
-      const beforeImage = app.damage_attachments.find(
+      const beforeImage = app.damageAttachments.find(
         (att: any) => att.category === "before_damage_image",
       );
-      const afterImage = app.damage_attachments.find(
+      const afterImage = app.damageAttachments.find(
         (att: any) => att.category === "after_damage_image",
       );
-      const ownershipDocs = app.damage_attachments.filter(
+      const ownershipDocs = app.damageAttachments.filter(
         (att: any) => att.category === "ownership_documents",
       );
 
@@ -804,9 +804,8 @@ const MyApplications = () => {
                 md: "repeat(2, 1fr)",
               },
               gap: 5,
-              
             }}
-            className='sm:px-10 lg:px-0'
+            className="sm:px-10 lg:px-0"
           >
             {filteredApplications.map((app: any, index: number) => (
               <ApplicationCard

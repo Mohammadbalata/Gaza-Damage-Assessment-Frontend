@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Phone, Mail, MessageSquare, Send, User } from "lucide-react";
+import { Phone, Mail, Send, User } from "lucide-react";
 import { motion } from "motion/react";
+import ContactInfo from "../../../components/ContactInfo";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -26,8 +27,24 @@ export function ContactSection() {
     });
   };
 
+  const contactInfo = [
+    {
+      phone: "036 366 599 970 00",
+      email: "info@ example.com",
+      whatsapp: "036 366 599 970 00",
+    },
+    {
+      phone: "036 366 599 970 00",
+      email: "info@ example.com",
+      whatsapp: "036 366 599 970 00",
+    },
+  ];
+
   return (
-    <section id="contact" className="py-20 bg-gray-50 scroll-mt-24 overflow-hidden">
+    <section
+      id="contact"
+      className="py-20 bg-gray-50 scroll-mt-24 overflow-hidden"
+    >
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -50,57 +67,21 @@ export function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="space-y-6"
+            className="space-y-10"
           >
             <div>
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
-                معلومات التواصل
+                معلومات التواصل :
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                  <div className="bg-[#f5a623] p-3 rounded-lg">
-                    <Phone className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">الهاتف</p>
-                    <a
-                      href="tel:00970599366036"
-                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
-                    >
-                      036 366 599 970 00
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                  <div className="bg-[#f5a623] p-3 rounded-lg">
-                    <Mail className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">البريد الإلكتروني</p>
-                    <a
-                      href="mailto:info@example.com"
-                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
-                    >
-                      info@example.com
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                  <div className="bg-[#f5a623] p-3 rounded-lg">
-                    <MessageSquare className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">واتساب</p>
-                    <a
-                      href="https://wa.me/970599366036"
-                      className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
-                    >
-                      036 366 599 970 00
-                    </a>
-                  </div>
-                </div>
+              <div className="flex flex-col gap-5">
+                {contactInfo.map((info, index) => (
+                  <ContactInfo
+                    key={index}
+                    phone={info.phone}
+                    email={info.email}
+                    whatsapp={info.whatsapp}
+                  />
+                ))}
               </div>
             </div>
 
@@ -125,6 +106,7 @@ export function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
+            style={{ marginTop: 54 }}
           >
             <form
               onSubmit={handleSubmit}

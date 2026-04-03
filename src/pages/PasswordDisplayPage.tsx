@@ -28,10 +28,15 @@ import {
   Stack,
   Typography,
   Paper,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText,
+  Link,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
+import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -41,13 +46,14 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-
+  const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
     handleSubmit,
     setValue,
     control,
+    setError,
   } = useForm<FormDataCustom>();
 
   const [password, setPassword] = useState(generatePassword());
@@ -64,7 +70,7 @@ const PasswordDisplayPage = () => {
         national_id: id ?? "",
         password: "",
         pathSignUp: `${API.citizen.auth.verifyId}`,
-      })
+      }),
     )
       .unwrap()
       .then((res) => {
@@ -74,11 +80,12 @@ const PasswordDisplayPage = () => {
         }
       })
       .catch(() => {
-        navigate(`${ROUTES.SIGNUP}`);
+        navigate(`${ROUTES.SIGNIN}`);
       });
   }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: any) => {
+    console.log(data);
     const formData = new FormData();
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
@@ -88,17 +95,21 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
+    formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
-    formData.append("avatar", data.avatar);
+    if (data.avatar) {
+      formData.append("avatar", data.avatar);
+    }
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
+    
     console.log(formData);
     if (id) {
       await dispatch(
         signUp({
           pathSignUp: `${API.citizen.auth.completeSignup}`,
           formData,
-        })
+        }),
       )
         .unwrap()
         .then((res) => {
@@ -108,6 +119,27 @@ const PasswordDisplayPage = () => {
         })
         .catch((error) => {
           console.log(error);
+          const errorMessage = error || "";
+          if (errorMessage.includes("Email already registered")) {
+            setError("email", {
+              type: "manual",
+              message: t("auth.emailAlreadyRegistered"),
+            });
+          } else if (errorMessage.includes("Phone number already registered")) {
+            setError("phoneNumber", {
+              type: "manual",
+              message: t("auth.phoneAlreadyRegistered"),
+            });
+          } else {
+            // Default to showing on password field or using existing logic
+            setError("password", {
+              type: "manual",
+              message: errorMessage,
+            });
+          }
+          enqueueSnackbar(error || "Something went wrong", {
+            variant: "error",
+          });
         });
     } else {
       navigate(`${ROUTES.SIGNIN}`);
@@ -334,6 +366,29 @@ const PasswordDisplayPage = () => {
               />
             )}
           />
+          {/* alternatePhoneNumber   */}
+          <Box my={1}>
+            <Typography variant="body2" fontWeight="medium" gutterBottom>
+              {t("form.alternatePhoneNumber")}
+            </Typography>
+          </Box>
+          <Controller
+            name="alternatePhoneNumber"
+            control={control}
+            defaultValue=""
+            render={({ field, fieldState }) => (
+              <PhoneNumberInput
+                id="phoneNumber"
+                placeholder={t("form.alternatePhoneNumberPlaceholder")}
+                {...field}
+                value={field.value || ""}
+                onChange={(v: any) => field.onChange(v)}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+              />
+            )}
+          />
+
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
               {t("form.whatsappNumber")} <span style={{ color: "red" }}>*</span>
@@ -462,6 +517,50 @@ const PasswordDisplayPage = () => {
               </Stack>
             </Box>
           </Box>
+        </Box>
+
+        <Box sx={{ mt: 3 }}>
+          <Controller
+            name="agreeToTerms"
+            control={control}
+            defaultValue={false}
+            rules={{ required: t("common.required") }}
+            render={({ field, fieldState }) => (
+              <Box>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      {t("form.agreeToTerms")}{" "}
+                      <Link
+                        href="#"
+                        underline="always"
+                        sx={{ fontWeight: "medium", color: "primary.main" }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Handle privacy policy click if needed
+                        }}
+                      >
+                        {t("form.termsAndPrivacy")}
+                      </Link>
+                    </Typography>
+                  }
+                />
+                {fieldState.error && (
+                  <FormHelperText error sx={{ px: 2 }}>
+                    {fieldState.error.message}
+                  </FormHelperText>
+                )}
+              </Box>
+            )}
+          />
         </Box>
 
         <Button

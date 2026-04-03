@@ -9,7 +9,6 @@ import classNames from "classnames";
 const DamageAssessmentSection: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate(); // Hook for navigation
-  const token = localStorage.getItem("token"); // تعريف هنا
   const widowPathname = window.location.pathname 
 
   return (
@@ -61,7 +60,7 @@ const DamageAssessmentSection: React.FC = () => {
                 variant="h4"
                 sx={{ color: "white", fontWeight: 700, mb: 1 }}
               >
-                {t("landing.damageAssessment")}
+                {t("landing.damageAssessment.title")}
               </Typography>
               <Button
                 variant="contained"
@@ -95,7 +94,8 @@ const DamageAssessmentSection: React.FC = () => {
                 }}
               >
                 {/* استخدم token اللي فوق */}
-                {token ? "الذهاب الى لوحة التحكم" : t("landing.login")}
+                {/* {token ? "الذهاب الى لوحة التحكم" : t("landing.login")} */}
+                {t("landing.damageAssessment.button")}
               </Button>
             </Box>
 

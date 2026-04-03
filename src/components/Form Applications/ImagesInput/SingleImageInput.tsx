@@ -1,4 +1,3 @@
-
 import { Controller } from "react-hook-form";
 import {
   Card,
@@ -16,7 +15,7 @@ import { ImageCropDialog } from "./ImageCropDialog";
 import classNames from "classnames";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
-const MAX_SIZE = 2 * 1024 * 1024;
+const MAX_SIZE = 5 * 1024 * 1024;
 
 const SingleImageInput = ({
   control,
@@ -25,7 +24,6 @@ const SingleImageInput = ({
   isChangeToReviewPage,
   previewAPI,
   isOptional = false,
-  isRequired = false,
 }: {
   control: any;
   name: string;
@@ -44,7 +42,7 @@ const SingleImageInput = ({
       control={control}
       defaultValue={null}
       rules={{
-        required: isRequired ? t("common.required") : false,
+        // required: isRequired ? t("common.required") : false,
         validate: (file: File | null) => {
           if (!file) return true;
           if (file.size > MAX_SIZE) return sizeErrorMessage;
@@ -79,7 +77,7 @@ const SingleImageInput = ({
           if (isChangeToReviewPage) return;
           field.onChange(file);
         };
-      
+
         return (
           <Box>
             {label && (
@@ -89,17 +87,17 @@ const SingleImageInput = ({
                 sx={{
                   mb: 1,
                   textAlign: language === "ar" ? "right" : "left",
-                  mr:1,
-                  fontWeight:'bold',
-                  fontSize:15
+                  mr: 1,
+                  fontWeight: "bold",
+                  fontSize: 15,
                 }}
               >
                 {label}
-                {isRequired && (
+                {/* {isRequired && (
                   <span style={{ color: "red", marginInlineStart: "4px" }}>
                     *
                   </span>
-                )}
+                )} */}
                 {isOptional && (
                   <Typography
                     component="span"
