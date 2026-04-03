@@ -102,7 +102,6 @@ const PasswordDisplayPage = () => {
       formData.append("avatar", data.avatar);
     }
     formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
-    
     console.log(formData);
     if (id) {
       await dispatch(
@@ -137,9 +136,6 @@ const PasswordDisplayPage = () => {
               message: errorMessage,
             });
           }
-          enqueueSnackbar(error || "Something went wrong", {
-            variant: "error",
-          });
         });
     } else {
       navigate(`${ROUTES.SIGNIN}`);
