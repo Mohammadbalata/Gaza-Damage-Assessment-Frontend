@@ -11,6 +11,8 @@ const DamageAssessmentSection: React.FC = () => {
   const navigate = useNavigate(); // Hook for navigation
   const widowPathname = window.location.pathname 
 
+  
+
   return (
     <Box className={classNames({
       "pb-16" : widowPathname === '/home'
