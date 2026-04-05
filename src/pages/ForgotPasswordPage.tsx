@@ -37,7 +37,7 @@ const ForgotPasswordPage = () => {
   } = useForm<FormData>();
 
   const { loading, execute: sendResetEmail } = usePost(
-    `${API.admin.auth.forgotPassword}`,
+    `${API.citizen.auth.forgotPassword}`,
     {
       onSuccess: () => {
         setEmailSent(true);
@@ -56,16 +56,16 @@ const ForgotPasswordPage = () => {
           setErrorMessage(err || t("common.error"));
         }
       },
-    }
+    },
   );
 
   const onSubmit = (data: FormData) => {
     setErrorMessage(null);
     sendResetEmail({ email: data.email });
   };
-
+  console.log(t("auth.forgotPasswordTitle"));
   return (
-    <AuthComp title={t("auth.forgotPasswordTitle")}>
+    <AuthComp title={t("auth.forgotPasswordTitle")} subtitle="ssss">
       <Box sx={{ mb: 3, textAlign: "center" }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
           {t("auth.forgotPasswordTitle")}

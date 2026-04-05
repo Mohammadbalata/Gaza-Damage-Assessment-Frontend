@@ -70,7 +70,7 @@ export const API = {
       verifyQuestions: `/auth/verification/security-questions`,
       completeSignup: `/auth/complete-signup`,
       changePassword: `/auth/citizen/change-password`,
-      forgotPassword: `/auth/citizen/reset-password/request`,
+      forgotPassword: `/password/forgot`,
       resetPassword: `/auth/citizen/reset-password`,
     },
     applications: {

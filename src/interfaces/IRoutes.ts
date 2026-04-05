@@ -17,6 +17,7 @@ export interface IRoutes {
   SETTINGS: string;
   FAMILY_INFO: string;
   DEPARTMENT_SECTION: string;
+  RESET_PASSWORD: string;
   // DAMAGE_ASSESSMENT: string;
   // DOCUMENTS: string;
   // MAP: string;
