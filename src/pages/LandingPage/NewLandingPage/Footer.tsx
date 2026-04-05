@@ -1,3 +1,4 @@
+import { WhatsApp } from "@mui/icons-material";
 import {
   Facebook,
   Instagram,
@@ -95,10 +96,11 @@ export function Footer() {
                   <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                   <div>
                     <a
-                      href="tel:00970599366036"
+                      href="tel:+970599366036"
+                      target="_blank"
                       className="text-gray-300 hover:text-[#f5a623] transition-colors"
                     >
-                      036 366 599 970 00
+                      +970599366036
                     </a>
                   </div>
                 </li>
@@ -107,6 +109,7 @@ export function Footer() {
                   <div>
                     <a
                       href="mailto:info@example.com"
+                      target="_blank"
                       className="text-gray-300 hover:text-[#f5a623] transition-colors"
                     >
                       info@example.com
@@ -114,11 +117,22 @@ export function Footer() {
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
+                  <WhatsApp className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="https://wa.me/+970599366036"
+                      target="_blank"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      +970599366036
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-gray-300">
-                      قطاع غزة - خانيونس <br />
-                      قطاع غزة - مدينة غزة
+                      قطاع غزة - محافظة خانيونس <br />
                     </p>
                   </div>
                 </li>
@@ -129,10 +143,11 @@ export function Footer() {
                   <Phone className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                   <div>
                     <a
-                      href="tel:00970599366036"
+                      href="tel:+17182000761"
                       className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                      target="_blank"
                     >
-                      036 366 599 970 00
+                      +17182000761
                     </a>
                   </div>
                 </li>
@@ -142,8 +157,21 @@ export function Footer() {
                     <a
                       href="mailto:info@example.com"
                       className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                      target="_blank"
                     >
                       info@example.com
+                    </a>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <WhatsApp className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
+                  <div>
+                    <a
+                      href="https://wa.me/+17182000761"
+                      target="_blank"
+                      className="text-gray-300 hover:text-[#f5a623] transition-colors"
+                    >
+                      +17182000761
                     </a>
                   </div>
                 </li>
@@ -151,8 +179,9 @@ export function Footer() {
                   <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-gray-300">
-                      قطاع غزة - خانيونس <br />
-                      قطاع غزة - مدينة غزة
+                      332 94th st Brooklyn ny
+                      <br />
+                      United States 11209
                     </p>
                   </div>
                 </li>

@@ -69,6 +69,7 @@ export const CommentsDialog = ({
 
   useEffect(() => {
     setLocalNotes(notes);
+    console.log(notes)
   }, [notes]);
 
   const handleReplyClick = (noteId: string) => {

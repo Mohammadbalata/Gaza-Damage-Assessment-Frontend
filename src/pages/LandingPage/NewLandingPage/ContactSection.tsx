@@ -29,14 +29,16 @@ export function ContactSection() {
 
   const contactInfo = [
     {
-      phone: "036 366 599 970 00",
+      phone: "+970599366036",
       email: "info@ example.com",
-      whatsapp: "036 366 599 970 00",
+      whatsapp: "+970599366036",
+      address: "قطاع غزة - محافظة خانيونس",
     },
     {
-      phone: "036 366 599 970 00",
+      phone: "+17182000761",
       email: "info@ example.com",
-      whatsapp: "036 366 599 970 00",
+      whatsapp: "+17182000761",
+      address: "332 94th st Brooklyn ny United States 11209",
     },
   ];
 
@@ -80,12 +82,13 @@ export function ContactSection() {
                     phone={info.phone}
                     email={info.email}
                     whatsapp={info.whatsapp}
+                    address={info.address}
                   />
                 ))}
               </div>
             </div>
 
-            <div className="bg-[#1e3a5f] text-white p-6 rounded-lg">
+            <div className="bg-[#1e3a5f] text-white p-5 rounded-lg">
               <h4 className="text-xl font-bold mb-4">ساعات الدوام</h4>
               <div className="space-y-3">
                 <div className="flex justify-between items-center pb-3 border-b border-white/20">
@@ -110,13 +113,13 @@ export function ContactSection() {
           >
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-8 rounded-lg shadow-lg"
+              className="bg-white p-8 py-16  rounded-lg shadow-lg"
             >
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
                 أرسل رسالة
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-7">
                 <div>
                   <label
                     htmlFor="name"
