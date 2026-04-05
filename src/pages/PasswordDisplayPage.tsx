@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { CheckCircle, Refresh } from "@mui/icons-material";
-import { generatePassword } from "../utils/helpers";
+import { CheckCircle } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
@@ -36,6 +35,7 @@ import {
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
+import { useSnackbar } from "notistack";
 // import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
@@ -46,23 +46,18 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-  // const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
     handleSubmit,
-    setValue,
     control,
     setError,
   } = useForm<FormDataCustom>();
 
-  const [password, setPassword] = useState(generatePassword());
+  const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
   const rules = checkPasswordRules(password);
-
-  useEffect(() => {
-    setValue("password", password);
-  }, [password, setValue]);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     dispatch(
@@ -141,11 +136,30 @@ const PasswordDisplayPage = () => {
       navigate(`${ROUTES.SIGNIN}`);
     }
   };
+  const fieldNames: Record<string, string> = {
+    firstName: t("form.firstName"),
+    fatherName: t("form.fatherName"),
+    grandfatherName: t("form.grandfatherName"),
+    familyName: t("form.familyName"),
+    email: t("form.email"),
+    phoneNumber: t("form.phoneNumber"),
+    whatsappNumber: t("form.whatsappNumber"),
+    familyMembersNumber: t("form.familyMembersNumber"),
+    agreeToTerms: t("form.agreeToTermsDescription"),
+    password: t("auth.password"),
+  };
 
-  const handleGeneratePassword = () => {
-    const newPass = generatePassword();
-    setPassword(newPass);
-    setValue("password", newPass, { shouldValidate: true });
+  const onError = (errors: any) => {
+    console.log("errors", errors);
+
+    Object.entries(errors).forEach(([field, error]: any) => {
+      const fieldLabel = fieldNames[field] || field;
+
+      enqueueSnackbar(`${fieldLabel} ${error.message}`, {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+    });
   };
 
   if (loading) {
@@ -157,8 +171,11 @@ const PasswordDisplayPage = () => {
   }
 
   return (
-    <AuthComp>
-      <Box sx={{ textAlign: "center", mb: 4 }}>
+    <AuthComp
+      title={t("form.personalInfo")}
+      subtitle={t("form.personalInfoDesc")}
+    >
+      {/* <Box sx={{ textAlign: "center", mb: 4 }}>
         <Box
           sx={{
             display: "inline-flex",
@@ -178,9 +195,9 @@ const PasswordDisplayPage = () => {
         <Typography variant="body1" color="text.secondary">
           {t("form.successDescription")}
         </Typography>
-      </Box>
+      </Box> */}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
         {/* Optional Avatar Upload Section */}
         <Paper
           elevation={0}
@@ -430,12 +447,10 @@ const PasswordDisplayPage = () => {
                 <FormInput
                   id="password"
                   type="password"
-                  label={t("auth.password")}
                   placeholder={t("auth.passwordPlaceholder")}
                   register={register}
                   errors={errors}
                   validation={{ validate: validatePassword(t) }}
-                  defaultValue={password}
                   isRequired={false}
                   isEye={true}
                   isCopyIcon={true}
@@ -502,14 +517,6 @@ const PasswordDisplayPage = () => {
                 <Typography variant="caption" color="error">
                   {t("success.savePassword")}
                 </Typography>
-                <Button
-                  size="small"
-                  startIcon={<Refresh sx={{ mx: 1 }} />}
-                  onClick={handleGeneratePassword}
-                  sx={{ textDecoration: "underline" }}
-                >
-                  {t("auth.generatePassword")}
-                </Button>
               </Stack>
             </Box>
           </Box>
