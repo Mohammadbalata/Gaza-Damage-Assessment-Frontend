@@ -33,7 +33,7 @@ import {
 } from "@mui/icons-material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PendingActionsIcon from "@mui/icons-material/PendingActions"; 
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn"; 
 import EditNoteIcon from "@mui/icons-material/EditNote";
@@ -46,6 +46,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { ReportStatus } from "../../constants/ReportStatus";
 import { CommentsDialog } from "../CommentsDialog";
 import StepperRTL from "./StepperRTL";
+import { axiosClient } from "../../api/baseUrl";
 
 export interface ApplicationCardProps {
   application: any;
@@ -66,7 +67,7 @@ const ApplicationCard = ({
   onDownloadPdf,
   onAddComplaint,
   onCloseComplaint,
-  neighborhoods = [],
+  // neighborhoods = [],
   index = 0,
   notes = [],
   statusReport,
@@ -75,7 +76,10 @@ const ApplicationCard = ({
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
-
+  const [governorateName, setGovernorateName] = useState<string>("");
+  const [municipalityName, setMunicipalityName] = useState<string>("");
+  const [neighborhoodName, setNeighborhoodName] = useState<string>("");
+  const [landmarkName, setLandmarkName] = useState<string>("");
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -91,13 +95,57 @@ const ApplicationCard = ({
   const status = application.status?.toUpperCase() || "SUBMITTED";
   const isSubmitted = status === "SUBMITTED";
 
-  const getNeighborhoodName = (id: string) => {
-    const neighborhood = neighborhoods.find(
-      (n) => n.id.toString() === id.toString(),
-    );
-    if (!neighborhood) return id;
-    return language === "ar" ? neighborhood.name : neighborhood.name_en;
-  };
+  console.log(application)
+
+  useEffect(() => {
+    const governorate_id = application?.governorate_id;
+    axiosClient.get(`locations/governorates`).then((res: any) => {
+      const governorate = res.data.governorates.find((g: any) => g.id === governorate_id);
+      setGovernorateName("محافظة " + governorate?.name);
+    })
+
+    
+    const municipality_id = application?.municipality_id;
+    axiosClient.get(`locations/municipalities`,{
+      params:{
+        governorate_id: governorate_id
+      }
+    }).then((res: any) => {
+      const municipality = res.data.municipalities.find((m: any) => m.id === municipality_id);
+      setMunicipalityName("بلدية " + municipality?.name);
+    })
+    const neighborhood_id = application?.neighborhood_id;
+    axiosClient.get(`locations/neighborhoods`,{
+      params:{
+        municipality_id: municipality_id
+      }
+    }).then((res: any) => {
+      const neighborhood = res.data.neighborhoods.find((n: any) => n.id === neighborhood_id);
+      setNeighborhoodName("حي " + neighborhood?.name);
+    })
+
+    const landmark_id = application?.landmark_id;
+    axiosClient.get(`locations/landmarks`,{
+      params:{
+        neighborhood_id: neighborhood_id
+      }
+    }).then((res: any) => {
+      const landmark = res.data.landmarks.find((l: any) => l.id === landmark_id);
+      setLandmarkName(landmark?.name);
+    })
+    
+
+  }, [application])
+
+
+
+  // const getNeighborhoodName = (id: string) => {
+  //   const neighborhood = neighborhoods.find(
+  //     (n) => n.id.toString() === id.toString(),
+  //   );
+  //   if (!neighborhood) return id;
+  //   return language === "ar" ? neighborhood.name : neighborhood.name_en;
+  // };
 
   const getStatusConfig = (status: ReportStatus) => {
     switch (status) {
@@ -367,8 +415,10 @@ const ApplicationCard = ({
                     }}
                   >
                     {[
-                      getNeighborhoodName(application?.neighborhood_id),
-                      buildingData?.landmark,
+                      governorateName,
+                      municipalityName,
+                      neighborhoodName,
+                      landmarkName,
                       buildingData?.nameOfStreet,
                       buildingData?.buildingNumber,
                     ]
@@ -456,6 +506,7 @@ const ApplicationCard = ({
                 .map((action) => (
 
                     <Button
+                    key={action.tooltip}
                       component={action.link ? Link : "button"}
                       to={action.link}
                       onClick={action.onClick}

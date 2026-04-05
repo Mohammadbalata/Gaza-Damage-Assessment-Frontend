@@ -20,9 +20,9 @@ const ChangeView = ({
       currentZoom !== zoom;
 
     if (isDifferent) {
-      map.setView(center, zoom, {
+      map.flyTo(center, zoom, {
         animate: true,
-        duration: 0.5
+        duration: 0.8, // Match the 800ms duration from ArcGISMapContainer
       });
     }
   }, [center, zoom, map]);

@@ -21,6 +21,9 @@ import {
   IconButton,
   alpha,
   useTheme,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import ApplicationCard from "../components/MyApplications/ApplicationCard";
 
@@ -58,8 +61,8 @@ import { formatDate } from "../utils/helpers";
 import { RotateCcw, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import MapContainer from "../components/MapContainer";
-import SelectLocations from "../components/SelectLocations";
-import { locations } from "../constants/locations";
+// import SelectLocations from "../components/SelectLocations";
+// import { locations } from "../constants/locations";
 import { axiosClient } from "../api/baseUrl";
 
 const MyApplications = () => {
@@ -92,12 +95,79 @@ const MyApplications = () => {
     [number, number] | null
   >(null);
   const [locationAddress, setLocationAddress] = useState("");
-  const [locationNeighborhood, setLocationNeighborhood] = useState<string>("");
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
   const theme = useTheme();
   const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
   const [locationLoading, setLocationLoading] = useState(false);
+
+  // Cascading Location States for Dialog
+  const [governorates, setGovernorates] = useState<any[]>([]);
+  const [municipalities, setMunicipalities] = useState<any[]>([]);
+  const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
+  const [landmarks, setLandmarks] = useState<any[]>([]);
+
+  const [landmarksData, setLandmarksData] = useState<any[]>([]);
+  const [targetNames, setTargetNames] = useState<{
+    governorate: string;
+    municipality: string;
+    neighborhood: string;
+    landmark: string;
+  } | null>(null);
+
+  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
+
+  // Load Landmarks.json for reverse lookup
+  useEffect(() => {
+    fetch("/Landmarks.json")
+      .then(res => res.json())
+      .then(data => {
+        if (data.features) setLandmarksData(data.features);
+      })
+      .catch(err => console.error("Error loading Landmarks.json:", err));
+  }, []);
+
+  // Fetch governorates for dialog
+  useEffect(() => {
+    axiosClient.get("/locations/governorates")
+      .then((res: any) => {
+        setGovernorates(res.data.governorates || []);
+      })
+      .catch((err: any) => console.error("Error fetching governorates:", err));
+  }, []);
+
+  // Normalization and Match Helpers
+  const normalizeText = (text: string) => {
+    if (!text) return "";
+    return text.trim()
+      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/\s+/g, "");
+  };
+
+  const GOV_MAPPING: Record<string, string> = {
+    "الشمال": "شمال غزة",
+    "دير البلح - الوسطى": "دير البلح",
+    "الوسطى": "دير البلح",
+  };
+
+  const findMatch = (list: any[], nameToFind: string) => {
+    if (!nameToFind || !list) return null;
+    const normalizedToFind = normalizeText(nameToFind);
+    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    if (!match) {
+      match = list.find(item => 
+        normalizeText(item.name).includes(normalizedToFind) || 
+        normalizedToFind.includes(normalizeText(item.name))
+      );
+    }
+    return match;
+  };
 
   // Close Complaint Confirmation State
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
@@ -112,7 +182,117 @@ const MyApplications = () => {
   //       enqueueSnackbar(t("citizen.updateLocationSuccess"), {
   //         variant: "success",
   //       });
-  //       setLocationDialogOpen(false);
+  // Cascading Selection Sync (Copy of CurrentLocationMapPage logic)
+  useEffect(() => {
+    if (locationPosition && landmarksData.length > 0 && locationDialogOpen) {
+      let minDistance = Infinity;
+      let nearest: any = null;
+
+      landmarksData.forEach((f: any) => {
+        if (!f.geometry || !f.geometry.coordinates) return;
+        const [lLng, lLat] = f.geometry.coordinates;
+        const dist = Math.pow(locationPosition[0] - lLat, 2) + Math.pow(locationPosition[1] - lLng, 2);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearest = f;
+        }
+      });
+
+      if (nearest) {
+        const props = nearest.properties;
+        setTargetNames({
+          governorate: props.المحافظة || "",
+          municipality: props.البلدية || "",
+          neighborhood: props.الحي || "",
+          landmark: props.اسم_المعلم || ""
+        });
+      }
+    }
+  }, [locationPosition, landmarksData, locationDialogOpen]);
+
+  useEffect(() => {
+    if (targetNames && governorates.length > 0) {
+      const match = findMatch(governorates, GOV_MAPPING[targetNames.governorate] || targetNames.governorate);
+      if (match && match.id.toString() !== selectedGovernorateId.toString()) {
+        setSelectedGovernorateId(match.id.toString());
+      }
+    }
+  }, [targetNames, governorates]);
+
+  useEffect(() => {
+    if (targetNames && municipalities.length > 0) {
+      const match = findMatch(municipalities, targetNames.municipality);
+      if (match && match.id.toString() !== selectedMunicipalityId.toString()) {
+        setSelectedMunicipalityId(match.id.toString());
+      }
+    }
+  }, [targetNames, municipalities]);
+
+  useEffect(() => {
+    if (targetNames && neighborhoodLocations.length > 0) {
+      const match = findMatch(neighborhoodLocations, targetNames.neighborhood);
+      if (match && match.id.toString() !== selectedNeighborhoodId.toString()) {
+        setSelectedNeighborhoodId(match.id.toString());
+      }
+    }
+  }, [targetNames, neighborhoodLocations]);
+
+  useEffect(() => {
+    if (targetNames && landmarks.length > 0) {
+      const match = findMatch(landmarks, targetNames.landmark);
+      if (match && match.id.toString() !== selectedLandmarkId.toString()) {
+        setSelectedLandmarkId(match.id.toString());
+      }
+    }
+  }, [targetNames, landmarks]);
+
+  // Fetch municipalities when governorate changes
+  useEffect(() => {
+    if (selectedGovernorateId) {
+      axiosClient.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
+        .then((res: any) => {
+          setMunicipalities(res.data.municipalities || []);
+          setNeighborhoodLocations([]);
+          setLandmarks([]);
+          setSelectedMunicipalityId("");
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
+        })
+        .catch((err: any) => console.error("Error fetching municipalities:", err));
+    } else {
+      setMunicipalities([]);
+    }
+  }, [selectedGovernorateId]);
+
+  // Fetch neighborhoods when municipality changes
+  useEffect(() => {
+    if (selectedMunicipalityId) {
+      axiosClient.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
+        .then((res: any) => {
+          setNeighborhoodLocations(res.data.neighborhoods || []);
+          setLandmarks([]);
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
+        })
+        .catch((err: any) => console.error("Error fetching neighborhoods:", err));
+    } else {
+      setNeighborhoodLocations([]);
+    }
+  }, [selectedMunicipalityId]);
+
+  // Fetch landmarks when neighborhood changes
+  useEffect(() => {
+    if (selectedNeighborhoodId) {
+      axiosClient.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
+        .then((res: any) => {
+          setLandmarks(res.data.landmarks || []);
+          setSelectedLandmarkId("");
+        })
+        .catch((err: any) => console.error("Error fetching landmarks:", err));
+    } else {
+      setLandmarks([]);
+    }
+  }, [selectedNeighborhoodId]);
   //     },
   //     onError: (err) => {
   //       enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
@@ -212,7 +392,6 @@ const MyApplications = () => {
   // Robust data handling
   const applications: any[] = Array.isArray(rawData) ? rawData : [];
 
-  const citizen: any = rawData?.citizen || {}; // Fallback to empty object if citizen is missing
   // useEffect(() => {
   //   // console.log("rawData", rawData?.damage_reports);
   //   console.log("applications", applications);
@@ -432,6 +611,7 @@ const MyApplications = () => {
 
   // Location Dialog Handlers
   const handleOpenLocationDialog = () => {
+    setTargetNames(null);
     // Pre-fill with existing location if available
     if (citizenInfo?.current_location) {
       const lat = parseFloat(citizenInfo.current_location.latitude);
@@ -441,12 +621,25 @@ const MyApplications = () => {
         setMapCenter([lat, lng]);
       }
       setLocationAddress(citizenInfo.current_location.address || "");
-      setLocationNeighborhood(
-        citizenInfo.current_location.neighborhood.name || "",
-      );
+      
+      // Safety fix: Safe access to nested properties
+      const govId = citizenInfo.current_location.governorate_id;
+      const muniId = citizenInfo.current_location.municipality_id;
+      const neighId = citizenInfo.current_location.neighborhood_id;
+      const landmarkId = citizenInfo.current_location.landmark_id;
+
+      if (govId) setSelectedGovernorateId(govId.toString());
+      if (muniId) setSelectedMunicipalityId(muniId.toString());
+      if (neighId) setSelectedNeighborhoodId(neighId.toString());
+      if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
+
     } else {
       setLocationPosition(null);
       setLocationAddress("");
+      setSelectedGovernorateId("");
+      setSelectedMunicipalityId("");
+      setSelectedNeighborhoodId("");
+      setSelectedLandmarkId("");
     }
     setLocationDialogOpen(true);
   };
@@ -464,10 +657,8 @@ const MyApplications = () => {
 
   const handleConfirmLocationUpdate = () => {
     if (locationPosition && locationAddress) {
-      const selectedLoc = locations.find(
-        (loc) => loc.name === locationNeighborhood,
-      );
-      const neighborhood_id = selectedLoc ? selectedLoc.id : 1;
+      setLocationLoading(true);
+      
       axiosClient
         .put(
           `${API.citizen.locations.current}`,
@@ -475,7 +666,10 @@ const MyApplications = () => {
             latitude: locationPosition[0].toString(),
             longitude: locationPosition[1].toString(),
             address: locationAddress,
-            neighborhood_id,
+            governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
+            municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
+            neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+            landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
           },
           {
             headers: {
@@ -939,12 +1133,37 @@ const MyApplications = () => {
                 {citizenInfo?.current_location?.address || "-"}
               </Typography>
 
+              {citizenInfo?.current_location && (
+                <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+                  {citizenInfo.current_location.governorate && (
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>{language === "ar" ? "المحافظة" : "Governorate"}:</strong> {citizenInfo.current_location.governorate.name}
+                    </Typography>
+                  )}
+                  {citizenInfo.current_location.municipality && (
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>{language === "ar" ? "البلدية" : "Municipality"}:</strong> {citizenInfo.current_location.municipality.name}
+                    </Typography>
+                  )}
+                  {citizenInfo.current_location.neighborhood && (
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>{language === "ar" ? "الحي" : "Neighborhood"}:</strong> {citizenInfo.current_location.neighborhood.name}
+                    </Typography>
+                  )}
+                  {citizenInfo.current_location.landmark && (
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>{language === "ar" ? "أقرب معلم" : "Landmark"}:</strong> {citizenInfo.current_location.landmark.name}
+                    </Typography>
+                  )}
+                </Stack>
+              )}
+
               <Typography>
                 <strong>{t("citizen.addedDate")}:</strong>{" "}
-                {citizen?.current_location
-                  ? formatDate(new Date(citizen.current_location.createdAt))
+                {citizenInfo?.current_location
+                  ? formatDate(new Date(citizenInfo.current_location.created_at))
                   : "-"}
-                . {/* must edit */}
+                .
               </Typography>
 
               <Button
@@ -1085,24 +1304,103 @@ const MyApplications = () => {
               </Box>
             )}
 
-            {/* Neighborhood Select */}
-            <SelectLocations
-              handleReset={handleResetLocation}
-              setNeighborhood={setLocationNeighborhood}
-              setCenter={setMapCenter}
-              neighborhood={locationNeighborhood}
-            />
-          </DialogContent>
+              {/* Cascading Selection Dropdowns */}
+              <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
+                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                  <FormControl fullWidth size="small" required>
+                    <InputLabel>
+                      {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                    </InputLabel>
+                    <Select
+                      value={selectedGovernorateId}
+                      label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      onChange={(e: any) => {
+                        setSelectedGovernorateId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {governorates.map((g) => (
+                        <MenuItem key={g.id} value={g.id}>
+                          {g.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
 
-          <DialogActions
-            sx={{
-              px: 3,
-              py: 2,
-              bgcolor: "background.default",
-              borderTop: "1px solid",
-              borderColor: "divider",
-            }}
-          >
+                  <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
+                    <InputLabel>
+                      {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                    </InputLabel>
+                    <Select
+                      value={selectedMunicipalityId}
+                      label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      onChange={(e: any) => {
+                        setSelectedMunicipalityId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {municipalities.map((m) => (
+                        <MenuItem key={m.id} value={m.id}>
+                          {m.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+
+                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                  <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
+                    <InputLabel>
+                      {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                    </InputLabel>
+                    <Select
+                      value={selectedNeighborhoodId}
+                      label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                      onChange={(e: any) => {
+                        setSelectedNeighborhoodId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {neighborhoodLocations.map((n) => (
+                        <MenuItem key={n.id} value={n.id}>
+                          {n.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
+                    <InputLabel>
+                      {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                    </InputLabel>
+                    <Select
+                      value={selectedLandmarkId}
+                      label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                      onChange={(e: any) => {
+                        setSelectedLandmarkId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {landmarks.map((lm: any) => (
+                        <MenuItem key={lm.id} value={lm.id}>
+                          {lm.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Stack>
+            </DialogContent>
+
+            <DialogActions
+              sx={{
+                px: 3,
+                py: 2,
+                bgcolor: "background.default",
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
             <Button
               sx={{ mx: 1 }}
               variant="outlined"

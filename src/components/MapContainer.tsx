@@ -9,7 +9,7 @@ import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState, useMemo } from "react";
 import ChangeView from "./ChangeView";
 import FormDialog from "./FormDialog";
-import { Box, Button, Dialog, Typography } from "@mui/material";
+// import { Box, Button, Dialog, Typography } from "@mui/material";
 
 // Fix default marker icon for Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -109,7 +109,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
           onClose={() => setOpenDialog(false)}
         />
       )}
-      {!location?.neighborhood &&<Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      {/* {!location?.neighborhood &&<Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <Box 
                   sx={{ 
                     display: 'flex', 
@@ -160,7 +160,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
                     إغلاق
                   </Button>
                 </Box>
-      </Dialog>}
+      </Dialog>} */}
     </>
   );
 };

@@ -23,6 +23,8 @@ import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
 import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
+import { axiosClient } from "../api/baseUrl";
+import { API } from "../constants/ApiRoutes";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -31,23 +33,24 @@ const PreviousLocationMapPage = () => {
 
   // Data States
   const [landmarksData, setLandmarksData] = useState<any[]>([]);
-  const [neighborhoodsData, setNeighborhoodsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Map States
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const [address, setAddress] = useState("");
   
+  // Backend ID Mapping States
+  const [governoratesList, setGovernoratesList] = useState<any[]>([]);
+  const [allMunicipalities, setAllMunicipalities] = useState<any[]>([]);
+  const [allNeighborhoods, setAllNeighborhoods] = useState<any[]>([]);
+  const [allLandmarks, setAllLandmarks] = useState<any[]>([]);
+
   // Selection States
   const [selectedGovernorate, setSelectedGovernorate] = useState<string>("");
   const [selectedMunicipality, setSelectedMunicipality] = useState<string>("");
   const [selectedNeighborhoodName, setSelectedNeighborhoodName] = useState<string>("");
   const [selectedLandmarkName, setSelectedLandmarkName] = useState<string>("");
 
-  // Dialog State
+  // Map States
+  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [address, setAddress] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-
-  // Default center: Gaza City
   const defaultCenter: [number, number] = [31.5017, 34.4668];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
   const [zoom, setZoom] = useState<number>(12);
@@ -56,15 +59,14 @@ const PreviousLocationMapPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [lmRes, nhRes] = await Promise.all([
+        const [lmRes, govRes] = await Promise.all([
           fetch("/Landmarks.json"),
-          fetch("/Neighborhood.json")
+          axiosClient.get(API.locations.governorates).catch(() => ({ data: { governorates: [] } }))
         ]);
         const lmData = await lmRes.json();
-        const nhData = await nhRes.json();
         
         if (lmData.features) setLandmarksData(lmData.features);
-        if (nhData.features) setNeighborhoodsData(nhData.features);
+        if (govRes.data.governorates) setGovernoratesList(govRes.data.governorates);
       } catch (err) {
         console.error("Error loading data:", err);
       } finally {
@@ -73,6 +75,84 @@ const PreviousLocationMapPage = () => {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (selectedGovernorate) {
+      const gov = findMatch(governoratesList, GOV_MAPPING[selectedGovernorate] || selectedGovernorate);
+      if (gov) {
+        axiosClient.get(API.locations.municipalities, { params: { governorate_id: gov.id } })
+          .then((res: any) => setAllMunicipalities(res.data.municipalities || []))
+          .catch(() => {});
+      }
+    }
+  }, [selectedGovernorate, governoratesList]);
+
+  useEffect(() => {
+    if (selectedMunicipality && allMunicipalities.length > 0) {
+      const muni = findMatch(allMunicipalities, selectedMunicipality);
+      if (muni) {
+        axiosClient.get(API.locations.neighborhoods, { params: { municipality_id: muni.id } })
+          .then((res: any) => setAllNeighborhoods(res.data.neighborhoods || []))
+          .catch(() => {});
+      }
+    }
+  }, [selectedMunicipality, allMunicipalities]);
+
+  useEffect(() => {
+    if (selectedNeighborhoodName && allNeighborhoods.length > 0) {
+      const nh = findMatch(allNeighborhoods, selectedNeighborhoodName);
+      if (nh) {
+        axiosClient.get(API.locations.landmarks, { params: { neighborhood_id: nh.id } })
+          .then((res: any) => setAllLandmarks(res.data.landmarks || []))
+          .catch(() => {});
+      }
+    }
+  }, [selectedNeighborhoodName, allNeighborhoods]);
+
+  // Naming Helpers
+  const normalizeText = (text: string) => {
+    if (!text) return "";
+    return text.trim()
+      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/\s+/g, "");
+  };
+
+  const GOV_MAPPING: Record<string, string> = {
+    "الشمال": "شمال غزة",
+    "دير البلح - الوسطى": "دير البلح",
+    "الوسطى": "دير البلح",
+  };
+
+  const findMatch = (list: any[], nameToFind: string) => {
+    if (!nameToFind || !list) return null;
+    const normalizedToFind = normalizeText(nameToFind);
+    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    if (!match) {
+      match = list.find(item => 
+        normalizeText(item.name).includes(normalizedToFind) || 
+        normalizedToFind.includes(normalizeText(item.name))
+      );
+    }
+    return match;
+  };
+
+  // Resolved IDs for submission
+  const resolvedIds = useMemo(() => {
+    const gov = findMatch(governoratesList, GOV_MAPPING[selectedGovernorate] || selectedGovernorate);
+    const muni = findMatch(allMunicipalities, selectedMunicipality);
+    const nh = findMatch(allNeighborhoods, selectedNeighborhoodName);
+    const lm = findMatch(allLandmarks, selectedLandmarkName);
+
+    return {
+      governorate_id: gov?.id || null,
+      municipality_id: muni?.id || null,
+      neighborhood_id: nh?.id || null,
+      landmark_id: lm?.id || null,
+    };
+  }, [selectedGovernorate, selectedMunicipality, selectedNeighborhoodName, selectedLandmarkName, governoratesList, allMunicipalities, allNeighborhoods, allLandmarks]);
 
   // Derived Options
   const governorates = useMemo(() => {
@@ -116,25 +196,39 @@ const PreviousLocationMapPage = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [landmarksData, selectedNeighborhoodName]);
 
-  // Find Neighborhood ID by Name
-  const selectedNeighborhoodId = useMemo(() => {
-    if (!selectedNeighborhoodName) return "";
-    const nh = neighborhoodsData.find(f => f.properties.الحي === selectedNeighborhoodName);
-    return nh ? nh.id.toString() : "";
-  }, [neighborhoodsData, selectedNeighborhoodName]);
 
   // Handle Changes
   const handleGovernorateChange = (event: any) => {
-    setSelectedGovernorate(event.target.value);
+    const name = event.target.value;
+    setSelectedGovernorate(name);
     setSelectedMunicipality("");
     setSelectedNeighborhoodName("");
     setSelectedLandmarkName("");
+    
+    if (name) {
+      const govLandmarks = landmarksData.filter(f => f.properties.المحافظة === name);
+      if (govLandmarks.length > 0) {
+        const first = govLandmarks[0];
+        setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
+        setZoom(11);
+      }
+    }
   };
 
   const handleMunicipalityChange = (event: any) => {
-    setSelectedMunicipality(event.target.value);
+    const name = event.target.value;
+    setSelectedMunicipality(name);
     setSelectedNeighborhoodName("");
     setSelectedLandmarkName("");
+    
+    if (name) {
+      const muniLandmarks = landmarksData.filter(f => f.properties.البلدية === name);
+      if (muniLandmarks.length > 0) {
+        const first = muniLandmarks[0];
+        setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
+        setZoom(13);
+      }
+    }
   };
 
   const handleNeighborhoodChange = (event: any) => {
@@ -364,7 +458,7 @@ const PreviousLocationMapPage = () => {
               location={{ 
                 position, 
                 address, 
-                neighborhood_id: selectedNeighborhoodId,
+                ...resolvedIds,
                 neighborhood: selectedNeighborhoodName,
                 landmark: selectedLandmarkName,
                 governorate: selectedGovernorate,
@@ -463,7 +557,7 @@ const PreviousLocationMapPage = () => {
                 {t("map.reset")}
               </Button>
               
-              <Button
+              {/* <Button
                 variant="contained"
                 color="primary"
                 onClick={() => setOpenDialog(true)}
@@ -471,7 +565,7 @@ const PreviousLocationMapPage = () => {
                 sx={{ flex: 1, py: 1.5, borderRadius: 2, fontWeight: 'bold' }}
               >
                 {isRTL ? "تأكيد الموقع" : "Confirm Location"}
-              </Button>
+              </Button> */}
             </Stack>
           </Stack>
         </CardContent>
@@ -489,7 +583,7 @@ const PreviousLocationMapPage = () => {
             location={{
               position,
               address,
-              neighborhood_id: selectedNeighborhoodId,
+              ...resolvedIds,
               neighborhood: selectedNeighborhoodName,
               landmark: selectedLandmarkName,
               governorate: selectedGovernorate,

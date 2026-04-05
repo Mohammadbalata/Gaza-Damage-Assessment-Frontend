@@ -246,7 +246,10 @@ const DamageAssessmentDialog = ({
     latitude: data.latitude,
     longitude: data.longitude,
     address: data.address,
+    governorate_id: data.governorate_id,
+    municipality_id: data.municipality_id,
     neighborhood_id: data.neighborhood_id,
+    landmark_id: data.landmark_id,
     before_damage_image: data.before_damage_image,
     after_damage_image: data.after_damage_image,
     ownership_documents: data.ownership_documents,
@@ -265,18 +268,27 @@ const DamageAssessmentDialog = ({
     }
 
     const address = application?.address || "";
+    const governorate_id = application?.governorate_id;
+    const municipality_id = application?.municipality_id;
     const neighborhood_id = application?.neighborhood_id;
+    const landmark_id = application?.landmark_id;
 
     if (!neighborhood_id) {
       console.warn("neighborhood_id is missing in application data");
     }
 
     formData.append("address", address);
+    formData.append("governorate_id", governorate_id);
+    formData.append("municipality_id", municipality_id);
     formData.append("neighborhood_id", neighborhood_id);
+    formData.append("landmark_id", landmark_id);
 
     // Nested fallbacks
     formData.append("location[address]", address);
+    formData.append("location[governorate_id]", governorate_id);
+    formData.append("location[municipality_id]", municipality_id);
     formData.append("location[neighborhood_id]", neighborhood_id);
+    formData.append("location[landmark_id]", landmark_id);
 
     formData.append(
       "damage_details",
@@ -415,13 +427,19 @@ const DamageAssessmentDialog = ({
       const longitude =
         location?.position?.[1] ?? initLoc?.longitude ?? initLoc?.lng;
       const address = location?.address ?? initLoc?.address;
+      const governorate_id =
+        location?.governorate_id || initLoc?.governorate_id;
+      const municipality_id =
+        location?.municipality_id || initLoc?.municipality_id;
       const neighborhood_id =
         location?.neighborhood_id || initLoc?.neighborhood_id;
+      const landmark_id =
+        location?.landmark_id || initLoc?.landmark_id;
       const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
       console.log("Submitting Data - Address:", address);
-      console.log("Submitting Data - neighborhood_id:", neighborhood_id);
+      console.log("Submitting Data - IDs:", { governorate_id, municipality_id, neighborhood_id, landmark_id });
       console.log("Submitting Data - Nearest Landmark:", landmark);
 
       const reBuildData = {
@@ -435,7 +453,10 @@ const DamageAssessmentDialog = ({
         ownership_documents: data[type]?.ownership_documents,
         latitude,
         longitude,
+        governorate_id,
+        municipality_id,
         neighborhood_id,
+        landmark_id,
         address,
         landmark,
       };

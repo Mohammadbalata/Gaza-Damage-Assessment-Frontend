@@ -207,6 +207,21 @@ Update the authenticated citizen's profile.
 
 Update the citizen's current location.
 
+body request : 
+```json
+{
+    "governorate_id":1,
+    "municipality_id":5,
+    "neighborhood_id":21,
+    "landmark_id":45,
+    "longitude":"34.4668",
+    "latitude": "31.5017",
+    "address":"the address ... in Palestine",
+    "street": "شارع الهلال",
+    "house_number": "23446"
+}
+```
+
 | Field             | Type    | Required | Validation              |
 | ----------------- | ------- | -------- | ----------------------- |
 | `latitude`        | numeric | ✅       | between:-90,90          |
@@ -254,7 +269,10 @@ Create a new damage report.
 | ---------------------- | ------- | -------- | ----------------------- |
 | `latitude`             | numeric | ✅       | between:-90,90          |
 | `longitude`            | numeric | ✅       | between:-180,180        |
+| `governorate_id`       | integer | ✅       | exists:governorates,id  |
+| `municipality_id`      | integer | ✅       | exists:municipalities,id|
 | `neighborhood_id`      | integer | ✅       | exists:neighborhoods,id |
+| `landmark_id`          | integer | ✅       | exists:landmarks,id     |
 | `address`              | string  | ❌       | max:255                 |
 | `landmark`             | string  | ❌       | max:255                 |
 | `description`          | string  | ❌       | max:1000                |
@@ -316,6 +334,165 @@ Track a damage report by its code. **Public — no auth required.**
 
 ---
 
+### GET `/api/locations/governorates`
+**Success Response (200):**
+
+```json
+{
+    "status": true,
+    "code": 200,
+    "message": "Governorates retrieved successfully",
+    "governorates": [
+        {
+            "id": 1,
+            "name": "﻿شمال غزة",
+            "latitude": "31.5440960",
+            "longitude": "34.5094170"
+        },
+        {
+            "id": 2,
+            "name": "غزة",
+            "latitude": "31.4882980",
+            "longitude": "34.4456630"
+        },
+        {
+            "id": 3,
+            "name": "دير البلح",
+            "latitude": "31.4206310",
+            "longitude": "34.3713490"
+        },
+        {
+            "id": 4,
+            "name": "خان يونس",
+            "latitude": "31.3359630",
+            "longitude": "34.3188150"
+        },
+        {
+            "id": 5,
+            "name": "رفح",
+            "latitude": "31.2828490",
+            "longitude": "34.2712290"
+        }
+    ]
+}
+```
+---
+
+### GET `/api/locations/municipalities`
+body request
+
+```json
+{
+    "governorate_id": 1
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "status": true,
+    "code": 200,
+    "message": "Municipalities retrieved successfully",
+    "municipalities": [
+        {
+            "id": 5,
+            "name": "أم النصر",
+            "latitude": "31.5589480",
+            "longitude": "34.5177220"
+        },
+        {
+            "id": 6,
+            "name": "بيت لاهيا",
+            "latitude": "31.5616720",
+            "longitude": "34.4935560"
+        },
+        {
+            "id": 7,
+            "name": "بيت حانون",
+            "latitude": "31.5340350",
+            "longitude": "34.5404400"
+        },
+        {
+            "id": 8,
+            "name": "جباليا",
+            "latitude": "31.5273370",
+            "longitude": "34.4948120"
+        }
+    ]
+}
+```
+---
+
+### GET `/api/locations/neighborhoods`
+body request
+
+```json
+{
+    "municipality_id": 5
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "status": true,
+    "code": 200,
+    "message": "Neighborhoods retrieved successfully",
+    "neighborhoods": [
+        {
+            "id": 21,
+            "name": "القرية الأولى",
+            "latitude": "31.5572430",
+            "longitude": "34.5177360"
+        },
+        {
+            "id": 22,
+            "name": "القرية الثانية",
+            "latitude": "31.5629360",
+            "longitude": "34.5173580"
+        },
+        {
+            "id": 185,
+            "name": "الأبراج",
+            "latitude": "31.5538830",
+            "longitude": "34.5199640"
+        }
+    ]
+}
+```
+---
+
+### GET `/api/locations/landmarks`
+body request
+
+```json
+{
+    "neighborhood_id": 21
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "status": true,
+    "code": 200,
+    "message": "Landmarks retrieved successfully",
+    "landmarks": [
+        {
+            "id": 45,
+            "name": "بلدية أم النصر",
+            "latitude": "31.5557610",
+            "longitude": "34.5183600"
+        }
+    ]
+}
+```
+---
+
+
 ## 5. Route Summary Table
 
 | Method | URI                                         | Controller                                              | Auth | Description               |
@@ -332,3 +509,6 @@ Track a damage report by its code. **Public — no auth required.**
 | `POST` | `/api/damage-reports`                       | `DamageReportController@store`                          | ✅   | Create report             |
 | `PUT`  | `/api/damage-reports/{id}`                  | `DamageReportController@update`                         | ✅   | Update report             |
 | `GET`  | `/api/track/{reportCode}`                   | `DamageReportController@track`                          | ❌   | Public report tracking    |
+
+
+

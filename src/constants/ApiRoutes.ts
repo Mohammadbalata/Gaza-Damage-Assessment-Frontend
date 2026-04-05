@@ -116,4 +116,10 @@ export const API = {
   banks: {
     list: `banks`,
   },
+  locations: {
+    governorates: `/locations/governorates`,
+    municipalities: `/locations/municipalities`,
+    neighborhoods: `/locations/neighborhoods`,
+    landmarks: `/locations/landmarks`,
+  },
 };
