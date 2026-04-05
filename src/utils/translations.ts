@@ -818,6 +818,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
     "landing.damageAssessment.title": "نظام حصر الأضرار الذاتي",
+    "landing.damageAssessment.description": "لتسجيل الأضرار التي لحقت بممتلكاتك اضغط هنا",
     "landing.damageAssessment.button": "تسجيل ومراجعة الطلبات ",
 
     // Reset Password

@@ -251,7 +251,6 @@ const CurrentLocationMapPage = () => {
       const lng = parseFloat(gov.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
-        setPosition([lat, lng]);
         setZoom(11);
       }
     }
@@ -268,7 +267,6 @@ const CurrentLocationMapPage = () => {
       const lng = parseFloat(muni.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
-        setPosition([lat, lng]);
         setZoom(13);
       }
     }
@@ -291,7 +289,6 @@ const CurrentLocationMapPage = () => {
 
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
-        setPosition([lat, lng]); 
         setZoom(15);
       }
     }
@@ -309,7 +306,6 @@ const CurrentLocationMapPage = () => {
       const lng = parseFloat(landmark.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
-        setPosition([lat, lng]);
         setZoom(18);
       }
     }
