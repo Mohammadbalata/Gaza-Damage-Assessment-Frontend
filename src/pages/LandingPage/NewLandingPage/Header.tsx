@@ -62,7 +62,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className={classNames("hidden lg:flex items-center gap-6 xl:gap-10 text-black font-medium", {
-            "gap-16": token && windowPathname !== "/",
+            "!gap-16": token && windowPathname == "/home",
           })}>
             {!token || windowPathname !== "/" ? (
               <button
@@ -89,17 +89,18 @@ export function Header() {
             )}
             {windowPathname !== "/home" && (
               <>
-                <button
-                  onClick={() => scrollToSection("about")}
-                  className="hover:text-green-600 transition-colors whitespace-nowrap"
-                >
-                  عن المنصة
-                </button>
+                
                 <button
                   onClick={() => scrollToSection("departments")}
                   className="hover:text-green-600 transition-colors whitespace-nowrap text-center"
                 >
                   أقسام المنصة
+                </button>
+                <button
+                  onClick={() => scrollToSection("about")}
+                  className="hover:text-green-600 transition-colors whitespace-nowrap"
+                >
+                  عن المنصة
                 </button>
                 <button
                   onClick={() => scrollToSection("partners")}
@@ -344,12 +345,7 @@ export function Header() {
 
             {windowPathname !== "/home" && (
               <>
-                <button
-                  onClick={() => scrollToSection("about")}
-                  className="block w-full text-right px-6 py-3 hover:text-green-600"
-                >
-                  عن المنصة
-                </button>
+                
 
                 <button
                   onClick={() => scrollToSection("departments")}
@@ -357,7 +353,12 @@ export function Header() {
                 >
                   أقسام المنصة
                 </button>
-
+                <button
+                  onClick={() => scrollToSection("about")}
+                  className="block w-full text-right px-6 py-3 hover:text-green-600"
+                >
+                  عن المنصة
+                </button>
                 <button
                   onClick={() => scrollToSection("partners")}
                   className="block w-full text-right px-6 py-3 hover:text-green-600"

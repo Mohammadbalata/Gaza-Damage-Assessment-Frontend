@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
@@ -22,12 +22,73 @@ import { ROUTES } from "../routes/Routes";
 import DamageAssessmentSection from "../components/landing/DamageAssessmentSection";
 import { motion } from "motion/react";
 import { Header } from "./LandingPage/NewLandingPage/Header";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 // import { useAppSelector } from "../hooks/redux";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    const hasSeenHomeTour = localStorage.getItem("hasSeenHomeTour");
+    
+    if (!hasSeenHomeTour) {
+      const driverObj = driver({
+        showProgress: true,
+        animate: true,
+        allowClose: true,
+        popoverClass: "driver-popover-custom",
+        nextBtnText: language === "ar" ? "التالي" : "Next",
+        prevBtnText: language === "ar" ? "السابق" : "Prev",
+        doneBtnText: language === "ar" ? "تم" : "Done",
+        allowKeyboardControl: false,
+        onNextClick: () => {
+          localStorage.setItem("activeTourStep", "2");
+          navigate(ROUTES.CITIZEN_DASHBOARD);
+          driverObj.destroy();
+        },
+        steps: [
+          {
+            element: "#damage-assessment-btn",
+            popover: {
+              title: t("landing.damageAssessment.title"),
+              description: t("landing.damageAssessment.description"),
+              side: "bottom",
+              align: "start",
+            }
+          },
+          {
+            element: "#damage-assessment-btn",
+            popover: {
+              title: "Redirecting...",
+              description: "Moving to Dashboard",
+            }
+          }
+        ],
+      });
+
+      // Start the driver after a short delay to ensure elements are rendered
+      const timer = setTimeout(() => {
+        driverObj.drive();
+        localStorage.setItem("hasSeenHomeTour", "true");
+
+        // Force destroy when the highlighted element is clicked
+        const btn = document.querySelector("#damage-assessment-btn");
+        if (btn) {
+          btn.addEventListener("click", () => {
+            driverObj.destroy();
+          });
+        }
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+        driverObj.destroy();
+      };
+    }
+  }, [t, language]);
   // const authState: any = useAppSelector((state) => state.auth);
   // const citizenInfo = authState.citizenInfo;
   // const citizenName = citizenInfo
@@ -186,8 +247,8 @@ const HomePage: React.FC = () => {
           }}
         >
           {language === "ar"
-            ? `© ${new Date().getFullYear()} بلدية خان يونس - جميع الحقوق محفوظة`
-            : `© ${new Date().getFullYear()} Khan Younis Municipality - All Rights Reserved`}
+            ? `© ${new Date().getFullYear()}  منصة سوا بنعمرها  - جميع الحقوق محفوظة`
+            : `© ${new Date().getFullYear()} Sawa Build Gaza System - All Rights Reserved`}
         </Typography>
       </Container>
     </>

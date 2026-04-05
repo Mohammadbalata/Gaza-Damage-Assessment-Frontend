@@ -26,6 +26,9 @@ import { useAppSelector } from "../hooks/redux";
 import { ROUTES } from "../routes/Routes";
 // import { useSnackbar } from "notistack";
 import BackButton from "../components/Shared/BackButton";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+import { useEffect } from "react";
 
 /**
  * Citizen Dashboard Page
@@ -34,6 +37,61 @@ import BackButton from "../components/Shared/BackButton";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    const activeTourStep = localStorage.getItem("activeTourStep");
+    const hasSeenDashboardTour = localStorage.getItem("hasSeenDashboardTour");
+    
+    if (activeTourStep === "2" || !hasSeenDashboardTour) {
+      const driverObj = driver({
+        showProgress: true,
+        animate: true,
+        allowClose: true,
+        popoverClass: "driver-popover-custom",
+        nextBtnText: language === "ar" ? "التالي" : "Next",
+        prevBtnText: language === "ar" ? "السابق" : "Prev",
+        doneBtnText: language === "ar" ? "تم" : "Done",
+        allowKeyboardControl: false,
+        steps: [
+          {
+            element: "#add-damage-request-card",
+            popover: {
+              title: t("citizen.addDamageRequest"),
+              description: t("citizen.addDamageRequestDesc"),
+              side: "bottom",
+              align: "start",
+            },
+          },
+          
+        ],
+      });
+
+      // Mark as seen immediately so it doesn't loop
+      if (!activeTourStep) {
+        localStorage.setItem("hasSeenDashboardTour", "true");
+      }
+      localStorage.removeItem("activeTourStep");
+
+      const timer = setTimeout(() => {
+        const element = document.querySelector("#add-damage-request-card");
+        
+        if (element) {
+          driverObj.drive();
+
+          const handleClick = () => {
+             driverObj.destroy();
+             element.removeEventListener("click", handleClick);
+          };
+          element.addEventListener("click", handleClick);
+        }
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+        driverObj.destroy();
+      };
+    }
+  }, [t, language]);
   // const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store
@@ -320,24 +378,28 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
   const colorMap = {
     primary: {
+      id: "add-damage-request-card",
       bg: "rgba(25, 118, 210, 0.08)",
       iconBg: "rgba(25, 118, 210, 0.12)",
       text: "#1976d2",
       hover: "rgba(25, 118, 210, 0.04)",
     },
     info: {
+      id: undefined,
       bg: "rgba(2, 136, 209, 0.08)",
       iconBg: "rgba(2, 136, 209, 0.12)",
       text: "#0288d1",
       hover: "rgba(2, 136, 209, 0.04)",
     },
     success: {
+      id: undefined,
       bg: "rgba(46, 125, 50, 0.08)",
       iconBg: "rgba(46, 125, 50, 0.12)",
       text: "#2e7d32",
       hover: "rgba(46, 125, 50, 0.04)",
     },
     warning: {
+      id: undefined,
       bg: "rgba(237, 108, 2, 0.08)",
       iconBg: "rgba(237, 108, 2, 0.12)",
       text: "#ed6c02",
@@ -349,6 +411,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
   return (
     <Card
+      id={color.id}
       onClick={card.onClick}
       sx={{
         cursor: "pointer",
