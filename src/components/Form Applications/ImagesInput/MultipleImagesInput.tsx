@@ -13,7 +13,7 @@ import CropIcon from "@mui/icons-material/Crop";
 import { useEffect, useRef, useState } from "react";
 import { ImageCropDialog } from "./ImageCropDialog";
 
-const MAX_SIZE = 2 * 1024 * 1024;
+const MAX_SIZE = 5 * 1024 * 1024;
 
 const MultipleImagesInput = ({
   control,
@@ -36,7 +36,7 @@ const MultipleImagesInput = ({
           return "لا يمكن رفع أكثر من 5 صور";
         }
         if (files?.some((f) => f instanceof File && f.size > MAX_SIZE)) {
-          return "كل صورة يجب أن لا تتجاوز 2MB";
+          return "كل صورة يجب أن لا تتجاوز 5MB";
         }
         return true;
       },

@@ -293,9 +293,11 @@ export const generateApplicationPDF = async (
         .map(([floor, _]) => {
           const units = mixedUsageUnits[floor] || [];
           const unitsSummary = units
-            .map((u: any) => `${u.usage}${u.activity ? ` - ${u.activity}` : ""}`)
+            .map(
+              (u: any) => `${u.usage}${u.activity ? ` - ${u.activity}` : ""}`,
+            )
             .join(" , ");
-          return `<strong>${floor}:</strong> ${unitsSummary || "لا يوجد وحدات"}`;
+          return `<strong>${t(`floors.${floor}`)}:</strong> ${unitsSummary || "لا يوجد وحدات"}`;
         })
         .join("<br/>");
 
