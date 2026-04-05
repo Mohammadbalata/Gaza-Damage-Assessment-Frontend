@@ -136,6 +136,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Bank information registration will be available soon. This feature is currently under development.",
 
     // Personal Info
+    "form.verificationCode": "Send Verification Code",
     "form.personalInfo": "Personal Information",
     "form.personalInfoDesc":
       "Please fill in the following information to complete your registration",
@@ -953,7 +954,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.country": "الدولة",
     "form.gender": "الجنس",
     "form.maritalStatus": "الحالة الاجتماعية",
-
+    "form.verificationCode": "ارسل رمز التحقق ",
     // BuildingsType
     "form.IndependentBuilding": "مبنى مستقل (منزل منفصل / فيلا / بيت عربي)",
     "form.ApartmentInsideBuilding": "شقة ( داخل بناية أو برج )",

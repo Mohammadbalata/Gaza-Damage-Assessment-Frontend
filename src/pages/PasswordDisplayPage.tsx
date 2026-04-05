@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { CheckCircle } from "@mui/icons-material";
@@ -11,6 +11,13 @@ import {
 } from "../utils/validatePassword";
 
 import { FormDataCustom } from "./SignInPage";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
 
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
@@ -36,6 +43,7 @@ import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 import { useSnackbar } from "notistack";
+import OtpDialog from "../components/OtpDialog";
 // import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
@@ -52,8 +60,10 @@ const PasswordDisplayPage = () => {
     handleSubmit,
     control,
     setError,
+    getValues,
   } = useForm<FormDataCustom>();
 
+  const [openCodeDialog, setOpenCodeDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
   const rules = checkPasswordRules(password);
@@ -162,6 +172,27 @@ const PasswordDisplayPage = () => {
     });
   };
 
+  const sendOtp = async (email: string) => {
+    try {
+      const response = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email }),
+      });
+      if (!response.ok) {
+        throw new Error("فشل إرسال الرمز");
+      }
+      const data = await response.json();
+      console.log("رمز جديد أرسل:", data);
+      enqueueSnackbar("تم إرسال رمز جديد بنجاح", { variant: "success" });
+    } catch (error: any) {
+      console.error(error);
+      enqueueSnackbar(error.message || "حدث خطأ أثناء إرسال الرمز", {
+        variant: "error",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -175,28 +206,6 @@ const PasswordDisplayPage = () => {
       title={t("form.personalInfo")}
       subtitle={t("form.personalInfoDesc")}
     >
-      {/* <Box sx={{ textAlign: "center", mb: 4 }}>
-        <Box
-          sx={{
-            display: "inline-flex",
-            p: 2,
-            borderRadius: "50%",
-            bgcolor: "success.light",
-            color: "success.main",
-            mb: 2,
-            background: "rgba(46, 125, 50, 0.1)",
-          }}
-        >
-          <CheckCircle sx={{ fontSize: 48, color: "success.main" }} />
-        </Box>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          {t("form.success")}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t("form.successDescription")}
-        </Typography>
-      </Box> */}
-
       <form onSubmit={handleSubmit(onSubmit, onError)}>
         {/* Optional Avatar Upload Section */}
         <Paper
@@ -312,26 +321,60 @@ const PasswordDisplayPage = () => {
           </Box>
 
           {/* Email - Spans 2 columns on small screens if desired, or just full width row */}
-          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}>
-            <FormInput
-              id="email"
-              label={t("form.email")}
-              placeholder={t("form.emailPlaceholder")}
-              type="email"
-              register={register}
-              errors={errors}
-              validation={{
-                required: t("common.required"),
-                maxLength: { value: 100, message: "Maximum 100 characters" },
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: t("form.invalidEmail"),
-                },
+          <Box
+            sx={{
+              gridColumn: { xs: "1 / -1", sm: "1 / -1" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1,
+              alignItems: { xs: "stretch", sm: "flex-end" },
+            }}
+          >
+            <Box sx={{ flex: 2, width: "100%" }}>
+              <FormInput
+                id="email"
+                label={t("form.email")}
+                placeholder={t("form.emailPlaceholder")}
+                type="email"
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: { value: 100, message: "Maximum 100 characters" },
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: t("form.invalidEmail"),
+                  },
+                }}
+                isRequired={true}
+                fixedLabel={true}
+                sx={{ width: "100%" }}
+              />
+            </Box>
+
+            <Button
+              onClick={() => {
+                const emailValue = getValues("email");
+                sendOtp(emailValue || "");
+                console.log("email is :", emailValue);
+                setOpenCodeDialog(true);
               }}
-              isRequired={true}
-              fixedLabel={true}
-            />
+              variant="text"
+              sx={{
+                height: 40,
+                width: { xs: "100%", sm: "auto" },
+                textDecoration: "underline",
+              }}
+            >
+              {t("form.verificationCode")}
+            </Button>
           </Box>
+          <OtpDialog
+            open={openCodeDialog}
+            onClose={() => setOpenCodeDialog(false)}
+            onResend={sendOtp}
+            email={getValues("email") || ""}
+          />
         </Box>
         <Box>
           <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" }, my: 1 }}>
@@ -360,25 +403,54 @@ const PasswordDisplayPage = () => {
               {t("form.phoneNumber")} <span style={{ color: "red" }}>*</span>
             </Typography>
           </Box>
-          <Controller
-            name="phoneNumber"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: t("common.required"),
+
+          <Box
+            sx={{
+              gridColumn: { xs: "1 / -1", sm: "1 / -1" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1,
+              alignItems: { xs: "stretch", sm: "flex-end" },
             }}
-            render={({ field, fieldState }) => (
-              <PhoneNumberInput
-                id="phoneNumber"
-                placeholder={t("form.phoneNumberPlaceholder")}
-                {...field}
-                value={field.value || ""}
-                onChange={(v: any) => field.onChange(v)}
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message}
-              />
-            )}
-          />
+          >
+            <Controller
+              name="phoneNumber"
+              control={control}
+              defaultValue=""
+              rules={{
+                required: t("common.required"),
+              }}
+              render={({ field, fieldState }) => (
+                <PhoneNumberInput
+                  id="phoneNumber"
+                  placeholder={t("form.phoneNumberPlaceholder")}
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(v: any) => field.onChange(v)}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  sx={{ width: "100%" }}
+                />
+              )}
+            />
+            <Button
+              onClick={() => {
+                const phoneNumberValue = getValues("phoneNumber");
+                sendOtp(phoneNumberValue || "");
+                console.log("phone number is :", phoneNumberValue);
+                setOpenCodeDialog(true);
+              }}
+              variant="text"
+              sx={{
+                height: 40,
+                width: { xs: "100%", sm: "30%" },
+                textDecoration: "underline",
+              }}
+            >
+              {t("form.verificationCode")}
+            </Button>
+          </Box>
+
           {/* alternatePhoneNumber   */}
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
