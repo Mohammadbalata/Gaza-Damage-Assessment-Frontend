@@ -26,7 +26,7 @@ const SignInPasswordPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const national_id = query.get("id") || "";
-  
+
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
 
@@ -55,7 +55,7 @@ const SignInPasswordPage = () => {
   };
 
   return (
-    <AuthComp title="Sign in">
+    <AuthComp title={t("common.signIn")}>
       {/* Error Alert */}
       {error && (
         <Alert

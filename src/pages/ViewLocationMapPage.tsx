@@ -86,10 +86,10 @@ const ViewLocationMapPage = () => {
                   center={[lat, lng]}
                   zoom={17}
                   markerPosition={position}
-                  setMarkerPosition={() => {}} // read-only: no-op
                   height="100%"
                   width="100%"
                   location={{ position, address }}
+                  readOnly={true}
                 />
               </Box>
 

@@ -25,27 +25,25 @@ import {
   ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { usePost } from "../../hooks/api/useApi";
 
 interface ResetPasswordForm {
-  current_password: string;
   password: string;
   password_confirmation: string;
 }
 
-const ChangePasswordPage = () => {
+const ResetPassword = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   // Visibility toggles
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -54,7 +52,6 @@ const ChangePasswordPage = () => {
     formState: { errors },
   } = useForm<ResetPasswordForm>({
     defaultValues: {
-      current_password: "",
       password: "",
       password_confirmation: "",
     },
@@ -62,12 +59,12 @@ const ChangePasswordPage = () => {
 
   const password = watch("password");
 
-  const { loading, execute } = usePost("/password/change", {
+  const { loading, execute } = usePost("/password/reset", {
     onSuccess: () => {
       enqueueSnackbar(t("citizen.passwordChangedSuccess"), {
         variant: "success",
       });
-      navigate(ROUTES.SETTINGS);
+      navigate(ROUTES.SIGNIN);
     },
     onError: (err) => {
       enqueueSnackbar(err, { variant: "error" });
@@ -76,7 +73,7 @@ const ChangePasswordPage = () => {
 
   const onSubmit = (data: ResetPasswordForm) => {
     execute({
-      current_password: data.current_password,
+      token,
       password: data.password,
       password_confirmation: data.password_confirmation,
     });
@@ -166,53 +163,6 @@ const ChangePasswordPage = () => {
         >
           <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
             <Stack spacing={4}>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                error={!!errors.current_password}
-              >
-                <OutlinedInput
-                  id="current-password"
-                  type={showCurrentPassword ? "text" : "password"}
-                  placeholder={t("citizen.currentPassword")}
-                  {...register("current_password", {
-                    required: t("validation.required"),
-                  })}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <Stack direction="row" spacing={1}>
-                        <IconButton
-                          onClick={() =>
-                            handleCopy(getValues("current_password"))
-                          }
-                          edge="end"
-                        >
-                          <ContentCopyIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          onClick={() =>
-                            setShowCurrentPassword(!showCurrentPassword)
-                          }
-                          edge="end"
-                        >
-                          {showCurrentPassword ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </Stack>
-                    </InputAdornment>
-                  }
-                />
-
-                {errors.current_password && (
-                  <FormHelperText>
-                    {errors.current_password.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-
               <FormControl
                 fullWidth
                 variant="outlined"
@@ -314,7 +264,7 @@ const ChangePasswordPage = () => {
                       <ArrowBack sx={{ mx: 1 }} />
                     )
                   }
-                  onClick={() => navigate(ROUTES.SETTINGS)}
+                  onClick={() => navigate(ROUTES.SIGNIN)}
                   sx={{ py: 1.5 }}
                 >
                   {t("common.back")}
@@ -340,7 +290,7 @@ const ChangePasswordPage = () => {
                   sx={{
                     py: 1.5,
                     fontWeight: 600,
-                    boxShadow: "0 4px 12px rgba(237, 108, 2, 0.3)",
+                    boxShadow: "0 4px 12px rgba(2, 68, 237, 0.3)",
                     bgcolor: "#410ddf",
                   }}
                 >
@@ -355,4 +305,4 @@ const ChangePasswordPage = () => {
   );
 };
 
-export default ChangePasswordPage;
+export default ResetPassword;

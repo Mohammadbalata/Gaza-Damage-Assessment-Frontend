@@ -13,6 +13,7 @@ interface ArcGISMapContainerProps {
   location?: any;
   setAddress?: (addr: string) => void;
   webmapId?: string; // ArcGIS WebMap ID (optional)
+  readOnly?: boolean; // إذا true، الخريطة للعرض فقط
 }
 
 // Extend Window interface to include esri
@@ -26,6 +27,7 @@ declare global {
 const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   center,
   zoom = 13,
+  readOnly,
   markerPosition,
   setMarkerPosition,
   children,
@@ -94,43 +96,33 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
         });
 
         // click event for placing marker
-        viewInstance.on("click", (evt: any) => {
-          const { latitude, longitude } = evt.mapPoint;
-          const pos: [number, number] = [latitude, longitude]; // Keep as [lat, lng]
+        if (!readOnly) {
+          viewInstance.on("click", (evt: any) => {
+            const { latitude, longitude } = evt.mapPoint;
+            const pos: [number, number] = [latitude, longitude];
 
-          // set marker position
-          if (setMarkerPosition) {
-            setMarkerPosition(pos);
-            setOpenDialog(true);
-          }
+            if (setMarkerPosition) {
+              setMarkerPosition(pos);
+              setOpenDialog(true);
+            }
 
-          // add marker graphic with more visible styling
-          if (graphicsLayerRef.current) {
-            graphicsLayerRef.current.removeAll();
-            const pointGraphic = new Graphic({
-              geometry: {
-                type: "point",
-                latitude,
-                longitude,
-              },
-              symbol: {
-                type: "simple-marker",
-                color: [226, 119, 40], // Orange color
-                size: 16,
-                outline: {
-                  color: [255, 255, 255],
-                  width: 3,
+            if (graphicsLayerRef.current) {
+              graphicsLayerRef.current.removeAll();
+              const pointGraphic = new Graphic({
+                geometry: { type: "point", latitude, longitude },
+                symbol: {
+                  type: "simple-marker",
+                  color: [226, 119, 40],
+                  size: 16,
+                  outline: { color: [255, 255, 255], width: 3 },
                 },
-              },
-            });
-            graphicsLayerRef.current.add(pointGraphic);
-          }
+              });
+              graphicsLayerRef.current.add(pointGraphic);
+            }
 
-          // reset address when new marker is placed
-          if (setAddress) {
-            setAddress("");
-          }
-        });
+            if (setAddress) setAddress("");
+          });
+        }
 
         // Wait for view to be ready
         viewInstance
@@ -153,17 +145,25 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
         viewRef.current = null;
       }
     };
-  }, [webmapId]);
+  }, [webmapId, readOnly]);
 
   // Robust coordinate sanitation with stability
-  const safeCenter = useMemo(() => [
-    typeof center?.[0] === 'number' && !isNaN(center[0]) ? center[0] : 31.3547,
-    typeof center?.[1] === 'number' && !isNaN(center[1]) ? center[1] : 34.3088
-  ], [center?.[0], center?.[1]]);
+  const safeCenter = useMemo(
+    () => [
+      typeof center?.[0] === "number" && !isNaN(center[0])
+        ? center[0]
+        : 31.3547,
+      typeof center?.[1] === "number" && !isNaN(center[1])
+        ? center[1]
+        : 34.3088,
+    ],
+    [center?.[0], center?.[1]],
+  );
 
-  const safeZoom = useMemo(() => 
-    typeof zoom === 'number' && !isNaN(zoom) ? zoom : 13
-  , [zoom]);
+  const safeZoom = useMemo(
+    () => (typeof zoom === "number" && !isNaN(zoom) ? zoom : 13),
+    [zoom],
+  );
 
   // update view center when safeCenter or safeZoom changes
   useEffect(() => {

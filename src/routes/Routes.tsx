@@ -31,6 +31,7 @@ import {
 import ViewLocationMapPage from "../pages/ViewLocationMapPage";
 import ServiceCenterPage from "../pages/Settings/ServiceCenterPage";
 import SignInPasswordPage from "../pages/SignInPasswordPage";
+import ResetPassword from "../pages/Settings/ResetPassword";
 
 export const ROUTES: IRoutes = {
   LAYOUT: "/",
@@ -50,6 +51,7 @@ export const ROUTES: IRoutes = {
   CURRENT_LOCATION: "/current-location",
   PERSONAL_INFO: "/personal-info",
   FAMILY_INFO: "/family-info",
+  RESET_PASSWORD: "/reset-password",
   REVIEW: "/review",
   SUCCESS: "/success",
   TRACK_STATUS: "/track-status",
@@ -117,6 +119,10 @@ export const routes = [
         <MyApplications />
       </ProtectedRoutes>
     ),
+  },
+  {
+    path: ROUTES.RESET_PASSWORD,
+    element: <ResetPassword />,
   },
   {
     path: ROUTES.CHANGE_PASSWORD,
