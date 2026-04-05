@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { CheckCircle, Refresh } from "@mui/icons-material";
-import { generatePassword } from "../utils/helpers";
+import { CheckCircle } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
@@ -12,6 +11,13 @@ import {
 } from "../utils/validatePassword";
 
 import { FormDataCustom } from "./SignInPage";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
 
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
@@ -36,6 +42,8 @@ import {
 import { Check, Close } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
+import { useSnackbar } from "notistack";
+import OtpDialog from "../components/OtpDialog";
 // import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
@@ -46,23 +54,21 @@ const PasswordDisplayPage = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const id = query.get("id");
-  // const { enqueueSnackbar } = useSnackbar();
   const {
     register,
     formState: { errors },
     handleSubmit,
-    setValue,
     control,
     setError,
+    getValues,
   } = useForm<FormDataCustom>();
 
-  const [password, setPassword] = useState(generatePassword());
+  const [openCodeDialog, setOpenCodeDialog] = useState(false);
+  const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
   const rules = checkPasswordRules(password);
-
-  useEffect(() => {
-    setValue("password", password);
-  }, [password, setValue]);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     dispatch(
@@ -141,11 +147,54 @@ const PasswordDisplayPage = () => {
       navigate(`${ROUTES.SIGNIN}`);
     }
   };
+  const fieldNames: Record<string, string> = {
+    firstName: t("form.firstName"),
+    fatherName: t("form.fatherName"),
+    grandfatherName: t("form.grandfatherName"),
+    familyName: t("form.familyName"),
+    email: t("form.email"),
+    phoneNumber: t("form.phoneNumber"),
+    whatsappNumber: t("form.whatsappNumber"),
+    familyMembersNumber: t("form.familyMembersNumber"),
+    agreeToTerms: t("form.agreeToTermsDescription"),
+    password: t("auth.password"),
+  };
 
-  const handleGeneratePassword = () => {
-    const newPass = generatePassword();
-    setPassword(newPass);
-    setValue("password", newPass, { shouldValidate: true });
+  const onError = (errors: any) => {
+    console.log("errors", errors);
+
+    Object.entries(errors).forEach(([field, error]: any) => {
+      const fieldLabel = fieldNames[field] || field;
+
+      enqueueSnackbar(`${fieldLabel} ${error.message}`, {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+    });
+  };
+
+  const sendOtp = async (value: string) => {
+    try {
+      const body = value;
+      const response = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        console.log("body sent to /api/send-otp:", value);
+        throw new Error("فشل إرسال الرمز");
+      }
+      const data = await response.json();
+      console.log("رمز جديد أرسل:", data);
+      enqueueSnackbar("تم إرسال رمز جديد بنجاح", { variant: "success" });
+    } catch (error: any) {
+      console.error(error);
+      enqueueSnackbar(error.message || "حدث خطأ أثناء إرسال الرمز", {
+        variant: "error",
+      });
+    }
   };
 
   if (loading) {
@@ -157,30 +206,11 @@ const PasswordDisplayPage = () => {
   }
 
   return (
-    <AuthComp>
-      <Box sx={{ textAlign: "center", mb: 4 }}>
-        <Box
-          sx={{
-            display: "inline-flex",
-            p: 2,
-            borderRadius: "50%",
-            bgcolor: "success.light",
-            color: "success.main",
-            mb: 2,
-            background: "rgba(46, 125, 50, 0.1)",
-          }}
-        >
-          <CheckCircle sx={{ fontSize: 48, color: "success.main" }} />
-        </Box>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          {t("form.success")}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t("form.successDescription")}
-        </Typography>
-      </Box>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <AuthComp
+      title={t("form.personalInfo")}
+      subtitle={t("form.personalInfoDesc")}
+    >
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
         {/* Optional Avatar Upload Section */}
         <Paper
           elevation={0}
@@ -295,26 +325,61 @@ const PasswordDisplayPage = () => {
           </Box>
 
           {/* Email - Spans 2 columns on small screens if desired, or just full width row */}
-          <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}>
-            <FormInput
-              id="email"
-              label={t("form.email")}
-              placeholder={t("form.emailPlaceholder")}
-              type="email"
-              register={register}
-              errors={errors}
-              validation={{
-                required: t("common.required"),
-                maxLength: { value: 100, message: "Maximum 100 characters" },
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: t("form.invalidEmail"),
-                },
+          <Box
+            sx={{
+              gridColumn: { xs: "1 / -1", sm: "1 / -1" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1,
+              alignItems: { xs: "stretch", sm: "flex-end" },
+            }}
+          >
+            <Box sx={{ flex: 2, width: "100%" }}>
+              <FormInput
+                id="email"
+                label={t("form.email")}
+                placeholder={t("form.emailPlaceholder")}
+                type="email"
+                register={register}
+                errors={errors}
+                validation={{
+                  required: t("common.required"),
+                  maxLength: { value: 100, message: "Maximum 100 characters" },
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: t("form.invalidEmail"),
+                  },
+                }}
+                isRequired={true}
+                fixedLabel={true}
+                sx={{ width: "100%" }}
+              />
+            </Box>
+
+            <Button
+              onClick={() => {
+                const emailValue = getValues("email");
+                sendOtp(emailValue || "");
+                setOpenCodeDialog(true);
+                setOtpValue(emailValue || "");
               }}
-              isRequired={true}
-              fixedLabel={true}
-            />
+              variant="text"
+              sx={{
+                height: 40,
+                width: { xs: "100%", sm: "auto" },
+                textDecoration: "underline",
+              }}
+            >
+              {t("form.verificationCode")}
+            </Button>
           </Box>
+
+          <OtpDialog
+            open={openCodeDialog}
+            onClose={() => setOpenCodeDialog(false)}
+            onResend={(value) => sendOtp(value)}
+            otpValue={otpValue}
+          />
         </Box>
         <Box>
           <Box sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" }, my: 1 }}>
@@ -343,25 +408,54 @@ const PasswordDisplayPage = () => {
               {t("form.phoneNumber")} <span style={{ color: "red" }}>*</span>
             </Typography>
           </Box>
-          <Controller
-            name="phoneNumber"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: t("common.required"),
+
+          <Box
+            sx={{
+              gridColumn: { xs: "1 / -1", sm: "1 / -1" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1,
+              alignItems: { xs: "stretch", sm: "flex-end" },
             }}
-            render={({ field, fieldState }) => (
-              <PhoneNumberInput
-                id="phoneNumber"
-                placeholder={t("form.phoneNumberPlaceholder")}
-                {...field}
-                value={field.value || ""}
-                onChange={(v: any) => field.onChange(v)}
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message}
-              />
-            )}
-          />
+          >
+            <Controller
+              name="phoneNumber"
+              control={control}
+              defaultValue=""
+              rules={{
+                required: t("common.required"),
+              }}
+              render={({ field, fieldState }) => (
+                <PhoneNumberInput
+                  id="phoneNumber"
+                  placeholder={t("form.phoneNumberPlaceholder")}
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(v: any) => field.onChange(v)}
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                  sx={{ width: "100%" }}
+                />
+              )}
+            />
+            <Button
+              onClick={() => {
+                const phoneValue = getValues("phoneNumber");
+                sendOtp(phoneValue || ""); // نرسل النوع phone
+                setOpenCodeDialog(true);
+                setOtpValue(phoneValue || ""); // نستخدم setEmail لإعادة إرسال الكود إلى رقم الهاتف
+              }}
+              variant="text"
+              sx={{
+                height: 40,
+                width: { xs: "100%", sm: "30%" },
+                textDecoration: "underline",
+              }}
+            >
+              {t("form.verificationCode")}
+            </Button>
+          </Box>
+
           {/* alternatePhoneNumber   */}
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
@@ -430,12 +524,10 @@ const PasswordDisplayPage = () => {
                 <FormInput
                   id="password"
                   type="password"
-                  label={t("auth.password")}
                   placeholder={t("auth.passwordPlaceholder")}
                   register={register}
                   errors={errors}
                   validation={{ validate: validatePassword(t) }}
-                  defaultValue={password}
                   isRequired={false}
                   isEye={true}
                   isCopyIcon={true}
@@ -502,14 +594,6 @@ const PasswordDisplayPage = () => {
                 <Typography variant="caption" color="error">
                   {t("success.savePassword")}
                 </Typography>
-                <Button
-                  size="small"
-                  startIcon={<Refresh sx={{ mx: 1 }} />}
-                  onClick={handleGeneratePassword}
-                  sx={{ textDecoration: "underline" }}
-                >
-                  {t("auth.generatePassword")}
-                </Button>
               </Stack>
             </Box>
           </Box>

@@ -35,7 +35,7 @@ const LoginPage = () => {
     handleSubmit,
   } = useForm<FormDataCustom>();
   const { error } = useAppSelector((state) => state.auth);
-  
+
   const [checkingId, setCheckingId] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -49,7 +49,7 @@ const LoginPage = () => {
   const onSubmit = async (data: FormDataCustom) => {
     setCheckingId(true);
     dispatch(setError(""));
-    
+
     try {
       // Use signUp thunk to verify ID - this will automatically save questions to state if returned
       const action = await dispatch(
@@ -57,9 +57,9 @@ const LoginPage = () => {
           national_id: data.national_id,
           password: "",
           pathSignUp: `${API.citizen.auth.verifyId}`,
-        })
+        }),
       );
-      
+
       if (signUp.rejected.match(action)) {
         throw { response: { data: { message: action.payload }, status: 400 } };
       }
@@ -68,9 +68,14 @@ const LoginPage = () => {
       console.log("VerifyId Full Response Data:", resData);
       const status = resData?.verification_status;
       const questions = resData?.questions || [];
-      const isActuallyRegistered = status === "VERIFIED" || status === "REGISTERED";
-      
-      console.log("VerifyId Processed Data:", { status, questionsCount: questions.length, isActuallyRegistered });
+      const isActuallyRegistered =
+        status === "VERIFIED" || status === "REGISTERED";
+
+      console.log("VerifyId Processed Data:", {
+        status,
+        questionsCount: questions.length,
+        isActuallyRegistered,
+      });
 
       // Branching logic
       if (isActuallyRegistered) {
@@ -89,21 +94,24 @@ const LoginPage = () => {
         // Fallback
         navigate(`${ROUTES.SIGNIN_PASSWORD}?id=${data.national_id}`);
       }
-      
     } catch (err: any) {
-      console.log("Verify error details:", err.response?.status, err.response?.data);
-      
+      console.log(
+        "Verify error details:",
+        err.response?.status,
+        err.response?.data,
+      );
+
       const resData = err.response?.data?.data || err.response?.data;
       const errorMessage = resData?.message || "";
       const errorStatus = err.response?.status;
-      
+
       // If the error explicitly says they exist/are registered
-      const isAlreadyRegistered = 
-        errorStatus === 400 || 
-        errorStatus === 409 || 
+      const isAlreadyRegistered =
+        errorStatus === 400 ||
+        errorStatus === 409 ||
         errorStatus === 422 ||
-        errorMessage.includes("registered") || 
-        errorMessage.includes("exists") || 
+        errorMessage.includes("registered") ||
+        errorMessage.includes("exists") ||
         errorMessage.includes("مسجل") ||
         errorMessage.includes("موجود");
 
@@ -119,7 +127,7 @@ const LoginPage = () => {
   };
 
   return (
-    <AuthComp title="Sign in">
+    <AuthComp title={t("common.signIn")}>
       {/* Error Alert */}
       {error && (
         <Alert
@@ -246,8 +254,6 @@ const LoginPage = () => {
               {t("notFound.backToHome")}
             </Button>
           </Stack>
-
-          
         </Stack>
       </form>
       <LanguageToggle />

@@ -13,6 +13,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 
 interface AuthCompProps {
   title?: string;
+  subtitle?: string;
   children: React.ReactNode;
   sx?: SxProps<Theme>;
 }
@@ -23,10 +24,10 @@ interface AuthCompProps {
  *
  * Provides consistent layout for Sign In and Sign Up pages
  */
-const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
+const AuthComp: React.FC<AuthCompProps> = ({ title, subtitle, children }) => {
   const { t, language } = useLanguage();
 
-  const displayTitle = title ? t("common.signIn") : t("auth.nationalId");
+  // const displayTitle = title ? t("common.signIn") : t("auth.nationalId");
 
   return (
     <Container
@@ -92,15 +93,19 @@ const AuthComp: React.FC<AuthCompProps> = ({ title, children }) => {
             alignItems="center"
             sx={{ position: "relative", zIndex: 1 }}
           >
-            <img src='https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png' alt="Logo" style={{ width: 50, height: 50 }} />
+            <img
+              src="https://res.cloudinary.com/dopcli6un/image/upload/v1774209427/logo_dyktvp.png"
+              alt="Logo"
+              style={{ width: 50, height: 50 }}
+            />
 
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, mr: 1 }}>
-                {displayTitle}
+                {title}
               </Typography>
-              {/* <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
-                {t("app.subtitle")}
-              </Typography> */}
+              <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
+                {subtitle}
+              </Typography>
             </Box>
           </Stack>
         </Box>

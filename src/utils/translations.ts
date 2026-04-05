@@ -136,6 +136,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Bank information registration will be available soon. This feature is currently under development.",
 
     // Personal Info
+    "form.verificationCode": "Send Verification Code",
+    "form.personalInfo": "Personal Information",
+    "form.personalInfoDesc":
+      "Please fill in the following information to complete your registration",
     "form.fullName": "Name",
     "form.nationalId": "National ID",
     "form.firstName": "First Name",
@@ -181,6 +185,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.familyMembersNumber": "Family Members Number",
     "form.familyMembersNumberPlaceholder": "Enter Family Members Number",
     "form.agreeToTerms": "I agree to the",
+    "form.agreeToTermsDescription":
+      "Agreement to the Terms of Use and Privacy Policy",
+
     "form.termsAndPrivacy": "Terms of Use and Privacy Policy",
 
     "form.alternatePhoneNumberPlaceholder":
@@ -293,8 +300,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.services": "Public Services Center",
     "landing.cards.emergency": "Emergency Management & Rapid Response",
     "landing.cards.support": "Institutions, Initiatives & Support Network",
-    "landing.damageAssessment.title": "Damage Assessment Registration and Review",
-    "landing.damageAssessment.button": "Damage Assessment Registration and Review",
+    "landing.damageAssessment.title":
+      "Damage Assessment Registration and Review",
+    "landing.damageAssessment.button":
+      "Damage Assessment Registration and Review",
 
     // Status
     status: "statusOfApplication",
@@ -653,7 +662,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.add": "Add a note or complaint about the application",
     "complaint.title": "Complaints",
     "complaint.myComplaints": "Notes and Complaints",
-    "complaint.validation.descriptionMinLength": "The description field must be at least 10 characters.",
+    "complaint.validation.descriptionMinLength":
+      "The description field must be at least 10 characters.",
     "complaint.description": "Complaint Description",
     "complaint.descriptionPlaceholder":
       "Please describe your complaint in detail...",
@@ -863,6 +873,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "ميزة تسجيل المعلومات البنكية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
 
     // Personal Info
+    "form.personalInfo": "البيانات الشخصية",
+    "form.personalInfoDesc": "يرجى تعبئة البيانات التالية لإكمال عملية التسجيل",
     "form.fullName": "الاسم الكامل",
     "form.nationalId": "الرقم الوطني",
     "form.firstName": "الاسم الأول",
@@ -885,7 +897,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.add": "اضافة ملاحظة أو شكوى على الطلب",
     "complaint.title": "الشكاوى",
     "complaint.myComplaints": "الملاحظات والشكاوي",
-    "complaint.validation.descriptionMinLength": "يجب أن يكون حقل الوصف 10 أحرف على الأقل.",
+    "complaint.validation.descriptionMinLength":
+      "يجب أن يكون حقل الوصف 10 أحرف على الأقل.",
     "complaint.description": "وصف الشكوى",
     "complaint.descriptionPlaceholder": "يرجى وصف شكواك بالتفصيل...",
     "complaint.submit": "إرسال الشكوى",
@@ -934,12 +947,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.familyMembersNumber": "عدد أفراد العائلة",
     "form.familyMembersNumberPlaceholder": "أدخل عدد أفراد العائلة",
     "form.agreeToTerms": "أوافق على",
+    "form.agreeToTermsDescription":
+      "الموافقة على شروط الاستخدام وسياسة الخصوصية",
     "form.termsAndPrivacy": "سياسة الاستخدام والخصوصية",
     "form.placeOfBirth": "مكان الولادة",
     "form.country": "الدولة",
     "form.gender": "الجنس",
     "form.maritalStatus": "الحالة الاجتماعية",
-
+    "form.verificationCode": "ارسل رمز التحقق ",
     // BuildingsType
     "form.IndependentBuilding": "مبنى مستقل (منزل منفصل / فيلا / بيت عربي)",
     "form.ApartmentInsideBuilding": "شقة ( داخل بناية أو برج )",
