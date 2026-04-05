@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-import { CheckCircle } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../components/FormInput";
@@ -11,13 +10,7 @@ import {
 } from "../utils/validatePassword";
 
 import { FormDataCustom } from "./SignInPage";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-} from "@mui/material";
+
 
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";

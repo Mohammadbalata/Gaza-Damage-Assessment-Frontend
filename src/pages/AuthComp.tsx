@@ -25,7 +25,7 @@ interface AuthCompProps {
  * Provides consistent layout for Sign In and Sign Up pages
  */
 const AuthComp: React.FC<AuthCompProps> = ({ title, subtitle, children }) => {
-  const { t, language } = useLanguage();
+  const {  language } = useLanguage();
 
   // const displayTitle = title ? t("common.signIn") : t("auth.nationalId");
 

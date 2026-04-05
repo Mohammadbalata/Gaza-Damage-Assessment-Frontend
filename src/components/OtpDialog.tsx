@@ -123,8 +123,8 @@ const OtpDialog = ({
               key={index}
               inputRef={(el) => (inputRefs.current[index] = el)}
               value={otp[index]}
-              onChange={(e) => handleChange(e, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>, index)}
+              onKeyDown={(e) => handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)}
               inputProps={{ maxLength: 1, style: { textAlign: "center" } }}
               sx={{ width: 50 }}
             />
