@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { updateCurrentLocation } from "../redux/slices/locationSlice";
+import { setCitizenInfo } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
 import MapContainer from "../components/MapContainer";
 import { usePut } from "../hooks/api/useApi";
-import { landmarks as neighborhoodLandmarks } from "../constants/locations";
 import {
   Container,
   Card,
@@ -23,7 +23,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { API } from "../constants/ApiRoutes";
-import { axiosClient } from "../api/baseUrl";
+import { api } from "../services/api";
 import BackButton from "../components/Shared/BackButton";
 
 // import { getReviewData } from "../utils/getReviewData";
@@ -45,11 +45,23 @@ const CurrentLocationMapPage = () => {
   const [address, setAddress] = useState("");
 
   // Selection States
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
-    useState<string>("");
-  const [selectedLandmarkCoords, setSelectedLandmarkCoords] =
-    useState<string>("");
+  const [governorates, setGovernorates] = useState<any[]>([]);
+  const [municipalities, setMunicipalities] = useState<any[]>([]);
   const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
+  const [landmarks, setLandmarks] = useState<any[]>([]);
+
+  const [landmarksData, setLandmarksData] = useState<any[]>([]);
+  const [targetNames, setTargetNames] = useState<{
+    governorate: string;
+    municipality: string;
+    neighborhood: string;
+    landmark: string;
+  } | null>(null);
+
+  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
 
   // Map Navigation state (keep original map)
   const defaultCenter: [number, number] = [31.3547, 34.3088];
@@ -58,6 +70,168 @@ const CurrentLocationMapPage = () => {
   );
   const [zoom, setZoom] = useState<number>(position ? 16 : 13);
 
+  // Load Landmarks.json for reverse lookup
+  useEffect(() => {
+    fetch("/Landmarks.json")
+      .then(res => res.json())
+      .then(data => {
+        if (data.features) setLandmarksData(data.features);
+      })
+      .catch(err => console.error("Error loading Landmarks.json:", err));
+  }, []);
+
+  // Initial load: Fetch governorates
+  useEffect(() => {
+    api.get("/locations/governorates")
+      .then((res: any) => {
+        setGovernorates(res.data.governorates || []);
+      })
+      .catch((err) => console.error("Error fetching governorates:", err));
+  }, []);
+
+  // Normalization and Match Helpers
+  const normalizeText = (text: string) => {
+    if (!text) return "";
+    return text.trim()
+      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/\s+/g, "");
+  };
+
+  const GOV_MAPPING: Record<string, string> = {
+    "الشمال": "شمال غزة",
+    "دير البلح - الوسطى": "دير البلح",
+    "الوسطى": "دير البلح",
+  };
+
+  const findMatch = (list: any[], nameToFind: string) => {
+    if (!nameToFind || !list) return null;
+    const normalizedToFind = normalizeText(nameToFind);
+    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    if (!match) {
+      match = list.find(item => 
+        normalizeText(item.name).includes(normalizedToFind) || 
+        normalizedToFind.includes(normalizeText(item.name))
+      );
+    }
+    return match;
+  };
+
+  // Find nearest landmark when position changes (from map click)
+  useEffect(() => {
+    if (position && landmarksData.length > 0) {
+      let minDistance = Infinity;
+      let nearest: any = null;
+
+      landmarksData.forEach((f: any) => {
+        if (!f.geometry || !f.geometry.coordinates) return;
+        const [lLng, lLat] = f.geometry.coordinates;
+        const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearest = f;
+        }
+      });
+
+      if (nearest) {
+        const props = nearest.properties;
+        setTargetNames({
+          governorate: props.المحافظة || "",
+          municipality: props.البلدية || "",
+          neighborhood: props.الحي || "",
+          landmark: props.اسم_المعلم || ""
+        });
+      }
+    }
+  }, [position, landmarksData]);
+
+  // Sync targetNames with IDs (Cascading)
+  useEffect(() => {
+    if (targetNames && governorates.length > 0) {
+      const match = findMatch(governorates, GOV_MAPPING[targetNames.governorate] || targetNames.governorate);
+      if (match && match.id.toString() !== selectedGovernorateId.toString()) {
+        setSelectedGovernorateId(match.id.toString());
+      }
+    }
+  }, [targetNames, governorates]);
+
+  useEffect(() => {
+    if (targetNames && municipalities.length > 0) {
+      const match = findMatch(municipalities, targetNames.municipality);
+      if (match && match.id.toString() !== selectedMunicipalityId.toString()) {
+        setSelectedMunicipalityId(match.id.toString());
+      }
+    }
+  }, [targetNames, municipalities]);
+
+  useEffect(() => {
+    if (targetNames && neighborhoodLocations.length > 0) {
+      const match = findMatch(neighborhoodLocations, targetNames.neighborhood);
+      if (match && match.id.toString() !== selectedNeighborhoodId.toString()) {
+        setSelectedNeighborhoodId(match.id.toString());
+      }
+    }
+  }, [targetNames, neighborhoodLocations]);
+
+  useEffect(() => {
+    if (targetNames && landmarks.length > 0) {
+      const match = findMatch(landmarks, targetNames.landmark);
+      if (match && match.id.toString() !== selectedLandmarkId.toString()) {
+        setSelectedLandmarkId(match.id.toString());
+      }
+    }
+  }, [targetNames, landmarks]);
+
+  // Fetch municipalities when governorate changes
+  useEffect(() => {
+    if (selectedGovernorateId) {
+      api.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
+        .then((res: any) => {
+          setMunicipalities(res.data.municipalities || []);
+          setNeighborhoodLocations([]);
+          setLandmarks([]);
+          setSelectedMunicipalityId("");
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
+        })
+        .catch((err) => console.error("Error fetching municipalities:", err));
+    } else {
+      setMunicipalities([]);
+    }
+  }, [selectedGovernorateId]);
+
+  // Fetch neighborhoods when municipality changes
+  useEffect(() => {
+    if (selectedMunicipalityId) {
+      api.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
+        .then((res: any) => {
+          setNeighborhoodLocations(res.data.neighborhoods || []);
+          setLandmarks([]);
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
+        })
+        .catch((err) => console.error("Error fetching neighborhoods:", err));
+    } else {
+      setNeighborhoodLocations([]);
+    }
+  }, [selectedMunicipalityId]);
+
+  // Fetch landmarks when neighborhood changes
+  useEffect(() => {
+    if (selectedNeighborhoodId) {
+      api.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
+        .then((res: any) => {
+          setLandmarks(res.data.landmarks || []);
+          setSelectedLandmarkId("");
+        })
+        .catch((err) => console.error("Error fetching landmarks:", err));
+    } else {
+      setLandmarks([]);
+    }
+  }, [selectedNeighborhoodId]);
+
   // Sync center with position on initial load or landmark/reset selection
   useEffect(() => {
     if (position) {
@@ -65,55 +239,74 @@ const CurrentLocationMapPage = () => {
     }
   }, [position]);
 
-  // Get landmarks for selected neighborhood
-  const currentLandmarks = useMemo(() => {
-    if (!selectedNeighborhoodId) return [];
-    return neighborhoodLandmarks[selectedNeighborhoodId] || [];
-  }, [selectedNeighborhoodId]);
+  // Selection Handlers
+  const handleGovernorateChange = (event: any) => {
+    const val = event.target.value;
+    setSelectedGovernorateId(val);
+    setTargetNames(null); // Clear target names on manual change to avoid fighting
+
+    const gov = governorates.find((g) => g.id.toString() === val.toString());
+    if (gov) {
+      const lat = parseFloat(gov.latitude);
+      const lng = parseFloat(gov.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition([lat, lng]);
+        setZoom(11);
+      }
+    }
+  };
+
+  const handleMunicipalityChange = (event: any) => {
+    const val = event.target.value;
+    setSelectedMunicipalityId(val);
+    setTargetNames(null);
+
+    const muni = municipalities.find((m) => m.id.toString() === val.toString());
+    if (muni) {
+      const lat = parseFloat(muni.latitude);
+      const lng = parseFloat(muni.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setCenter([lat, lng]);
+        setPosition([lat, lng]);
+        setZoom(13);
+      }
+    }
+  };
 
   // Handle Neighborhood Change
   const handleNeighborhoodChange = (event: any) => {
     const neighborhoodId = event.target.value;
     setSelectedNeighborhoodId(neighborhoodId);
-    setSelectedLandmarkCoords(""); // Reset landmark when neighborhood changes
+    setSelectedLandmarkId(""); // Reset landmark when neighborhood changes
+    setTargetNames(null);
 
     // Find neighborhood coordinates to center map
     const neighborhood = neighborhoodLocations.find(
       (n) => n?.id?.toString() === neighborhoodId?.toString(),
     );
     if (neighborhood) {
-      // Robust coordinate extraction
-      const latVal =
-        neighborhood.latitude ||
-        neighborhood.lat ||
-        (neighborhood.coords && neighborhood.coords[0]);
-      const lngVal =
-        neighborhood.longitude ||
-        neighborhood.lng ||
-        (neighborhood.coords && neighborhood.coords[1]);
-
-      const lat = parseFloat(latVal);
-      const lng = parseFloat(lngVal);
+      const lat = parseFloat(neighborhood.latitude);
+      const lng = parseFloat(neighborhood.longitude);
 
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
-        setPosition(null); // Reset manual position when neighborhood changes
+        setPosition([lat, lng]); 
         setZoom(15);
       }
-    } else if (neighborhoodId === "") {
-      // Reset to default center if "All" is selected
-      setCenter(defaultCenter);
-      setZoom(13);
     }
   };
 
   // Handle Landmark Change
   const handleLandmarkChange = (event: any) => {
-    const coordsStr = event.target.value;
-    setSelectedLandmarkCoords(coordsStr);
+    const landmarkId = event.target.value;
+    setSelectedLandmarkId(landmarkId);
+    setTargetNames(null);
 
-    if (coordsStr) {
-      const [lat, lng] = coordsStr.split(",").map(Number);
+    const landmark = landmarks.find((l) => l.id.toString() === landmarkId.toString());
+    if (landmark) {
+      const lat = parseFloat(landmark.latitude);
+      const lng = parseFloat(landmark.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         setCenter([lat, lng]);
         setPosition([lat, lng]);
@@ -123,7 +316,21 @@ const CurrentLocationMapPage = () => {
   };
 
   const { loading, execute } = usePut(`${API.citizen.locations.current}`, {
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      // Update local storage and redux state with the new location info
+      const currentCitizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+      const updatedCitizenInfo = {
+        ...currentCitizenInfo,
+        current_location: data || { 
+          latitude: position?.[0], 
+          longitude: position?.[1],
+          address: address
+        },
+      };
+
+      localStorage.setItem("citizenInfo", JSON.stringify(updatedCitizenInfo));
+      dispatch(setCitizenInfo(updatedCitizenInfo));
+      
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },
     onError: (err) => {
@@ -132,10 +339,10 @@ const CurrentLocationMapPage = () => {
   });
 
   useEffect(() => {
-    axiosClient
+    api
       .get(`/neighborhoods`)
       .then((res: any) => {
-        setNeighborhoodLocations(res.data.neighborhoods);
+        setNeighborhoodLocations(res.data.neighborhoods || []);
       })
       .catch((error: any) => {
         console.log(error);
@@ -163,34 +370,50 @@ const CurrentLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
+    setSelectedGovernorateId("");
+    setSelectedMunicipalityId("");
     setSelectedNeighborhoodId("");
-    setSelectedLandmarkCoords("");
+    setSelectedLandmarkId("");
     setCenter(defaultCenter);
-    setZoom(15);
+    setZoom(13);
+  };
+
+  const getGovernorateName = (id: string) => {
+    const gov = governorates.find((g) => g.id.toString() === id.toString());
+    return gov ? gov.name : "";
+  };
+
+  const getMunicipalityName = (id: string) => {
+    const muni = municipalities.find((m) => m.id.toString() === id.toString());
+    return muni ? muni.name : "";
   };
 
   const getNeighborhoodName = (id: string) => {
     const neighborhood = neighborhoodLocations.find(
       (n) => n.id.toString() === id.toString(),
     );
-    if (!neighborhood) return id;
-    return language === "ar" ? neighborhood.name : neighborhood.name_en;
+    return neighborhood ? neighborhood.name : "";
   };
 
-  const getLandmarkName = (coordsToCheck: string) => {
-    if (!coordsToCheck || !selectedNeighborhoodId) return "";
-    const [lat, lng] = coordsToCheck.split(",");
-    const landmarkItem = currentLandmarks.find(
-      (l: any) =>
-        l.latitude.toString() === lat.toString() &&
-        l.longitude.toString() === lng.toString(),
-    );
-    return landmarkItem?.landmark || "";
+  const getLandmarkName = (id: string) => {
+    const landmark = landmarks.find((l) => l.id.toString() === id.toString());
+    return landmark ? landmark.name : "";
   };
 
   const handleConfirm = () => {
-    if (position && address) {
-      const currentLocAddress = `${getNeighborhoodName(selectedNeighborhoodId)} - ${getLandmarkName(selectedLandmarkCoords)} - ${address}`;
+    if (position) {
+      const finalAddress = address || `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`;
+      
+      const fullAddressParts = [
+        getGovernorateName(selectedGovernorateId),
+        getMunicipalityName(selectedMunicipalityId),
+        getNeighborhoodName(selectedNeighborhoodId),
+        getLandmarkName(selectedLandmarkId),
+        finalAddress
+      ].filter(Boolean);
+
+      const currentLocAddress = fullAddressParts.join(" - ");
+      
       dispatch(
         updateCurrentLocation({
           currentLocation: {
@@ -204,9 +427,11 @@ const CurrentLocationMapPage = () => {
       execute({
         latitude: position[0].toString(),
         longitude: position[1].toString(),
-        address,
-        neighborhood_id: selectedNeighborhoodId,
-        landmark: getLandmarkName(selectedLandmarkCoords),
+        address: finalAddress,
+        governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
+        municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
+        neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+        landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
       });
     }
   };
@@ -250,51 +475,80 @@ const CurrentLocationMapPage = () => {
             </Box>
           </Box>
 
-          <Stack direction={{ xs: "column", md: "row" }} sx={{ mb: 3, gap: 2 }}>
-            <FormControl fullWidth size="small" required>
-              <InputLabel>
-                {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-              </InputLabel>
-              <Select
-                value={selectedNeighborhoodId}
-                label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                onChange={handleNeighborhoodChange}
-                autoFocus
-              >
-                <MenuItem value="">
-                  {language === "ar" ? "الكل" : "All"}
-                </MenuItem>
-                {neighborhoodLocations.map((n) => (
-                  <MenuItem key={n.id} value={n.id}>
-                    {language === "ar" ? n.name : n.name_en}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+              <FormControl fullWidth size="small" required>
+                <InputLabel>
+                  {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                </InputLabel>
+                <Select
+                  value={selectedGovernorateId}
+                  label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                  onChange={handleGovernorateChange}
+                >
+                  {governorates.map((g) => (
+                    <MenuItem key={g.id} value={g.id}>
+                      {g.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <FormControl fullWidth size="small" sx={{ ml: 0 }}>
-              <InputLabel>
-                {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-              </InputLabel>
-              <Select
-                value={selectedLandmarkCoords}
-                label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                onChange={handleLandmarkChange}
-                disabled={!selectedNeighborhoodId}
-              >
-                <MenuItem value="">
-                  {language === "ar" ? "اختر المعلم" : "Select Landmark"}
-                </MenuItem>
-                {currentLandmarks.map((lm: any, index: number) => (
-                  <MenuItem
-                    key={index}
-                    value={`${lm.latitude},${lm.longitude}`}
-                  >
-                    {lm.landmark}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
+                <InputLabel>
+                  {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                </InputLabel>
+                <Select
+                  value={selectedMunicipalityId}
+                  label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                  onChange={handleMunicipalityChange}
+                >
+                  {municipalities.map((m) => (
+                    <MenuItem key={m.id} value={m.id}>
+                      {m.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+              <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
+                <InputLabel>
+                  {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                </InputLabel>
+                <Select
+                  value={selectedNeighborhoodId}
+                  label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                  onChange={handleNeighborhoodChange}
+                >
+                  {neighborhoodLocations.map((n) => (
+                    <MenuItem key={n.id} value={n.id}>
+                      {n.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
+                <InputLabel>
+                  {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                </InputLabel>
+                <Select
+                  value={selectedLandmarkId}
+                  label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                  onChange={handleLandmarkChange}
+                >
+                  {landmarks.map((lm: any) => (
+                    <MenuItem key={lm.id} value={lm.id}>
+                      {lm.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+
+           
           </Stack>
 
           <Box
@@ -397,6 +651,8 @@ const CurrentLocationMapPage = () => {
                 />
               }
               sx={{ flex: 1, height: 48 }}
+                              variant="outlined"
+
             >
               {t("map.reset")}
             </Button>
