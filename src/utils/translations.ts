@@ -92,6 +92,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesTitle": "Identity Verification",
     "auth.verifyQuesBody":
       "Please answer the following questions to verify your identity. These questions are based on your civil registry information.",
+    "auth.invalidCredentials": "password is not correct",
 
     // Reset Password
     "auth.resetPassword": "Reset Password",
@@ -819,6 +820,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
     "auth.verifySuccess": "",
+    "auth.invalidCredentials": "كلمة المرور غير صحيحة",
 
     // Landing Page
     "landing.title": "سوا بنعمرها - معاً نبني مستقبلنا",
