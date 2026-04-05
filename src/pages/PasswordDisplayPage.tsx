@@ -66,6 +66,7 @@ const PasswordDisplayPage = () => {
   const [openCodeDialog, setOpenCodeDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -172,14 +173,17 @@ const PasswordDisplayPage = () => {
     });
   };
 
-  const sendOtp = async (email: string) => {
+  const sendOtp = async (value: string) => {
     try {
+      const body = value;
       const response = await fetch("/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email }),
+        body: JSON.stringify(body),
       });
+
       if (!response.ok) {
+        console.log("body sent to /api/send-otp:", value);
         throw new Error("فشل إرسال الرمز");
       }
       const data = await response.json();
@@ -356,8 +360,8 @@ const PasswordDisplayPage = () => {
               onClick={() => {
                 const emailValue = getValues("email");
                 sendOtp(emailValue || "");
-                console.log("email is :", emailValue);
                 setOpenCodeDialog(true);
+                setOtpValue(emailValue || "");
               }}
               variant="text"
               sx={{
@@ -369,11 +373,12 @@ const PasswordDisplayPage = () => {
               {t("form.verificationCode")}
             </Button>
           </Box>
+
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            onResend={sendOtp}
-            email={getValues("email") || ""}
+            onResend={(value) => sendOtp(value)}
+            otpValue={otpValue}
           />
         </Box>
         <Box>
@@ -435,10 +440,10 @@ const PasswordDisplayPage = () => {
             />
             <Button
               onClick={() => {
-                const phoneNumberValue = getValues("phoneNumber");
-                sendOtp(phoneNumberValue || "");
-                console.log("phone number is :", phoneNumberValue);
+                const phoneValue = getValues("phoneNumber");
+                sendOtp(phoneValue || ""); // نرسل النوع phone
                 setOpenCodeDialog(true);
+                setOtpValue(phoneValue || ""); // نستخدم setEmail لإعادة إرسال الكود إلى رقم الهاتف
               }}
               variant="text"
               sx={{

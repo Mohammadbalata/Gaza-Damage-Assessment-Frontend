@@ -6,7 +6,6 @@ import {
   DialogActions,
   TextField,
   Button,
-  Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
@@ -14,9 +13,9 @@ interface OtpDialogProps {
   open: boolean;
   onClose: () => void;
   onVerify?: (code: string) => void; // يمكن استقبال callback عند التحقق
-  onResend?: (email: string) => void; // callback لإعادة إرسال الرمز
+  onResend?: (otpVal: string) => void; // callback لإعادة إرسال الرمز
   length?: number;
-  email?: string; // يمكن استقبال البريد الإلكتروني لإعادة الإرسال
+  otpValue?: string; // يمكن استقبال البريد الإلكتروني لإعادة الإرسال
 }
 
 const OtpDialog = ({
@@ -25,7 +24,7 @@ const OtpDialog = ({
   onVerify,
   onResend,
   length = 5,
-  email,
+  otpValue,
 }: OtpDialogProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -96,9 +95,10 @@ const OtpDialog = ({
     }
   };
 
-  const handleResend = (email: string) => {
+  const handleResend = (otpValue: string) => {
+    console.log("otpValue is", otpValue);
     if (onResend) {
-      onResend(email || "");
+      onResend(otpValue);
       enqueueSnackbar("تم إرسال رمز جديد", { variant: "info" });
       setOtp(Array(length).fill(""));
       inputRefs.current[0]?.focus();
@@ -132,7 +132,7 @@ const OtpDialog = ({
         </div>
 
         <Button
-          onClick={handleResend}
+          onClick={() => handleResend(otpValue || "")}
           variant="text"
           sx={{ mt: 2, textDecoration: "underline" }}
         >
