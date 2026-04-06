@@ -273,6 +273,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocationDescription":
       "Please select the location of your property after the war. (Where are you staying now?)",
     "map.invalidCoords": "Invalid Coordinates",
+    "map.insideGaza": "Inside Gaza Strip",
+    "map.outsideGaza": "Outside Gaza Strip",
+    "map.addressOutsideGaza": "Address Outside Gaza",
+    "map.addressOutsideGazaPlaceholder": "Enter your address outside Gaza",
 
     // Review
     "review.title": "Review Your Application",
@@ -1037,6 +1041,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
     "map.invalidCoords": "الإحداثيات غير صالحة",
+    "map.insideGaza": "داخل قطاع غزة",
+    "map.outsideGaza": "خارج قطاع غزة",
+    "map.addressOutsideGaza": "عنوان السكن خارج قطاع غزة",
+    "map.addressOutsideGazaPlaceholder": "أدخل عنوان سكنك خارج قطاع غزة",
 
     // Review
     "review.title": "مراجعة طلبك",

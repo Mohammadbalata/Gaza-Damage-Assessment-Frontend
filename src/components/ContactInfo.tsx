@@ -14,7 +14,16 @@ const ContactInfo = ({
 }) => {
   return (
     <div className="bg-white rounded-lg  ">
-
+       <div className="flex items-center gap-4 p-2">
+        <div className="bg-[#f5a623] p-3 rounded-lg">
+          <MapPin className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <p className="text-lg font-semibold text-[#1e3a5f] ">
+            {address}
+          </p>
+        </div>
+      </div>
         <div className="flex items-center gap-4 p-2  ">
         <div className="bg-[#f5a623] p-3 rounded-lg">
           <Phone className="w-6 h-6 text-white" />
@@ -63,16 +72,7 @@ const ContactInfo = ({
         </div>
          
       </div>
-      <div className="flex items-center gap-4 p-2">
-<div className="bg-[#f5a623] p-3 rounded-lg">
-          <MapPin className="w-6 h-6 text-white" />
-        </div>
-                            <div>
-                    <p className="text-lg font-semibold text-[#1e3a5f] ">
-                      {address}
-                    </p>
-                  </div>
-</div>
+     
     </div>
 
   );
