@@ -11,7 +11,6 @@ import {
 
 import { FormDataCustom } from "./SignInPage";
 
-
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
 import PhoneNumberInput from "../components/PhoneNumberInput";
@@ -84,8 +83,8 @@ const PasswordDisplayPage = () => {
   }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: any) => {
-    console.log(data);
     const formData = new FormData();
+
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
     formData.append("first_name", data.firstName);
@@ -94,50 +93,36 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
-    formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
+
+    if (data.alternatePhoneNumber) {
+      formData.append("alternate_phone_number", data.alternatePhoneNumber);
+    }
+
     if (data.avatar) {
       formData.append("avatar", data.avatar);
     }
-    formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
-    console.log(formData);
-    if (id) {
-      await dispatch(
+
+    try {
+      const res = await dispatch(
         signUp({
-          pathSignUp: `${API.citizen.auth.completeSignup}`,
+          pathSignUp: API.citizen.auth.completeSignup,
           formData,
         }),
-      )
-        .unwrap()
-        .then((res) => {
-          localStorage.setItem("token", res.token);
-          navigate(`${ROUTES.HOME}`);
-          console.log(data);
-        })
-        .catch((error) => {
-          console.log(error);
-          const errorMessage = error || "";
-          if (errorMessage.includes("Email already registered")) {
-            setError("email", {
-              type: "manual",
-              message: t("auth.emailAlreadyRegistered"),
-            });
-          } else if (errorMessage.includes("Phone number already registered")) {
-            setError("phoneNumber", {
-              type: "manual",
-              message: t("auth.phoneAlreadyRegistered"),
-            });
-          } else {
-            // Default to showing on password field or using existing logic
-            setError("password", {
-              type: "manual",
-              message: errorMessage,
-            });
-          }
+      ).unwrap();
+
+      localStorage.setItem("token", res.token);
+      navigate(ROUTES.HOME);
+    } catch (error: any) {
+      console.log(error);
+
+      Object.entries(error).forEach(([field, message]: any) => {
+        // const fieldLabel = fieldNames[field] || field;
+        enqueueSnackbar(`${message}`, {
+          variant: "error",
         });
-    } else {
-      navigate(`${ROUTES.SIGNIN}`);
+      });
     }
   };
   const fieldNames: Record<string, string> = {
@@ -151,6 +136,8 @@ const PasswordDisplayPage = () => {
     familyMembersNumber: t("form.familyMembersNumber"),
     agreeToTerms: t("form.agreeToTermsDescription"),
     password: t("auth.password"),
+    phone_number: t("form.phoneNumber"),
+    whatsapp_number: t("form.whatsappNumber"),
   };
 
   const onError = (errors: any) => {
@@ -347,6 +334,7 @@ const PasswordDisplayPage = () => {
                 fixedLabel={true}
                 sx={{ width: "100%" }}
               />
+              <Box>{errors.email?.message}</Box>
             </Box>
 
             <Button
