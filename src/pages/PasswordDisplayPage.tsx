@@ -36,6 +36,7 @@ import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
+import { axiosClient } from "../api/baseUrl";
 // import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
@@ -51,7 +52,6 @@ const PasswordDisplayPage = () => {
     formState: { errors },
     handleSubmit,
     control,
-    setError,
     getValues,
   } = useForm<FormDataCustom>();
 
@@ -113,13 +113,11 @@ const PasswordDisplayPage = () => {
       ).unwrap();
 
       localStorage.setItem("token", res.token);
-      navigate(ROUTES.HOME);
+      // navigate(ROUTES.HOME);
     } catch (error: any) {
       console.log(error);
-
-      Object.entries(error).forEach(([field, message]: any) => {
-        // const fieldLabel = fieldNames[field] || field;
-        enqueueSnackbar(`${message}`, {
+      Object.entries(error).forEach(([message, label]: any) => {
+        enqueueSnackbar(`${label}`, {
           variant: "error",
         });
       });
@@ -155,25 +153,22 @@ const PasswordDisplayPage = () => {
 
   const sendOtp = async (value: string) => {
     try {
-      const body = value;
-      const response = await fetch("/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        console.log("body sent to /api/send-otp:", value);
-        throw new Error("فشل إرسال الرمز");
+      const res = await axiosClient.post("/verify/email", { email: value });
+      if (res) {
+        console.log(res);
       }
-      const data = await response.json();
-      console.log("رمز جديد أرسل:", data);
-      enqueueSnackbar("تم إرسال رمز جديد بنجاح", { variant: "success" });
+      // if (!res.ok) {
+      //   console.log("body sent to /api/send-otp:", value);
+      //   throw new Error("فشل إرسال الرمز");
+      // }
+      // const data = await res.json();
+      // console.log("رمز جديد أرسل:", data);
+      // enqueueSnackbar("تم إرسال رمز جديد بنجاح", { variant: "success" });
     } catch (error: any) {
-      console.error(error);
-      enqueueSnackbar(error.message || "حدث خطأ أثناء إرسال الرمز", {
-        variant: "error",
-      });
+      console.error("error....", error);
+      // enqueueSnackbar(error.message || "حدث خطأ أثناء إرسال الرمز", {
+      //   variant: "error",
+      // });
     }
   };
 
@@ -334,7 +329,6 @@ const PasswordDisplayPage = () => {
                 fixedLabel={true}
                 sx={{ width: "100%" }}
               />
-              <Box>{errors.email?.message}</Box>
             </Box>
 
             <Button
@@ -419,7 +413,7 @@ const PasswordDisplayPage = () => {
                 />
               )}
             />
-            <Button
+            {/* <Button
               onClick={() => {
                 const phoneValue = getValues("phoneNumber");
                 sendOtp(phoneValue || ""); // نرسل النوع phone
@@ -434,7 +428,7 @@ const PasswordDisplayPage = () => {
               }}
             >
               {t("form.verificationCode")}
-            </Button>
+            </Button> */}
           </Box>
 
           {/* alternatePhoneNumber   */}
