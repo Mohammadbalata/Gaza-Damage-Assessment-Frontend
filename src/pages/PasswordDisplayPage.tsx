@@ -186,6 +186,11 @@ const PasswordDisplayPage = () => {
     } catch (error: any) {
       console.error("error....", error);
       setOpenCodeDialog(false);
+      if (typeof error.response.data.message === "string") {
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
+      }
       if (typeof error === "object") {
         Object.entries(error.response.data.errors).forEach(
           ([key, value]: any) => {
