@@ -19,4 +19,5 @@ export interface IFormInputProps {
   setIsTouchInput?: any;
   isNationalId?: any;
   sx?: SxProps<Theme>;
+  note?:string
 }

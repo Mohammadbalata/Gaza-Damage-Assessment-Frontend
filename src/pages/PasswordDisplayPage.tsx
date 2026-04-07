@@ -11,7 +11,6 @@ import {
 
 import { FormDataCustom } from "./SignInPage";
 
-
 import { signUp } from "../redux/slices/authSlice";
 import { ROUTES } from "../routes/Routes";
 import PhoneNumberInput from "../components/PhoneNumberInput";
@@ -37,6 +36,7 @@ import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
+import { axiosClient } from "../api/baseUrl";
 // import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
@@ -52,7 +52,6 @@ const PasswordDisplayPage = () => {
     formState: { errors },
     handleSubmit,
     control,
-    setError,
     getValues,
   } = useForm<FormDataCustom>();
 
@@ -60,6 +59,7 @@ const PasswordDisplayPage = () => {
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
   const [otpValue, setOtpValue] = useState("");
+  const [isGoTOHomePage, setIsGoToHomePage] = useState(false);
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -84,8 +84,8 @@ const PasswordDisplayPage = () => {
   }, [navigate, dispatch, id]);
 
   const onSubmit = async (data: any) => {
-    console.log(data);
     const formData = new FormData();
+
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
     formData.append("first_name", data.firstName);
@@ -94,50 +94,52 @@ const PasswordDisplayPage = () => {
     formData.append("family_name", data.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
-    formData.append("alternate_phone_number", data.alternatePhoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
     formData.append("family_members_number", data.familyMembersNumber);
+
+    if (data.alternatePhoneNumber) {
+      formData.append("alternate_phone_number", data.alternatePhoneNumber);
+    }
+
     if (data.avatar) {
       formData.append("avatar", data.avatar);
     }
-    formData.append("pathSignUp", `${API.citizen.auth.completeSignup}`);
-    console.log(formData);
-    if (id) {
-      await dispatch(
-        signUp({
-          pathSignUp: `${API.citizen.auth.completeSignup}`,
-          formData,
-        }),
-      )
-        .unwrap()
-        .then((res) => {
+    if (!isGoTOHomePage) {
+      const email = getValues("email");
+      sendOtp(email || "");
+      setOtpValue(email || "");
+    }
+    if (isGoTOHomePage) {
+      try {
+        const res = await dispatch(
+          signUp({
+            pathSignUp: API.citizen.auth.completeSignup,
+            formData,
+          }),
+        ).unwrap();
+        if (res) {
+          console.log("resssss", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+          navigate(ROUTES.HOME);
           localStorage.setItem("token", res.token);
-          navigate(`${ROUTES.HOME}`);
-          console.log(data);
-        })
-        .catch((error) => {
-          console.log(error);
-          const errorMessage = error || "";
-          if (errorMessage.includes("Email already registered")) {
-            setError("email", {
-              type: "manual",
-              message: t("auth.emailAlreadyRegistered"),
+        }
+      } catch (error: any) {
+        console.log("error", error);
+        if (typeof error === "string") {
+          enqueueSnackbar(error, { variant: "error" });
+          return;
+        }
+        if (typeof error === "object") {
+          Object.entries(error).forEach(([key, value]: any) => {
+            console.log(key);
+            enqueueSnackbar(`${value}`, {
+              variant: "error",
             });
-          } else if (errorMessage.includes("Phone number already registered")) {
-            setError("phoneNumber", {
-              type: "manual",
-              message: t("auth.phoneAlreadyRegistered"),
-            });
-          } else {
-            // Default to showing on password field or using existing logic
-            setError("password", {
-              type: "manual",
-              message: errorMessage,
-            });
-          }
-        });
-    } else {
-      navigate(`${ROUTES.SIGNIN}`);
+          });
+        }
+      }
     }
   };
   const fieldNames: Record<string, string> = {
@@ -151,6 +153,8 @@ const PasswordDisplayPage = () => {
     familyMembersNumber: t("form.familyMembersNumber"),
     agreeToTerms: t("form.agreeToTermsDescription"),
     password: t("auth.password"),
+    phone_number: t("form.phoneNumber"),
+    whatsapp_number: t("form.whatsappNumber"),
   };
 
   const onError = (errors: any) => {
@@ -166,25 +170,60 @@ const PasswordDisplayPage = () => {
     });
   };
 
-  const sendOtp = async (value: string) => {
+  const sendOtp = async (email: string) => {
     try {
-      const body = value;
-      const response = await fetch("/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      const res = await axiosClient.post("/verify/email", {
+        email: email,
+        national_id: id,
+      });
+      if (res) {
+        setOpenCodeDialog(true);
+        enqueueSnackbar(
+          res.data.message || "تم ارسال رمز الى بريدك الالكتروني بنجاح",
+          { variant: "success" },
+        );
+        console.log("res0", res);
+      }
+    } catch (error: any) {
+      console.error("error....", error);
+      setOpenCodeDialog(false);
+      if (typeof error.response.data.message === "string") {
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
+      }
+      if (typeof error === "object") {
+        Object.entries(error.response.data.errors).forEach(
+          ([key, value]: any) => {
+            console.log(key);
+            enqueueSnackbar(`${value}`, {
+              variant: "error",
+            });
+          },
+        );
+      }
+    }
+  };
+
+  const handleVerifyCode = async (code: string) => {
+    try {
+      const email = getValues("email");
+      const res = await axiosClient.post("/verify/email/code", {
+        email: email,
+        code: code,
       });
 
-      if (!response.ok) {
-        console.log("body sent to /api/send-otp:", value);
-        throw new Error("فشل إرسال الرمز");
+      if (res) {
+        console.log("responeFromVerify", res);
+        enqueueSnackbar(res.data.message, {
+          variant: "success",
+        });
+        setIsGoToHomePage(true);
+        setOpenCodeDialog(false);
       }
-      const data = await response.json();
-      console.log("رمز جديد أرسل:", data);
-      enqueueSnackbar("تم إرسال رمز جديد بنجاح", { variant: "success" });
     } catch (error: any) {
-      console.error(error);
-      enqueueSnackbar(error.message || "حدث خطأ أثناء إرسال الرمز", {
+      console.log(error);
+      enqueueSnackbar(error.response.data.message, {
         variant: "error",
       });
     }
@@ -331,6 +370,7 @@ const PasswordDisplayPage = () => {
               <FormInput
                 id="email"
                 label={t("form.email")}
+                note="يرجى إدخال بريد إلكتروني فعال، سيتم إرسال رمز التحقق إليه"
                 placeholder={t("form.emailPlaceholder")}
                 type="email"
                 register={register}
@@ -349,7 +389,7 @@ const PasswordDisplayPage = () => {
               />
             </Box>
 
-            <Button
+            {/* <Button
               onClick={() => {
                 const emailValue = getValues("email");
                 sendOtp(emailValue || "");
@@ -364,14 +404,15 @@ const PasswordDisplayPage = () => {
               }}
             >
               {t("form.verificationCode")}
-            </Button>
+            </Button> */}
           </Box>
 
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            onResend={(value) => sendOtp(value)}
+            onResend={(email) => sendOtp(email)}
             otpValue={otpValue}
+            onVerify={(code) => handleVerifyCode(code)}
           />
         </Box>
         <Box>
@@ -431,7 +472,7 @@ const PasswordDisplayPage = () => {
                 />
               )}
             />
-            <Button
+            {/* <Button
               onClick={() => {
                 const phoneValue = getValues("phoneNumber");
                 sendOtp(phoneValue || ""); // نرسل النوع phone
@@ -446,7 +487,7 @@ const PasswordDisplayPage = () => {
               }}
             >
               {t("form.verificationCode")}
-            </Button>
+            </Button> */}
           </Box>
 
           {/* alternatePhoneNumber   */}

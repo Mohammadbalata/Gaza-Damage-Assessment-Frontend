@@ -28,6 +28,7 @@ export default function FormInput({
   setIsTouchInput,
   isNationalId,
   fixedLabel = false,
+  note,
 }: IFormInputProps & { fixedLabel?: boolean }) {
   const { language, t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
@@ -82,20 +83,44 @@ export default function FormInput({
   if (fixedLabel) {
     return (
       <Box className={classNameParent}>
-        <Typography
-          variant="body2"
-          fontWeight="medium"
-          gutterBottom
+        <Box
           sx={{
-            mb: 0.5,
-            textAlign: textAlign,
+            display: "flex",
           }}
         >
-          {label}
-          {isRequired && (
-            <span style={{ color: "red", marginInlineStart: "4px" }}>*</span>
+          <Typography
+            variant="body2"
+            fontWeight="medium"
+            gutterBottom
+            sx={{
+              mb: 0.5,
+              textAlign: textAlign,
+            }}
+          >
+            {label}
+            {isRequired && (
+              <span style={{ color: "red", marginInlineStart: "4px" }}>*</span>
+            )}
+          </Typography>
+          {note && (
+            <Typography
+              variant="body2"
+              fontWeight="medium"
+              gutterBottom
+              sx={{
+                mb: 0.5,
+                textAlign: textAlign,
+              }}
+            >
+              {
+                <span style={{ color: "red", marginInlineStart: "4px" }}>
+                  ({note})
+                </span>
+              }
+            </Typography>
           )}
-        </Typography>
+        </Box>
+
         <TextField
           id={id}
           placeholder={placeholder}
