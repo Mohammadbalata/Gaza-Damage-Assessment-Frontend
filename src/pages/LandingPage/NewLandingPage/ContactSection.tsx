@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Phone, Mail, Send, User } from "lucide-react";
 import { motion } from "motion/react";
 import ContactInfo from "../../../components/ContactInfo";
+import { axiosClient } from "../../../api/baseUrl";
+import { enqueueSnackbar } from "notistack";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -13,9 +15,21 @@ export function ContactSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // في التطبيق الحقيقي، سيتم إرسال البيانات إلى الخادم
-    alert("شكراً لتواصلك معنا! سنرد عليك في أقرب وقت ممكن.");
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    console.log("formData", formData);
+    const contactApi = async () => {
+      try {
+        const res = await axiosClient.post("/contact-us", formData);
+        if (res) {
+          console.log("rress", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+        }
+      } catch (error) {
+        console.log("eerror", error);
+      }
+    };
+    contactApi();
   };
 
   const handleChange = (
