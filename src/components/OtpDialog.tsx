@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -23,13 +23,17 @@ const OtpDialog = ({
   onClose,
   onVerify,
   onResend,
-  length = 5,
+  length = 6,
   otpValue,
 }: OtpDialogProps) => {
   const { enqueueSnackbar } = useSnackbar();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [otp, setOtp] = useState(Array(length).fill(""));
-
+  useEffect(() => {
+    if (open) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [open]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
@@ -42,21 +46,6 @@ const OtpDialog = ({
 
       if (index < length - 1) {
         inputRefs.current[index + 1]?.focus();
-      }
-
-      if (newOtp.every((digit) => digit !== "")) {
-        const code = newOtp.join("");
-        if (onVerify) {
-          onVerify(code);
-        } else {
-          if (code === "12345") {
-            enqueueSnackbar("تم التحقق بنجاح!", { variant: "success" });
-            onClose();
-            setOtp(Array(length).fill(""));
-          } else {
-            enqueueSnackbar("الرمز غير صحيح", { variant: "error" });
-          }
-        }
       }
     } else if (value === "") {
       const newOtp = [...otp];
@@ -82,13 +71,14 @@ const OtpDialog = ({
 
   const handleVerify = () => {
     const code = otp.join("");
+    console.log(code);
     if (onVerify) {
       onVerify(code);
     } else {
-      if (code === "12345") {
+      if (code === "123456") {
         enqueueSnackbar("تم التحقق بنجاح!", { variant: "success" });
         setOtp(Array(length).fill(""));
-        onClose();
+        // onClose();
       } else {
         enqueueSnackbar("الرمز غير صحيح", { variant: "error" });
       }
@@ -117,16 +107,30 @@ const OtpDialog = ({
           mt: 1,
         }}
       >
-        <div style={{ display: "flex", gap: 8 }}>
-          {Array.from({ length }).map((_, index) => (
+        <div style={{ display: "flex", gap: 8, direction: "ltr" }}>
+          {Array.from({ length: 6 }).map((_, index) => (
             <TextField
               key={index}
+              type="tel"
               inputRef={(el) => (inputRefs.current[index] = el)}
               value={otp[index]}
-              onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>, index)}
-              onKeyDown={(e) => handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)}
-              inputProps={{ maxLength: 1, style: { textAlign: "center" } }}
-              sx={{ width: 50 }}
+              onChange={(e) =>
+                handleChange(e as React.ChangeEvent<HTMLInputElement>, index)
+              }
+              onKeyDown={(e) =>
+                handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)
+              }
+              inputProps={{
+                maxLength: 1,
+                inputMode: "numeric",
+                style: {
+                  textAlign: "center",
+                  direction: "ltr",
+                },
+              }}
+              sx={{
+                width: 50,
+              }}
             />
           ))}
         </div>
