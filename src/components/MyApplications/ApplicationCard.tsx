@@ -98,44 +98,59 @@ const ApplicationCard = ({
   console.log(application)
 
   useEffect(() => {
+    if (!application) return;
+
     const governorate_id = application?.governorate_id;
-    axiosClient.get(`locations/governorates`).then((res: any) => {
-      const governorate = res.data.governorates.find((g: any) => g.id === governorate_id);
-      setGovernorateName("محافظة " + governorate?.name);
-    })
-
-    
     const municipality_id = application?.municipality_id;
-    axiosClient.get(`locations/municipalities`,{
-      params:{
-        governorate_id: governorate_id
-      }
-    }).then((res: any) => {
-      const municipality = res.data.municipalities.find((m: any) => m.id === municipality_id);
-      setMunicipalityName("بلدية " + municipality?.name);
-    })
     const neighborhood_id = application?.neighborhood_id;
-    axiosClient.get(`locations/neighborhoods`,{
-      params:{
-        municipality_id: municipality_id
-      }
-    }).then((res: any) => {
-      const neighborhood = res.data.neighborhoods.find((n: any) => n.id === neighborhood_id);
-      setNeighborhoodName("حي " + neighborhood?.name);
-    })
-
     const landmark_id = application?.landmark_id;
-    axiosClient.get(`locations/landmarks`,{
-      params:{
-        neighborhood_id: neighborhood_id
-      }
-    }).then((res: any) => {
-      const landmark = res.data.landmarks.find((l: any) => l.id === landmark_id);
-      setLandmarkName(landmark?.name);
-    })
-    
 
-  }, [application])
+    if (governorate_id) {
+      axiosClient.get(`locations/governorates`).then((res: any) => {
+        const governorate = res.data.governorates?.find(
+          (g: any) => g.id === governorate_id,
+        );
+        if (governorate) setGovernorateName("محافظة " + governorate.name);
+      });
+
+      axiosClient
+        .get(`locations/municipalities`, {
+          params: { governorate_id: governorate_id },
+        })
+        .then((res: any) => {
+          const municipality = res.data.municipalities?.find(
+            (m: any) => m.id === municipality_id,
+          );
+          if (municipality) setMunicipalityName("بلدية " + municipality.name);
+        });
+    }
+
+    if (municipality_id) {
+      axiosClient
+        .get(`locations/neighborhoods`, {
+          params: { municipality_id: municipality_id },
+        })
+        .then((res: any) => {
+          const neighborhood = res.data.neighborhoods?.find(
+            (n: any) => n.id === neighborhood_id,
+          );
+          if (neighborhood) setNeighborhoodName("حي " + neighborhood.name);
+        });
+    }
+
+    if (neighborhood_id) {
+      axiosClient
+        .get(`locations/landmarks`, {
+          params: { neighborhood_id: neighborhood_id },
+        })
+        .then((res: any) => {
+          const landmark = res.data.landmarks?.find(
+            (l: any) => l.id === landmark_id,
+          );
+          if (landmark) setLandmarkName(landmark.name);
+        });
+    }
+  }, [application]);
 
 
 
