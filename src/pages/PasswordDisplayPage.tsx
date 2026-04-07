@@ -133,6 +133,7 @@ const PasswordDisplayPage = () => {
         }
         if (typeof error === "object") {
           Object.entries(error).forEach(([key, value]: any) => {
+            console.log(key);
             enqueueSnackbar(`${value}`, {
               variant: "error",
             });
@@ -194,6 +195,7 @@ const PasswordDisplayPage = () => {
       if (typeof error === "object") {
         Object.entries(error.response.data.errors).forEach(
           ([key, value]: any) => {
+            console.log(key);
             enqueueSnackbar(`${value}`, {
               variant: "error",
             });
