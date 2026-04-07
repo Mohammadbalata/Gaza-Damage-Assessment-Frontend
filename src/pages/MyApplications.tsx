@@ -24,9 +24,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
 } from "@mui/material";
 import ApplicationCard from "../components/MyApplications/ApplicationCard";
 
@@ -68,7 +65,7 @@ import MapContainer from "../components/MapContainer";
 // import { locations } from "../constants/locations";
 import { axiosClient } from "../api/baseUrl";
 
-const MyApplications = (): JSX.Element | null => {
+const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -100,7 +97,6 @@ const MyApplications = (): JSX.Element | null => {
   const [locationAddress, setLocationAddress] = useState("");
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
-  const [mapZoom, setMapZoom] = useState<number>(13);
   const theme = useTheme();
   const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
   const [locationLoading, setLocationLoading] = useState(false);
@@ -123,9 +119,6 @@ const MyApplications = (): JSX.Element | null => {
   const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
   const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
-  const [isInsideGaza, setIsInsideGaza] = useState<boolean>(true);
-  const [outsideAddress, setOutsideAddress] = useState<string>("");
-  const [skipSync, setSkipSync] = useState<boolean>(false);
 
   // Load Landmarks.json for reverse lookup
   useEffect(() => {
@@ -191,7 +184,7 @@ const MyApplications = (): JSX.Element | null => {
   //       });
   // Cascading Selection Sync (Copy of CurrentLocationMapPage logic)
   useEffect(() => {
-    if (locationPosition && landmarksData.length > 0 && locationDialogOpen && !skipSync) {
+    if (locationPosition && landmarksData.length > 0 && locationDialogOpen) {
       let minDistance = Infinity;
       let nearest: any = null;
 
@@ -259,6 +252,11 @@ const MyApplications = (): JSX.Element | null => {
       axiosClient.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
         .then((res: any) => {
           setMunicipalities(res.data.municipalities || []);
+          setNeighborhoodLocations([]);
+          setLandmarks([]);
+          setSelectedMunicipalityId("");
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
         })
         .catch((err: any) => console.error("Error fetching municipalities:", err));
     } else {
@@ -272,6 +270,9 @@ const MyApplications = (): JSX.Element | null => {
       axiosClient.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
         .then((res: any) => {
           setNeighborhoodLocations(res.data.neighborhoods || []);
+          setLandmarks([]);
+          setSelectedNeighborhoodId("");
+          setSelectedLandmarkId("");
         })
         .catch((err: any) => console.error("Error fetching neighborhoods:", err));
     } else {
@@ -285,6 +286,7 @@ const MyApplications = (): JSX.Element | null => {
       axiosClient.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
         .then((res: any) => {
           setLandmarks(res.data.landmarks || []);
+          setSelectedLandmarkId("");
         })
         .catch((err: any) => console.error("Error fetching landmarks:", err));
     } else {
@@ -330,7 +332,7 @@ const MyApplications = (): JSX.Element | null => {
   //   immediate: true,
   // });
   const [rawData, setRawData] = useState<any>([]);
-  const [neighborhoods, setNeighborhoods] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
@@ -338,7 +340,7 @@ const MyApplications = (): JSX.Element | null => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [appsRes, complaintsRes, neighborhoodsRes] = await Promise.all([
+        const [appsRes, complaintsRes] = await Promise.all([
           axiosClient.get(API.citizen.applications.list, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -349,7 +351,6 @@ const MyApplications = (): JSX.Element | null => {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
-          axiosClient.get("/neighborhoods"),
         ]);
 
         const apps = appsRes.data.damage_reports || appsRes.data || [];
@@ -375,7 +376,7 @@ const MyApplications = (): JSX.Element | null => {
         );
 
         setRawData(enhancedApps);
-        setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
+        // setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
       } catch (err: any) {
         console.log(err);
         setError(err.message);
@@ -405,14 +406,8 @@ const MyApplications = (): JSX.Element | null => {
       app.id?.toString().includes(lowerSearch) ||
       app.report_code?.toLowerCase().includes(lowerSearch);
 
-    // Search by Neighborhood Name (Localized)
-    const neighborhood = neighborhoods.find(
-      (n) => n.id.toString() === app.neighborhood_id?.toString(),
-    );
-    const neighborhoodMatch =
-      neighborhood &&
-      (neighborhood.name?.toLowerCase().includes(lowerSearch) ||
-        neighborhood.name_en?.toLowerCase().includes(lowerSearch));
+    // Search by Neighborhood ID or Address
+    const neighborhoodMatch = app.neighborhood_id?.toString().includes(lowerSearch);
 
     // Search by Status (Localized Label)
     const statusLabel = t(`status.${app.status?.toLowerCase()}`)?.toLowerCase();
@@ -609,26 +604,18 @@ const MyApplications = (): JSX.Element | null => {
 
   // Location Dialog Handlers
   const handleOpenLocationDialog = () => {
-    setSkipSync(false);
     setTargetNames(null);
+    // Pre-fill with existing location if available
     if (citizenInfo?.current_location) {
-      const latData = citizenInfo.current_location.latitude;
-      const lngData = citizenInfo.current_location.longitude;
-      const lat = parseFloat(latData);
-      const lng = parseFloat(lngData);
-
-      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-        setIsInsideGaza(true);
+      const lat = parseFloat(citizenInfo.current_location.latitude);
+      const lng = parseFloat(citizenInfo.current_location.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
         setLocationPosition([lat, lng]);
         setMapCenter([lat, lng]);
-        setLocationAddress(citizenInfo.current_location.address || "");
-      } else {
-        setIsInsideGaza(false);
-        setOutsideAddress(citizenInfo.current_location.address || "");
-        setLocationPosition(null);
-        setLocationAddress("");
       }
+      setLocationAddress(citizenInfo.current_location.address || "");
       
+      // Safety fix: Safe access to nested properties
       const govId = citizenInfo.current_location.governorate_id;
       const muniId = citizenInfo.current_location.municipality_id;
       const neighId = citizenInfo.current_location.neighborhood_id;
@@ -640,8 +627,6 @@ const MyApplications = (): JSX.Element | null => {
       if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
 
     } else {
-      setIsInsideGaza(true);
-      setOutsideAddress("");
       setLocationPosition(null);
       setLocationAddress("");
       setSelectedGovernorateId("");
@@ -652,79 +637,6 @@ const MyApplications = (): JSX.Element | null => {
     setLocationDialogOpen(true);
   };
 
-  const handleMapPositionChange = (pos: [number, number]) => {
-    setSkipSync(false);
-    setLocationPosition(pos);
-  };
- 
-  const handleGovernorateChange = (e: any) => {
-    const id = e.target.value as string;
-    setSkipSync(true);
-    setSelectedGovernorateId(id);
-    setSelectedMunicipalityId("");
-    setSelectedNeighborhoodId("");
-    setSelectedLandmarkId("");
-    setMunicipalities([]);
-    setNeighborhoodLocations([]);
-    setLandmarks([]);
-    setTargetNames(null);
-    const gov = governorates.find(g => g.id.toString() === id.toString());
-    if (gov && gov.latitude && gov.longitude) {
-      const pos: [number, number] = [parseFloat(gov.latitude), parseFloat(gov.longitude)];
-      setLocationPosition(pos);
-      setMapCenter(pos);
-      setMapZoom(12);
-    }
-  };
-
-  const handleMunicipalityChange = (e: any) => {
-    const id = e.target.value as string;
-    setSkipSync(true);
-    setSelectedMunicipalityId(id);
-    setSelectedNeighborhoodId("");
-    setSelectedLandmarkId("");
-    setNeighborhoodLocations([]);
-    setLandmarks([]);
-    setTargetNames(null);
-    const muni = municipalities.find(m => m.id.toString() === id.toString());
-    if (muni && muni.latitude && muni.longitude) {
-      const pos: [number, number] = [parseFloat(muni.latitude), parseFloat(muni.longitude)];
-      setLocationPosition(pos);
-      setMapCenter(pos);
-      setMapZoom(14);
-    }
-  };
-
-  const handleNeighborhoodChange = (e: any) => {
-    const id = e.target.value as string;
-    setSkipSync(true);
-    setSelectedNeighborhoodId(id);
-    setSelectedLandmarkId("");
-    setLandmarks([]);
-    setTargetNames(null);
-    const neighborhood = neighborhoodLocations.find(n => n.id.toString() === id.toString());
-    if (neighborhood && neighborhood.latitude && neighborhood.longitude) {
-      const pos: [number, number] = [parseFloat(neighborhood.latitude), parseFloat(neighborhood.longitude)];
-      setLocationPosition(pos);
-      setMapCenter(pos);
-      setMapZoom(16);
-    }
-  };
-
-  const handleLandmarkChange = (e: any) => {
-    const id = e.target.value as string;
-    setSkipSync(true);
-    setSelectedLandmarkId(id);
-    setTargetNames(null);
-    const landmark = landmarks.find(l => l.id.toString() === id.toString());
-    if (landmark && landmark.latitude && landmark.longitude) {
-      const pos: [number, number] = [parseFloat(landmark.latitude), parseFloat(landmark.longitude)];
-      setLocationPosition(pos);
-      setMapCenter(pos);
-      setMapZoom(18);
-    }
-  };
-
   const handleCloseLocationDialog = () => {
     setLocationDialogOpen(false);
     setLocationPosition(null);
@@ -732,116 +644,59 @@ const MyApplications = (): JSX.Element | null => {
   };
 
   const handleResetLocation = () => {
-    setSkipSync(false);
-    setIsInsideGaza(true);
-    setOutsideAddress("");
     setLocationPosition(null);
     setLocationAddress("");
-    setSelectedGovernorateId("");
-    setSelectedMunicipalityId("");
-    setSelectedNeighborhoodId("");
-    setSelectedLandmarkId("");
   };
 
   const handleConfirmLocationUpdate = () => {
-    if (isInsideGaza) {
-      if (locationPosition && locationAddress) {
-        setLocationLoading(true);
-        
-        axiosClient
-          .put(
-            `${API.citizen.locations.current}`,
-            {
-              latitude: locationPosition[0].toString(),
-              longitude: locationPosition[1].toString(),
-              address: locationAddress,
-              governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
-              municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
-              neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
-              landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
+    if (locationPosition && locationAddress) {
+      setLocationLoading(true);
+      
+      axiosClient
+        .put(
+          `${API.citizen.locations.current}`,
+          {
+            latitude: locationPosition[0].toString(),
+            longitude: locationPosition[1].toString(),
+            address: locationAddress,
+            governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
+            municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
+            neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+            landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            },
-          )
-          .then((res: any) => {
-            setLocationLoading(false);
-            enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-              variant: "success",
-            });
-            setLocationDialogOpen(false);
-
-            const citizenInfo = JSON.parse(
-              localStorage.getItem("citizenInfo") || "{}",
-            );
-
-            const updated = {
-              ...citizenInfo,
-              current_location: res.data.citizen.current_location,
-            };
-
-            localStorage.setItem("citizenInfo", JSON.stringify(updated));
-          })
-          .catch((err: any) => {
-            setLocationLoading(false);
-            enqueueSnackbar(t("citizen.updateLocationError"), {
-              variant: "error",
-            });
-            console.log(err);
+          },
+        )
+        .then((res: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+            variant: "success",
           });
-      }
-    } else {
-      // Outside Gaza
-      if (outsideAddress.trim()) {
-        setLocationLoading(true);
-        axiosClient
-          .put(
-            `${API.citizen.locations.current}`,
-            {
-              latitude: "0",
-              longitude: "0",
-              address: outsideAddress,
-              governorate_id: null,
-              municipality_id: null,
-              neighborhood_id: null,
-              landmark_id: null,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            },
-          )
-          .then((res: any) => {
-            setLocationLoading(false);
-            enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-              variant: "success",
-            });
-            setLocationDialogOpen(false);
+          setLocationDialogOpen(false);
 
-            const citizenInfo = JSON.parse(
-              localStorage.getItem("citizenInfo") || "{}",
-            );
+          const citizenInfo = JSON.parse(
+            localStorage.getItem("citizenInfo") || "{}",
+          );
 
-            const updated = {
-              ...citizenInfo,
-              current_location: res.data.citizen.current_location,
-            };
+          const updated = {
+            ...citizenInfo,
+            current_location: res.data.citizen.current_location,
+          };
 
-            localStorage.setItem("citizenInfo", JSON.stringify(updated));
-          })
-          .catch((err: any) => {
-            setLocationLoading(false);
-            enqueueSnackbar(t("citizen.updateLocationError"), {
-              variant: "error",
-            });
-            console.log(err);
+          localStorage.setItem("citizenInfo", JSON.stringify(updated));
+          console.log(res.data);
+        })
+        .catch((err: any) => {
+          setLocationLoading(false);
+          enqueueSnackbar(t("citizen.updateLocationError"), {
+            variant: "error",
           });
-      }
+          console.log(err);
+        });
     }
   };
 
@@ -1148,7 +1003,7 @@ const MyApplications = (): JSX.Element | null => {
                 onDownloadPdf={handleDownloadAppPdf}
                 onAddComplaint={handleOpenComplaint}
                 onCloseComplaint={handleOpenCloseConfirm}
-                neighborhoods={neighborhoods}
+                // neighborhoods={neighborhoods}
                 notes={app.notes}
                 statusReport={app.report_process_stage}
               />
@@ -1368,191 +1223,166 @@ const MyApplications = (): JSX.Element | null => {
               {t("map.currentLocationDescription")}
             </Typography>
 
-            <Box sx={{ mb: 3 }}>
-              <RadioGroup
-                row
-                value={isInsideGaza ? "inside" : "outside"}
-                onChange={(e) => setIsInsideGaza(e.target.value === "inside")}
-                sx={{ justifyContent: "center", mb: 2 }}
-              >
-                <FormControlLabel
-                  value="inside"
-                  control={<Radio />}
-                  label={t("map.insideGaza")}
-                />
-                <FormControlLabel
-                  value="outside"
-                  control={<Radio />}
-                  label={t("map.outsideGaza")}
-                />
-              </RadioGroup>
+            {/* Map Container */}
+            <Box
+              sx={{
+                height: 350,
+                borderRadius: 2,
+                overflow: "hidden",
+                border: "1px solid",
+                borderColor: "divider",
+                mb: 3,
+              }}
+            >
+              <MapContainer
+                center={mapCenter}
+                zoom={15}
+                markerPosition={locationPosition}
+                setMarkerPosition={setLocationPosition}
+                height="100%"
+                width="100%"
+                setAddress={setLocationAddress}
+                location={{
+                  neighborhood:
+                    citizenInfo?.current_location?.neighborhood?.name,
+                }}
+              />
             </Box>
 
-            {isInsideGaza ? (
-              <Box>
-                {/* Map Container */}
-                <Box
-                  sx={{
-                    height: 350,
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    border: "1px solid",
-                    borderColor: "divider",
-                    mb: 3,
-                  }}
+            {/* Location Info */}
+            {locationPosition && (
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: "background.default",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  mb: 2,
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  useFlexGap={true}
                 >
-                  <MapContainer
-                    center={mapCenter}
-                    zoom={mapZoom}
-                    markerPosition={locationPosition}
-                    setMarkerPosition={handleMapPositionChange}
-                    height="100%"
-                    width="100%"
-                    setAddress={setLocationAddress}
-                    location={{
-                      neighborhood:
-                        citizenInfo?.current_location?.neighborhood?.name,
-                    }}
-                  />
-                </Box>
-
-                {/* Location Info */}
-                {locationPosition && (
-                  <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: "background.default",
-                      borderRadius: 2,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      mb: 2,
-                    }}
-                  >
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={2}
-                      useFlexGap={true}
+                  <Box flex={1}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      gutterBottom
                     >
-                      <Box flex={1}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                          gutterBottom
-                        >
-                          {t("map.coordinates")}
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium" dir="ltr">
-                          {locationPosition[0]?.toFixed(6)},{" "}
-                          {locationPosition[1]?.toFixed(6)}
-                        </Typography>
-                      </Box>
-                      <Box flex={1}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                          gutterBottom
-                        >
-                          {t("map.address")}
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium">
-                          {locationAddress}
-                        </Typography>
-                      </Box>
-                    </Stack>
+                      {t("map.coordinates")}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium" dir="ltr">
+                      {locationPosition[0]?.toFixed(6)},{" "}
+                      {locationPosition[1]?.toFixed(6)}
+                    </Typography>
                   </Box>
-                )}
-
-                {/* Cascading Selection Dropdowns */}
-                <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-                  <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                    <FormControl fullWidth size="small" required>
-                      <InputLabel>
-                        {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
-                      </InputLabel>
-                      <Select
-                        value={selectedGovernorateId}
-                        label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
-                        onChange={handleGovernorateChange}
-                      >
-                        {governorates.map((g) => (
-                          <MenuItem key={g.id} value={g.id}>
-                            {g.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-
-                    <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
-                      <InputLabel>
-                        {language === "ar" ? "اختر البلدية" : "Select Municipality"}
-                      </InputLabel>
-                      <Select
-                        value={selectedMunicipalityId}
-                        label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
-                        onChange={handleMunicipalityChange}
-                      >
-                        {municipalities.map((m) => (
-                          <MenuItem key={m.id} value={m.id}>
-                            {m.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Stack>
-
-                  <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                    <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
-                      <InputLabel>
-                        {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                      </InputLabel>
-                      <Select
-                        value={selectedNeighborhoodId}
-                        label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                        onChange={handleNeighborhoodChange}
-                      >
-                        {neighborhoodLocations.map((n) => (
-                          <MenuItem key={n.id} value={n.id}>
-                            {n.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-
-                    <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
-                      <InputLabel>
-                        {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                      </InputLabel>
-                      <Select
-                        value={selectedLandmarkId}
-                        label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                        onChange={handleLandmarkChange}
-                      >
-                        {landmarks.map((lm: any) => (
-                          <MenuItem key={lm.id} value={lm.id}>
-                            {lm.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Stack>
+                  <Box flex={1}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      gutterBottom
+                    >
+                      {t("map.address")}
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {locationAddress}
+                    </Typography>
+                  </Box>
                 </Stack>
               </Box>
-            ) : (
-              <Box sx={{ mb: 2 }}>
-                <TextField
-                  fullWidth
-                  label={t("map.addressOutsideGaza")}
-                  placeholder={t("map.addressOutsideGazaPlaceholder")}
-                  value={outsideAddress}
-                  onChange={(e) => setOutsideAddress(e.target.value)}
-                  variant="outlined"
-                  multiline
-                  rows={4}
-                />
-              </Box>
             )}
+
+              {/* Cascading Selection Dropdowns */}
+              <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
+                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                  <FormControl fullWidth size="small" required>
+                    <InputLabel>
+                      {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                    </InputLabel>
+                    <Select
+                      value={selectedGovernorateId}
+                      label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      onChange={(e: any) => {
+                        setSelectedGovernorateId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {governorates.map((g) => (
+                        <MenuItem key={g.id} value={g.id}>
+                          {g.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
+                    <InputLabel>
+                      {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                    </InputLabel>
+                    <Select
+                      value={selectedMunicipalityId}
+                      label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      onChange={(e: any) => {
+                        setSelectedMunicipalityId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {municipalities.map((m) => (
+                        <MenuItem key={m.id} value={m.id}>
+                          {m.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+
+                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                  <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
+                    <InputLabel>
+                      {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                    </InputLabel>
+                    <Select
+                      value={selectedNeighborhoodId}
+                      label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                      onChange={(e: any) => {
+                        setSelectedNeighborhoodId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {neighborhoodLocations.map((n) => (
+                        <MenuItem key={n.id} value={n.id}>
+                          {n.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
+                    <InputLabel>
+                      {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                    </InputLabel>
+                    <Select
+                      value={selectedLandmarkId}
+                      label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                      onChange={(e: any) => {
+                        setSelectedLandmarkId(e.target.value as string);
+                        setTargetNames(null);
+                      }}
+                    >
+                      {landmarks.map((lm: any) => (
+                        <MenuItem key={lm.id} value={lm.id}>
+                          {lm.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Stack>
             </DialogContent>
 
             <DialogActions
@@ -1591,9 +1421,7 @@ const MyApplications = (): JSX.Element | null => {
               color="primary"
               onClick={handleConfirmLocationUpdate}
               disabled={
-                locationLoading ||
-                (isInsideGaza && (!locationPosition || !locationAddress || locationAddress === "لا يوجد اتصال في الانترنت")) ||
-                (!isInsideGaza && !outsideAddress.trim())
+                !locationPosition || !locationAddress || locationLoading
               }
               startIcon={
                 locationLoading ? (

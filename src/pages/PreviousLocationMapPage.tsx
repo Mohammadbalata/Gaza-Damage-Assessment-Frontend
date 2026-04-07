@@ -33,6 +33,7 @@ const PreviousLocationMapPage = () => {
 
   // Data States
   const [landmarksData, setLandmarksData] = useState<any[]>([]);
+  const [neighborhoodsData, setNeighborhoodsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Backend ID Mapping States
@@ -40,6 +41,11 @@ const PreviousLocationMapPage = () => {
   const [allMunicipalities, setAllMunicipalities] = useState<any[]>([]);
   const [allNeighborhoods, setAllNeighborhoods] = useState<any[]>([]);
   const [allLandmarks, setAllLandmarks] = useState<any[]>([]);
+  
+  const [govLoading, setGovLoading] = useState(false);
+  const [muniLoading, setMuniLoading] = useState(false);
+  const [nhLoading, setNhLoading] = useState(false);
+  const [lmLoading, setLmLoading] = useState(false);
 
   // Selection States
   const [selectedGovernorate, setSelectedGovernorate] = useState<string>("");
@@ -59,30 +65,38 @@ const PreviousLocationMapPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [lmRes, govRes] = await Promise.all([
+        const [lmRes, nhRes, govRes] = await Promise.all([
           fetch("/Landmarks.json"),
+          fetch("/Neighborhood.json"),
           axiosClient.get(API.locations.governorates).catch(() => ({ data: { governorates: [] } }))
         ]);
         const lmData = await lmRes.json();
+        const nhData = await nhRes.json();
         
         if (lmData.features) setLandmarksData(lmData.features);
+        if (nhData.features) setNeighborhoodsData(nhData.features);
         if (govRes.data.governorates) setGovernoratesList(govRes.data.governorates);
       } catch (err) {
         console.error("Error loading data:", err);
       } finally {
         setLoading(false);
+        setGovLoading(false);
       }
     };
+    setGovLoading(true);
     loadData();
   }, []);
 
   useEffect(() => {
     if (selectedGovernorate) {
       const gov = findMatch(governoratesList, GOV_MAPPING[selectedGovernorate] || selectedGovernorate);
+      console.log(gov.id)
       if (gov) {
+        setMuniLoading(true);
         axiosClient.get(API.locations.municipalities, { params: { governorate_id: gov.id } })
           .then((res: any) => setAllMunicipalities(res.data.municipalities || []))
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => setMuniLoading(false));
       }
     }
   }, [selectedGovernorate, governoratesList]);
@@ -90,10 +104,13 @@ const PreviousLocationMapPage = () => {
   useEffect(() => {
     if (selectedMunicipality && allMunicipalities.length > 0) {
       const muni = findMatch(allMunicipalities, selectedMunicipality);
+      console.log(muni)
       if (muni) {
+        setNhLoading(true);
         axiosClient.get(API.locations.neighborhoods, { params: { municipality_id: muni.id } })
           .then((res: any) => setAllNeighborhoods(res.data.neighborhoods || []))
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => setNhLoading(false));
       }
     }
   }, [selectedMunicipality, allMunicipalities]);
@@ -102,46 +119,65 @@ const PreviousLocationMapPage = () => {
     if (selectedNeighborhoodName && allNeighborhoods.length > 0) {
       const nh = findMatch(allNeighborhoods, selectedNeighborhoodName);
       if (nh) {
+        setLmLoading(true);
         axiosClient.get(API.locations.landmarks, { params: { neighborhood_id: nh.id } })
           .then((res: any) => setAllLandmarks(res.data.landmarks || []))
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => setLmLoading(false));
       }
     }
   }, [selectedNeighborhoodName, allNeighborhoods]);
 
-  // Naming Helpers
   const normalizeText = (text: string) => {
     if (!text) return "";
-    return text.trim()
+    return text.toString().trim()
       .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
       .replace(/ة/g, "ه")
+      .replace(/^(محافظه|بلديه|حي|قريه|مخيم)\s+/g, "")
       .replace(/\s+/g, "");
   };
 
   const GOV_MAPPING: Record<string, string> = {
-    "الشمال": "شمال غزة",
-    "دير البلح - الوسطى": "دير البلح",
-    "الوسطى": "دير البلح",
+    "شمال غزة": "شمال غزة",
+    "الوسطى": "الوسطى",
+    
   };
 
   const findMatch = (list: any[], nameToFind: string) => {
-    if (!nameToFind || !list) return null;
+    if (!nameToFind || !list || list.length === 0) return null;
     const normalizedToFind = normalizeText(nameToFind);
-    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    
+    let match = list.find(item => item && normalizeText(item.name) === normalizedToFind);
+    
     if (!match) {
-      match = list.find(item => 
-        normalizeText(item.name).includes(normalizedToFind) || 
-        normalizedToFind.includes(normalizeText(item.name))
-      );
+      match = list.find(item => {
+        if (!item || !item.name) return false;
+        const normalizedItem = normalizeText(item.name);
+        return normalizedItem.includes(normalizedToFind) || normalizedToFind.includes(normalizedItem);
+      });
     }
     return match;
   };
 
+  const isPointInPolygon = (point: [number, number], vs: number[][][]) => {
+    const x = point[1], y = point[0]; // lng, lat
+    let inside = false;
+    const polygon = vs[0]; // First ring
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][0], yi = polygon[i][1];
+      const xj = polygon[j][0], yj = polygon[j][1];
+      const intersect = ((yi > y) !== (yj > y))
+          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  };
+
   // Resolved IDs for submission
   const resolvedIds = useMemo(() => {
-    const gov = findMatch(governoratesList, GOV_MAPPING[selectedGovernorate] || selectedGovernorate);
+    const gov = findMatch(governoratesList, selectedGovernorate);
     const muni = findMatch(allMunicipalities, selectedMunicipality);
     const nh = findMatch(allNeighborhoods, selectedNeighborhoodName);
     const lm = findMatch(allLandmarks, selectedLandmarkName);
@@ -154,47 +190,25 @@ const PreviousLocationMapPage = () => {
     };
   }, [selectedGovernorate, selectedMunicipality, selectedNeighborhoodName, selectedLandmarkName, governoratesList, allMunicipalities, allNeighborhoods, allLandmarks]);
 
-  // Derived Options
+  // Derived Options from Backend Data
   const governorates = useMemo(() => {
-    const set = new Set<string>();
-    landmarksData.forEach(f => {
-      if (f.properties.المحافظة) set.add(f.properties.المحافظة);
-    });
-    return Array.from(set).sort();
-  }, [landmarksData]);
+    return governoratesList.map(g => g.name).sort();
+  }, [governoratesList]);
 
   const municipalities = useMemo(() => {
-    if (!selectedGovernorate) return [];
-    const set = new Set<string>();
-    landmarksData.forEach(f => {
-      if (f.properties.المحافظة === selectedGovernorate && f.properties.البلدية) {
-        set.add(f.properties.البلدية);
-      }
-    });
-    return Array.from(set).sort();
-  }, [landmarksData, selectedGovernorate]);
+    return allMunicipalities.map(m => m.name).sort();
+  }, [allMunicipalities]);
 
   const neighborhoods = useMemo(() => {
-    if (!selectedMunicipality) return [];
-    const set = new Set<string>();
-    landmarksData.forEach(f => {
-      if (f.properties.البلدية === selectedMunicipality && f.properties.الحي) {
-        set.add(f.properties.الحي);
-      }
-    });
-    return Array.from(set).sort();
-  }, [landmarksData, selectedMunicipality]);
+    return allNeighborhoods.map(n => n.name).sort();
+  }, [allNeighborhoods]);
 
   const landmarks = useMemo(() => {
-    if (!selectedNeighborhoodName) return [];
-    return landmarksData
-      .filter(f => f.properties.الحي === selectedNeighborhoodName)
-      .map(f => ({
-        name: f.properties.اسم_المعلم,
-        coords: [f.geometry.coordinates[1], f.geometry.coordinates[0]] as [number, number]
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [landmarksData, selectedNeighborhoodName]);
+    return allLandmarks.map(l => ({
+      name: l.name,
+      id: l.id
+    })).sort((a,b) => a.name.localeCompare(b.name));
+  }, [allLandmarks]);
 
 
   // Handle Changes
@@ -248,39 +262,61 @@ const PreviousLocationMapPage = () => {
     const name = event.target.value;
     setSelectedLandmarkName(name);
     
-    const landmark = landmarks.find(l => l.name === name);
-    if (landmark) {
-      setCenter(landmark.coords);
-      setPosition(landmark.coords);
+    const landmarkFeature = landmarksData.find(f => f.properties.اسم_المعلم === name || f.properties.Landmark === name);
+    if (landmarkFeature && landmarkFeature.geometry) {
+      const coords: [number, number] = [landmarkFeature.geometry.coordinates[1], landmarkFeature.geometry.coordinates[0]];
+      setCenter(coords);
+      setPosition(coords);
       setZoom(18);
     }
   };
 
-  // Find nearest landmark when position changes (from map click)
-  useEffect(() => {
-    if (position && landmarksData.length > 0) {
-      let minDistance = Infinity;
-      let nearest: any = null;
 
+  // Find nearest landmark or neighborhood when position changes (from map click)
+  useEffect(() => {
+    if (position && (landmarksData.length > 0 || neighborhoodsData.length > 0)) {
+      // 1. Try to find neighborhood first from Polygon JSON
+      let foundNeighborhood: any = null;
+      for (const feature of neighborhoodsData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            foundNeighborhood = feature;
+            break;
+          }
+        }
+      }
+
+      // 2. Find nearest landmark from Point JSON
+      let minDistance = Infinity;
+      let nearestLandmark: any = null;
       landmarksData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
         const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
-          nearest = f;
+          nearestLandmark = f;
         }
       });
 
-      if (nearest) {
-        const props = nearest.properties;
-        setSelectedGovernorate(props.المحافظة || "");
-        setSelectedMunicipality(props.البلدية || "");
-        setSelectedNeighborhoodName(props.الحي || "");
-        setSelectedLandmarkName(props.اسم_المعلم || "");
+      // Prefer Landmark properties if it's very close, otherwise use Neighborhood
+      const source = (minDistance < 0.0001 && nearestLandmark) ? nearestLandmark : foundNeighborhood;
+      
+      if (source) {
+        const props = source.properties;
+        const govName = props.المحافظة || props.Governorat;
+        const muniName = props.البلدية || props.Municipali;
+        const nhName = props.الحي || props.Neighborho;
+        const lmName = source === nearestLandmark ? props.اسم_المعلم || props.Landmark : "";
+
+        // Map names to selects (triggers cascades)
+        if (govName) setSelectedGovernorate(GOV_MAPPING[govName] || govName);
+        if (muniName) setSelectedMunicipality(muniName);
+        if (nhName) setSelectedNeighborhoodName(nhName);
+        if (lmName) setSelectedLandmarkName(lmName);
       }
     }
-  }, [position, landmarksData]);
+  }, [position, landmarksData, neighborhoodsData]);
 
   useEffect(() => {
     if (position) {
@@ -369,7 +405,7 @@ const PreviousLocationMapPage = () => {
                   label={language === "ar" ? "المحافظة" : "Governorate"}
                   onChange={handleGovernorateChange}
                   sx={{ textAlign: isRTL ? 'right' : 'left' }}
-
+                  endAdornment={govLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                 >
                   <MenuItem value=""><em>{language === "ar" ? "اختر المحافظة" : "Select Governorate"}</em></MenuItem>
                   {governorates.map(gov => (
@@ -386,8 +422,9 @@ const PreviousLocationMapPage = () => {
                   value={selectedMunicipality}
                   label={language === "ar" ? "البلدية" : "Municipality"}
                   onChange={handleMunicipalityChange}
-                  disabled={!selectedGovernorate}
+                  disabled={!selectedGovernorate || muniLoading}
                   sx={{ textAlign: isRTL ? 'right' : 'left' }}
+                  endAdornment={muniLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                 >
                   <MenuItem value=""><em>{language === "ar" ? "اختر البلدية" : "Select Municipality"}</em></MenuItem>
                   {municipalities.map(muni => (
@@ -406,8 +443,9 @@ const PreviousLocationMapPage = () => {
                   value={selectedNeighborhoodName}
                   label={language === "ar" ? "الحي" : "Neighborhood"}
                   onChange={handleNeighborhoodChange}
-                  disabled={!selectedMunicipality}
+                  disabled={!selectedMunicipality || nhLoading}
                   sx={{ textAlign: isRTL ? 'right' : 'left' }}
+                  endAdornment={nhLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                 >
                   <MenuItem value=""><em>{language === "ar" ? "اختر الحي" : "Select Neighborhood"}</em></MenuItem>
                   {neighborhoods.map(nh => (
@@ -424,8 +462,9 @@ const PreviousLocationMapPage = () => {
                   value={selectedLandmarkName}
                   label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
                   onChange={handleLandmarkChange}
-                  disabled={!selectedNeighborhoodName}
+                  disabled={!selectedNeighborhoodName || lmLoading}
                   sx={{ textAlign: isRTL ? 'right' : 'left' }}
+                  endAdornment={lmLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                 >
                   <MenuItem value=""><em>{language === "ar" ? "اختر المعلم" : "Select Landmark"}</em></MenuItem>
                   {landmarks.map(lm => (
