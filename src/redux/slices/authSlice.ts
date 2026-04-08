@@ -3,9 +3,7 @@ import { IAuthState } from "../../interfaces/store/IAuthState";
 import { axiosClient } from "../../api/baseUrl";
 import { API } from "../../constants/ApiRoutes";
 
-
 const getStoredUser = () => {
-
   try {
     const storedUser = localStorage.getItem("citizen_user");
     return storedUser ? JSON.parse(storedUser) : null;
@@ -173,17 +171,17 @@ export const signIn = createAsyncThunk(
       return userProfile;
     } catch (error: any) {
       console.log(error);
-      const lang = localStorage.getItem("language") || 'ar'
+      const lang = localStorage.getItem("language") || "ar";
       if (error.response?.data?.message === "Invalid credentials") {
-        if(lang == 'ar'){
+        if (lang == "ar") {
           return rejectWithValue("كلمة المرور غير صحيحة");
-        }else{
-          return rejectWithValue(error.response?.data?.message || "لا يوجد اتصال بالانترنت");
+        } else {
+          return rejectWithValue(
+            error.response?.data?.message || "لا يوجد اتصال بالانترنت",
+          );
         }
       }
-      return rejectWithValue(
-        error.response?.data?.message ,
-      );
+      return rejectWithValue(error.response?.data?.message);
     }
   },
 );

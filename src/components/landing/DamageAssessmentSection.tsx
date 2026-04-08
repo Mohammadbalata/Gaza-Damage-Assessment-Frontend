@@ -9,14 +9,14 @@ import classNames from "classnames";
 const DamageAssessmentSection: React.FC = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate(); // Hook for navigation
-  const widowPathname = window.location.pathname 
-
-  
+  const widowPathname = window.location.pathname;
 
   return (
-    <Box className={classNames({
-      "pb-16" : widowPathname === '/home'
-    })} >
+    <Box
+      className={classNames({
+        "pb-16": widowPathname === "/home",
+      })}
+    >
       <Container maxWidth="md">
         <Box
           sx={{
