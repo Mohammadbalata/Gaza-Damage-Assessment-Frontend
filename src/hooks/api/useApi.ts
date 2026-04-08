@@ -42,7 +42,7 @@ export function useApi<T = any>(
       setError(null);
       try {
         const response = await apiCall(...args);
-        const result = response.data.data;
+        const result = response.data;
         setData(result);
 
         if (onSuccess) onSuccess(result);

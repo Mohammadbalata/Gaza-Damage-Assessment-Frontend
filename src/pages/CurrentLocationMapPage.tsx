@@ -29,6 +29,7 @@ import {
 import { API } from "../constants/ApiRoutes";
 import { api } from "../services/api";
 import BackButton from "../components/Shared/BackButton";
+import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -54,7 +55,17 @@ const CurrentLocationMapPage = () => {
   const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
   const [landmarks, setLandmarks] = useState<any[]>([]);
 
-  const [landmarksData, setLandmarksData] = useState<any[]>([]);
+  // Local JSON Data for Sync
+  const [localGovData, setLocalGovData] = useState<any[]>([]);
+  const [localMuniData, setLocalMuniData] = useState<any[]>([]);
+  const [localNhData, setLocalNhData] = useState<any[]>([]);
+  const [localLmData, setLocalLmData] = useState<any[]>([]);
+  const [loadingLocal, setLoadingLocal] = useState(true);
+  const [govLoading, setGovLoading] = useState(false);
+  const [muniLoading, setMuniLoading] = useState(false);
+  const [nhLoading, setNhLoading] = useState(false);
+  const [lmLoading, setLmLoading] = useState(false);
+
   const [targetNames, setTargetNames] = useState<{
     governorate: string;
     municipality: string;
@@ -62,9 +73,12 @@ const CurrentLocationMapPage = () => {
     landmark: string;
   } | null>(null);
 
-  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
-  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedGovernorateId, setSelectedGovernorateId] =
+    useState<string>("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] =
+    useState<string>("");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
+    useState<string>("");
   const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
   const [isInsideGaza, setIsInsideGaza] = useState<boolean>(true);
   const [outsideAddress, setOutsideAddress] = useState<string>("");
@@ -76,87 +90,171 @@ const CurrentLocationMapPage = () => {
   );
   const [zoom, setZoom] = useState<number>(position ? 16 : 13);
 
-  // Load Landmarks.json for reverse lookup
+  // Load Data
   useEffect(() => {
-    fetch("/Landmarks.json")
-      .then(res => res.json())
-      .then(data => {
-        if (data.features) setLandmarksData(data.features);
-      })
-      .catch(err => console.error("Error loading Landmarks.json:", err));
-  }, []);
+    const loadAllData = async () => {
+      setGovLoading(true);
+      try {
+        const [govLocalRes, muniLocalRes, nhLocalRes, lmLocalRes, govBackendRes] = await Promise.all([
+          fetch("/Governorates.json"),
+          fetch("/Municipalitys.json"),
+          fetch("/Neighborhoods.json"),
+          fetch("/Landmarks.json"),
+          api.get("/locations/governorates").catch(() => ({ data: { governorates: [] } }))
+        ]);
 
-  // Initial load: Fetch governorates
-  useEffect(() => {
-    api.get("/locations/governorates")
-      .then((res: any) => {
-        setGovernorates(res.data.governorates || []);
-      })
-      .catch((err) => console.error("Error fetching governorates:", err));
+        const govL = await govLocalRes.json();
+        const muniL = await muniLocalRes.json();
+        const nhL = await nhLocalRes.json();
+        const lmL = await lmLocalRes.json();
+
+        if (govL.features) setLocalGovData(govL.features);
+        if (muniL.features) setLocalMuniData(muniL.features);
+        if (nhL.features) setLocalNhData(nhL.features);
+        if (lmL.features) setLocalLmData(lmL.features);
+
+        if (govBackendRes.data.governorates) setGovernorates(govBackendRes.data.governorates);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoadingLocal(false);
+        setGovLoading(false);
+      }
+    };
+    loadAllData();
   }, []);
 
   // Normalization and Match Helpers
   const normalizeText = (text: string) => {
     if (!text) return "";
-    return text.trim()
-      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+    return text.toString().trim()
+      .replace(/[\uFEFF\u200B\u200C\u200D\u0640]/g, "") // Added \u0640 (Tatweel)
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
       .replace(/ة/g, "ه")
+      .replace(/^(محافظه|بلديه|حي|قريه|مخيم)\s+/g, "")
       .replace(/\s+/g, "");
   };
 
   const GOV_MAPPING: Record<string, string> = {
     "الشمال": "شمال غزة",
-    "دير البلح - الوسطى": "دير البلح",
-    "الوسطى": "دير البلح",
+    "شمال غزة": "شمال غزة",
+    "دير البلح": "الوسطى",
+    "دير البلح - الوسطى": "الوسطى",
+    "الوسطى": "الوسطى",
+    "غزة": "غزة",
+    "خان يونس": "خان يونس",
+    "رفح": "رفح",
+  };
+
+  const isPointInPolygon = (point: [number, number], vs: number[][][]) => {
+    const x = point[1], y = point[0]; // lng, lat
+    let inside = false;
+    const polygon = vs[0]; // First ring
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][0], yi = polygon[i][1];
+      const xj = polygon[j][0], yj = polygon[j][1];
+      const intersect = ((yi > y) !== (yj > y))
+          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
   };
 
   const findMatch = (list: any[], nameToFind: string) => {
-    if (!nameToFind || !list) return null;
+    if (!nameToFind || !list || list.length === 0) return null;
     const normalizedToFind = normalizeText(nameToFind);
-    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    
+    let match = list.find(item => item && normalizeText(item.name) === normalizedToFind);
+    
     if (!match) {
-      match = list.find(item => 
-        normalizeText(item.name).includes(normalizedToFind) || 
-        normalizedToFind.includes(normalizeText(item.name))
-      );
+      match = list.find(item => {
+        if (!item || !item.name) return false;
+        const normalizedItem = normalizeText(item.name);
+        return normalizedItem.includes(normalizedToFind) || normalizedToFind.includes(normalizedItem);
+      });
     }
     return match;
   };
 
-  // Find nearest landmark when position changes (from map click)
+  // Find reverse lookup names from local JSON when map clicked
   useEffect(() => {
-    if (position && landmarksData.length > 0) {
-      let minDistance = Infinity;
-      let nearest: any = null;
+    if (position && (localLmData.length > 0 || localGovData.length > 0)) {
+      // 1. Find Governorate by Polygon
+      let govNameFound = "";
+      for (const feature of localGovData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            govNameFound = feature.properties.Name || feature.properties.المحافظة || feature.properties.Governorat || feature.properties.المحا;
+            break;
+          }
+        }
+      }
 
-      landmarksData.forEach((f: any) => {
+      // 2. Find Municipality by Polygon
+      let muniNameFound = "";
+      for (const feature of localMuniData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            muniNameFound = feature.properties.Mun_Name || feature.properties.البلدية || feature.properties.Municipali || feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 3. Find Neighborhood by Polygon
+      let nhNameFound = "";
+      for (const feature of localNhData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            nhNameFound = feature.properties.الحي || feature.properties.Neighborho || feature.properties.name;
+            if (!muniNameFound) muniNameFound = feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 4. Find nearest landmark
+      let minDistance = Infinity;
+      let nearestLandmark: any = null;
+      localLmData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
         const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
-          nearest = f;
+          nearestLandmark = f;
         }
       });
 
-      if (nearest) {
-        const props = nearest.properties;
-        setTargetNames({
-          governorate: props.المحافظة || "",
-          municipality: props.البلدية || "",
-          neighborhood: props.الحي || "",
-          landmark: props.اسم_المعلم || ""
-        });
+      let lmNameFound = "";
+      if (nearestLandmark && minDistance < 0.0005) {
+        lmNameFound = nearestLandmark.properties.اسم_المعلم || nearestLandmark.properties.name || nearestLandmark.properties.Landmark;
+        
+        // Contextual Fallbacks
+        if (!govNameFound) govNameFound = nearestLandmark.properties.المحافظة || nearestLandmark.properties.Governorat || nearestLandmark.properties.المحا;
+        if (!muniNameFound) muniNameFound = nearestLandmark.properties.البلدية || nearestLandmark.properties.Municipali || nearestLandmark.properties.البلد;
+        if (!nhNameFound) nhNameFound = nearestLandmark.properties.الحي || nearestLandmark.properties.Neighborho;
       }
+
+      setTargetNames({
+        governorate: govNameFound,
+        municipality: muniNameFound,
+        neighborhood: nhNameFound,
+        landmark: lmNameFound,
+      });
     }
-  }, [position, landmarksData]);
+  }, [position, localLmData, localGovData, localMuniData, localNhData]);
 
   // Sync targetNames with IDs (Cascading)
   useEffect(() => {
     if (targetNames && governorates.length > 0) {
-      const match = findMatch(governorates, GOV_MAPPING[targetNames.governorate] || targetNames.governorate);
+      const match = findMatch(
+        governorates,
+        GOV_MAPPING[targetNames.governorate] || targetNames.governorate,
+      );
       if (match && match.id.toString() !== selectedGovernorateId.toString()) {
         setSelectedGovernorateId(match.id.toString());
       }
@@ -193,16 +291,23 @@ const CurrentLocationMapPage = () => {
   // Fetch municipalities when governorate changes
   useEffect(() => {
     if (selectedGovernorateId) {
-      api.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
+      setMuniLoading(true);
+      api
+        .get("/locations/municipalities", {
+          params: { governorate_id: selectedGovernorateId },
+        })
         .then((res: any) => {
           setMunicipalities(res.data.municipalities || []);
-          setNeighborhoodLocations([]);
-          setLandmarks([]);
-          setSelectedMunicipalityId("");
-          setSelectedNeighborhoodId("");
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.municipality) {
+            setNeighborhoodLocations([]);
+            setLandmarks([]);
+            setSelectedMunicipalityId("");
+            setSelectedNeighborhoodId("");
+            setSelectedLandmarkId("");
+          }
         })
-        .catch((err) => console.error("Error fetching municipalities:", err));
+        .catch((err) => console.error("Error fetching municipalities:", err))
+        .finally(() => setMuniLoading(false));
     } else {
       setMunicipalities([]);
     }
@@ -211,14 +316,21 @@ const CurrentLocationMapPage = () => {
   // Fetch neighborhoods when municipality changes
   useEffect(() => {
     if (selectedMunicipalityId) {
-      api.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
+      setNhLoading(true);
+      api
+        .get("/locations/neighborhoods", {
+          params: { municipality_id: selectedMunicipalityId },
+        })
         .then((res: any) => {
           setNeighborhoodLocations(res.data.neighborhoods || []);
-          setLandmarks([]);
-          setSelectedNeighborhoodId("");
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.neighborhood) {
+            setLandmarks([]);
+            setSelectedNeighborhoodId("");
+            setSelectedLandmarkId("");
+          }
         })
-        .catch((err) => console.error("Error fetching neighborhoods:", err));
+        .catch((err) => console.error("Error fetching neighborhoods:", err))
+        .finally(() => setNhLoading(false));
     } else {
       setNeighborhoodLocations([]);
     }
@@ -227,12 +339,19 @@ const CurrentLocationMapPage = () => {
   // Fetch landmarks when neighborhood changes
   useEffect(() => {
     if (selectedNeighborhoodId) {
-      api.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
+      setLmLoading(true);
+      api
+        .get("/locations/landmarks", {
+          params: { neighborhood_id: selectedNeighborhoodId },
+        })
         .then((res: any) => {
           setLandmarks(res.data.landmarks || []);
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.landmark) {
+            setSelectedLandmarkId("");
+          }
         })
-        .catch((err) => console.error("Error fetching landmarks:", err));
+        .catch((err) => console.error("Error fetching landmarks:", err))
+        .finally(() => setLmLoading(false));
     } else {
       setLandmarks([]);
     }
@@ -306,7 +425,9 @@ const CurrentLocationMapPage = () => {
     setSelectedLandmarkId(landmarkId);
     setTargetNames(null);
 
-    const landmark = landmarks.find((l) => l.id.toString() === landmarkId.toString());
+    const landmark = landmarks.find(
+      (l) => l.id.toString() === landmarkId.toString(),
+    );
     if (landmark) {
       const lat = parseFloat(landmark.latitude);
       const lng = parseFloat(landmark.longitude);
@@ -320,19 +441,22 @@ const CurrentLocationMapPage = () => {
   const { loading, execute } = usePut(`${API.citizen.locations.current}`, {
     onSuccess: (data: any) => {
       // Update local storage and redux state with the new location info
-      const currentCitizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+      console.log("data", data);
+      const currentCitizenInfo = JSON.parse(
+        localStorage.getItem("citizenInfo") || "{}",
+      );
       const updatedCitizenInfo = {
         ...currentCitizenInfo,
-        current_location: data || { 
-          latitude: position?.[0], 
+        current_location: data.citizen.current_location || {
+          latitude: position?.[0],
           longitude: position?.[1],
-          address: address
+          address: address,
         },
       };
 
       localStorage.setItem("citizenInfo", JSON.stringify(updatedCitizenInfo));
       dispatch(setCitizenInfo(updatedCitizenInfo));
-      
+
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },
     onError: (err) => {
@@ -340,16 +464,6 @@ const CurrentLocationMapPage = () => {
     },
   });
 
-  useEffect(() => {
-    api
-      .get(`/neighborhoods`)
-      .then((res: any) => {
-        setNeighborhoodLocations(res.data.neighborhoods || []);
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  }, []);
 
   useEffect(() => {
     if (position) {
@@ -372,6 +486,7 @@ const CurrentLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
+    setTargetNames(null);
     setSelectedGovernorateId("");
     setSelectedMunicipalityId("");
     setSelectedNeighborhoodId("");
@@ -407,18 +522,20 @@ const CurrentLocationMapPage = () => {
   const handleConfirm = () => {
     if (isInsideGaza) {
       if (position) {
-        const finalAddress = address || `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`;
-        
+        const finalAddress =
+          address ||
+          `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`;
+
         const fullAddressParts = [
           getGovernorateName(selectedGovernorateId),
           getMunicipalityName(selectedMunicipalityId),
           getNeighborhoodName(selectedNeighborhoodId),
           getLandmarkName(selectedLandmarkId),
-          finalAddress
+          finalAddress,
         ].filter(Boolean);
 
         const currentLocAddress = fullAddressParts.join(" - ");
-        
+
         dispatch(
           updateCurrentLocation({
             currentLocation: {
@@ -430,12 +547,19 @@ const CurrentLocationMapPage = () => {
         );
 
         execute({
+          accommodation_type: "inside_gaza",
           latitude: position[0].toString(),
           longitude: position[1].toString(),
           address: finalAddress,
-          governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
-          municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
-          neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+          governorate_id: selectedGovernorateId
+            ? Number(selectedGovernorateId)
+            : null,
+          municipality_id: selectedMunicipalityId
+            ? Number(selectedMunicipalityId)
+            : null,
+          neighborhood_id: selectedNeighborhoodId
+            ? Number(selectedNeighborhoodId)
+            : null,
           landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
         });
       }
@@ -453,17 +577,21 @@ const CurrentLocationMapPage = () => {
         );
 
         execute({
-          latitude: "0",
-          longitude: "0",
+          accommodation_type: "outside_gaza",
           address: outsideAddress,
-          governorate_id: null,
-          municipality_id: null,
-          neighborhood_id: null,
-          landmark_id: null,
         });
       }
     }
   };
+
+  console.log(outsideAddress);
+  if (loadingLocal) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -477,6 +605,12 @@ const CurrentLocationMapPage = () => {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+          <DamageAssessmentStepper 
+            activeStep={3}
+            step1Completed={true}
+            step2Completed={true}
+            step3Completed={true}
+          />
           <Box
             sx={{
               mb: 3,
@@ -527,15 +661,26 @@ const CurrentLocationMapPage = () => {
           {isInsideGaza ? (
             <>
               <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2}
+                  className="flex sm:gap-4"
+                >
                   <FormControl fullWidth size="small" required>
                     <InputLabel>
-                      {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      {language === "ar"
+                        ? "اختر المحافظة"
+                        : "Select Governorate"}
                     </InputLabel>
                     <Select
                       value={selectedGovernorateId}
-                      label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      label={
+                        language === "ar"
+                          ? "اختر المحافظة"
+                          : "Select Governorate"
+                      }
                       onChange={handleGovernorateChange}
+                      endAdornment={govLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {governorates.map((g) => (
                         <MenuItem key={g.id} value={g.id}>
@@ -545,14 +690,26 @@ const CurrentLocationMapPage = () => {
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    required
+                    disabled={!selectedGovernorateId}
+                  >
                     <InputLabel>
-                      {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      {language === "ar"
+                        ? "اختر البلدية"
+                        : "Select Municipality"}
                     </InputLabel>
                     <Select
                       value={selectedMunicipalityId}
-                      label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      label={
+                        language === "ar"
+                          ? "اختر البلدية"
+                          : "Select Municipality"
+                      }
                       onChange={handleMunicipalityChange}
+                      endAdornment={muniLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {municipalities.map((m) => (
                         <MenuItem key={m.id} value={m.id}>
@@ -563,15 +720,27 @@ const CurrentLocationMapPage = () => {
                   </FormControl>
                 </Stack>
 
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                  <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2}
+                  className="flex sm:gap-4"
+                >
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    required
+                    disabled={!selectedMunicipalityId}
+                  >
                     <InputLabel>
                       {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
                     </InputLabel>
                     <Select
                       value={selectedNeighborhoodId}
-                      label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                      label={
+                        language === "ar" ? "اختر الحي" : "Select Neighborhood"
+                      }
                       onChange={handleNeighborhoodChange}
+                      endAdornment={nhLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {neighborhoodLocations.map((n) => (
                         <MenuItem key={n.id} value={n.id}>
@@ -581,14 +750,21 @@ const CurrentLocationMapPage = () => {
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    disabled={!selectedNeighborhoodId}
+                  >
                     <InputLabel>
                       {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
                     </InputLabel>
                     <Select
                       value={selectedLandmarkId}
-                      label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                      label={
+                        language === "ar" ? "أقرب معلم" : "Nearest Landmark"
+                      }
                       onChange={handleLandmarkChange}
+                      endAdornment={lmLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {landmarks.map((lm: any) => (
                         <MenuItem key={lm.id} value={lm.id}>
@@ -715,8 +891,7 @@ const CurrentLocationMapPage = () => {
                 />
               }
               sx={{ flex: 1, height: 48 }}
-                              variant="outlined"
-
+              variant="outlined"
             >
               {t("map.reset")}
             </Button>
@@ -727,7 +902,10 @@ const CurrentLocationMapPage = () => {
               onClick={handleConfirm}
               disabled={
                 loading ||
-                (isInsideGaza && (!position || !address || address === "لا يوجد اتصال في الانترنت")) ||
+                (isInsideGaza &&
+                  (!position ||
+                    !address ||
+                    address === "لا يوجد اتصال في الانترنت")) ||
                 (!isInsideGaza && !outsideAddress.trim())
               }
               startIcon={
