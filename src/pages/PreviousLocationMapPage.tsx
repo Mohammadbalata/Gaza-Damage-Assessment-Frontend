@@ -31,9 +31,11 @@ const PreviousLocationMapPage = () => {
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
 
-  // Data States
-  const [landmarksData, setLandmarksData] = useState<any[]>([]);
-  const [neighborhoodsData, setNeighborhoodsData] = useState<any[]>([]);
+  // Data States (Local JSON for Sync)
+  const [localGovData, setLocalGovData] = useState<any[]>([]);
+  const [localMuniData, setLocalMuniData] = useState<any[]>([]);
+  const [localNhData, setLocalNhData] = useState<any[]>([]);
+  const [localLmData, setLocalLmData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Backend ID Mapping States
@@ -54,6 +56,12 @@ const PreviousLocationMapPage = () => {
   const [selectedLandmarkName, setSelectedLandmarkName] = useState<string>("");
 
   // Map States
+  const [targetNames, setTargetNames] = useState<any>({
+    governorate: "",
+    municipality: "",
+    neighborhood: "",
+    landmark: ""
+  });
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [address, setAddress] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -65,17 +73,25 @@ const PreviousLocationMapPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [lmRes, nhRes, govRes] = await Promise.all([
+        const [govLocalRes, muniLocalRes, nhLocalRes, lmLocalRes, govBackendRes] = await Promise.all([
+          fetch("/Governorates.json"),
+          fetch("/Municipalitys.json"),
+          fetch("/Neighborhoods.json"),
           fetch("/Landmarks.json"),
-          fetch("/Neighborhood.json"),
           axiosClient.get(API.locations.governorates).catch(() => ({ data: { governorates: [] } }))
         ]);
-        const lmData = await lmRes.json();
-        const nhData = await nhRes.json();
         
-        if (lmData.features) setLandmarksData(lmData.features);
-        if (nhData.features) setNeighborhoodsData(nhData.features);
-        if (govRes.data.governorates) setGovernoratesList(govRes.data.governorates);
+        const govL = await govLocalRes.json();
+        const muniL = await muniLocalRes.json();
+        const nhL = await nhLocalRes.json();
+        const lmL = await lmLocalRes.json();
+        
+        if (govL.features) setLocalGovData(govL.features);
+        if (muniL.features) setLocalMuniData(muniL.features);
+        if (nhL.features) setLocalNhData(nhL.features);
+        if (lmL.features) setLocalLmData(lmL.features);
+        
+        if (govBackendRes.data.governorates) setGovernoratesList(govBackendRes.data.governorates);
       } catch (err) {
         console.error("Error loading data:", err);
       } finally {
@@ -94,7 +110,15 @@ const PreviousLocationMapPage = () => {
       if (gov) {
         setMuniLoading(true);
         axiosClient.get(API.locations.municipalities, { params: { governorate_id: gov.id } })
-          .then((res: any) => setAllMunicipalities(res.data.municipalities || []))
+          .then((res: any) => {
+            setAllMunicipalities(res.data.municipalities || []);
+            // Clear children if not matching target names
+            if (!targetNames.municipality) {
+               setSelectedMunicipality("");
+               setSelectedNeighborhoodName("");
+               setSelectedLandmarkName("");
+            }
+          })
           .catch(() => {})
           .finally(() => setMuniLoading(false));
       }
@@ -108,7 +132,13 @@ const PreviousLocationMapPage = () => {
       if (muni) {
         setNhLoading(true);
         axiosClient.get(API.locations.neighborhoods, { params: { municipality_id: muni.id } })
-          .then((res: any) => setAllNeighborhoods(res.data.neighborhoods || []))
+          .then((res: any) => {
+            setAllNeighborhoods(res.data.neighborhoods || []);
+            if (!targetNames.neighborhood) {
+              setSelectedNeighborhoodName("");
+              setSelectedLandmarkName("");
+            }
+          })
           .catch(() => {})
           .finally(() => setNhLoading(false));
       }
@@ -121,17 +151,59 @@ const PreviousLocationMapPage = () => {
       if (nh) {
         setLmLoading(true);
         axiosClient.get(API.locations.landmarks, { params: { neighborhood_id: nh.id } })
-          .then((res: any) => setAllLandmarks(res.data.landmarks || []))
+          .then((res: any) => {
+             setAllLandmarks(res.data.landmarks || []);
+             if (!targetNames.landmark) {
+               setSelectedLandmarkName("");
+             }
+          })
           .catch(() => {})
           .finally(() => setLmLoading(false));
       }
     }
   }, [selectedNeighborhoodName, allNeighborhoods]);
+  // Sync targetNames with Selects (Cascading)
+  useEffect(() => {
+    if (targetNames.governorate && governoratesList.length > 0) {
+      const mappedGov = GOV_MAPPING[targetNames.governorate] || targetNames.governorate;
+      const match = findMatch(governoratesList, mappedGov);
+      if (match && selectedGovernorate !== match.name) {
+        setSelectedGovernorate(match.name);
+      }
+    }
+  }, [targetNames.governorate, governoratesList]);
+
+  useEffect(() => {
+    if (targetNames.municipality && allMunicipalities.length > 0) {
+      const match = findMatch(allMunicipalities, targetNames.municipality);
+      if (match && selectedMunicipality !== match.name) {
+        setSelectedMunicipality(match.name);
+      }
+    }
+  }, [targetNames.municipality, allMunicipalities]);
+
+  useEffect(() => {
+    if (targetNames.neighborhood && allNeighborhoods.length > 0) {
+      const match = findMatch(allNeighborhoods, targetNames.neighborhood);
+      if (match && selectedNeighborhoodName !== match.name) {
+        setSelectedNeighborhoodName(match.name);
+      }
+    }
+  }, [targetNames.neighborhood, allNeighborhoods]);
+
+  useEffect(() => {
+    if (targetNames.landmark && allLandmarks.length > 0) {
+      const match = findMatch(allLandmarks, targetNames.landmark);
+      if (match && selectedLandmarkName !== match.name) {
+        setSelectedLandmarkName(match.name);
+      }
+    }
+  }, [targetNames.landmark, allLandmarks]);
 
   const normalizeText = (text: string) => {
     if (!text) return "";
     return text.toString().trim()
-      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+      .replace(/[\uFEFF\u200B\u200C\u200D\u0640]/g, "") // Added \u0640 (Tatweel/Kashida)
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
       .replace(/ة/g, "ه")
@@ -140,9 +212,14 @@ const PreviousLocationMapPage = () => {
   };
 
   const GOV_MAPPING: Record<string, string> = {
+    "الشمال": "شمال غزة",
     "شمال غزة": "شمال غزة",
+    "دير البلح": "الوسطى",
+    "دير البلح - الوسطى": "الوسطى",
     "الوسطى": "الوسطى",
-    
+    "غزة": "غزة",
+    "خان يونس": "خان يونس",
+    "رفح": "رفح",
   };
 
   const findMatch = (list: any[], nameToFind: string) => {
@@ -220,7 +297,9 @@ const PreviousLocationMapPage = () => {
     setSelectedLandmarkName("");
     
     if (name) {
-      const govLandmarks = landmarksData.filter(f => f.properties.المحافظة === name);
+      const govLandmarks = localLmData.filter(f => 
+        f.properties.المحافظة === name || f.properties.Governorat === name || f.properties.Name === name
+      );
       if (govLandmarks.length > 0) {
         const first = govLandmarks[0];
         setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
@@ -236,11 +315,27 @@ const PreviousLocationMapPage = () => {
     setSelectedLandmarkName("");
     
     if (name) {
-      const muniLandmarks = landmarksData.filter(f => f.properties.البلدية === name);
-      if (muniLandmarks.length > 0) {
-        const first = muniLandmarks[0];
-        setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
+      // Find First feature that matches municipality and governorate (disambiguation)
+      const muniFeature = localMuniData.find(f => 
+        (f.properties.Mun_Name === name || f.properties.Name === name || f.properties.البلدية === name) &&
+        (normalizeText(f.properties.المحافظة) === normalizeText(selectedGovernorate) || 
+         normalizeText(f.properties.Governorat) === normalizeText(selectedGovernorate) ||
+         normalizeText(f.properties.المحا) === normalizeText(selectedGovernorate))
+      );
+
+      if (muniFeature && muniFeature.properties.X && muniFeature.properties.Y) {
+        setCenter([muniFeature.properties.Y, muniFeature.properties.X]);
         setZoom(13);
+      } else {
+         const muniLandmarks = localLmData.filter(f => 
+           (f.properties.البلدية === name || f.properties.Municipali === name) &&
+           (normalizeText(f.properties.المحافظة) === normalizeText(selectedGovernorate) || normalizeText(f.properties.Governorat) === normalizeText(selectedGovernorate))
+         );
+         if (muniLandmarks.length > 0) {
+           const first = muniLandmarks[0];
+           setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
+           setZoom(13);
+         }
       }
     }
   };
@@ -250,11 +345,26 @@ const PreviousLocationMapPage = () => {
     setSelectedNeighborhoodName(name);
     setSelectedLandmarkName("");
     
-    const neighborhoodLandmarks = landmarksData.filter(f => f.properties.الحي === name);
-    if (neighborhoodLandmarks.length > 0) {
-      const first = neighborhoodLandmarks[0];
-      setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
-      setZoom(15);
+    const nhFeature = localNhData.find(f => 
+      (f.properties.الحي === name || f.properties.Neighborho === name || f.properties.name === name) &&
+      (normalizeText(f.properties.البلدية) === normalizeText(selectedMunicipality) || 
+       normalizeText(f.properties.Municipali) === normalizeText(selectedMunicipality) ||
+       normalizeText(f.properties.البلد) === normalizeText(selectedMunicipality))
+    );
+
+    if (nhFeature && nhFeature.properties.X && nhFeature.properties.Y) {
+        setCenter([nhFeature.properties.Y, nhFeature.properties.X]);
+        setZoom(15);
+    } else {
+        const neighborhoodLandmarks = localLmData.filter(f => 
+          (f.properties.الحي === name || f.properties.Neighborho === name) &&
+          (normalizeText(f.properties.البلدية) === normalizeText(selectedMunicipality) || normalizeText(f.properties.Municipali) === normalizeText(selectedMunicipality))
+        );
+        if (neighborhoodLandmarks.length > 0) {
+          const first = neighborhoodLandmarks[0];
+          setCenter([first.geometry.coordinates[1], first.geometry.coordinates[0]]);
+          setZoom(15);
+        }
     }
   };
 
@@ -262,7 +372,15 @@ const PreviousLocationMapPage = () => {
     const name = event.target.value;
     setSelectedLandmarkName(name);
     
-    const landmarkFeature = landmarksData.find(f => f.properties.اسم_المعلم === name || f.properties.Landmark === name);
+    // Disambiguate by matching neighborhood and municipality
+    const landmarkFeature = localLmData.find(f => 
+      (f.properties.اسم_المعلم === name || f.properties.name === name || f.properties.Landmark === name) &&
+      (normalizeText(f.properties.الحي) === normalizeText(selectedNeighborhoodName) || normalizeText(f.properties.Neighborho) === normalizeText(selectedNeighborhoodName)) &&
+      (normalizeText(f.properties.البلدية) === normalizeText(selectedMunicipality) || 
+       normalizeText(f.properties.Municipali) === normalizeText(selectedMunicipality) ||
+       normalizeText(f.properties.البلد) === normalizeText(selectedMunicipality))
+    );
+
     if (landmarkFeature && landmarkFeature.geometry) {
       const coords: [number, number] = [landmarkFeature.geometry.coordinates[1], landmarkFeature.geometry.coordinates[0]];
       setCenter(coords);
@@ -274,22 +392,47 @@ const PreviousLocationMapPage = () => {
 
   // Find nearest landmark or neighborhood when position changes (from map click)
   useEffect(() => {
-    if (position && (landmarksData.length > 0 || neighborhoodsData.length > 0)) {
-      // 1. Try to find neighborhood first from Polygon JSON
-      let foundNeighborhood: any = null;
-      for (const feature of neighborhoodsData) {
+    if (position && (localLmData.length > 0 || localGovData.length > 0)) {
+      // 1. Find Governorate by Polygon
+      let govNameFound = "";
+      for (const feature of localGovData) {
         if (feature.geometry?.type === "Polygon") {
           if (isPointInPolygon(position, feature.geometry.coordinates)) {
-            foundNeighborhood = feature;
+            govNameFound = feature.properties.Name || feature.properties.المحافظة || feature.properties.Governorat || feature.properties.المحا;
             break;
           }
         }
       }
 
-      // 2. Find nearest landmark from Point JSON
+      // 2. Find Municipality by Polygon
+      let muniNameFound = "";
+      for (const feature of localMuniData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            muniNameFound = feature.properties.Mun_Name || feature.properties.البلدية || feature.properties.Municipali || feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 3. Find Neighborhood by Polygon
+      let nhNameFound = "";
+      for (const feature of localNhData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(position, feature.geometry.coordinates)) {
+            nhNameFound = feature.properties.الحي || feature.properties.Neighborho || feature.properties.name;
+            if (!muniNameFound) muniNameFound = feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 4. Find nearest landmark
       let minDistance = Infinity;
       let nearestLandmark: any = null;
-      landmarksData.forEach((f: any) => {
+      localLmData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
         const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
@@ -299,24 +442,25 @@ const PreviousLocationMapPage = () => {
         }
       });
 
-      // Prefer Landmark properties if it's very close, otherwise use Neighborhood
-      const source = (minDistance < 0.0001 && nearestLandmark) ? nearestLandmark : foundNeighborhood;
-      
-      if (source) {
-        const props = source.properties;
-        const govName = props.المحافظة || props.Governorat;
-        const muniName = props.البلدية || props.Municipali;
-        const nhName = props.الحي || props.Neighborho;
-        const lmName = source === nearestLandmark ? props.اسم_المعلم || props.Landmark : "";
-
-        // Map names to selects (triggers cascades)
-        if (govName) setSelectedGovernorate(GOV_MAPPING[govName] || govName);
-        if (muniName) setSelectedMunicipality(muniName);
-        if (nhName) setSelectedNeighborhoodName(nhName);
-        if (lmName) setSelectedLandmarkName(lmName);
+      let lmNameFound = "";
+      if (nearestLandmark && minDistance < 0.0005) { // Threshold for proximity
+        lmNameFound = nearestLandmark.properties.اسم_المعلم || nearestLandmark.properties.name || nearestLandmark.properties.Landmark;
+        
+        // Use landmark properties as fallback/accuracy boost
+        if (!govNameFound) govNameFound = nearestLandmark.properties.المحافظة || nearestLandmark.properties.Governorat || nearestLandmark.properties.المحا;
+        if (!muniNameFound) muniNameFound = nearestLandmark.properties.البلدية || nearestLandmark.properties.Municipali || nearestLandmark.properties.البلد;
+        if (!nhNameFound) nhNameFound = nearestLandmark.properties.الحي || nearestLandmark.properties.Neighborho;
       }
+
+      // Set target names for synchronization (triggers cascading matching effects)
+      setTargetNames({
+        governorate: govNameFound,
+        municipality: muniNameFound,
+        neighborhood: nhNameFound,
+        landmark: lmNameFound
+      });
     }
-  }, [position, landmarksData, neighborhoodsData]);
+  }, [position, localLmData, localGovData, localMuniData, localNhData]);
 
   useEffect(() => {
     if (position) {
@@ -337,6 +481,7 @@ const PreviousLocationMapPage = () => {
   const handleReset = () => {
     setPosition(null);
     setAddress("");
+    setTargetNames({ governorate: "", municipality: "", neighborhood: "", landmark: "" });
     setSelectedGovernorate("");
     setSelectedMunicipality("");
     setSelectedNeighborhoodName("");
