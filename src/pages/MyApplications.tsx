@@ -115,24 +115,28 @@ const MyApplications = () => {
     landmark: string;
   } | null>(null);
 
-  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
-  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedGovernorateId, setSelectedGovernorateId] =
+    useState<string>("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] =
+    useState<string>("");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
+    useState<string>("");
   const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
 
   // Load Landmarks.json for reverse lookup
   useEffect(() => {
     fetch("/Landmarks.json")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.features) setLandmarksData(data.features);
       })
-      .catch(err => console.error("Error loading Landmarks.json:", err));
+      .catch((err) => console.error("Error loading Landmarks.json:", err));
   }, []);
 
   // Fetch governorates for dialog
   useEffect(() => {
-    axiosClient.get("/locations/governorates")
+    axiosClient
+      .get("/locations/governorates")
       .then((res: any) => {
         setGovernorates(res.data.governorates || []);
       })
@@ -142,7 +146,8 @@ const MyApplications = () => {
   // Normalization and Match Helpers
   const normalizeText = (text: string) => {
     if (!text) return "";
-    return text.trim()
+    return text
+      .trim()
       .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
@@ -151,19 +156,22 @@ const MyApplications = () => {
   };
 
   const GOV_MAPPING: Record<string, string> = {
-    "الشمال": "شمال غزة",
+    الشمال: "شمال غزة",
     "دير البلح - الوسطى": "دير البلح",
-    "الوسطى": "دير البلح",
+    الوسطى: "دير البلح",
   };
 
   const findMatch = (list: any[], nameToFind: string) => {
     if (!nameToFind || !list) return null;
     const normalizedToFind = normalizeText(nameToFind);
-    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    let match = list.find(
+      (item) => normalizeText(item.name) === normalizedToFind,
+    );
     if (!match) {
-      match = list.find(item => 
-        normalizeText(item.name).includes(normalizedToFind) || 
-        normalizedToFind.includes(normalizeText(item.name))
+      match = list.find(
+        (item) =>
+          normalizeText(item.name).includes(normalizedToFind) ||
+          normalizedToFind.includes(normalizeText(item.name)),
       );
     }
     return match;
@@ -191,7 +199,9 @@ const MyApplications = () => {
       landmarksData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
-        const dist = Math.pow(locationPosition[0] - lLat, 2) + Math.pow(locationPosition[1] - lLng, 2);
+        const dist =
+          Math.pow(locationPosition[0] - lLat, 2) +
+          Math.pow(locationPosition[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
           nearest = f;
@@ -204,7 +214,7 @@ const MyApplications = () => {
           governorate: props.المحافظة || "",
           municipality: props.البلدية || "",
           neighborhood: props.الحي || "",
-          landmark: props.اسم_المعلم || ""
+          landmark: props.اسم_المعلم || "",
         });
       }
     }
@@ -212,7 +222,10 @@ const MyApplications = () => {
 
   useEffect(() => {
     if (targetNames && governorates.length > 0) {
-      const match = findMatch(governorates, GOV_MAPPING[targetNames.governorate] || targetNames.governorate);
+      const match = findMatch(
+        governorates,
+        GOV_MAPPING[targetNames.governorate] || targetNames.governorate,
+      );
       if (match && match.id.toString() !== selectedGovernorateId.toString()) {
         setSelectedGovernorateId(match.id.toString());
       }
@@ -249,7 +262,10 @@ const MyApplications = () => {
   // Fetch municipalities when governorate changes
   useEffect(() => {
     if (selectedGovernorateId) {
-      axiosClient.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
+      axiosClient
+        .get("/locations/municipalities", {
+          params: { governorate_id: selectedGovernorateId },
+        })
         .then((res: any) => {
           setMunicipalities(res.data.municipalities || []);
           setNeighborhoodLocations([]);
@@ -258,7 +274,9 @@ const MyApplications = () => {
           setSelectedNeighborhoodId("");
           setSelectedLandmarkId("");
         })
-        .catch((err: any) => console.error("Error fetching municipalities:", err));
+        .catch((err: any) =>
+          console.error("Error fetching municipalities:", err),
+        );
     } else {
       setMunicipalities([]);
     }
@@ -267,14 +285,19 @@ const MyApplications = () => {
   // Fetch neighborhoods when municipality changes
   useEffect(() => {
     if (selectedMunicipalityId) {
-      axiosClient.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
+      axiosClient
+        .get("/locations/neighborhoods", {
+          params: { municipality_id: selectedMunicipalityId },
+        })
         .then((res: any) => {
           setNeighborhoodLocations(res.data.neighborhoods || []);
           setLandmarks([]);
           setSelectedNeighborhoodId("");
           setSelectedLandmarkId("");
         })
-        .catch((err: any) => console.error("Error fetching neighborhoods:", err));
+        .catch((err: any) =>
+          console.error("Error fetching neighborhoods:", err),
+        );
     } else {
       setNeighborhoodLocations([]);
     }
@@ -283,7 +306,10 @@ const MyApplications = () => {
   // Fetch landmarks when neighborhood changes
   useEffect(() => {
     if (selectedNeighborhoodId) {
-      axiosClient.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
+      axiosClient
+        .get("/locations/landmarks", {
+          params: { neighborhood_id: selectedNeighborhoodId },
+        })
         .then((res: any) => {
           setLandmarks(res.data.landmarks || []);
           setSelectedLandmarkId("");
@@ -407,7 +433,9 @@ const MyApplications = () => {
       app.report_code?.toLowerCase().includes(lowerSearch);
 
     // Search by Neighborhood ID or Address
-    const neighborhoodMatch = app.neighborhood_id?.toString().includes(lowerSearch);
+    const neighborhoodMatch = app.neighborhood_id
+      ?.toString()
+      .includes(lowerSearch);
 
     // Search by Status (Localized Label)
     const statusLabel = t(`status.${app.status?.toLowerCase()}`)?.toLowerCase();
@@ -614,7 +642,7 @@ const MyApplications = () => {
         setMapCenter([lat, lng]);
       }
       setLocationAddress(citizenInfo.current_location.address || "");
-      
+
       // Safety fix: Safe access to nested properties
       const govId = citizenInfo.current_location.governorate_id;
       const muniId = citizenInfo.current_location.municipality_id;
@@ -625,7 +653,6 @@ const MyApplications = () => {
       if (muniId) setSelectedMunicipalityId(muniId.toString());
       if (neighId) setSelectedNeighborhoodId(neighId.toString());
       if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
-
     } else {
       setLocationPosition(null);
       setLocationAddress("");
@@ -651,17 +678,24 @@ const MyApplications = () => {
   const handleConfirmLocationUpdate = () => {
     if (locationPosition && locationAddress) {
       setLocationLoading(true);
-      
+
       axiosClient
         .put(
           `${API.citizen.locations.current}`,
           {
+            accommodation_type: "inside_gaza",
             latitude: locationPosition[0].toString(),
             longitude: locationPosition[1].toString(),
             address: locationAddress,
-            governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
-            municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
-            neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+            governorate_id: selectedGovernorateId
+              ? Number(selectedGovernorateId)
+              : null,
+            municipality_id: selectedMunicipalityId
+              ? Number(selectedMunicipalityId)
+              : null,
+            neighborhood_id: selectedNeighborhoodId
+              ? Number(selectedNeighborhoodId)
+              : null,
             landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
           },
           {
@@ -699,6 +733,11 @@ const MyApplications = () => {
         });
     }
   };
+
+  console.log(
+    "citizenInfo.current_locationcitizenInfo.current_location",
+    citizenInfo.current_location,
+  );
 
   if (loading) {
     return (
@@ -1130,22 +1169,34 @@ const MyApplications = () => {
                 <Stack spacing={0.5} sx={{ mb: 1.5 }}>
                   {citizenInfo.current_location.governorate && (
                     <Typography variant="body2" color="text.secondary">
-                      <strong>{language === "ar" ? "المحافظة" : "Governorate"}:</strong> {citizenInfo.current_location.governorate.name}
+                      <strong>
+                        {language === "ar" ? "المحافظة" : "Governorate"}:
+                      </strong>{" "}
+                      {citizenInfo.current_location.governorate.name}
                     </Typography>
                   )}
                   {citizenInfo.current_location.municipality && (
                     <Typography variant="body2" color="text.secondary">
-                      <strong>{language === "ar" ? "البلدية" : "Municipality"}:</strong> {citizenInfo.current_location.municipality.name}
+                      <strong>
+                        {language === "ar" ? "البلدية" : "Municipality"}:
+                      </strong>{" "}
+                      {citizenInfo.current_location.municipality.name}
                     </Typography>
                   )}
                   {citizenInfo.current_location.neighborhood && (
                     <Typography variant="body2" color="text.secondary">
-                      <strong>{language === "ar" ? "الحي" : "Neighborhood"}:</strong> {citizenInfo.current_location.neighborhood.name}
+                      <strong>
+                        {language === "ar" ? "الحي" : "Neighborhood"}:
+                      </strong>{" "}
+                      {citizenInfo.current_location.neighborhood.name}
                     </Typography>
                   )}
                   {citizenInfo.current_location.landmark && (
                     <Typography variant="body2" color="text.secondary">
-                      <strong>{language === "ar" ? "أقرب معلم" : "Landmark"}:</strong> {citizenInfo.current_location.landmark.name}
+                      <strong>
+                        {language === "ar" ? "أقرب معلم" : "Landmark"}:
+                      </strong>{" "}
+                      {citizenInfo.current_location.landmark.name}
                     </Typography>
                   )}
                 </Stack>
@@ -1154,7 +1205,9 @@ const MyApplications = () => {
               <Typography>
                 <strong>{t("citizen.addedDate")}:</strong>{" "}
                 {citizenInfo?.current_location
-                  ? formatDate(new Date(citizenInfo.current_location.created_at))
+                  ? formatDate(
+                      new Date(citizenInfo.current_location.created_at),
+                    )
                   : "-"}
                 .
               </Typography>
@@ -1297,103 +1350,131 @@ const MyApplications = () => {
               </Box>
             )}
 
-              {/* Cascading Selection Dropdowns */}
-              <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                  <FormControl fullWidth size="small" required>
-                    <InputLabel>
-                      {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
-                    </InputLabel>
-                    <Select
-                      value={selectedGovernorateId}
-                      label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
-                      onChange={(e: any) => {
-                        setSelectedGovernorateId(e.target.value as string);
-                        setTargetNames(null);
-                      }}
-                    >
-                      {governorates.map((g) => (
-                        <MenuItem key={g.id} value={g.id}>
-                          {g.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+            {/* Cascading Selection Dropdowns */}
+            <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={2}
+                className="flex sm:gap-4"
+              >
+                <FormControl fullWidth size="small" required>
+                  <InputLabel>
+                    {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                  </InputLabel>
+                  <Select
+                    value={selectedGovernorateId}
+                    label={
+                      language === "ar" ? "اختر المحافظة" : "Select Governorate"
+                    }
+                    onChange={(e: any) => {
+                      setSelectedGovernorateId(e.target.value as string);
+                      setTargetNames(null);
+                    }}
+                  >
+                    {governorates.map((g) => (
+                      <MenuItem key={g.id} value={g.id}>
+                        {g.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-                  <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
-                    <InputLabel>
-                      {language === "ar" ? "اختر البلدية" : "Select Municipality"}
-                    </InputLabel>
-                    <Select
-                      value={selectedMunicipalityId}
-                      label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
-                      onChange={(e: any) => {
-                        setSelectedMunicipalityId(e.target.value as string);
-                        setTargetNames(null);
-                      }}
-                    >
-                      {municipalities.map((m) => (
-                        <MenuItem key={m.id} value={m.id}>
-                          {m.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                  <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
-                    <InputLabel>
-                      {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                    </InputLabel>
-                    <Select
-                      value={selectedNeighborhoodId}
-                      label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                      onChange={(e: any) => {
-                        setSelectedNeighborhoodId(e.target.value as string);
-                        setTargetNames(null);
-                      }}
-                    >
-                      {neighborhoodLocations.map((n) => (
-                        <MenuItem key={n.id} value={n.id}>
-                          {n.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
-                    <InputLabel>
-                      {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                    </InputLabel>
-                    <Select
-                      value={selectedLandmarkId}
-                      label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                      onChange={(e: any) => {
-                        setSelectedLandmarkId(e.target.value as string);
-                        setTargetNames(null);
-                      }}
-                    >
-                      {landmarks.map((lm: any) => (
-                        <MenuItem key={lm.id} value={lm.id}>
-                          {lm.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  required
+                  disabled={!selectedGovernorateId}
+                >
+                  <InputLabel>
+                    {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                  </InputLabel>
+                  <Select
+                    value={selectedMunicipalityId}
+                    label={
+                      language === "ar" ? "اختر البلدية" : "Select Municipality"
+                    }
+                    onChange={(e: any) => {
+                      setSelectedMunicipalityId(e.target.value as string);
+                      setTargetNames(null);
+                    }}
+                  >
+                    {municipalities.map((m) => (
+                      <MenuItem key={m.id} value={m.id}>
+                        {m.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Stack>
-            </DialogContent>
 
-            <DialogActions
-              sx={{
-                px: 3,
-                py: 2,
-                bgcolor: "background.default",
-                borderTop: "1px solid",
-                borderColor: "divider",
-              }}
-            >
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={2}
+                className="flex sm:gap-4"
+              >
+                <FormControl
+                  fullWidth
+                  size="small"
+                  required
+                  disabled={!selectedMunicipalityId}
+                >
+                  <InputLabel>
+                    {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                  </InputLabel>
+                  <Select
+                    value={selectedNeighborhoodId}
+                    label={
+                      language === "ar" ? "اختر الحي" : "Select Neighborhood"
+                    }
+                    onChange={(e: any) => {
+                      setSelectedNeighborhoodId(e.target.value as string);
+                      setTargetNames(null);
+                    }}
+                  >
+                    {neighborhoodLocations.map((n) => (
+                      <MenuItem key={n.id} value={n.id}>
+                        {n.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl
+                  fullWidth
+                  size="small"
+                  disabled={!selectedNeighborhoodId}
+                >
+                  <InputLabel>
+                    {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                  </InputLabel>
+                  <Select
+                    value={selectedLandmarkId}
+                    label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                    onChange={(e: any) => {
+                      setSelectedLandmarkId(e.target.value as string);
+                      setTargetNames(null);
+                    }}
+                  >
+                    {landmarks.map((lm: any) => (
+                      <MenuItem key={lm.id} value={lm.id}>
+                        {lm.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+            </Stack>
+          </DialogContent>
+
+          <DialogActions
+            sx={{
+              px: 3,
+              py: 2,
+              bgcolor: "background.default",
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
+          >
             <Button
               sx={{ mx: 1 }}
               variant="outlined"

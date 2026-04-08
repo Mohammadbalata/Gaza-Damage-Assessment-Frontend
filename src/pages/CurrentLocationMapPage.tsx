@@ -62,9 +62,12 @@ const CurrentLocationMapPage = () => {
     landmark: string;
   } | null>(null);
 
-  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
-  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>("");
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>("");
+  const [selectedGovernorateId, setSelectedGovernorateId] =
+    useState<string>("");
+  const [selectedMunicipalityId, setSelectedMunicipalityId] =
+    useState<string>("");
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
+    useState<string>("");
   const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
   const [isInsideGaza, setIsInsideGaza] = useState<boolean>(true);
   const [outsideAddress, setOutsideAddress] = useState<string>("");
@@ -79,16 +82,17 @@ const CurrentLocationMapPage = () => {
   // Load Landmarks.json for reverse lookup
   useEffect(() => {
     fetch("/Landmarks.json")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.features) setLandmarksData(data.features);
       })
-      .catch(err => console.error("Error loading Landmarks.json:", err));
+      .catch((err) => console.error("Error loading Landmarks.json:", err));
   }, []);
 
   // Initial load: Fetch governorates
   useEffect(() => {
-    api.get("/locations/governorates")
+    api
+      .get("/locations/governorates")
       .then((res: any) => {
         setGovernorates(res.data.governorates || []);
       })
@@ -98,7 +102,8 @@ const CurrentLocationMapPage = () => {
   // Normalization and Match Helpers
   const normalizeText = (text: string) => {
     if (!text) return "";
-    return text.trim()
+    return text
+      .trim()
       .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
@@ -107,19 +112,22 @@ const CurrentLocationMapPage = () => {
   };
 
   const GOV_MAPPING: Record<string, string> = {
-    "الشمال": "شمال غزة",
+    الشمال: "شمال غزة",
     "دير البلح - الوسطى": "دير البلح",
-    "الوسطى": "دير البلح",
+    الوسطى: "دير البلح",
   };
 
   const findMatch = (list: any[], nameToFind: string) => {
     if (!nameToFind || !list) return null;
     const normalizedToFind = normalizeText(nameToFind);
-    let match = list.find(item => normalizeText(item.name) === normalizedToFind);
+    let match = list.find(
+      (item) => normalizeText(item.name) === normalizedToFind,
+    );
     if (!match) {
-      match = list.find(item => 
-        normalizeText(item.name).includes(normalizedToFind) || 
-        normalizedToFind.includes(normalizeText(item.name))
+      match = list.find(
+        (item) =>
+          normalizeText(item.name).includes(normalizedToFind) ||
+          normalizedToFind.includes(normalizeText(item.name)),
       );
     }
     return match;
@@ -134,7 +142,8 @@ const CurrentLocationMapPage = () => {
       landmarksData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
-        const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
+        const dist =
+          Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
           nearest = f;
@@ -147,7 +156,7 @@ const CurrentLocationMapPage = () => {
           governorate: props.المحافظة || "",
           municipality: props.البلدية || "",
           neighborhood: props.الحي || "",
-          landmark: props.اسم_المعلم || ""
+          landmark: props.اسم_المعلم || "",
         });
       }
     }
@@ -156,7 +165,10 @@ const CurrentLocationMapPage = () => {
   // Sync targetNames with IDs (Cascading)
   useEffect(() => {
     if (targetNames && governorates.length > 0) {
-      const match = findMatch(governorates, GOV_MAPPING[targetNames.governorate] || targetNames.governorate);
+      const match = findMatch(
+        governorates,
+        GOV_MAPPING[targetNames.governorate] || targetNames.governorate,
+      );
       if (match && match.id.toString() !== selectedGovernorateId.toString()) {
         setSelectedGovernorateId(match.id.toString());
       }
@@ -193,7 +205,10 @@ const CurrentLocationMapPage = () => {
   // Fetch municipalities when governorate changes
   useEffect(() => {
     if (selectedGovernorateId) {
-      api.get("/locations/municipalities", { params: { governorate_id: selectedGovernorateId } })
+      api
+        .get("/locations/municipalities", {
+          params: { governorate_id: selectedGovernorateId },
+        })
         .then((res: any) => {
           setMunicipalities(res.data.municipalities || []);
           setNeighborhoodLocations([]);
@@ -211,7 +226,10 @@ const CurrentLocationMapPage = () => {
   // Fetch neighborhoods when municipality changes
   useEffect(() => {
     if (selectedMunicipalityId) {
-      api.get("/locations/neighborhoods", { params: { municipality_id: selectedMunicipalityId } })
+      api
+        .get("/locations/neighborhoods", {
+          params: { municipality_id: selectedMunicipalityId },
+        })
         .then((res: any) => {
           setNeighborhoodLocations(res.data.neighborhoods || []);
           setLandmarks([]);
@@ -227,7 +245,10 @@ const CurrentLocationMapPage = () => {
   // Fetch landmarks when neighborhood changes
   useEffect(() => {
     if (selectedNeighborhoodId) {
-      api.get("/locations/landmarks", { params: { neighborhood_id: selectedNeighborhoodId } })
+      api
+        .get("/locations/landmarks", {
+          params: { neighborhood_id: selectedNeighborhoodId },
+        })
         .then((res: any) => {
           setLandmarks(res.data.landmarks || []);
           setSelectedLandmarkId("");
@@ -306,7 +327,9 @@ const CurrentLocationMapPage = () => {
     setSelectedLandmarkId(landmarkId);
     setTargetNames(null);
 
-    const landmark = landmarks.find((l) => l.id.toString() === landmarkId.toString());
+    const landmark = landmarks.find(
+      (l) => l.id.toString() === landmarkId.toString(),
+    );
     if (landmark) {
       const lat = parseFloat(landmark.latitude);
       const lng = parseFloat(landmark.longitude);
@@ -320,19 +343,22 @@ const CurrentLocationMapPage = () => {
   const { loading, execute } = usePut(`${API.citizen.locations.current}`, {
     onSuccess: (data: any) => {
       // Update local storage and redux state with the new location info
-      const currentCitizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+      console.log("data", data);
+      const currentCitizenInfo = JSON.parse(
+        localStorage.getItem("citizenInfo") || "{}",
+      );
       const updatedCitizenInfo = {
         ...currentCitizenInfo,
-        current_location: data || { 
-          latitude: position?.[0], 
+        current_location: data.citizen.current_location || {
+          latitude: position?.[0],
           longitude: position?.[1],
-          address: address
+          address: address,
         },
       };
 
       localStorage.setItem("citizenInfo", JSON.stringify(updatedCitizenInfo));
       dispatch(setCitizenInfo(updatedCitizenInfo));
-      
+
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },
     onError: (err) => {
@@ -407,18 +433,20 @@ const CurrentLocationMapPage = () => {
   const handleConfirm = () => {
     if (isInsideGaza) {
       if (position) {
-        const finalAddress = address || `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`;
-        
+        const finalAddress =
+          address ||
+          `Lat: ${position[0].toFixed(6)}, Lng: ${position[1].toFixed(6)}`;
+
         const fullAddressParts = [
           getGovernorateName(selectedGovernorateId),
           getMunicipalityName(selectedMunicipalityId),
           getNeighborhoodName(selectedNeighborhoodId),
           getLandmarkName(selectedLandmarkId),
-          finalAddress
+          finalAddress,
         ].filter(Boolean);
 
         const currentLocAddress = fullAddressParts.join(" - ");
-        
+
         dispatch(
           updateCurrentLocation({
             currentLocation: {
@@ -430,12 +458,19 @@ const CurrentLocationMapPage = () => {
         );
 
         execute({
+          accommodation_type: "inside_gaza",
           latitude: position[0].toString(),
           longitude: position[1].toString(),
           address: finalAddress,
-          governorate_id: selectedGovernorateId ? Number(selectedGovernorateId) : null,
-          municipality_id: selectedMunicipalityId ? Number(selectedMunicipalityId) : null,
-          neighborhood_id: selectedNeighborhoodId ? Number(selectedNeighborhoodId) : null,
+          governorate_id: selectedGovernorateId
+            ? Number(selectedGovernorateId)
+            : null,
+          municipality_id: selectedMunicipalityId
+            ? Number(selectedMunicipalityId)
+            : null,
+          neighborhood_id: selectedNeighborhoodId
+            ? Number(selectedNeighborhoodId)
+            : null,
           landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
         });
       }
@@ -453,18 +488,14 @@ const CurrentLocationMapPage = () => {
         );
 
         execute({
-          latitude: "0",
-          longitude: "0",
+          accommodation_type: "outside_gaza",
           address: outsideAddress,
-          governorate_id: null,
-          municipality_id: null,
-          neighborhood_id: null,
-          landmark_id: null,
         });
       }
     }
   };
 
+  console.log(outsideAddress);
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Card
@@ -527,14 +558,24 @@ const CurrentLocationMapPage = () => {
           {isInsideGaza ? (
             <>
               <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2}
+                  className="flex sm:gap-4"
+                >
                   <FormControl fullWidth size="small" required>
                     <InputLabel>
-                      {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      {language === "ar"
+                        ? "اختر المحافظة"
+                        : "Select Governorate"}
                     </InputLabel>
                     <Select
                       value={selectedGovernorateId}
-                      label={language === "ar" ? "اختر المحافظة" : "Select Governorate"}
+                      label={
+                        language === "ar"
+                          ? "اختر المحافظة"
+                          : "Select Governorate"
+                      }
                       onChange={handleGovernorateChange}
                     >
                       {governorates.map((g) => (
@@ -545,13 +586,24 @@ const CurrentLocationMapPage = () => {
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small" required disabled={!selectedGovernorateId}>
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    required
+                    disabled={!selectedGovernorateId}
+                  >
                     <InputLabel>
-                      {language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      {language === "ar"
+                        ? "اختر البلدية"
+                        : "Select Municipality"}
                     </InputLabel>
                     <Select
                       value={selectedMunicipalityId}
-                      label={language === "ar" ? "اختر البلدية" : "Select Municipality"}
+                      label={
+                        language === "ar"
+                          ? "اختر البلدية"
+                          : "Select Municipality"
+                      }
                       onChange={handleMunicipalityChange}
                     >
                       {municipalities.map((m) => (
@@ -563,14 +615,25 @@ const CurrentLocationMapPage = () => {
                   </FormControl>
                 </Stack>
 
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2} className="flex sm:gap-4">
-                  <FormControl fullWidth size="small" required disabled={!selectedMunicipalityId}>
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={2}
+                  className="flex sm:gap-4"
+                >
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    required
+                    disabled={!selectedMunicipalityId}
+                  >
                     <InputLabel>
                       {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
                     </InputLabel>
                     <Select
                       value={selectedNeighborhoodId}
-                      label={language === "ar" ? "اختر الحي" : "Select Neighborhood"}
+                      label={
+                        language === "ar" ? "اختر الحي" : "Select Neighborhood"
+                      }
                       onChange={handleNeighborhoodChange}
                     >
                       {neighborhoodLocations.map((n) => (
@@ -581,13 +644,19 @@ const CurrentLocationMapPage = () => {
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small" disabled={!selectedNeighborhoodId}>
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    disabled={!selectedNeighborhoodId}
+                  >
                     <InputLabel>
                       {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
                     </InputLabel>
                     <Select
                       value={selectedLandmarkId}
-                      label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                      label={
+                        language === "ar" ? "أقرب معلم" : "Nearest Landmark"
+                      }
                       onChange={handleLandmarkChange}
                     >
                       {landmarks.map((lm: any) => (
@@ -715,8 +784,7 @@ const CurrentLocationMapPage = () => {
                 />
               }
               sx={{ flex: 1, height: 48 }}
-                              variant="outlined"
-
+              variant="outlined"
             >
               {t("map.reset")}
             </Button>
@@ -727,7 +795,10 @@ const CurrentLocationMapPage = () => {
               onClick={handleConfirm}
               disabled={
                 loading ||
-                (isInsideGaza && (!position || !address || address === "لا يوجد اتصال في الانترنت")) ||
+                (isInsideGaza &&
+                  (!position ||
+                    !address ||
+                    address === "لا يوجد اتصال في الانترنت")) ||
                 (!isInsideGaza && !outsideAddress.trim())
               }
               startIcon={
