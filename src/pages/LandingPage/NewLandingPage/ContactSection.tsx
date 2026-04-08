@@ -47,12 +47,14 @@ export function ContactSection() {
       email: "info@ example.com",
       whatsapp: "+970599366036",
       address: "قطاع غزة - محافظة خانيونس",
+      addressTitle:"قطاع غزة "
     },
     {
       phone: "+17182000761",
       email: "info@ example.com",
       whatsapp: "+17182000761",
       address: "332 94th st Brooklyn ny United States 11209",
+      addressTitle:"الولايات المتحدة "
     },
   ];
 
@@ -83,7 +85,7 @@ export function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="space-y-10"
+            className="space-y-6"
           >
             <div>
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
@@ -97,14 +99,15 @@ export function ContactSection() {
                     email={info.email}
                     whatsapp={info.whatsapp}
                     address={info.address}
+                    addressTitle={info.addressTitle}
                   />
                 ))}
               </div>
             </div>
 
-            <div className="bg-[#1e3a5f] text-white p-5 rounded-lg">
+            <div className="bg-[#1e3a5f] text-white p-5 !py-3 rounded-lg">
               <h4 className="text-xl font-bold mb-4">ساعات الدوام</h4>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center pb-3 border-b border-white/20">
                   <span>السبت - الخميس</span>
                   <span className="font-semibold">8:00 ص - 6:00 م</span>
@@ -127,7 +130,7 @@ export function ContactSection() {
           >
             <form
               onSubmit={handleSubmit}
-              className="bg-white p-8 py-16  rounded-lg shadow-lg"
+              className="bg-white p-8 py-24 rounded-lg shadow-lg"
             >
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
                 أرسل رسالة

@@ -92,6 +92,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesTitle": "Identity Verification",
     "auth.verifyQuesBody":
       "Please answer the following questions to verify your identity. These questions are based on your civil registry information.",
+    "auth.invalidCredentials": "password is not correct",
 
     // Reset Password
     "auth.resetPassword": "Reset Password",
@@ -272,6 +273,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocationDescription":
       "Please select the location of your property after the war. (Where are you staying now?)",
     "map.invalidCoords": "Invalid Coordinates",
+    "map.insideGaza": "Inside Gaza Strip",
+    "map.outsideGaza": "Outside Gaza Strip",
+    "map.addressOutsideGaza": "Address Outside Gaza",
+    "map.addressOutsideGazaPlaceholder": "Enter your address outside Gaza",
 
     // Review
     "review.title": "Review Your Application",
@@ -819,6 +824,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.verifyQuesBody":
       "يرجى الإجابة على الأسئلة التالية للتحقق من هويتك. هذه الأسئلة مبنية على معلومات سجلك المدني.",
     "auth.verifySuccess": "",
+    "auth.invalidCredentials": "كلمة المرور غير صحيحة",
 
     // Landing Page
     "landing.title": "سوا بنعمرها - معاً نبني مستقبلنا",
@@ -828,6 +834,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
     "landing.damageAssessment.title": "نظام حصر الأضرار الذاتي",
+    "landing.damageAssessment.description": "لتسجيل الأضرار التي لحقت بممتلكاتك اضغط هنا",
     "landing.damageAssessment.button": "تسجيل ومراجعة الطلبات ",
 
     // Reset Password
@@ -1034,6 +1041,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
     "map.invalidCoords": "الإحداثيات غير صالحة",
+    "map.insideGaza": "داخل قطاع غزة",
+    "map.outsideGaza": "خارج قطاع غزة",
+    "map.addressOutsideGaza": "عنوان السكن خارج قطاع غزة",
+    "map.addressOutsideGazaPlaceholder": "أدخل عنوان سكنك خارج قطاع غزة",
 
     // Review
     "review.title": "مراجعة طلبك",

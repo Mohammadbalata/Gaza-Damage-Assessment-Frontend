@@ -65,6 +65,7 @@ const DamageAssessmentSection: React.FC = () => {
                 {t("landing.damageAssessment.title")}
               </Typography>
               <Button
+                id="damage-assessment-btn"
                 variant="contained"
                 onClick={() => {
                   const token = localStorage.getItem("token");

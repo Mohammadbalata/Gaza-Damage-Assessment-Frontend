@@ -332,7 +332,7 @@ const MyApplications = () => {
   //   immediate: true,
   // });
   const [rawData, setRawData] = useState<any>([]);
-  const [neighborhoods, setNeighborhoods] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
@@ -340,7 +340,7 @@ const MyApplications = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [appsRes, complaintsRes, neighborhoodsRes] = await Promise.all([
+        const [appsRes, complaintsRes] = await Promise.all([
           axiosClient.get(API.citizen.applications.list, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -351,7 +351,6 @@ const MyApplications = () => {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
-          axiosClient.get("/neighborhoods"),
         ]);
 
         const apps = appsRes.data.damage_reports || appsRes.data || [];
@@ -377,7 +376,7 @@ const MyApplications = () => {
         );
 
         setRawData(enhancedApps);
-        setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
+        // setNeighborhoods(neighborhoodsRes.data.neighborhoods || []);
       } catch (err: any) {
         console.log(err);
         setError(err.message);
@@ -407,14 +406,8 @@ const MyApplications = () => {
       app.id?.toString().includes(lowerSearch) ||
       app.report_code?.toLowerCase().includes(lowerSearch);
 
-    // Search by Neighborhood Name (Localized)
-    const neighborhood = neighborhoods.find(
-      (n) => n.id.toString() === app.neighborhood_id?.toString(),
-    );
-    const neighborhoodMatch =
-      neighborhood &&
-      (neighborhood.name?.toLowerCase().includes(lowerSearch) ||
-        neighborhood.name_en?.toLowerCase().includes(lowerSearch));
+    // Search by Neighborhood ID or Address
+    const neighborhoodMatch = app.neighborhood_id?.toString().includes(lowerSearch);
 
     // Search by Status (Localized Label)
     const statusLabel = t(`status.${app.status?.toLowerCase()}`)?.toLowerCase();
@@ -1010,7 +1003,7 @@ const MyApplications = () => {
                 onDownloadPdf={handleDownloadAppPdf}
                 onAddComplaint={handleOpenComplaint}
                 onCloseComplaint={handleOpenCloseConfirm}
-                neighborhoods={neighborhoods}
+                // neighborhoods={neighborhoods}
                 notes={app.notes}
                 statusReport={app.report_process_stage}
               />

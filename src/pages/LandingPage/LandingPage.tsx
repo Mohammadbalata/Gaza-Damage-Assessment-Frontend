@@ -15,8 +15,8 @@ const LandingPage: React.FC = () => {
       <Header />
       <main className="pt-[95px] ">
         <HeroSlider />
-        <AboutSection />
         <DepartmentsSection />
+        <AboutSection />
         <PartnersSection />
         {/* <GallerySection /> */}
 

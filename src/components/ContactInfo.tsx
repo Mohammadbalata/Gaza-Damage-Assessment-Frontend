@@ -6,17 +6,19 @@ const ContactInfo = ({
   email,
   whatsapp,
   address,
+  addressTitle
 }: {
   phone: string;
   email: string;
   whatsapp: string;
   address: string;
+  addressTitle:string
 }) => {
   return (
     <div className="bg-white rounded-lg  ">
-
+      <p className="text-xl font-bold text-[#1e3a5f] !m-4 !mb-2">{addressTitle}</p>
         <div className="flex items-center gap-4 p-2  ">
-        <div className="bg-[#f5a623] p-3 rounded-lg">
+        <div className="bg-[#f5a623] p-2 rounded-lg">
           <Phone className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -32,7 +34,7 @@ const ContactInfo = ({
       </div>
 
       <div className="flex items-center gap-4 p-2 ">
-        <div className="bg-[#f5a623] p-3 rounded-lg">
+        <div className="bg-[#f5a623] p-2 rounded-lg">
           <Mail className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -48,7 +50,7 @@ const ContactInfo = ({
       </div>
 
       <div className="flex items-center gap-4 p-2 ">
-        <div className="bg-[#f5a623] p-3 rounded-lg">
+        <div className="bg-[#f5a623] p-2 rounded-lg">
           <WhatsApp className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -63,16 +65,18 @@ const ContactInfo = ({
         </div>
          
       </div>
-      <div className="flex items-center gap-4 p-2">
-<div className="bg-[#f5a623] p-3 rounded-lg">
+      <div className="flex items-center gap-4 p-2 ">
+        <div className="bg-[#f5a623] p-2 rounded-lg">
           <MapPin className="w-6 h-6 text-white" />
         </div>
-                            <div>
-                    <p className="text-lg font-semibold text-[#1e3a5f] ">
-                      {address}
-                    </p>
-                  </div>
-</div>
+        <div>
+          <p className="text-sm text-gray-600">العنوان</p>
+          <p className="text-lg font-semibold text-[#1e3a5f]">
+            {address}
+          </p>
+        </div>
+      </div>
+     
     </div>
 
   );
