@@ -25,6 +25,7 @@ import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
 import { axiosClient } from "../api/baseUrl";
 import { API } from "../constants/ApiRoutes";
+import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
 
 const PreviousLocationMapPage = () => {
   const navigate = useNavigate();
@@ -524,6 +525,11 @@ const PreviousLocationMapPage = () => {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+          <DamageAssessmentStepper 
+            activeStep={position ? 1 : 0}
+            step1Completed={!!(selectedGovernorate && selectedMunicipality && selectedNeighborhoodName)}
+            step2Completed={!!position}
+          />
           <Box sx={{ mb: 3, textAlign: "center" }}>
             <Typography
               variant="h4"

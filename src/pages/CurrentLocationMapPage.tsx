@@ -29,6 +29,7 @@ import {
 import { API } from "../constants/ApiRoutes";
 import { api } from "../services/api";
 import BackButton from "../components/Shared/BackButton";
+import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -60,6 +61,10 @@ const CurrentLocationMapPage = () => {
   const [localNhData, setLocalNhData] = useState<any[]>([]);
   const [localLmData, setLocalLmData] = useState<any[]>([]);
   const [loadingLocal, setLoadingLocal] = useState(true);
+  const [govLoading, setGovLoading] = useState(false);
+  const [muniLoading, setMuniLoading] = useState(false);
+  const [nhLoading, setNhLoading] = useState(false);
+  const [lmLoading, setLmLoading] = useState(false);
 
   const [targetNames, setTargetNames] = useState<{
     governorate: string;
@@ -88,6 +93,7 @@ const CurrentLocationMapPage = () => {
   // Load Data
   useEffect(() => {
     const loadAllData = async () => {
+      setGovLoading(true);
       try {
         const [govLocalRes, muniLocalRes, nhLocalRes, lmLocalRes, govBackendRes] = await Promise.all([
           fetch("/Governorates.json"),
@@ -112,6 +118,7 @@ const CurrentLocationMapPage = () => {
         console.error("Error loading data:", err);
       } finally {
         setLoadingLocal(false);
+        setGovLoading(false);
       }
     };
     loadAllData();
@@ -284,6 +291,7 @@ const CurrentLocationMapPage = () => {
   // Fetch municipalities when governorate changes
   useEffect(() => {
     if (selectedGovernorateId) {
+      setMuniLoading(true);
       api
         .get("/locations/municipalities", {
           params: { governorate_id: selectedGovernorateId },
@@ -298,7 +306,8 @@ const CurrentLocationMapPage = () => {
             setSelectedLandmarkId("");
           }
         })
-        .catch((err) => console.error("Error fetching municipalities:", err));
+        .catch((err) => console.error("Error fetching municipalities:", err))
+        .finally(() => setMuniLoading(false));
     } else {
       setMunicipalities([]);
     }
@@ -307,6 +316,7 @@ const CurrentLocationMapPage = () => {
   // Fetch neighborhoods when municipality changes
   useEffect(() => {
     if (selectedMunicipalityId) {
+      setNhLoading(true);
       api
         .get("/locations/neighborhoods", {
           params: { municipality_id: selectedMunicipalityId },
@@ -319,7 +329,8 @@ const CurrentLocationMapPage = () => {
             setSelectedLandmarkId("");
           }
         })
-        .catch((err) => console.error("Error fetching neighborhoods:", err));
+        .catch((err) => console.error("Error fetching neighborhoods:", err))
+        .finally(() => setNhLoading(false));
     } else {
       setNeighborhoodLocations([]);
     }
@@ -328,6 +339,7 @@ const CurrentLocationMapPage = () => {
   // Fetch landmarks when neighborhood changes
   useEffect(() => {
     if (selectedNeighborhoodId) {
+      setLmLoading(true);
       api
         .get("/locations/landmarks", {
           params: { neighborhood_id: selectedNeighborhoodId },
@@ -338,7 +350,8 @@ const CurrentLocationMapPage = () => {
             setSelectedLandmarkId("");
           }
         })
-        .catch((err) => console.error("Error fetching landmarks:", err));
+        .catch((err) => console.error("Error fetching landmarks:", err))
+        .finally(() => setLmLoading(false));
     } else {
       setLandmarks([]);
     }
@@ -592,6 +605,12 @@ const CurrentLocationMapPage = () => {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+          <DamageAssessmentStepper 
+            activeStep={3}
+            step1Completed={true}
+            step2Completed={true}
+            step3Completed={true}
+          />
           <Box
             sx={{
               mb: 3,
@@ -661,6 +680,7 @@ const CurrentLocationMapPage = () => {
                           : "Select Governorate"
                       }
                       onChange={handleGovernorateChange}
+                      endAdornment={govLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {governorates.map((g) => (
                         <MenuItem key={g.id} value={g.id}>
@@ -689,6 +709,7 @@ const CurrentLocationMapPage = () => {
                           : "Select Municipality"
                       }
                       onChange={handleMunicipalityChange}
+                      endAdornment={muniLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {municipalities.map((m) => (
                         <MenuItem key={m.id} value={m.id}>
@@ -719,6 +740,7 @@ const CurrentLocationMapPage = () => {
                         language === "ar" ? "اختر الحي" : "Select Neighborhood"
                       }
                       onChange={handleNeighborhoodChange}
+                      endAdornment={nhLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {neighborhoodLocations.map((n) => (
                         <MenuItem key={n.id} value={n.id}>
@@ -742,6 +764,7 @@ const CurrentLocationMapPage = () => {
                         language === "ar" ? "أقرب معلم" : "Nearest Landmark"
                       }
                       onChange={handleLandmarkChange}
+                      endAdornment={lmLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
                     >
                       {landmarks.map((lm: any) => (
                         <MenuItem key={lm.id} value={lm.id}>
