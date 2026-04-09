@@ -72,7 +72,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [isInsideGaza, setIsInsideGaza] = useState(false);
+  const [isInsideGaza, setIsInsideGaza] = useState(true);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -1580,10 +1580,9 @@ const MyApplications = () => {
               color="primary"
               onClick={handleConfirmLocationUpdate}
               disabled={
-                !locationPosition ||
-                !locationAddress ||
-                locationLoading ||
-                outsideAddress === ""
+                isInsideGaza
+                  ? !locationPosition || !locationAddress || locationLoading
+                  : !outsideAddress 
               }
               startIcon={
                 locationLoading ? (
