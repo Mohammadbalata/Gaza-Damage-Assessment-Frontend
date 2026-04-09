@@ -461,7 +461,9 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    citizenInfo?.current_location?.address || "",
+    citizenInfo.current_location.accommodation_type === "in_gaza"
+      ? ""
+      : citizenInfo?.current_location?.address,
   );
 
   // const filterdApplications = id
