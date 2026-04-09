@@ -461,7 +461,7 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    citizenInfo.current_location.accommodation_type === "in_gaza"
+    citizenInfo.current_location?.accommodation_type === "in_gaza"
       ? ""
       : citizenInfo?.current_location?.address,
   );
@@ -1246,7 +1246,9 @@ const MyApplications = () => {
                   },
                 }}
               >
-                {t("citizen.editCurrentLocation")}
+                {citizenInfo.current_location
+                  ? t("citizen.editCurrentLocation")
+                  : t("citizen.addCurrentLocation")}
               </Button>
             </Stack>
           </Box>
