@@ -24,6 +24,9 @@ import {
   FormControl,
   InputLabel,
   Select,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import ApplicationCard from "../components/MyApplications/ApplicationCard";
 
@@ -69,7 +72,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-
+  const [isInsideGaza, setIsInsideGaza] = useState(false);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -457,6 +460,9 @@ const MyApplications = () => {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+  const [outsideAddress, setOutsideAddress] = useState<string>(
+    citizenInfo?.current_location?.address || "",
+  );
 
   // const filterdApplications = id
   //   ? applications?.filter((item: any) => item.id === id)
@@ -682,22 +688,29 @@ const MyApplications = () => {
       axiosClient
         .put(
           `${API.citizen.locations.current}`,
-          {
-            accommodation_type: "inside_gaza",
-            latitude: locationPosition[0].toString(),
-            longitude: locationPosition[1].toString(),
-            address: locationAddress,
-            governorate_id: selectedGovernorateId
-              ? Number(selectedGovernorateId)
-              : null,
-            municipality_id: selectedMunicipalityId
-              ? Number(selectedMunicipalityId)
-              : null,
-            neighborhood_id: selectedNeighborhoodId
-              ? Number(selectedNeighborhoodId)
-              : null,
-            landmark_id: selectedLandmarkId ? Number(selectedLandmarkId) : null,
-          },
+          isInsideGaza
+            ? {
+                accommodation_type: "inside_gaza",
+                latitude: locationPosition[0].toString(),
+                longitude: locationPosition[1].toString(),
+                address: locationAddress,
+                governorate_id: selectedGovernorateId
+                  ? Number(selectedGovernorateId)
+                  : null,
+                municipality_id: selectedMunicipalityId
+                  ? Number(selectedMunicipalityId)
+                  : null,
+                neighborhood_id: selectedNeighborhoodId
+                  ? Number(selectedNeighborhoodId)
+                  : null,
+                landmark_id: selectedLandmarkId
+                  ? Number(selectedLandmarkId)
+                  : null,
+              }
+            : {
+                accommodation_type: "outside_gaza",
+                address: outsideAddress,
+              },
           {
             headers: {
               "Content-Type": "application/json",
@@ -1272,198 +1285,257 @@ const MyApplications = () => {
           </DialogTitle>
 
           <DialogContent sx={{ p: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {t("map.currentLocationDescription")}
-            </Typography>
-
-            {/* Map Container */}
-            <Box
-              sx={{
-                height: 350,
-                borderRadius: 2,
-                overflow: "hidden",
-                border: "1px solid",
-                borderColor: "divider",
-                mb: 3,
-              }}
-            >
-              <MapContainer
-                center={mapCenter}
-                zoom={15}
-                markerPosition={locationPosition}
-                setMarkerPosition={setLocationPosition}
-                height="100%"
-                width="100%"
-                setAddress={setLocationAddress}
-                location={{
-                  neighborhood:
-                    citizenInfo?.current_location?.neighborhood?.name,
-                }}
-              />
+            <Box sx={{ mb: 4 }}>
+              <RadioGroup
+                row
+                value={isInsideGaza ? "inside" : "outside"}
+                onChange={(e) => setIsInsideGaza(e.target.value === "inside")}
+                sx={{ justifyContent: "center", mb: 2 }}
+              >
+                <FormControlLabel
+                  value="inside"
+                  control={<Radio />}
+                  label={t("map.insideGaza")}
+                />
+                <FormControlLabel
+                  value="outside"
+                  control={<Radio />}
+                  label={t("map.outsideGaza")}
+                />
+              </RadioGroup>
             </Box>
 
-            {/* Location Info */}
-            {locationPosition && (
-              <Box
-                sx={{
-                  p: 2,
-                  bgcolor: "background.default",
-                  borderRadius: 2,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  mb: 2,
-                }}
-              >
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  useFlexGap={true}
+            {isInsideGaza ? (
+              <>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
                 >
-                  <Box flex={1}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="block"
-                      gutterBottom
+                  {t("map.currentLocationDescription")}
+                </Typography>
+
+                {/* Map Container */}
+                <Box
+                  sx={{
+                    height: 350,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    mb: 3,
+                  }}
+                >
+                  <MapContainer
+                    center={mapCenter}
+                    zoom={15}
+                    markerPosition={locationPosition}
+                    setMarkerPosition={setLocationPosition}
+                    height="100%"
+                    width="100%"
+                    setAddress={setLocationAddress}
+                    location={{
+                      neighborhood:
+                        citizenInfo?.current_location?.neighborhood?.name,
+                    }}
+                  />
+                </Box>
+
+                {/* Location Info */}
+                {locationPosition && (
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "background.default",
+                      borderRadius: 2,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      mb: 2,
+                    }}
+                  >
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={2}
+                      useFlexGap={true}
                     >
-                      {t("map.coordinates")}
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium" dir="ltr">
-                      {locationPosition[0]?.toFixed(6)},{" "}
-                      {locationPosition[1]?.toFixed(6)}
-                    </Typography>
+                      <Box flex={1}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                          gutterBottom
+                        >
+                          {t("map.coordinates")}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          fontWeight="medium"
+                          dir="ltr"
+                        >
+                          {locationPosition[0]?.toFixed(6)},{" "}
+                          {locationPosition[1]?.toFixed(6)}
+                        </Typography>
+                      </Box>
+                      <Box flex={1}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                          gutterBottom
+                        >
+                          {t("map.address")}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                          {locationAddress}
+                        </Typography>
+                      </Box>
+                    </Stack>
                   </Box>
-                  <Box flex={1}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      display="block"
-                      gutterBottom
+                )}
+
+                {/* Cascading Selection Dropdowns */}
+                <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
+                  <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={2}
+                    className="flex sm:gap-4"
+                  >
+                    <FormControl fullWidth size="small" required>
+                      <InputLabel>
+                        {language === "ar"
+                          ? "اختر المحافظة"
+                          : "Select Governorate"}
+                      </InputLabel>
+                      <Select
+                        value={selectedGovernorateId}
+                        label={
+                          language === "ar"
+                            ? "اختر المحافظة"
+                            : "Select Governorate"
+                        }
+                        onChange={(e: any) => {
+                          setSelectedGovernorateId(e.target.value as string);
+                          setTargetNames(null);
+                        }}
+                      >
+                        {governorates.map((g) => (
+                          <MenuItem key={g.id} value={g.id}>
+                            {g.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl
+                      fullWidth
+                      size="small"
+                      required
+                      disabled={!selectedGovernorateId}
                     >
-                      {t("map.address")}
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {locationAddress}
-                    </Typography>
-                  </Box>
+                      <InputLabel>
+                        {language === "ar"
+                          ? "اختر البلدية"
+                          : "Select Municipality"}
+                      </InputLabel>
+                      <Select
+                        value={selectedMunicipalityId}
+                        label={
+                          language === "ar"
+                            ? "اختر البلدية"
+                            : "Select Municipality"
+                        }
+                        onChange={(e: any) => {
+                          setSelectedMunicipalityId(e.target.value as string);
+                          setTargetNames(null);
+                        }}
+                      >
+                        {municipalities.map((m) => (
+                          <MenuItem key={m.id} value={m.id}>
+                            {m.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
+
+                  <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={2}
+                    className="flex sm:gap-4"
+                  >
+                    <FormControl
+                      fullWidth
+                      size="small"
+                      required
+                      disabled={!selectedMunicipalityId}
+                    >
+                      <InputLabel>
+                        {language === "ar"
+                          ? "اختر الحي"
+                          : "Select Neighborhood"}
+                      </InputLabel>
+                      <Select
+                        value={selectedNeighborhoodId}
+                        label={
+                          language === "ar"
+                            ? "اختر الحي"
+                            : "Select Neighborhood"
+                        }
+                        onChange={(e: any) => {
+                          setSelectedNeighborhoodId(e.target.value as string);
+                          setTargetNames(null);
+                        }}
+                      >
+                        {neighborhoodLocations.map((n) => (
+                          <MenuItem key={n.id} value={n.id}>
+                            {n.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl
+                      fullWidth
+                      size="small"
+                      disabled={!selectedNeighborhoodId}
+                    >
+                      <InputLabel>
+                        {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
+                      </InputLabel>
+                      <Select
+                        value={selectedLandmarkId}
+                        label={
+                          language === "ar" ? "أقرب معلم" : "Nearest Landmark"
+                        }
+                        onChange={(e: any) => {
+                          setSelectedLandmarkId(e.target.value as string);
+                          setTargetNames(null);
+                        }}
+                      >
+                        {landmarks.map((lm: any) => (
+                          <MenuItem key={lm.id} value={lm.id}>
+                            {lm.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
                 </Stack>
+              </>
+            ) : (
+              <Box sx={{ mb: 4 }}>
+                <TextField
+                  fullWidth
+                  label={t("map.addressOutsideGaza")}
+                  placeholder={t("map.addressOutsideGazaPlaceholder")}
+                  value={outsideAddress}
+                  onChange={(e) => setOutsideAddress(e.target.value)}
+                  variant="outlined"
+                  multiline
+                  rows={3}
+                />
               </Box>
             )}
-
-            {/* Cascading Selection Dropdowns */}
-            <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-              <Stack
-                direction={{ xs: "column", md: "row" }}
-                spacing={2}
-                className="flex sm:gap-4"
-              >
-                <FormControl fullWidth size="small" required>
-                  <InputLabel>
-                    {language === "ar" ? "اختر المحافظة" : "Select Governorate"}
-                  </InputLabel>
-                  <Select
-                    value={selectedGovernorateId}
-                    label={
-                      language === "ar" ? "اختر المحافظة" : "Select Governorate"
-                    }
-                    onChange={(e: any) => {
-                      setSelectedGovernorateId(e.target.value as string);
-                      setTargetNames(null);
-                    }}
-                  >
-                    {governorates.map((g) => (
-                      <MenuItem key={g.id} value={g.id}>
-                        {g.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl
-                  fullWidth
-                  size="small"
-                  required
-                  disabled={!selectedGovernorateId}
-                >
-                  <InputLabel>
-                    {language === "ar" ? "اختر البلدية" : "Select Municipality"}
-                  </InputLabel>
-                  <Select
-                    value={selectedMunicipalityId}
-                    label={
-                      language === "ar" ? "اختر البلدية" : "Select Municipality"
-                    }
-                    onChange={(e: any) => {
-                      setSelectedMunicipalityId(e.target.value as string);
-                      setTargetNames(null);
-                    }}
-                  >
-                    {municipalities.map((m) => (
-                      <MenuItem key={m.id} value={m.id}>
-                        {m.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Stack>
-
-              <Stack
-                direction={{ xs: "column", md: "row" }}
-                spacing={2}
-                className="flex sm:gap-4"
-              >
-                <FormControl
-                  fullWidth
-                  size="small"
-                  required
-                  disabled={!selectedMunicipalityId}
-                >
-                  <InputLabel>
-                    {language === "ar" ? "اختر الحي" : "Select Neighborhood"}
-                  </InputLabel>
-                  <Select
-                    value={selectedNeighborhoodId}
-                    label={
-                      language === "ar" ? "اختر الحي" : "Select Neighborhood"
-                    }
-                    onChange={(e: any) => {
-                      setSelectedNeighborhoodId(e.target.value as string);
-                      setTargetNames(null);
-                    }}
-                  >
-                    {neighborhoodLocations.map((n) => (
-                      <MenuItem key={n.id} value={n.id}>
-                        {n.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl
-                  fullWidth
-                  size="small"
-                  disabled={!selectedNeighborhoodId}
-                >
-                  <InputLabel>
-                    {language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                  </InputLabel>
-                  <Select
-                    value={selectedLandmarkId}
-                    label={language === "ar" ? "أقرب معلم" : "Nearest Landmark"}
-                    onChange={(e: any) => {
-                      setSelectedLandmarkId(e.target.value as string);
-                      setTargetNames(null);
-                    }}
-                  >
-                    {landmarks.map((lm: any) => (
-                      <MenuItem key={lm.id} value={lm.id}>
-                        {lm.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Stack>
-            </Stack>
           </DialogContent>
 
           <DialogActions
@@ -1482,27 +1554,32 @@ const MyApplications = () => {
             >
               {t("common.cancel")}
             </Button>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={handleResetLocation}
-              disabled={!locationPosition}
-              startIcon={
-                <RotateCcw
-                  className={language === "ar" ? "ml-2" : "mr-2"}
-                  size={18}
-                />
-              }
-            >
-              {t("map.reset")}
-            </Button>
+            {isInsideGaza && (
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={handleResetLocation}
+                disabled={!locationPosition}
+                startIcon={
+                  <RotateCcw
+                    className={language === "ar" ? "ml-2" : "mr-2"}
+                    size={18}
+                  />
+                }
+              >
+                {t("map.reset")}
+              </Button>
+            )}
 
             <Button
               variant="contained"
               color="primary"
               onClick={handleConfirmLocationUpdate}
               disabled={
-                !locationPosition || !locationAddress || locationLoading
+                !locationPosition ||
+                !locationAddress ||
+                locationLoading ||
+                outsideAddress === ""
               }
               startIcon={
                 locationLoading ? (

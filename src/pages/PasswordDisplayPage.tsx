@@ -37,7 +37,6 @@ import SingleImageInput from "../components/Form Applications/ImagesInput/Single
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
 import { axiosClient } from "../api/baseUrl";
-// import { useSnackbar } from "notistack";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
@@ -142,33 +141,6 @@ const PasswordDisplayPage = () => {
       }
     }
   };
-  const fieldNames: Record<string, string> = {
-    firstName: t("form.firstName"),
-    fatherName: t("form.fatherName"),
-    grandfatherName: t("form.grandfatherName"),
-    familyName: t("form.familyName"),
-    email: t("form.email"),
-    phoneNumber: t("form.phoneNumber"),
-    whatsappNumber: t("form.whatsappNumber"),
-    familyMembersNumber: t("form.familyMembersNumber"),
-    agreeToTerms: t("form.agreeToTermsDescription"),
-    password: t("auth.password"),
-    phone_number: t("form.phoneNumber"),
-    whatsapp_number: t("form.whatsappNumber"),
-  };
-
-  const onError = (errors: any) => {
-    console.log("errors", errors);
-
-    Object.entries(errors).forEach(([field, error]: any) => {
-      const fieldLabel = fieldNames[field] || field;
-
-      enqueueSnackbar(`${fieldLabel} ${error.message}`, {
-        variant: "error",
-        autoHideDuration: 3000,
-      });
-    });
-  };
 
   const sendOtp = async (email: string) => {
     try {
@@ -242,7 +214,7 @@ const PasswordDisplayPage = () => {
       title={t("form.personalInfo")}
       subtitle={t("form.personalInfoDesc")}
     >
-      <form onSubmit={handleSubmit(onSubmit, onError)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* Optional Avatar Upload Section */}
         <Paper
           elevation={0}
