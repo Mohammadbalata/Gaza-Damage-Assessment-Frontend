@@ -72,7 +72,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [isInsideGaza, setIsInsideGaza] = useState(false);
+  const [isInsideGaza, setIsInsideGaza] = useState(true);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
