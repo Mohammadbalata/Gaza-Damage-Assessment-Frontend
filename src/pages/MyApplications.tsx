@@ -1580,10 +1580,9 @@ const MyApplications = () => {
               color="primary"
               onClick={handleConfirmLocationUpdate}
               disabled={
-                !locationPosition ||
-                !locationAddress ||
-                locationLoading ||
-                outsideAddress === ""
+                isInsideGaza
+                  ? !locationPosition || !locationAddress || locationLoading
+                  : !outsideAddress 
               }
               startIcon={
                 locationLoading ? (
