@@ -19,6 +19,7 @@ import CampHousing from "../components/Form Applications/CampHousing";
 import AdditionalBuildings from "../components/Form Applications/AdditionalBuildings";
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
+import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
 import { Button, CircularProgress, DialogActions } from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
@@ -698,6 +699,11 @@ const DamageAssessmentDialog = ({
           "bg-gray-50": isViewMode,
         })}
       >
+        <DamageAssessmentStepper 
+          activeStep={2}
+          step1Completed={true}
+          step2Completed={true}
+        />
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">
             {readOnly ? t("common.reviewRequest") : t("common.damageRequest")}

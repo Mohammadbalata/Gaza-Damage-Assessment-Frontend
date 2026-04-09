@@ -95,6 +95,25 @@ const OtpDialog = ({
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "");
+    const pasteArray = pasteData.slice(0, length).split("");
+
+    const newOtp = [...otp];
+
+    pasteArray.forEach((num, i) => {
+      newOtp[i] = num;
+    });
+
+    setOtp(newOtp);
+
+    const nextIndex =
+      pasteArray.length >= length ? length - 1 : pasteArray.length;
+    inputRefs.current[nextIndex]?.focus();
+  };
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
       <DialogTitle>ادخل رمز التحقق المرسل اليك </DialogTitle>
@@ -114,6 +133,7 @@ const OtpDialog = ({
               type="tel"
               inputRef={(el) => (inputRefs.current[index] = el)}
               value={otp[index]}
+              onPaste={handlePaste}
               onChange={(e) =>
                 handleChange(e as React.ChangeEvent<HTMLInputElement>, index)
               }
