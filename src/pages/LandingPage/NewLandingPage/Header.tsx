@@ -163,6 +163,7 @@ export function Header() {
                             objectFit: "cover",
                           },
                         }}
+                        className="!text-gray-500 !border-gray-300"
                       >
                         {/* Fallback when no avatar */}
                         <PersonIcon sx={{ fontSize: 36 }} />
