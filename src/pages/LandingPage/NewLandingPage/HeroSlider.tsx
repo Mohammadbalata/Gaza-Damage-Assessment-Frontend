@@ -126,7 +126,7 @@ export function HeroSlider() {
 
               <button
                 onClick={() => navigate(ROUTES.SIGNIN)}
-                className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
+                className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md mt-[25.5rem] sm:mt-0 font-bold"
               >
                 {t("header.citizenLogin")}
               </button>
@@ -187,7 +187,7 @@ export function HeroSlider() {
               transition={{ delay: 0.4 }}
               className="w-full max-w-2xl mx-auto "
             >
-              <div className="flex flex-col gap-2 mx-5">
+              <div className="sm:flex flex-col gap-2 mx-5 hidden ">
                 <div className="flex items-center bg-white rounded-full shadow-xl overflow-hidden border border-gray-200">
                   {/* Search Icon */}
                   <div className="px-4 text-gray-500">
@@ -280,7 +280,20 @@ export function HeroSlider() {
                   </motion.p>
                 )}
               </div>
-
+              {/* <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center items-center mb-14" 
+              >
+                <button
+                onClick={() => navigate(ROUTES.SIGNIN)}
+                className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md sm:hidden"
+              >
+                {t("header.citizenLogin")}
+              </button>
+              </motion.div> */}
               <div
                 id="system-details"
                 className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar justify-center "
