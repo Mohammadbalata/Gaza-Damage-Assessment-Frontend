@@ -73,7 +73,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [isInsideGaza, setIsInsideGaza] = useState(false);
+  const [isInsideGaza, setIsInsideGaza] = useState(true);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -462,7 +462,7 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    citizenInfo.current_location.accommodation_type === "in_gaza"
+    citizenInfo.current_location?.accommodation_type === "in_gaza"
       ? ""
       : citizenInfo?.current_location?.address,
   );
@@ -1247,7 +1247,9 @@ const MyApplications = () => {
                   },
                 }}
               >
-                {t("citizen.editCurrentLocation")}
+                {citizenInfo.current_location
+                  ? t("citizen.editCurrentLocation")
+                  : t("citizen.addCurrentLocation")}
               </Button>
             </Stack>
           </Box>
@@ -1579,10 +1581,9 @@ const MyApplications = () => {
               color="primary"
               onClick={handleConfirmLocationUpdate}
               disabled={
-                !locationPosition ||
-                !locationAddress ||
-                locationLoading ||
-                outsideAddress === ""
+                isInsideGaza
+                  ? !locationPosition || !locationAddress || locationLoading
+                  : !outsideAddress 
               }
               startIcon={
                 locationLoading ? (
