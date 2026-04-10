@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import ContactInfo from "../../../components/ContactInfo";
 import { axiosClient } from "../../../api/baseUrl";
 import { enqueueSnackbar } from "notistack";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export function ContactSection() {
     phone: "",
     message: "",
   });
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,20 +46,19 @@ export function ContactSection() {
   const contactInfo = [
     {
       phone: "+970599366036",
-      email: "info@ example.com",
+      email: "info@example.com",
       whatsapp: "+970599366036",
-      address: "قطاع غزة - محافظة خانيونس",
-      addressTitle:"قطاع غزة "
+      address: t("contactInfo.gaza.address"),
+      addressTitle: t("contactInfo.gaza.title"),
     },
     {
       phone: "+17182000761",
-      email: "info@ example.com",
+      email: "info@example.com",
       whatsapp: "+17182000761",
-      address: "332 94th st Brooklyn ny United States 11209",
-      addressTitle:"الولايات المتحدة "
+      address: t("contactInfo.usa.address"),
+      addressTitle: t("contactInfo.usa.title"),
     },
   ];
-
   return (
     <section
       id="contact"
@@ -71,10 +72,12 @@ export function ContactSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">تواصل معنا</h2>
+          <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">
+            {t("ContactSection.title")}
+          </h2>
           <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            نحن هنا للإجابة على استفساراتك ومساعدتك في اختيار المعدات المناسبة
+            {t("ContactSection.description")}
           </p>
         </motion.div>
 
@@ -89,7 +92,7 @@ export function ContactSection() {
           >
             <div>
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
-                معلومات التواصل :
+                {t("contact.infoTitle")}
               </h3>
               <div className="flex flex-col gap-5">
                 {contactInfo.map((info, index) => (
@@ -106,15 +109,21 @@ export function ContactSection() {
             </div>
 
             <div className="bg-[#1e3a5f] text-white p-5 !py-3 rounded-lg">
-              <h4 className="text-xl font-bold mb-4">ساعات الدوام</h4>
+              <h4 className="text-xl font-bold mb-4">
+                {t("contact.workingHours")}
+              </h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center pb-3 border-b border-white/20">
-                  <span>السبت - الخميس</span>
-                  <span className="font-semibold">8:00 ص - 6:00 م</span>
+                  <span>{t("contact.weekdays")}</span>
+                  <span className="font-semibold">
+                    {t("contact.workingTime")}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>الجمعة</span>
-                  <span className="font-semibold text-[#f5a623]">مغلق</span>
+                  <span>{t("contact.weekend")}</span>
+                  <span className="font-semibold text-[#f5a623]">
+                    {t("contact.closed")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -133,7 +142,7 @@ export function ContactSection() {
               className="bg-white p-8 py-24 rounded-lg shadow-lg"
             >
               <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">
-                أرسل رسالة
+                {t("contact.sendMessage")}
               </h3>
 
               <div className="space-y-7">
@@ -142,7 +151,7 @@ export function ContactSection() {
                     htmlFor="name"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    الاسم
+                    {t("contact.name")}
                   </label>
                   <div className="relative">
                     <User className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
@@ -154,7 +163,7 @@ export function ContactSection() {
                       onChange={handleChange}
                       required
                       className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f5a623] focus:border-transparent outline-none transition-all"
-                      placeholder="أدخل اسمك"
+                      placeholder={t("contact.namePlaceholder")}
                     />
                   </div>
                 </div>
@@ -164,7 +173,7 @@ export function ContactSection() {
                     htmlFor="email"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    البريد الإلكتروني
+                    {t("contact.email")}
                   </label>
                   <div className="relative">
                     <Mail className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
@@ -176,7 +185,7 @@ export function ContactSection() {
                       onChange={handleChange}
                       required
                       className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f5a623] focus:border-transparent outline-none transition-all"
-                      placeholder="أدخل بريدك الإلكتروني"
+                      placeholder={t("contact.emailPlaceholder")}
                     />
                   </div>
                 </div>
@@ -186,7 +195,7 @@ export function ContactSection() {
                     htmlFor="phone"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    رقم الهاتف
+                    {t("contact.phone")}
                   </label>
                   <div className="relative">
                     <Phone className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
@@ -198,7 +207,7 @@ export function ContactSection() {
                       onChange={handleChange}
                       required
                       className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f5a623] focus:border-transparent outline-none transition-all"
-                      placeholder="أدخل رقم هاتفك"
+                      placeholder={t("contact.phonePlaceholder")}
                     />
                   </div>
                 </div>
@@ -208,7 +217,7 @@ export function ContactSection() {
                     htmlFor="message"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    الرسالة
+                    {t("contact.message")}
                   </label>
                   <textarea
                     id="message"
@@ -218,7 +227,7 @@ export function ContactSection() {
                     required
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f5a623] focus:border-transparent outline-none transition-all resize-none"
-                    placeholder="اكتب رسالتك هنا..."
+                    placeholder={t("contact.messagePlaceholder")}
                   ></textarea>
                 </div>
 
@@ -227,7 +236,7 @@ export function ContactSection() {
                   className="w-full bg-[#f5a623] hover:bg-[#d68f1a] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
-                  <span>إرسال</span>
+                  <span>{t("contact.send")}</span>
                 </button>
               </div>
             </form>

@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { usePost } from "../../hooks/api/useApi";
+import LanguageToggle from "../../components/LanguageToggle";
 
 interface ResetPasswordForm {
   current_password: string;
@@ -350,6 +351,7 @@ const ChangePasswordPage = () => {
             </Stack>
           </Box>
         </Paper>
+        <LanguageToggle />
       </Container>
     </Fade>
   );

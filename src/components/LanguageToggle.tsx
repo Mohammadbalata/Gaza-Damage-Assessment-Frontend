@@ -8,7 +8,7 @@ const LanguageToggle = () => {
 
   return (
     <Tooltip
-      title={isLTR ? "Switch to Arabic" : "Switch to English"}
+      title={isLTR ? "Switch to English " : "Switch to Arabic"}
       placement="left"
     >
       <Fab

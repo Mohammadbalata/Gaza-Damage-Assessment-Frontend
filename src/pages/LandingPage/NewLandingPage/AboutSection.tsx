@@ -1,30 +1,31 @@
 import { ClipboardList, ShieldCheck, Users, BarChart2 } from "lucide-react";
 import { motion } from "motion/react";
-
-const features = [
-  {
-    icon: ClipboardList,
-    title: "تسجيل الأضرار",
-    description: "توثيق شامل لجميع الأضرار في مكان واحد",
-  },
-  {
-    icon: ShieldCheck,
-    title: "دقة وموثوقية",
-    description: "بيانات موثّقة ومعتمدة رسمياً",
-  },
-  {
-    icon: Users,
-    title: "دعم المتضررين",
-    description: "فريق متخصص لمساعدتكم في كل خطوة",
-  },
-  {
-    icon: BarChart2,
-    title: "تقارير وإحصاءات",
-    description: "تحليل شامل لحجم الأضرار المرصودة",
-  },
-];
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 export function AboutSection() {
+  const { t } = useLanguage();
+  const features = [
+    {
+      icon: ClipboardList,
+      title: t("features.damage.title"),
+      description: t("features.damage.description"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("features.accuracy.title"),
+      description: t("features.accuracy.description"),
+    },
+    {
+      icon: Users,
+      title: t("features.support.title"),
+      description: t("features.support.description"),
+    },
+    {
+      icon: BarChart2,
+      title: t("features.reports.title"),
+      description: t("features.reports.description"),
+    },
+  ];
   return (
     <section id="about" className="py-20 bg-gray-50 scroll-mt-24">
       <div className="container mx-auto px-4">
@@ -36,12 +37,18 @@ export function AboutSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">
-            نبذة عن المنصة
+            {t("AboutSection.title")}
           </h2>
           <div className="w-20 h-1 bg-[#4d9a33] mx-auto mb-8"></div>
-                   <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-  منصة <h2 className="inline-block font-bold text-[#047a35]">سوا <h2 className="inline-block text-[#e01722]">بنعمرها</h2></h2>  هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق 'توأم رقمي' للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.          </p>
-
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+            <h2 className="inline-block font-bold text-[#047a35]">
+              {t("AboutSection.name1")}
+              <h2 className="inline-block text-[#e01722]">
+                {t("AboutSection.name2")}
+              </h2>
+            </h2>
+            {t("AboutSection.description")}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

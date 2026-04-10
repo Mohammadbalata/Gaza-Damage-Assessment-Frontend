@@ -14,6 +14,7 @@ import {
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ROUTES } from "../routes/Routes";
+import LanguageToggle from "../components/LanguageToggle";
 
 const BankInformationPage = () => {
   const navigate = useNavigate();
@@ -98,6 +99,7 @@ const BankInformationPage = () => {
           {t("common.backToDashboard")}
         </Button>
       </Paper>
+      <LanguageToggle />
     </Container>
   );
 };
