@@ -754,7 +754,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "roof.asbestos": "asbestos",
     // Citizen Dashboard
     "citizen.dashboard": "Citizen Dashboard",
-    "citizen.welcome": "Welcome",
+
     "citizen.addDamageRequest": "Add New Damage Application",
     "citizen.myRequests": "Inquiry about Submitted Requests",
     "citizen.myRequestsDesc": "View the status of your submitted applications",
@@ -1637,7 +1637,6 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     // Citizen Dashboard
     "citizen.dashboard": "لوحة تحكم المواطن",
-    "citizen.welcome": "مرحباً",
     "citizen.addDamageRequest": "إضافة طلب ضرر جديد",
     "citizen.myRequests": "استعلام عن طلباتي المقدمة",
     "citizen.myRequestsDesc": "عرض حالة الطلبات المقدمة",

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
 export function AboutSection() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const features = [
     {
       icon: ClipboardList,

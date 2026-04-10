@@ -13,7 +13,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-[#1e3a5f] text-white">
