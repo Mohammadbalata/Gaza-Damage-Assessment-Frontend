@@ -11,15 +11,15 @@ import {
 export const buildingOptions = [
   {
     value: "IndependentBuilding",
-    label: "مبنى مستقل (منزل منفصل / فيلا / بيت عربي)",
+    label: "form.IndependentBuilding",
   },
-  { value: "ApartmentInsideBuilding", label: "شقة ( داخل بناية أو برج )" },
-  { value: "ResidentialBuilding", label: "بناية " },
-  { value: "tower", label: "برج" },
-  { value: "compHouse", label: "منازل شعبية (سقف زينكو / كرميد / أسبست)" },
+  { value: "ApartmentInsideBuilding", label: "form.ApartmentInsideBuilding" },
+  { value: "ResidentialBuilding", label: "form.ResidentialBuilding" },
+  { value: "tower", label: "form.tower" },
+  { value: "compHouse", label: "form.compHouse" },
   {
     value: "additionalBuildings",
-    label: "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
+    label: "form.additionalBuildings",
   },
 ];
 export const nearestLandmark = [
@@ -51,35 +51,55 @@ export const nearestLandmark = [
 
 export const DAMAGE_TYPES = [
   {
-    label: "تشققات إنشائية ( أسقف )",
-    value: "تشققات إنشائية ( أسقف )",
+    label: "damage.structuralCeilingCracks",
+    value: "damage.structuralCeilingCracks",
     buildingType: "",
   },
   {
-    label: "تشققات إنشائية ( أعمدة )",
-    value: "تشققات إنشائية ( أعمدة )",
+    label: "damage.structuralColumnCracks",
+    value: "damage.structuralColumnCracks",
     buildingType: "",
   },
   {
-    label: "تضرر الواجهات ( تفريغ )",
-    value: "تضرر الواجهات",
+    label: "damage.facadeDamage",
+    value: "damage.facadeDamage",
     buildingType: "",
   },
-  { label: "تضرر الأبواب والنوافذ", value: "تضرر الأبواب", buildingType: "" },
-  { label: "تضرر التشطيبات", value: "تضرر التشطيبات", buildingType: "" },
-  { label: "تضرر الكهرباء", value: "تضرر الكهرباء", buildingType: "" },
-  { label: "تضرر المصاعد", value: "تضرر المصاعد", buildingType: "بناية" },
   {
-    label: "تضرر مداخل أو أدراج البناية",
-    value: "تضرر مداخل أو أدراج البناية",
+    label: "damage.doorsWindowsDamage",
+    value: "damage.doorsWindowsDamage",
+    buildingType: "",
+  },
+  {
+    label: "damage.finishingDamage",
+    value: "damage.finishingDamage",
+    buildingType: "",
+  },
+  {
+    label: "damage.electricityDamage",
+    value: "damage.electricityDamage",
+    buildingType: "",
+  },
+  {
+    label: "damage.elevatorDamage",
+    value: "damage.elevatorDamage",
     buildingType: "بناية",
   },
   {
-    label: "تضرر شبكة المياه والصرف",
-    value: "تضرر شبكة المياه والصرف",
+    label: "damage.buildingStairsEntranceDamage",
+    value: "damage.buildingStairsEntranceDamage",
+    buildingType: "بناية",
+  },
+  {
+    label: "damage.waterSewageDamage",
+    value: "damage.waterSewageDamage",
     buildingType: "",
   },
-  { label: "تضرر بالحريق", value: "تضرر بالحريق", buildingType: "" },
+  {
+    label: "damage.fireDamage",
+    value: "damage.fireDamage",
+    buildingType: "",
+  },
 ];
 
 export const DAMAGE_TYPE_CompHouse = [
@@ -92,9 +112,18 @@ export const DAMAGE_TYPE_CompHouse = [
 ];
 
 export const BuildingContent = [
-  { label: "يحتوي على غرفة قابلة للسكن على الأقل", value: "يحتوي على غرفة قابلة للسكن على الأقل" },
-  { label: "يحتوي على مطبخ قابل للاستخدام على الأقل", value:"يحتوي على مطبخ قابل للاستخدام على الأقل" },
-  { label: "يحتوي على دورة مياه قابلة للاستخدام على الأقل", value: "يحتوي على دورة مياه قابلة للاستخدام على الأقل" },
+  {
+    label: "يحتوي على غرفة قابلة للسكن على الأقل",
+    value: "يحتوي على غرفة قابلة للسكن على الأقل",
+  },
+  {
+    label: "يحتوي على مطبخ قابل للاستخدام على الأقل",
+    value: "يحتوي على مطبخ قابل للاستخدام على الأقل",
+  },
+  {
+    label: "يحتوي على دورة مياه قابلة للاستخدام على الأقل",
+    value: "يحتوي على دورة مياه قابلة للاستخدام على الأقل",
+  },
 ];
 
 export const removeImagesFromBuilding = (buildingData: any) => {
@@ -109,14 +138,14 @@ export const removeImagesFromBuilding = (buildingData: any) => {
 };
 
 export const buildFormDataWithoutImages = (
-  formData: IDamageAssessmentState
+  formData: IDamageAssessmentState,
 ) => {
   const type = formData.buildingType;
 
   return {
     ...formData,
     [type]: removeImagesFromBuilding(
-      formData[type as keyof IDamageAssessmentState]
+      formData[type as keyof IDamageAssessmentState],
     ),
   };
 };

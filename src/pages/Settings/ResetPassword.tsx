@@ -29,6 +29,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ROUTES } from "../../routes/Routes";
 import { useSnackbar } from "notistack";
 import { usePost } from "../../hooks/api/useApi";
+import LanguageToggle from "../../components/LanguageToggle";
 
 interface ResetPasswordForm {
   password: string;
@@ -300,6 +301,7 @@ const ResetPassword = () => {
             </Stack>
           </Box>
         </Paper>
+        <LanguageToggle />
       </Container>
     </Fade>
   );

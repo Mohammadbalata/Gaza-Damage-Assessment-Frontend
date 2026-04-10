@@ -27,6 +27,7 @@ import {
 import { axiosClient } from "../api/baseUrl";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../hooks/redux";
+import LanguageToggle from "../components/LanguageToggle";
 
 interface StatusHistory {
   status: string;
@@ -524,6 +525,7 @@ const TrackStatusPage: React.FC = () => {
           </Box>
         </Paper>
       )}
+      <LanguageToggle />
     </Container>
   );
 };

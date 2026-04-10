@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,7 +8,6 @@ import {
   Typography,
   Stack,
   Paper,
-  CircularProgress,
   Avatar,
 } from "@mui/material";
 import {
@@ -22,6 +21,7 @@ import {
 import { useLanguage } from "../contexts/LanguageContext";
 import { ROUTES } from "../routes/Routes";
 import BackButton from "../components/Shared/BackButton";
+import LanguageToggle from "../components/LanguageToggle";
 
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,119 +63,97 @@ const SettingsPage: React.FC = () => {
     },
   ];
 
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }, []);
-
   return (
-    <>
-      {isLoading ? (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Hero Section with Gradient */}
+      <Paper
+        elevation={0}
+        sx={{
+          mb: 4,
+          p: 6,
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #3fb892 0%, #9fdb6a 100%)",
+          color: "white",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background Pattern */}
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "80vh",
+            position: "absolute",
+            top: -50,
+            right: language === "ar" ? "auto" : -50,
+            left: language === "ar" ? -50 : "auto",
+            width: 200,
+            height: 200,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)",
           }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: -30,
+            right: language === "ar" ? -30 : "auto",
+            left: language === "ar" ? "auto" : -30,
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.08)",
+          }}
+        />
+
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", md: "center" }}
+          spacing={2}
+          sx={{ position: "relative", zIndex: 1 }}
         >
-          <CircularProgress />
-        </Box>
-      ) : (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          {/* Hero Section with Gradient */}
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 4,
-              p: 6,
-              borderRadius: 3,
-              background: "linear-gradient(135deg, #3fb892 0%, #9fdb6a 100%)",
-              color: "white",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* Background Pattern */}
-            <Box
+          <Stack direction="row" spacing={4} alignItems="center" gap={0.5}>
+            <Avatar
               sx={{
-                position: "absolute",
-                top: -50,
-                right: language === "ar" ? "auto" : -50,
-                left: language === "ar" ? -50 : "auto",
-                width: 200,
-                height: 200,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.1)",
+                width: 64,
+                height: 64,
+                bgcolor: "rgba(255,255,255,0.2)",
+                border: "2px solid rgba(255,255,255,0.3)",
               }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: -30,
-                right: language === "ar" ? -30 : "auto",
-                left: language === "ar" ? "auto" : -30,
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.08)",
-              }}
-            />
-
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              justifyContent="space-between"
-              alignItems={{ xs: "flex-start", md: "center" }}
-              spacing={2}
-              sx={{ position: "relative", zIndex: 1 }}
             >
-              <Stack direction="row" spacing={4} alignItems="center" gap={0.5}>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    border: "2px solid rgba(255,255,255,0.3)",
-                  }}
-                >
-                  <Settings sx={{ fontSize: 36 }} />
-                </Avatar>
-                <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    {t("citizen.electronicServices")}
-                  </Typography>
-                </Box>
-              </Stack>
-              <BackButton
-                sx={{
-                  background: "white",
-                  borderRadius: "10px",
-                }}
-                language={language}
-                to={ROUTES.Service_Center}
-              />
-            </Stack>
-          </Paper>
-
-          {/* Dashboard Cards Grid */}
-          <Box
+              <Settings sx={{ fontSize: 36 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                {t("citizen.electronicServices")}
+              </Typography>
+            </Box>
+          </Stack>
+          <BackButton
             sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-              gap: 3,
-              mb: 4,
+              background: "white",
+              borderRadius: "10px",
             }}
-          >
-            {settingsCards.map((card) => (
-              <SettingsCard key={card.key} card={card} language={language} />
-            ))}
-          </Box>
-        </Container>
-      )}
-    </>
+            language={language}
+            to={ROUTES.Service_Center}
+          />
+        </Stack>
+      </Paper>
+
+      {/* Dashboard Cards Grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        {settingsCards.map((card) => (
+          <SettingsCard key={card.key} card={card} language={language} />
+        ))}
+      </Box>
+      <LanguageToggle />
+    </Container>
   );
 };
 

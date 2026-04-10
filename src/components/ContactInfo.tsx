@@ -1,28 +1,33 @@
 import { WhatsApp } from "@mui/icons-material";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const ContactInfo = ({
   phone,
   email,
   whatsapp,
   address,
-  addressTitle
+  addressTitle,
 }: {
   phone: string;
   email: string;
   whatsapp: string;
   address: string;
-  addressTitle:string
+  addressTitle: string;
 }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-lg  ">
-      <p className="text-xl font-bold text-[#1e3a5f] !m-4 !mb-2">{addressTitle}</p>
-        <div className="flex items-center gap-4 p-2  ">
+      <p className="text-xl font-bold text-[#1e3a5f] !m-4 !mb-2">
+        {addressTitle}
+      </p>
+      <div className="flex items-center gap-4 p-2  ">
         <div className="bg-[#f5a623] p-2 rounded-lg">
           <Phone className="w-6 h-6 text-white" />
         </div>
         <div>
-          <p className="text-sm text-gray-600">الهاتف</p>
+          <p className="text-sm text-gray-600">{t("contact.phoneNumber")}</p>
           <a
             href={`tel:${phone}`}
             className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
@@ -38,7 +43,7 @@ const ContactInfo = ({
           <Mail className="w-6 h-6 text-white" />
         </div>
         <div>
-          <p className="text-sm text-gray-600">البريد الإلكتروني</p>
+          <p className="text-sm text-gray-600">{t("contact.email")}</p>
           <a
             href={`mailto:${email}`}
             className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
@@ -54,7 +59,7 @@ const ContactInfo = ({
           <WhatsApp className="w-6 h-6 text-white" />
         </div>
         <div>
-          <p className="text-sm text-gray-600">واتساب</p>
+          <p className="text-sm text-gray-600">{t("contact.whatsapp")}</p>
           <a
             href={`https://wa.me/${whatsapp}`}
             className="text-lg font-semibold text-[#1e3a5f] hover:text-[#f5a623]"
@@ -63,22 +68,17 @@ const ContactInfo = ({
             {whatsapp}
           </a>
         </div>
-         
       </div>
       <div className="flex items-center gap-4 p-2 ">
         <div className="bg-[#f5a623] p-2 rounded-lg">
           <MapPin className="w-6 h-6 text-white" />
         </div>
         <div>
-          <p className="text-sm text-gray-600">العنوان</p>
-          <p className="text-lg font-semibold text-[#1e3a5f]">
-            {address}
-          </p>
+          <p className="text-sm text-gray-600">{t("contact.address")}</p>
+          <p className="text-lg font-semibold text-[#1e3a5f]">{address}</p>
         </div>
       </div>
-     
     </div>
-
   );
 };
 

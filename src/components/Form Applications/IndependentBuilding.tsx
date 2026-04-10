@@ -21,7 +21,9 @@ const IndependentBuilding = ({
   const propertyType = watch("IndependentBuilding.propertyType");
   const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
   const damageTypeWatch = watch("IndependentBuilding.damageType");
-  const showDamageValue = damageTypeWatch === "هدم جزئي";
+  const showDamageValue =
+    damageTypeWatch === "هدم جزئي" || damageTypeWatch === "Partial collapse";
+
   const BuildingContentWatch = watch("IndependentBuilding.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
 
@@ -29,14 +31,17 @@ const IndependentBuilding = ({
     const currentDamage = getValues("IndependentBuilding.damagePercentage");
     const currentHabitable = getValues("IndependentBuilding.isHabitable");
 
-    if (damageTypeWatch === "هدم كلي") {
+    if (damageTypeWatch === "هدم كلي" || damageTypeWatch === "Total collapse") {
       if (currentDamage !== "100%")
         setValue("IndependentBuilding.damagePercentage", "100%");
       if (currentHabitable !== "لا")
         setValue("IndependentBuilding.isHabitable", "لا");
     }
 
-    if (damageTypeWatch === "هدم جزئي") {
+    if (
+      damageTypeWatch === "هدم جزئي" ||
+      damageTypeWatch === "Partial collapse"
+    ) {
       if (currentDamage !== "")
         setValue("IndependentBuilding.damagePercentage", "");
       if (currentHabitable !== "")
@@ -49,7 +54,8 @@ const IndependentBuilding = ({
       {/* عدد الطوابق */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          عدد الطوابق <span className="text-red-500">*</span>
+          {t("form.numberOfFloors")}
+          <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -78,7 +84,8 @@ const IndependentBuilding = ({
       {/* مساحة الطابق الأرضي */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          مساحة الطابق الأرضي (م²) <span className="text-red-500">*</span>
+          {t("form.groundFloorArea")}
+          <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -106,7 +113,7 @@ const IndependentBuilding = ({
       {/* مساحة الطابق المتكرر */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          مساحة الطابق المتكرر (م²) <span className="text-red-500">*</span>
+          {t("form.commonFloorArea")} <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -134,7 +141,7 @@ const IndependentBuilding = ({
       {/* نوع حيازة العقار */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          نوع حيازة العقار <span className="text-red-500">*</span>
+          {t("form.propertyType")} <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.propertyType", {
@@ -148,10 +155,12 @@ const IndependentBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">لا يوجد</option>
-          <option value="ملك">ملك</option>
-          <option value="ايجار">ايجار </option>
-          <option value="انتفاع">انتفاع </option>
+          <option value={t("common.none")}>{t("common.none")}</option>
+          <option value={t("property.own")}>{t("property.own")}</option>
+          <option value={t("property.rent")}>{t("property.rent")} </option>
+          <option value={t("property.usufruct")}>
+            {t("property.usufruct")}
+          </option>
         </select>
         {errors?.IndependentBuilding?.propertyType && (
           <p className="text-red-600 text-sm">
@@ -166,12 +175,13 @@ const IndependentBuilding = ({
           })}
         >
           <label className="block text-sm font-medium mb-1">
-            اسم المالك الأساسي <span className="text-red-500">*</span>
+            {t("form.propertyOwnerName")}
+            <span className="text-red-500">*</span>
           </label>
 
           <input
             type="text"
-            placeholder="أدخل اسم المالك الأساسي"
+            placeholder={t("form.propertyEnterOwnerName")}
             {...register("IndependentBuilding.propertyOwnerName", {
               required: t("common.required"),
             })}
@@ -194,7 +204,7 @@ const IndependentBuilding = ({
       {/* نوع السقف */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          نوع السقف <span className="text-red-500">*</span>
+          {t("form.roofType")} <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.roofType", {
@@ -208,11 +218,15 @@ const IndependentBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر النوع</option>
-          <option value="بلاطة خرسانية">بلاطة خرسانية</option>
-          <option value="كرميد">كرميد</option>
-          <option value="زينكو">زينكو</option>
-          <option value="أسبست">أسبست</option>
+          <option value={t("common.selectType")}>
+            {t("common.selectType")}
+          </option>
+          <option value={t("roof.concreteSlab")}>
+            {t("roof.concreteSlab")}
+          </option>
+          <option value={t("roof.tile")}>{t("roof.tile")}</option>
+          <option value={t("roof.zinc")}>{t("roof.zinc")}</option>
+          <option value={t("roof.asbestos")}>{t("roof.asbestos")}</option>
         </select>
 
         {errors?.IndependentBuilding?.roofType && (
@@ -225,7 +239,8 @@ const IndependentBuilding = ({
       {/* نوع الجدران */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          نوع الجدران <span className="text-red-500">*</span>
+          {t("form.wallType")}
+          <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.wallType", {
@@ -239,11 +254,11 @@ const IndependentBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر النوع</option>
-          <option value="بلوك / حجر">بلوك / حجر</option>
-          <option value="قواطع ( خشب - ألمنيوم - جبص - زينكو )">
-            قواطع ( خشب - ألمنيوم - جبص - زينكو )
+          <option value={t("common.selectType")}>
+            {t("common.selectType")}
           </option>
+          <option value={t("wall.blockStone")}>{t("wall.blockStone")}</option>
+          <option value={t("wall.partitions")}>{t("wall.partitions")}</option>
         </select>
 
         {errors?.IndependentBuilding?.wallType && (
@@ -256,7 +271,7 @@ const IndependentBuilding = ({
       {/* عمر المبنى */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          عمر المبنى <span className="text-red-500">*</span>
+          {t("form.buildingAge")} <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.buildingAge", {
@@ -271,15 +286,15 @@ const IndependentBuilding = ({
           disabled={isChangeToReviewPage ? true : false}
         >
           <option value="" disabled>
-            اختر العمر التقريبي
+            {t("form.buildingAge")}
           </option>
-          <option value="0-10">0 - 10 سنوات</option>
-          <option value="11-20">11 - 20 سنة</option>
-          <option value="21-30">21 - 30 سنة</option>
-          <option value="31-40">31 - 40 سنة</option>
-          <option value="41-50">41 - 50 سنة</option>
-          <option value="51-60">51 - 60 سنة</option>
-          <option value=">60">أكثر من 60 سنة</option>
+          <option value="0-10">{t("buildingAge.0_10")}</option>
+          <option value="11-20">{t("buildingAge.11_20")}</option>
+          <option value="21-30">{t("buildingAge.21_30")}</option>
+          <option value="31-40">{t("buildingAge.31_40")}</option>
+          <option value="41-50">{t("buildingAge.41_50")}</option>
+          <option value="51-60">{t("buildingAge.51_60")}</option>
+          <option value=">60">{t("buildingAge.above_60")}</option>
         </select>
 
         {errors?.IndependentBuilding?.buildingAge && (
@@ -292,7 +307,7 @@ const IndependentBuilding = ({
       {/* تفاصيل الضرر */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          تفاصيل الضرر <span className="text-red-500">*</span>
+          {t("form.damageDetails")} <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.damageType", {
@@ -306,9 +321,15 @@ const IndependentBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر نوع الضرر</option>
-          <option value="هدم كلي"> هدم كلي</option>
-          <option value="هدم جزئي">هدم جزئي</option>
+          <option value={t("common.selectDamageType")}>
+            {t("common.selectDamageType")}
+          </option>
+          <option value={t("damage.totalCollapse")}>
+            {t("damage.totalCollapse")}
+          </option>
+          <option value={t("damage.partialCollapse")}>
+            {t("damage.partialCollapse")}
+          </option>
         </select>
         {showDamageValue &&
           DAMAGE_TYPES.map(
@@ -332,7 +353,7 @@ const IndependentBuilding = ({
                         "pointer-events-none accent-gray-200",
                     )}
                   />
-                  <span className="mr-2">{item.label}</span>
+                  <span className="mr-2">{t(item.label)}</span>
                 </div>
               ),
           )}
@@ -352,7 +373,8 @@ const IndependentBuilding = ({
       {/* نسبة الضرر */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          نسبة الضرر (%) <span className="text-red-500">*</span>
+          {t("form.damagePercentage")} (%)
+          <span className="text-red-500">*</span>
         </label>
         <select
           {...register("IndependentBuilding.damagePercentage", {
@@ -366,7 +388,8 @@ const IndependentBuilding = ({
           )}
           disabled={
             (isChangeToReviewPage ? true : false) ||
-            damageTypeWatch === "هدم كلي"
+            damageTypeWatch === "هدم كلي" ||
+            damageTypeWatch === "Total collapse"
           }
         >
           <option value="">0</option>
@@ -385,32 +408,37 @@ const IndependentBuilding = ({
       {/* هل هو قابل للسكن حالياً؟ */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          هل هو قابل للسكن حالياً؟ <span className="text-red-500">*</span>
+          {t("form.isHabitable")}
+          <span className="text-red-500">*</span>
         </label>
+
         <select
           {...register("IndependentBuilding.isHabitable", {
             required: t("common.required"),
           })}
           className={classNames(
             "input-field",
-            isChangeToReviewPage == true
+            isChangeToReviewPage === true
               ? "cursor-not-allowed bg-gray-200"
               : "",
           )}
           disabled={
             (isChangeToReviewPage ? true : false) ||
-            damageTypeWatch === "هدم كلي"
+            damageTypeWatch === "هدم كلي" ||
+            damageTypeWatch === "Total collapse"
           }
         >
-          <option value="">اختر نوع</option>
-          <option value="نعم">نعم</option>
-          <option value="لا">لا </option>
+          <option value="">{t("common.selectType")}</option>
+          <option value={t("form.yes")}>{t("form.yes")}</option>
+          <option value={t("form.yes")}>{t("form.yes")}</option>
         </select>
+
         {errors?.IndependentBuilding?.isHabitable && (
           <p className="text-red-600 text-sm">
             {errors.IndependentBuilding.isHabitable.message}
           </p>
         )}
+
         {showBuildingContent && (
           <div className="mt-5">
             {BuildingContent?.map((item, index) => (
@@ -424,7 +452,7 @@ const IndependentBuilding = ({
                   type="checkbox"
                   value={item.value}
                   {...register("IndependentBuilding.BuildingContent", {
-                    required: "اختر واحد على الأقل",
+                    required: t("common.selectAtLeastOne"),
                   })}
                   className={classNames(
                     "accent-primary",
@@ -435,6 +463,7 @@ const IndependentBuilding = ({
                 <span className="mr-2">{item.label}</span>
               </div>
             ))}
+
             {errors?.IndependentBuilding?.BuildingContent && (
               <p className="text-red-600 text-sm">
                 {errors.IndependentBuilding.BuildingContent.message}
@@ -447,7 +476,8 @@ const IndependentBuilding = ({
       {/* اسم الشارع  */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          اسم الشارع <span className="text-gray-400">(اختياري)</span>
+          {t("form.streetName")}{" "}
+          <span className="text-gray-400">({t("common.optional")})</span>
         </label>
         <input
           type="text"
@@ -468,7 +498,8 @@ const IndependentBuilding = ({
       {/*  رقم المبنى */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          رقم المبنى <span className="text-gray-400">(اختياري)</span>
+          {t("form.buildingNumber")}{" "}
+          <span className="text-gray-400">({t("common.optional")})</span>
         </label>
 
         <input
@@ -490,7 +521,7 @@ const IndependentBuilding = ({
       {/* ملاحظات إضافية */}
       <div>
         <label className=" text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
-          <span>ملاحظات إضافية</span>
+          <span>{t("form.additionalNotes")}</span>
           {/* عداد الحروف ضمن اللابل */}
           <span
             className={`text-sm text-gray-500 ${
@@ -511,7 +542,7 @@ const IndependentBuilding = ({
             maxLength={300}
             disabled={isChangeToReviewPage}
             onChange={(e) => setTextLength(e.target.value.length)}
-            placeholder="اكتب أي تفاصيل إضافية (إن وجدت)..."
+            placeholder={t("form.additionalNotesPlaceholder")}
           ></textarea>
         </div>
       </div>
@@ -525,21 +556,21 @@ const IndependentBuilding = ({
         <SingleImageInput
           control={control}
           name="IndependentBuilding.before_damage_image"
-          label="صورة العقار قبل الدمار ( إن وجد )"
+          label={t("form.beforeImage")}
           {...{ isChangeToReviewPage }}
         />
 
         <SingleImageInput
           control={control}
           name="IndependentBuilding.after_damage_image"
-          label="صورة العقار بعد الدمار ( إن وجد )"
+          label={t("form.afterImage")}
           {...{ isChangeToReviewPage }}
         />
 
         <MultipleImagesInput
           control={control}
           name="IndependentBuilding.ownership_documents"
-          label="مستندات الملكية ( إن وجد )"
+          label={t("form.ownershipDocuments")}
           {...{ isChangeToReviewPage }}
         />
       </div>

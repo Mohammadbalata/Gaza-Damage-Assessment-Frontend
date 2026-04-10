@@ -17,6 +17,7 @@ import FormInput from "../components/FormInput";
 import { ROUTES } from "../routes/Routes";
 import { usePost } from "../hooks/api/useApi";
 import { API } from "../constants/ApiRoutes";
+import LanguageToggle from "../components/LanguageToggle";
 
 interface FormData {
   email: string;
@@ -194,6 +195,7 @@ const ForgotPasswordPage = () => {
           </Stack>
         </form>
       )}
+      <LanguageToggle />
     </AuthComp>
   );
 };

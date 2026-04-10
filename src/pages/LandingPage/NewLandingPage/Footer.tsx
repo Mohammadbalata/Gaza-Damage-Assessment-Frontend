@@ -9,9 +9,11 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-[#1e3a5f] text-white">
@@ -20,18 +22,17 @@ export function Footer() {
           {/* About */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
-              منصة سوا بنعمرها
+              {t("footer.about.title")}
             </h3>
             <p className="text-gray-300 leading-relaxed mb-4">
-               هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق 'توأم رقمي' للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.        
-
+              {t("footer.about.description")}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
-              روابط سريعة
+              {t("footer.links.title")}
             </h3>
             <ul className="space-y-2">
               <li>
@@ -43,7 +44,7 @@ export function Footer() {
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  من نحن
+                  {t("footer.links.about")}
                 </button>
               </li>
               <li>
@@ -55,7 +56,7 @@ export function Footer() {
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  أقسامنا
+                  {t("footer.links.departments")}
                 </button>
               </li>
               <li>
@@ -67,7 +68,7 @@ export function Footer() {
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  الشركاء
+                  {t("footer.links.partners")}
                 </button>
               </li>
               <li>
@@ -79,7 +80,7 @@ export function Footer() {
                   }
                   className="text-gray-300 hover:text-[#f5a623] transition-colors"
                 >
-                  تواصل معنا
+                  {t("footer.links.contact")}
                 </button>
               </li>
             </ul>
@@ -88,7 +89,7 @@ export function Footer() {
           {/* Contact Info */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
-              معلومات التواصل
+              {t("footer.contact.title")}
             </h3>
             <div className="flex flex-col gap-5">
               <ul className="space-y-3">
@@ -132,7 +133,8 @@ export function Footer() {
                   <MapPin className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-gray-300">
-                      قطاع غزة - محافظة خانيونس <br />
+                      {t("contactInfo.gaza.address")}
+                      <br />
                     </p>
                   </div>
                 </li>
@@ -192,16 +194,18 @@ export function Footer() {
           {/* Working Hours */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-[#f5a623]">
-              ساعات العمل
+              {t("footer.workingHours.title")}
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    <span className="font-semibold">السبت - الخميس:</span>
+                    <span className="font-semibold">
+                      {t("footer.workingHours.weekdays")}
+                    </span>
                     <br />
-                    8:00 ص - 6:00 م
+                    {t("footer.workingTime")}
                   </p>
                 </div>
               </li>
@@ -209,10 +213,12 @@ export function Footer() {
                 <Clock className="w-5 h-5 text-[#f5a623] mt-1 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    <span className="font-semibold">الجمعة:</span>
+                    <span className="font-semibold">
+                      {t("footer.workingHours.friday")}:
+                    </span>
                     <br />
                     <span className="text-[#f5a623]">
-                      مغلق - استراحة الأسبوع
+                      {t("footer.workingHours.closed")}
                     </span>
                   </p>
                 </div>
@@ -260,7 +266,8 @@ export function Footer() {
             </div>
 
             <p className="text-gray-400 text-center">
-              جميع الحقوق محفوظة © {currentYear} منصة سوا بنعمرها - غزة
+              {t("footer.rights.part1")} {currentYear}{" "}
+              {t("footer.rights.part2")}
             </p>
           </div>
         </div>

@@ -30,6 +30,7 @@ import { API } from "../constants/ApiRoutes";
 import { api } from "../services/api";
 import BackButton from "../components/Shared/BackButton";
 import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
+import LanguageToggle from "../components/LanguageToggle";
 
 // import { getReviewData } from "../utils/getReviewData";
 // import { axiosClient } from "../api/baseUrl";
@@ -95,12 +96,20 @@ const CurrentLocationMapPage = () => {
     const loadAllData = async () => {
       setGovLoading(true);
       try {
-        const [govLocalRes, muniLocalRes, nhLocalRes, lmLocalRes, govBackendRes] = await Promise.all([
+        const [
+          govLocalRes,
+          muniLocalRes,
+          nhLocalRes,
+          lmLocalRes,
+          govBackendRes,
+        ] = await Promise.all([
           fetch("/Governorates.json"),
           fetch("/Municipalitys.json"),
           fetch("/Neighborhoods.json"),
           fetch("/Landmarks.json"),
-          api.get("/locations/governorates").catch(() => ({ data: { governorates: [] } }))
+          api
+            .get("/locations/governorates")
+            .catch(() => ({ data: { governorates: [] } })),
         ]);
 
         const govL = await govLocalRes.json();
@@ -113,7 +122,8 @@ const CurrentLocationMapPage = () => {
         if (nhL.features) setLocalNhData(nhL.features);
         if (lmL.features) setLocalLmData(lmL.features);
 
-        if (govBackendRes.data.governorates) setGovernorates(govBackendRes.data.governorates);
+        if (govBackendRes.data.governorates)
+          setGovernorates(govBackendRes.data.governorates);
       } catch (err) {
         console.error("Error loading data:", err);
       } finally {
@@ -127,7 +137,9 @@ const CurrentLocationMapPage = () => {
   // Normalization and Match Helpers
   const normalizeText = (text: string) => {
     if (!text) return "";
-    return text.toString().trim()
+    return text
+      .toString()
+      .trim()
       .replace(/[\uFEFF\u200B\u200C\u200D\u0640]/g, "") // Added \u0640 (Tatweel)
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
@@ -137,25 +149,28 @@ const CurrentLocationMapPage = () => {
   };
 
   const GOV_MAPPING: Record<string, string> = {
-    "الشمال": "شمال غزة",
+    الشمال: "شمال غزة",
     "شمال غزة": "شمال غزة",
     "دير البلح": "الوسطى",
     "دير البلح - الوسطى": "الوسطى",
-    "الوسطى": "الوسطى",
-    "غزة": "غزة",
+    الوسطى: "الوسطى",
+    غزة: "غزة",
     "خان يونس": "خان يونس",
-    "رفح": "رفح",
+    رفح: "رفح",
   };
 
   const isPointInPolygon = (point: [number, number], vs: number[][][]) => {
-    const x = point[1], y = point[0]; // lng, lat
+    const x = point[1],
+      y = point[0]; // lng, lat
     let inside = false;
     const polygon = vs[0]; // First ring
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const xi = polygon[i][0], yi = polygon[i][1];
-      const xj = polygon[j][0], yj = polygon[j][1];
-      const intersect = ((yi > y) !== (yj > y))
-          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      const xi = polygon[i][0],
+        yi = polygon[i][1];
+      const xj = polygon[j][0],
+        yj = polygon[j][1];
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
       if (intersect) inside = !inside;
     }
     return inside;
@@ -164,14 +179,19 @@ const CurrentLocationMapPage = () => {
   const findMatch = (list: any[], nameToFind: string) => {
     if (!nameToFind || !list || list.length === 0) return null;
     const normalizedToFind = normalizeText(nameToFind);
-    
-    let match = list.find(item => item && normalizeText(item.name) === normalizedToFind);
-    
+
+    let match = list.find(
+      (item) => item && normalizeText(item.name) === normalizedToFind,
+    );
+
     if (!match) {
-      match = list.find(item => {
+      match = list.find((item) => {
         if (!item || !item.name) return false;
         const normalizedItem = normalizeText(item.name);
-        return normalizedItem.includes(normalizedToFind) || normalizedToFind.includes(normalizedItem);
+        return (
+          normalizedItem.includes(normalizedToFind) ||
+          normalizedToFind.includes(normalizedItem)
+        );
       });
     }
     return match;
@@ -185,7 +205,11 @@ const CurrentLocationMapPage = () => {
       for (const feature of localGovData) {
         if (feature.geometry?.type === "Polygon") {
           if (isPointInPolygon(position, feature.geometry.coordinates)) {
-            govNameFound = feature.properties.Name || feature.properties.المحافظة || feature.properties.Governorat || feature.properties.المحا;
+            govNameFound =
+              feature.properties.Name ||
+              feature.properties.المحافظة ||
+              feature.properties.Governorat ||
+              feature.properties.المحا;
             break;
           }
         }
@@ -196,7 +220,11 @@ const CurrentLocationMapPage = () => {
       for (const feature of localMuniData) {
         if (feature.geometry?.type === "Polygon") {
           if (isPointInPolygon(position, feature.geometry.coordinates)) {
-            muniNameFound = feature.properties.Mun_Name || feature.properties.البلدية || feature.properties.Municipali || feature.properties.البلد;
+            muniNameFound =
+              feature.properties.Mun_Name ||
+              feature.properties.البلدية ||
+              feature.properties.Municipali ||
+              feature.properties.البلد;
             if (!govNameFound) govNameFound = feature.properties.المحا;
             break;
           }
@@ -208,7 +236,10 @@ const CurrentLocationMapPage = () => {
       for (const feature of localNhData) {
         if (feature.geometry?.type === "Polygon") {
           if (isPointInPolygon(position, feature.geometry.coordinates)) {
-            nhNameFound = feature.properties.الحي || feature.properties.Neighborho || feature.properties.name;
+            nhNameFound =
+              feature.properties.الحي ||
+              feature.properties.Neighborho ||
+              feature.properties.name;
             if (!muniNameFound) muniNameFound = feature.properties.البلد;
             if (!govNameFound) govNameFound = feature.properties.المحا;
             break;
@@ -222,7 +253,8 @@ const CurrentLocationMapPage = () => {
       localLmData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
-        const dist = Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
+        const dist =
+          Math.pow(position[0] - lLat, 2) + Math.pow(position[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
           nearestLandmark = f;
@@ -231,12 +263,26 @@ const CurrentLocationMapPage = () => {
 
       let lmNameFound = "";
       if (nearestLandmark && minDistance < 0.0005) {
-        lmNameFound = nearestLandmark.properties.اسم_المعلم || nearestLandmark.properties.name || nearestLandmark.properties.Landmark;
-        
+        lmNameFound =
+          nearestLandmark.properties.اسم_المعلم ||
+          nearestLandmark.properties.name ||
+          nearestLandmark.properties.Landmark;
+
         // Contextual Fallbacks
-        if (!govNameFound) govNameFound = nearestLandmark.properties.المحافظة || nearestLandmark.properties.Governorat || nearestLandmark.properties.المحا;
-        if (!muniNameFound) muniNameFound = nearestLandmark.properties.البلدية || nearestLandmark.properties.Municipali || nearestLandmark.properties.البلد;
-        if (!nhNameFound) nhNameFound = nearestLandmark.properties.الحي || nearestLandmark.properties.Neighborho;
+        if (!govNameFound)
+          govNameFound =
+            nearestLandmark.properties.المحافظة ||
+            nearestLandmark.properties.Governorat ||
+            nearestLandmark.properties.المحا;
+        if (!muniNameFound)
+          muniNameFound =
+            nearestLandmark.properties.البلدية ||
+            nearestLandmark.properties.Municipali ||
+            nearestLandmark.properties.البلد;
+        if (!nhNameFound)
+          nhNameFound =
+            nearestLandmark.properties.الحي ||
+            nearestLandmark.properties.Neighborho;
       }
 
       setTargetNames({
@@ -464,7 +510,6 @@ const CurrentLocationMapPage = () => {
     },
   });
 
-
   useEffect(() => {
     if (position) {
       // Reverse geocoding
@@ -587,7 +632,14 @@ const CurrentLocationMapPage = () => {
   console.log(outsideAddress);
   if (loadingLocal) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -605,7 +657,7 @@ const CurrentLocationMapPage = () => {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <DamageAssessmentStepper 
+          <DamageAssessmentStepper
             activeStep={3}
             step1Completed={true}
             step2Completed={true}
@@ -680,7 +732,11 @@ const CurrentLocationMapPage = () => {
                           : "Select Governorate"
                       }
                       onChange={handleGovernorateChange}
-                      endAdornment={govLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
+                      endAdornment={
+                        govLoading ? (
+                          <CircularProgress size={20} sx={{ mr: 4 }} />
+                        ) : null
+                      }
                     >
                       {governorates.map((g) => (
                         <MenuItem key={g.id} value={g.id}>
@@ -709,7 +765,11 @@ const CurrentLocationMapPage = () => {
                           : "Select Municipality"
                       }
                       onChange={handleMunicipalityChange}
-                      endAdornment={muniLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
+                      endAdornment={
+                        muniLoading ? (
+                          <CircularProgress size={20} sx={{ mr: 4 }} />
+                        ) : null
+                      }
                     >
                       {municipalities.map((m) => (
                         <MenuItem key={m.id} value={m.id}>
@@ -740,7 +800,11 @@ const CurrentLocationMapPage = () => {
                         language === "ar" ? "اختر الحي" : "Select Neighborhood"
                       }
                       onChange={handleNeighborhoodChange}
-                      endAdornment={nhLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
+                      endAdornment={
+                        nhLoading ? (
+                          <CircularProgress size={20} sx={{ mr: 4 }} />
+                        ) : null
+                      }
                     >
                       {neighborhoodLocations.map((n) => (
                         <MenuItem key={n.id} value={n.id}>
@@ -764,7 +828,11 @@ const CurrentLocationMapPage = () => {
                         language === "ar" ? "أقرب معلم" : "Nearest Landmark"
                       }
                       onChange={handleLandmarkChange}
-                      endAdornment={lmLoading ? <CircularProgress size={20} sx={{ mr: 4 }} /> : null}
+                      endAdornment={
+                        lmLoading ? (
+                          <CircularProgress size={20} sx={{ mr: 4 }} />
+                        ) : null
+                      }
                     >
                       {landmarks.map((lm: any) => (
                         <MenuItem key={lm.id} value={lm.id}>
@@ -927,6 +995,7 @@ const CurrentLocationMapPage = () => {
           </Stack>
         </CardContent>
       </Card>
+      <LanguageToggle />
     </Container>
   );
 };

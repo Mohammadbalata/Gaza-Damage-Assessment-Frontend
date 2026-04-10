@@ -29,6 +29,7 @@ import BackButton from "../components/Shared/BackButton";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useEffect } from "react";
+import LanguageToggle from "../components/LanguageToggle";
 
 /**
  * Citizen Dashboard Page
@@ -41,7 +42,7 @@ const CitizenDashboard: React.FC = () => {
   useEffect(() => {
     const activeTourStep = localStorage.getItem("activeTourStep");
     const hasSeenDashboardTour = localStorage.getItem("hasSeenDashboardTour");
-    
+
     if (activeTourStep === "2" || !hasSeenDashboardTour) {
       const driverObj = driver({
         showProgress: true,
@@ -62,7 +63,6 @@ const CitizenDashboard: React.FC = () => {
               align: "start",
             },
           },
-          
         ],
       });
 
@@ -74,13 +74,13 @@ const CitizenDashboard: React.FC = () => {
 
       const timer = setTimeout(() => {
         const element = document.querySelector("#add-damage-request-card");
-        
+
         if (element) {
           driverObj.drive();
 
           const handleClick = () => {
-             driverObj.destroy();
-             element.removeEventListener("click", handleClick);
+            driverObj.destroy();
+            element.removeEventListener("click", handleClick);
           };
           element.addEventListener("click", handleClick);
         }
@@ -350,6 +350,7 @@ const CitizenDashboard: React.FC = () => {
           </Button>
         </Stack>
       </Paper> */}
+      <LanguageToggle />
     </Container>
   );
 };

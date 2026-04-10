@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../routes/Routes";
 import { Home } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
+import LanguageToggle from "../components/LanguageToggle";
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
@@ -76,6 +77,7 @@ const NotFoundPage = () => {
           {t("notFound.backToHome")}
         </Button>
       </Box>
+      <LanguageToggle />
     </Container>
   );
 };
