@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { setFamilyInfo } from "../redux/slices/familySlice";
+import LanguageToggle from "../components/LanguageToggle";
 interface FormData {
   addressBeforeWar: string;
   numberOfChildren: number;
@@ -181,6 +182,7 @@ const FamilyInfoPage = () => {
           </div>
         </form>
       </div>
+      <LanguageToggle />
     </div>
   );
 };

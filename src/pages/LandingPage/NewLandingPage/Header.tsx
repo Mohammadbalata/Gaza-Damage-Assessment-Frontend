@@ -61,9 +61,14 @@ export function Header() {
           />
 
           {/* Desktop Navigation */}
-          <nav className={classNames("hidden lg:flex items-center gap-6 xl:gap-10 text-black font-medium", {
-            "!gap-16": token && windowPathname == "/home",
-          })}>
+          <nav
+            className={classNames(
+              "hidden lg:flex items-center gap-6 xl:gap-10 text-black font-medium",
+              {
+                "!gap-16": token && windowPathname == "/home",
+              },
+            )}
+          >
             {!token || windowPathname !== "/" ? (
               <button
                 onClick={() => {
@@ -75,48 +80,49 @@ export function Header() {
                 }}
                 className="hover:text-green-600 transition-colors "
               >
-                الرئيسية
+                {t("header.home")}
               </button>
             ) : (
               <button
                 onClick={() => navigate(ROUTES.HOME)}
-                className={classNames("hover:text-green-600 transition-colors xl:w-auto ",{
-                  "w-[160px]": !token,
-                })}
+                className={classNames(
+                  "hover:text-green-600 transition-colors xl:w-auto ",
+                  {
+                    "w-[160px]": !token,
+                  },
+                )}
               >
-                لوحة التحكم
+                {t("header.dashboard")}
               </button>
             )}
             {windowPathname !== "/home" && (
               <>
-                
                 <button
                   onClick={() => scrollToSection("departments")}
                   className="hover:text-green-600 transition-colors whitespace-nowrap text-center"
                 >
-                  أقسام المنصة
+                  {t("header.departments")}
                 </button>
                 <button
                   onClick={() => scrollToSection("about")}
                   className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
-                  عن المنصة
+                  {t("header.about")}
                 </button>
                 <button
                   onClick={() => scrollToSection("partners")}
                   className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
-                  الشركاء
+                  {t("header.partners")}
                 </button>
                 <button
                   onClick={() => scrollToSection("contact")}
                   className="hover:text-green-600 transition-colors whitespace-nowrap"
                 >
-                  اتصل بنا
+                  {t("header.contact")}
                 </button>
               </>
             )}
-          
 
             {/* Auth Buttons */}
 
@@ -205,14 +211,14 @@ export function Header() {
                     onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
                     className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition hidden"
                   >
-                    تسجيل دخول المسؤول
+                    {t("header.adminLogin")}
                   </button>
 
                   <button
                     onClick={() => navigate(ROUTES.SIGNIN)}
                     className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md hidden"
                   >
-                    تسجيل دخول المواطن
+                    {t("header.citizenLogin")}
                   </button>
                 </>
               )}
@@ -235,7 +241,10 @@ export function Header() {
         {/* Mobile Navigation */}
 
         {isMenuOpen && (
-          <nav className="lg:hidden bg-[#ffffff] text-black rounded-xl mt-2 py-4 shadow-lg">
+          <nav
+            dir={language === "ar" ? "rtl" : "ltr"}
+            className="lg:hidden bg-[#ffffff] text-black rounded-xl mt-2 py-4 shadow-lg"
+          >
             {token && (
               <Paper
                 elevation={0}
@@ -279,7 +288,10 @@ export function Header() {
                   justifyContent="space-between"
                   alignItems={{ xs: "flex-start", md: "center" }}
                   spacing={2}
-                  sx={{ position: "relative", zIndex: 1 }}
+                  sx={{
+                    position: "relative",
+                    zIndex: 1,
+                  }}
                 >
                   <Stack
                     direction="row"
@@ -329,52 +341,51 @@ export function Header() {
                     navigate(ROUTES.LAYOUT);
                   }
                 }}
-                className="block w-full text-right px-6 py-3 hover:text-green-600"
+                className={classNames(
+                  " w-full px-6 py-3 hover:text-green-600 flex justify-start",
+                )}
               >
-                الرئيسية
+                {t("header.home")}
               </button>
             ) : (
               <button
                 onClick={() => navigate(ROUTES.HOME)}
-                className={classNames("block w-full text-right px-6 py-3 hover:text-green-600")}
+                className={classNames(
+                  "flex justify-start w-full text-right px-6 py-3 hover:text-green-600",
+                )}
               >
-                لوحة التحكم
+                {t("header.dashboard")}
               </button>
             )}
-            
-
             {windowPathname !== "/home" && (
               <>
-                
-
                 <button
                   onClick={() => scrollToSection("departments")}
-                  className="block w-full text-right px-6 py-3 hover:text-green-600"
+                  className="flex justify-start w-full text-right px-6 py-3 hover:text-green-600"
                 >
-                  أقسام المنصة
+                  {t("header.departments")}
                 </button>
                 <button
                   onClick={() => scrollToSection("about")}
-                  className="block w-full text-right px-6 py-3 hover:text-green-600"
+                  className="flex justify-start w-full text-right px-6 py-3 hover:text-green-600"
                 >
-                  عن المنصة
+                  {t("header.about")}
                 </button>
                 <button
                   onClick={() => scrollToSection("partners")}
-                  className="block w-full text-right px-6 py-3 hover:text-green-600"
+                  className="flex justify-start w-full text-right px-6 py-3 hover:text-green-600"
                 >
-                  الشركاء 
+                  {t("header.partners")}
                 </button>
 
                 <button
                   onClick={() => scrollToSection("contact")}
-                  className="block w-full text-right px-6 py-3 hover:text-green-600"
+                  className="flex justify-start w-full text-right px-6 py-3 hover:text-green-600"
                 >
-                  اتصل بنا
+                  {t("header.contact")}
                 </button>
               </>
             )}
-
             {token ? (
               <button
                 onClick={handleLogout}
@@ -396,14 +407,14 @@ export function Header() {
                   onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
                   className="w-full px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition sm:hidden"
                 >
-                  تسجيل دخول المسؤول
+                  {t("header.adminLogin")}
                 </button>
 
                 <button
                   onClick={() => navigate(ROUTES.SIGNIN)}
                   className="w-full px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md hidden"
                 >
-                  تسجيل دخول المواطن
+                  {t("header.citizenLogin")}
                 </button>
               </div>
             )}

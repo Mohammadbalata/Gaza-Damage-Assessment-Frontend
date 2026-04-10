@@ -14,6 +14,7 @@ import {
 } from "@mui/icons-material";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { ROUTES } from "../../routes/Routes";
+import LanguageToggle from "../../components/LanguageToggle";
 
 const BiometricDataPage = () => {
   const navigate = useNavigate();
@@ -118,6 +119,7 @@ const BiometricDataPage = () => {
           {t("common.backToSettings")}
         </Button>
       </Paper>
+      <LanguageToggle />
     </Container>
   );
 };

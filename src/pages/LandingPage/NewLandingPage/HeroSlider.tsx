@@ -27,7 +27,7 @@ export function HeroSlider() {
   const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const {
     register,
     handleSubmit,
@@ -107,26 +107,30 @@ export function HeroSlider() {
             style={{ backgroundImage: `url(${slides[currentSlide].image})` }}
           >
             <motion.div
-            initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-             className={classNames(" absolute flex items-center w-full justify-around  mt-8 z-10 flex-wrap gap-3 ",{
-              'hidden': token
-            })}>
-                  <button
-                    onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
-                    className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition hidden sm:flex"
-                  >
-                    تسجيل دخول المسؤول
-                  </button>
+              className={classNames(
+                " absolute flex items-center w-full justify-around  mt-8 z-10 flex-wrap gap-3 ",
+                {
+                  hidden: token,
+                },
+              )}
+            >
+              <button
+                onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
+                className="px-6 py-2 rounded-xl border border-gray-400 text-gray-700 bg-white hover:bg-gray-100 transition hidden sm:flex"
+              >
+                {t("header.adminLogin")}
+              </button>
 
-                  <button
-                    onClick={() => navigate(ROUTES.SIGNIN)}
-                    className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
-                  >
-                    تسجيل دخول المواطن
-                  </button>
-                </motion.div>
+              <button
+                onClick={() => navigate(ROUTES.SIGNIN)}
+                className="px-6 py-2 rounded-xl text-white bg-gradient-to-r from-teal-700 to-green-500 hover:opacity-90 transition shadow-md"
+              >
+                {t("header.citizenLogin")}
+              </button>
+            </motion.div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
           </div>
 
@@ -224,7 +228,7 @@ export function HeroSlider() {
                         ? "ابحث عن رقم خدمة أو رقم معاملة ..."
                         : "Enter tracking number..."
                     }
-                    className={`w-1 flex-1  md:py-4 py-2 text-gray-700 outline-none text-right placeholder-gray-400 ${
+                    className={`w-1 flex-1  md:py-4 py-2 text-gray-700 outline-none ${language === "ar" ? "text-right" : "text-left"} placeholder-gray-400 ${
                       errors.trackingNumber ? "border-red-500" : ""
                     } `}
                     dir={language === "ar" ? "rtl" : "ltr"}
@@ -276,7 +280,7 @@ export function HeroSlider() {
                   </motion.p>
                 )}
               </div>
-              
+
               <div
                 id="system-details"
                 className="flex flex-nowrap items-center md:justify-center gap-4 mt-6 mx-6 bg-gray-200 rounded-xl overflow-x-auto whitespace-nowrap thin-scrollbar justify-center "
@@ -285,7 +289,7 @@ export function HeroSlider() {
                   <Home className="w-5 h-5 " />
 
                   <span className="text-sm font-bold text-gray-700">
-                    0 منزل مرمم
+                    0 {t("systemDetails.housesRenovated")}
                   </span>
                 </div>
 
@@ -294,7 +298,7 @@ export function HeroSlider() {
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <Users className="w-5 h-5" />
                   <span className="text-sm font-bold text-gray-700">
-                    0 مستفيد
+                    0 {t("systemDetails.beneficiaries")}
                   </span>
                 </div>
 
@@ -303,7 +307,7 @@ export function HeroSlider() {
                 <div className="flex-shrink-0 flex items-center gap-3 py-3 px-5">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm font-bold text-gray-700">
-                    0% نسبة الرضا
+                    0% {t("systemDetails.satisfactionRate")}
                   </span>
                 </div>
               </div>

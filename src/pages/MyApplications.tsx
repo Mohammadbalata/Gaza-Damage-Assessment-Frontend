@@ -67,6 +67,7 @@ import MapContainer from "../components/MapContainer";
 // import SelectLocations from "../components/SelectLocations";
 // import { locations } from "../constants/locations";
 import { axiosClient } from "../api/baseUrl";
+import LanguageToggle from "../components/LanguageToggle";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -1601,6 +1602,7 @@ const MyApplications = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <LanguageToggle />
       </Container>
     </Fade>
   );

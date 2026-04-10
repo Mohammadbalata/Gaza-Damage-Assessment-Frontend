@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { ArrowBack, CheckCircle } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
+import LanguageToggle from "../components/LanguageToggle";
 
 interface FormData {
   [key: string]: string;
@@ -34,7 +35,7 @@ const VerificationQuestionsPage = () => {
   const id = query.get("id");
 
   const { verificationQuestion, loading: loadingStore } = useAppSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
   const dispatch = useAppDispatch();
   const [questions, setQuestions] = useState<any[]>([]);
@@ -49,7 +50,10 @@ const VerificationQuestionsPage = () => {
   } = useForm<FormData>();
 
   useEffect(() => {
-    console.log("VerificationQuestionsPage Mount - Questions Length:", verificationQuestion?.length);
+    console.log(
+      "VerificationQuestionsPage Mount - Questions Length:",
+      verificationQuestion?.length,
+    );
     if (verificationQuestion?.length === 0) {
       setLoading(true);
       dispatch(
@@ -57,11 +61,11 @@ const VerificationQuestionsPage = () => {
           national_id: id ?? "",
           password: "",
           pathSignUp: `${API.citizen.auth.verifyQuestions}`,
-        })
+        }),
       )
         .unwrap()
         .then(() => {
-          console.log('Fetch questions success');
+          console.log("Fetch questions success");
         })
         .catch((err) => {
           console.error("Fetch questions failed:", err);
@@ -227,11 +231,12 @@ const VerificationQuestionsPage = () => {
               }
               sx={{ py: 1.5, fontWeight: 600 }}
             >
-            {loadingInput ? "" : t("auth.verify")}
+              {loadingInput ? "" : t("auth.verify")}
             </Button>
           </Stack>
         </Stack>
       </form>
+      <LanguageToggle />
     </AuthComp>
   );
 };

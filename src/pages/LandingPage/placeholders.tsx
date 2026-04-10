@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { ArrowBack } from "@mui/icons-material";
 import { ROUTES } from "../../routes/Routes";
+import LanguageToggle from "../../components/LanguageToggle";
 
 const PlaceholderPage: React.FC<{ titleKey: string }> = ({ titleKey }) => {
   const { t, language } = useLanguage();
@@ -41,6 +42,7 @@ const PlaceholderPage: React.FC<{ titleKey: string }> = ({ titleKey }) => {
       >
         {t("common.back")}
       </Button>
+      <LanguageToggle />
     </Container>
   );
 };

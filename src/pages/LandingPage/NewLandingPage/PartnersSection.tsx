@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useLanguage } from "../../../contexts/LanguageContext";
 
 const partners = [
   {
@@ -9,6 +10,7 @@ const partners = [
 ];
 
 export function PartnersSection() {
+  const { t } = useLanguage();
   return (
     <section id="partners" className="py-20 bg-gray-200 scroll-mt-24">
       <div className="container mx-auto px-4">
@@ -20,12 +22,11 @@ export function PartnersSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-[#1e3a5f] mb-4">
-            الشركاء 
+            {t("PartnersSection.title")}
           </h2>
           <div className="w-20 h-1 bg-[#f5a623] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            نفخر بشراكاتنا مع المنظمات والجهات الداعمة التي تساهم في تحقيق
-            أهدافنا
+            {t("PartnersSection.description")}
           </p>
         </motion.div>
 

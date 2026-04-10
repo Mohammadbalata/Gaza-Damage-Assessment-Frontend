@@ -30,6 +30,7 @@ import { axiosClient } from "../api/baseUrl";
 import { Login as LoginIcon } from "@mui/icons-material";
 import { API } from "../constants/ApiRoutes";
 import { useSnackbar } from "notistack";
+import LanguageToggle from "../components/LanguageToggle";
 
 interface DamageAssessmentDialogProps {
   onClose: () => void;
@@ -124,7 +125,7 @@ const DamageAssessmentDialog = ({
 
     // Create a deep copy
     const cleaned = JSON.parse(
-      JSON.stringify(data, (value:any) => {
+      JSON.stringify(data, (value: any) => {
         // Skip File objects
         if (value instanceof File) {
           return undefined;
@@ -434,13 +435,17 @@ const DamageAssessmentDialog = ({
         location?.municipality_id || initLoc?.municipality_id;
       const neighborhood_id =
         location?.neighborhood_id || initLoc?.neighborhood_id;
-      const landmark_id =
-        location?.landmark_id || initLoc?.landmark_id;
+      const landmark_id = location?.landmark_id || initLoc?.landmark_id;
       const landmark = location?.landmark ?? initLoc?.landmark;
 
       console.log("Submitting Data - Coords:", { latitude, longitude });
       console.log("Submitting Data - Address:", address);
-      console.log("Submitting Data - IDs:", { governorate_id, municipality_id, neighborhood_id, landmark_id });
+      console.log("Submitting Data - IDs:", {
+        governorate_id,
+        municipality_id,
+        neighborhood_id,
+        landmark_id,
+      });
       console.log("Submitting Data - Nearest Landmark:", landmark);
 
       const reBuildData = {
@@ -699,7 +704,7 @@ const DamageAssessmentDialog = ({
           "bg-gray-50": isViewMode,
         })}
       >
-        <DamageAssessmentStepper 
+        <DamageAssessmentStepper
           activeStep={2}
           step1Completed={true}
           step2Completed={true}
@@ -742,11 +747,11 @@ const DamageAssessmentDialog = ({
                 value={damageAssessmentInfo.buildingType}
               >
                 <option value="" disabled>
-                  اختر مبنى
+                  {t("selectBuilding.title")}
                 </option>
                 {buildingOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label)}
                   </option>
                 ))}
               </select>
@@ -810,6 +815,7 @@ const DamageAssessmentDialog = ({
           )}
         </form>
       </div>
+      <LanguageToggle />
     </div>
   );
 };

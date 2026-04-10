@@ -23,6 +23,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 // import { setCitizenInfo } from "../../redux/slices/authSlice";
 import AvatarEditOverlay from "../../components/AvatarEditOverlay";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
+import LanguageToggle from "../../components/LanguageToggle";
 
 interface EditProfileForm {
   first_name: string;
@@ -476,6 +477,7 @@ const EditProfilePage = () => {
             </Stack>
           </Box>
         </Paper>
+        <LanguageToggle />
       </Container>
     </Fade>
   );

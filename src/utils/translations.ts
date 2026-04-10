@@ -213,6 +213,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.commonFloorArea": "Common Floor Area",
     "form.constructionType": "Construction Type",
     "form.yes": "Yes",
+    "form.streetName": "Street Name",
     "form.no": "No",
     "form.additionalNotes": "Additional Notes",
     "form.submissionDate": "submissionDate",
@@ -287,6 +288,118 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "review.documents": "Uploaded Documents",
     "review.submit": "Submit Application",
     "review.instructions": " instructions",
+    "common.selectDamageType": "Select damage type",
+    "damage.totalCollapse": "Total collapse",
+    "damage.partialCollapse": "Partial collapse",
+
+    //header
+
+    "header.home": "Home",
+    "header.dashboard": "Dashboard",
+    "header.departments": "Platform Departments",
+    "header.about": "About",
+    "header.partners": "Partners",
+    "header.contact": "Contact Us",
+    "header.adminLogin": "Admin Login",
+    "header.citizenLogin": "Citizen Login",
+    "citizen.welcome": "Welcome",
+    "departmentsSection.title": "Quick Access to Services",
+    "departmentsSection.description":
+      "The platform includes 5 specialized sections, each dedicated to a specific field of work",
+
+    "AboutSection.title": "About the Platform",
+    "AboutSection.description":
+      " Sawa Benaamerha is an innovative technology platform born from the urgent need to organize and guide reconstruction efforts. Our team combines deep architectural engineering expertise with advanced geospatial artificial intelligence technologies. We rely on Esri's global software to create a digital twin of affected areas, enabling us to analyze damage, predict needs, and optimize resource distribution through a scientific approach that goes beyond traditional methods.",
+    "AboutSection.name1": "Sawa Platform ",
+    "AboutSection.name2": " We Rebuild It ",
+
+    "systemDetails.housesRenovated": "Renovated Houses",
+    "systemDetails.beneficiaries": "Beneficiaries",
+    "systemDetails.satisfactionRate": "Satisfaction Rate",
+
+    "features.damage.title": "Damage Registration",
+    "features.damage.description":
+      "Comprehensive documentation of all damages in one place",
+    "features.accuracy.title": "Accuracy & Reliability",
+    "features.accuracy.description": "Officially verified and reliable data",
+    "features.support.title": "Support for Affected People",
+    "features.support.description":
+      "A specialized team to assist you at every step",
+    "features.reports.title": "Reports & Statistics",
+    "features.reports.description":
+      "Comprehensive analysis of the recorded damages",
+
+    "PartnersSection.title": "Partners",
+    "PartnersSection.description":
+      "We are proud of our partnerships with organizations and supporting entities that contribute to achieving our goals",
+
+    "ContactSection.title": "Contact Us",
+    "ContactSection.description":
+      "We are here to answer your inquiries and help you choose the right equipment",
+
+    "contact.infoTitle": "Contact Information:",
+    "contact.workingHours": "Working Hours",
+    "contact.weekdays": "Saturday - Thursday",
+    "contact.weekend": "Friday",
+    "contact.closed": "Closed",
+    "contact.sendMessage": "Send Message",
+
+    "contact.name": "Name",
+    "contact.email": "Email",
+    "contact.phone": "Phone Number",
+    "contact.message": "Message",
+    "contact.workingTime": "8:00 AM - 6:00 PM",
+    "contact.namePlaceholder": "Enter your name",
+    "contact.emailPlaceholder": "Enter your email",
+    "contact.phonePlaceholder": "Enter your phone number",
+    "contact.messagePlaceholder": "Write your message here...",
+
+    "contact.send": "Send",
+
+    "contact.phoneNumber": "Phone",
+    "contact.whatsapp": "WhatsApp",
+    "contact.address": "Address",
+
+    "footer.about.title": "Sawa Benaamerha Platform",
+    "footer.about.description":
+      "A pioneering technology platform born from the need to organize and guide reconstruction efforts. We are a team combining deep architectural engineering expertise with advanced geospatial AI technologies. We rely on Esri software to create a digital twin of affected areas, enabling damage analysis, needs prediction, and optimized resource distribution using a scientific approach beyond traditional methods.",
+
+    "footer.links.title": "Quick Links",
+    "footer.links.about": "About Us",
+    "footer.links.departments": "Departments",
+    "footer.links.partners": "Partners",
+    "footer.links.contact": "Contact Us",
+
+    "footer.contact.title": "Contact Information",
+    "footer.workingHours.title": "Working Hours",
+    "footer.workingHours.weekdays": "Saturday - Thursday",
+    "footer.workingHours.friday": "Friday",
+    "footer.workingHours.closed": "Closed - Weekly Break",
+    "common.none": "none",
+    "property.own": "own",
+    "property.rent": "rent",
+    "property.usufruct": "usufruct",
+    "footer.social": "Follow us on social media",
+    "footer.rights.part1": "All rights reserved ©",
+    "footer.rights.part2": "Sawa Benaamerha Platform - Gaza",
+
+    "footer.workingTime": "8:00 AM - 6:00 PM",
+
+    "contactInfo.gaza.title": "Gaza Strip",
+    "contactInfo.gaza.address": "Gaza Strip - Khan Younis Governorate",
+
+    "contactInfo.usa.title": "United States",
+    "contactInfo.usa.address": "332 94th St Brooklyn NY - United States 11209",
+
+    "contactInfo.phone": "Phone",
+    "contactInfo.email": "Email",
+    "contactInfo.whatsapp": "WhatsApp",
+    "serviceCenter.title": "service center",
+    // ....................................................
+
+    "selectBuilding.title": "select a building",
+    "form.additionalNotesPlaceholder":
+      "Write any additional details (if any)...",
 
     // Success
     "success.title": "Application Submitted Successfully!",
@@ -435,6 +548,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.actions": "Actions",
     "admin.viewOnMap": "View on map",
     "admin.noAccess": "No Access",
+    "form.propertyEnterOwnerName": "Enter Owner Name ....",
+
     "admin.selectOnMap": "Select coordinates on map",
     "admin.selectOnMapHelp":
       "Click anywhere on the map to set latitude and longitude for this location.",
@@ -550,7 +665,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "error.updateRole": "Failed to update role",
     "error.deleteRole": "Failed to delete role",
     "error.assignPermissions": "Failed to assign permissions",
-
+    "form.damageDetails": "damage details",
+    "form.beforeImage": "Property image before damage (if any)",
+    "form.afterImage": "Property image after damage (if any)",
+    "form.ownershipDocuments": "Ownership documents (if any)",
     // permissions
     "admin.managePermissions": "Manage Permissions",
     "admin.permissionsDescription": "Control system access permissions",
@@ -612,13 +730,28 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       "Please answer the following questions to verify your identity",
     "verification.success": "Verification Successful!",
     "verification.failed": "Verification failed. Please check your answers.",
-
+    "damage.structuralCeilingCracks": "Structural cracks (ceilings)",
+    "damage.structuralColumnCracks": "Structural cracks (columns)",
+    "damage.facadeDamage": "Facade damage (exposure)",
+    "damage.doorsWindowsDamage": "Doors & windows damage",
+    "damage.finishingDamage": "Finishing damage",
+    "damage.electricityDamage": "Electrical damage",
+    "damage.elevatorDamage": "Elevator damage",
+    "damage.buildingStairsEntranceDamage": "Building entrances & stairs damage",
+    "damage.waterSewageDamage": "Water & sewage system damage",
+    "damage.fireDamage": "Fire damage",
     // Locations
     "location.previous": "Previous Location (Before War)",
     "location.current": "Current Location",
     "location.selectPrevious": "Select Your Previous Location (Before War)",
     "location.selectCurrent": "Select Your Current Location",
-
+    "common.selectType": "select Type",
+    "wall.blockStone": "Block / Stone",
+    "wall.partitions": "Partitions (wood - aluminum - gypsum - zinc)",
+    "roof.concreteSlab": "concreteSlab",
+    "roof.tile": "tile",
+    "roof.zinc": "zinc",
+    "roof.asbestos": "asbestos",
     // Citizen Dashboard
     "citizen.dashboard": "Citizen Dashboard",
     "citizen.welcome": "Welcome",
@@ -651,6 +784,13 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "citizen.updateLocationSuccess": "Location updated successfully",
     "citizen.updateLocationError": "Failed to update location",
     "citizen.selectNewLocation": "Select New Location",
+    "buildingAge.0_10": "0 - 10 years",
+    "buildingAge.11_20": "11 - 20 years",
+    "buildingAge.21_30": "21 - 30 years",
+    "buildingAge.31_40": "31 - 40 years",
+    "buildingAge.41_50": "41 - 50 years",
+    "buildingAge.51_60": "51 - 60 years",
+    "buildingAge.above_60": "More than 60 years",
 
     "citizen.addDamageRequestDesc":
       "Register a new damage assessment application",
@@ -834,7 +974,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "landing.cards.emergency": "الطوارئ والتدخل السريع",
     "landing.cards.support": "المؤسسات والمبادرات الشريكة والداعمة",
     "landing.damageAssessment.title": "نظام حصر الأضرار الذاتي",
-    "landing.damageAssessment.description": "لتسجيل الأضرار التي لحقت بممتلكاتك اضغط هنا",
+    "landing.damageAssessment.description":
+      "لتسجيل الأضرار التي لحقت بممتلكاتك اضغط هنا",
     "landing.damageAssessment.button": "تسجيل ومراجعة الطلبات ",
 
     // Reset Password
@@ -875,10 +1016,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "auth.backToLogin": "العودة لتسجيل الدخول",
 
     // Bank Information Page
+
     "citizen.bankInfoTitle": "البيانات البنكية",
     "citizen.bankInfoComingSoon":
       "ميزة تسجيل المعلومات البنكية ستكون متاحة قريباً. هذه الميزة قيد التطوير حالياً.",
-
+    "form.damageDetails": "تفاصيل الضرر",
+    "common.selectDamageType": "اختر نوع الضرر",
+    "damage.totalCollapse": "هدم كلي",
+    "damage.partialCollapse": "هدم جزئي",
     // Personal Info
     "form.personalInfo": "البيانات الشخصية",
     "form.personalInfoDesc": "يرجى تعبئة البيانات التالية لإكمال عملية التسجيل",
@@ -900,6 +1045,18 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.alternatePhoneNumber": " رقم هاتف بديل",
     "form.alternatePhoneNumberPlaceholder":
       " أدخل رقم الهاتف البديل ( ان وجد ) ",
+
+    "damage.structuralCeilingCracks": "تشققات إنشائية (أسقف)",
+    "damage.structuralColumnCracks": "تشققات إنشائية (أعمدة)",
+    "damage.facadeDamage": "تضرر الواجهات (تفريغ)",
+    "damage.doorsWindowsDamage": "تضرر الأبواب والنوافذ",
+    "damage.finishingDamage": "تضرر التشطيبات",
+    "damage.electricityDamage": "تضرر الكهرباء",
+    "damage.elevatorDamage": "تضرر المصاعد",
+    "damage.buildingStairsEntranceDamage": "تضرر مداخل أو أدراج البناية",
+    "damage.waterSewageDamage": "تضرر شبكة المياه والصرف",
+    "damage.fireDamage": "تضرر بالحريق",
+
     // Complaints
     "complaint.add": "اضافة ملاحظة أو شكوى على الطلب",
     "complaint.title": "الشكاوى",
@@ -975,28 +1132,48 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "floors.mezzanine": "السدة",
     // Damage Assessment
     "form.damageLevel": "مستوى الضرر",
-    "form.propertyType": "نوع العقار",
+    "form.propertyType": "نوع حيازة العقار",
+    "common.none": "لا يوجد",
+    "property.own": "ملك",
+    "property.rent": "ايجار",
+    "property.usufruct": "انتفاع",
     "form.propertyArea": "مساحة العقار (متر مربع)",
     "form.numberOfRooms": "عدد الغرف",
     "form.isHabitable": "هل هو قابل للسكن حالياً؟",
     "form.damagePercentage": "نسبة الضرر",
     "form.roomType": "نوع الغرفة ",
     "form.floorsCount": "عدد الطوابق",
-    "form.commonFloorArea": "المساحة المشتركة",
+    "form.commonFloorArea": " مساحة الطابق المتكرر (م²)",
     "form.constructionType": "نوع البناء",
     "form.ishabitable": "صالح للسكن ؟",
     "form.roofType": "نوع السقف",
     "form.wallType": "نوع الجدران",
     "form.damageType": "نوع الضرر",
     "form.buildingAge": "عمر المبنى",
+
+    "buildingAge.0_10": "0 - 10 سنوات",
+    "buildingAge.11_20": "11 - 20 سنة",
+    "buildingAge.21_30": "21 - 30 سنة",
+    "buildingAge.31_40": "31 - 40 سنة",
+    "buildingAge.41_50": "41 - 50 سنة",
+    "buildingAge.51_60": "51 - 60 سنة",
+    "buildingAge.above_60": "أكثر من 60 سنة",
+
     "form.damageTypes": "انواع الضرر",
     "form.nameOfStreet": "اسم الشارع",
     "form.buildingNumber": "رقم المبنى",
     "form.numberOfFloors": "عدد الطوابق",
-    "form.groundFloorArea": "مساحة الطابق الأرضي",
+    "form.groundFloorArea": "مساحة الطابق الأرضي (م²)",
     "form.nearestLandmark": "أقرب معلم",
     "form.propertyOwnerName": "اسم مالك العقار",
-
+    "form.propertyEnterOwnerName": "أدخل اسم مالك العقار الأساسي ....",
+    "common.selectType": "اختر النوع",
+    "wall.blockStone": "بلوك / حجر",
+    "wall.partitions": "قواطع ( خشب - ألمنيوم - جبص - زينكو )",
+    "roof.concreteSlab": "بلاطة خرسانية",
+    "roof.tile": "كرميد",
+    "roof.zinc": "زينكو",
+    "roof.asbestos": "أسبست",
     "form.usageType": "نوع الاستخدام",
     "form.MixedUsage": "مزدوج الاستخدام ",
     "form.BuildingContent": "محتوى المبنى",
@@ -1019,6 +1196,10 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.yes": "نعم",
     "form.no": "لا",
     "form.additionalNotes": "ملاحظات إضافية",
+    "form.additionalNotesPlaceholder": "اكتب أي تفاصيل إضافية (إن وجدت)...",
+    "form.beforeImage": "صورة العقار قبل الدمار (إن وجد)",
+    "form.afterImage": "صورة العقار بعد الدمار (إن وجد)",
+    "form.ownershipDocuments": "مستندات الملكية (إن وجد)",
     "form.submissionDate": "تاريخ إرسال الطلب",
     "form.enterTrackingNumber": "أدخل رقم التتبع للبحث",
     // Documents
@@ -1056,6 +1237,90 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "review.submit": "إرسال الطلب",
     "review.instructions": "تعليمات هامة",
 
+    // Header
+    "header.home": "الرئيسية",
+    "header.dashboard": "لوحة التحكم",
+    "header.departments": "أقسام المنصة",
+    "header.about": "عن المنصة",
+    "header.partners": "الشركاء",
+    "header.contact": "اتصل بنا",
+
+    // Auth
+    "header.adminLogin": "تسجيل دخول المسؤول",
+    "header.citizenLogin": "تسجيل دخول المواطن",
+
+    // Citizen
+    "citizen.welcome": "مرحباً",
+
+    "systemDetails.housesRenovated": "منزل مرمم",
+    "systemDetails.beneficiaries": "مستفيد",
+    "systemDetails.satisfactionRate": "نسبة الرضا",
+
+    "departmentsSection.title": "الوصول السريع للخدمات",
+    "departmentsSection.description":
+      "تضم المنصة 5 أقسام متخصصة .. كل قسم مستقل ومتخصص في مجال عمل محدد",
+
+    "AboutSection.title": "نبذة عن المنصة",
+    "AboutSection.description":
+      " منصة سوا بنعمرها هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
+    "AboutSection.name1": " منصة سوا ",
+    "AboutSection.name2": " بنعمرها ",
+
+    "features.damage.title": "تسجيل الأضرار",
+    "features.damage.description": "توثيق شامل لجميع الأضرار في مكان واحد",
+    "features.accuracy.title": "دقة وموثوقية",
+    "features.accuracy.description": "بيانات موثّقة ومعتمدة رسمياً",
+    "features.support.title": "دعم المتضررين",
+    "features.support.description": "فريق متخصص لمساعدتكم في كل خطوة",
+    "features.reports.title": "تقارير وإحصاءات",
+    "features.reports.description": "تحليل شامل لحجم الأضرار المرصودة",
+    "PartnersSection.title": "الشركاء",
+    "PartnersSection.description":
+      "نفخر بشراكاتنا مع المنظمات والجهات الداعمة التي تساهم في تحقيق أهدافنا",
+    "ContactSection.title": "تواصل معنا",
+    "ContactSection.description":
+      "نحن هنا للإجابة على استفساراتك ومساعدتك في اختيار المعدات المناسبة",
+    "contact.infoTitle": "معلومات التواصل :",
+    "contact.workingHours": "ساعات الدوام",
+    "contact.weekdays": "السبت - الخميس",
+    "contact.weekend": "الجمعة",
+    "contact.closed": "مغلق",
+    "contact.sendMessage": "أرسل رسالة",
+
+    "contact.name": "الاسم",
+    "contact.email": "البريد الإلكتروني",
+    "contact.phone": "رقم الهاتف",
+    "contact.message": "الرسالة",
+    "contact.workingTime": "8:00 ص - 6:00 م",
+    "contact.namePlaceholder": "أدخل اسمك",
+    "contact.emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "contact.phonePlaceholder": "أدخل رقم هاتفك",
+    "contact.messagePlaceholder": "اكتب رسالتك هنا...",
+
+    "contact.send": "إرسال",
+
+    "contact.phoneNumber": "الهاتف",
+    "contact.whatsapp": "واتساب",
+    "contact.address": "العنوان",
+    "footer.about.title": "منصة سوا بنعمرها",
+    "footer.about.description":
+      "هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
+
+    "footer.links.title": "روابط سريعة",
+    "footer.links.about": "من نحن",
+    "footer.links.departments": "أقسامنا",
+    "footer.links.partners": "الشركاء",
+    "footer.links.contact": "تواصل معنا",
+
+    "footer.contact.title": "معلومات التواصل",
+    "footer.workingHours.title": "ساعات العمل",
+    "footer.workingHours.weekdays": "السبت - الخميس",
+    "footer.workingHours.friday": "الجمعة",
+    "footer.workingHours.closed": "مغلق - استراحة الأسبوع",
+
+    "footer.social": "تابعنا على مواقع التواصل",
+    "footer.rights": "جميع الحقوق محفوظة © {{year}} منصة سوا بنعمرها - غزة",
+    "footer.workingTime": "8:00 ص - 6:00 م",
     // Success
     "success.title": "تم إرسال الطلب بنجاح!",
     "success.trackingNumber": "رقم التتبع",
@@ -1064,6 +1329,21 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "success.downloadReceipt": "تصدير طلباتي PDF",
     "success.trackStatus": "تتبع حالة الطلب",
 
+    "footer.rights.part1": "جميع الحقوق محفوظة ©",
+    "footer.rights.part2": "منصة سوا بنعمرها - غزة",
+
+    "contactInfo.gaza.title": "قطاع غزة",
+    "contactInfo.gaza.address": "قطاع غزة - محافظة خانيونس",
+
+    "contactInfo.usa.title": "الولايات المتحدة",
+    "contactInfo.usa.address": "332 94th St Brooklyn NY - United States 11209",
+
+    "contactInfo.phone": "الهاتف",
+    "contactInfo.email": "البريد الإلكتروني",
+    "contactInfo.whatsapp": "واتساب",
+    "serviceCenter.title": "مركز الخدمات",
+    // ......................................................
+    "selectBuilding.title": "اختر مبنى",
     // Status
     status: "حالة الطلب",
 

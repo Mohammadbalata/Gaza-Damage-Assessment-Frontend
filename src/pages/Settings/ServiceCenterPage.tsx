@@ -22,6 +22,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { ROUTES } from "../../routes/Routes";
 import BackButton from "../../components/Shared/BackButton";
 import { useAppSelector } from "../../hooks/redux";
+import LanguageToggle from "../../components/LanguageToggle";
 
 /**
  * Citizen Dashboard Page
@@ -121,7 +122,7 @@ const CitizenDashboard: React.FC = () => {
           >
             <Box>
               <Chip
-                label={"مركز الخدمات"}
+                label={t("serviceCenter.title")}
                 sx={{
                   bgcolor: "rgba(255,255,255,0.2)",
                   color: "white",
@@ -201,6 +202,7 @@ const CitizenDashboard: React.FC = () => {
           <DashboardCard key={card.key} card={card} language={language} />
         ))}
       </Box>
+      <LanguageToggle />
     </Container>
   );
 };

@@ -37,10 +37,11 @@ import SingleImageInput from "../components/Form Applications/ImagesInput/Single
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
 import { axiosClient } from "../api/baseUrl";
+import LanguageToggle from "../components/LanguageToggle";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.auth);
   const { search } = useLocation();
@@ -342,7 +343,11 @@ const PasswordDisplayPage = () => {
               <FormInput
                 id="email"
                 label={t("form.email")}
-                note="يرجى إدخال بريد إلكتروني فعال، سيتم إرسال رمز التحقق إليه"
+                note={
+                  language === "ar"
+                    ? "يرجى إدخال بريد إلكتروني فعال، سيتم إرسال رمز التحقق إليه"
+                    : "Please enter a valid email address. A verification code will be sent to it."
+                }
                 placeholder={t("form.emailPlaceholder")}
                 type="email"
                 register={register}
@@ -659,6 +664,7 @@ const PasswordDisplayPage = () => {
           {t("common.continue")}
         </Button>
       </form>
+      <LanguageToggle />
     </AuthComp>
   );
 };

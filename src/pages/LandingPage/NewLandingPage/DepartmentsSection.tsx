@@ -73,10 +73,12 @@ export function DepartmentsSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4"> الوصول السريع للخدمات</h2>
+          <h2 className="text-4xl font-bold mb-4">
+            {t("departmentsSection.title")}
+          </h2>
           <div className="w-20 h-1 bg-[#4d9a33] mx-auto mb-6"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-            تضم المنصة 5 أقسام متخصصة .. كل قسم مستقل ومتخصص في مجال عمل محدد
+            {t("departmentsSection.description")}
           </p>
         </motion.div>
         <div className="grid grid-cols-[300px] sm:grid-cols-[250px_250px] md:grid-cols-[300px_300px] justify-center   lg:grid-cols-4  gap-6 lg:gap-y-14  ">
