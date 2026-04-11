@@ -427,10 +427,13 @@ const IndependentBuilding = ({
             damageTypeWatch === "هدم كلي" ||
             damageTypeWatch === "Total collapse"
           }
+          value={t("form.no")}
         >
-          <option value="">{t("common.selectType")}</option>
+          <option value={t("common.selectType")}>
+            {t("common.selectType")}
+          </option>
           <option value={t("form.yes")}>{t("form.yes")}</option>
-          <option value={t("form.yes")}>{t("form.yes")}</option>
+          <option value={t("form.no")}>{t("form.no")}</option>
         </select>
 
         {errors?.IndependentBuilding?.isHabitable && (
