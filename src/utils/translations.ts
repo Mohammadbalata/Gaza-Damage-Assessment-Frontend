@@ -310,8 +310,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "AboutSection.title": "About the Platform",
     "AboutSection.description":
       " Sawa Benaamerha is an innovative technology platform born from the urgent need to organize and guide reconstruction efforts. Our team combines deep architectural engineering expertise with advanced geospatial artificial intelligence technologies. We rely on Esri's global software to create a digital twin of affected areas, enabling us to analyze damage, predict needs, and optimize resource distribution through a scientific approach that goes beyond traditional methods.",
-    "AboutSection.name1": "Sawa Platform ",
-    "AboutSection.name2": " We Rebuild It ",
+    "AboutSection.name1": "Sawa Build Gaza ",
+    "AboutSection.name2": " Platform ",
 
     "systemDetails.housesRenovated": "Renovated Houses",
     "systemDetails.beneficiaries": "Beneficiaries",
@@ -1264,7 +1264,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     "AboutSection.title": "نبذة عن المنصة",
     "AboutSection.description":
-      " منصة سوا بنعمرها هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
+      "  هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
     "AboutSection.name1": " منصة سوا ",
     "AboutSection.name2": " بنعمرها ",
 

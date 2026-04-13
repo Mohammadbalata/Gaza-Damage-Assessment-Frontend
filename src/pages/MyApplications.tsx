@@ -73,7 +73,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [isInsideGaza, setIsInsideGaza] = useState(true);
+  const [isInsideGaza, setIsInsideGaza] = useState(false);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -462,9 +462,9 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    citizenInfo.current_location?.accommodation_type === "in_gaza"
-      ? ""
-      : citizenInfo?.current_location?.address,
+    citizenInfo.current_location?.accommodation_type === "outside_gaza"
+      ? citizenInfo?.current_location?.address || ""
+      : "",
   );
 
   // const filterdApplications = id
@@ -644,25 +644,44 @@ const MyApplications = () => {
     setTargetNames(null);
     // Pre-fill with existing location if available
     if (citizenInfo?.current_location) {
-      const lat = parseFloat(citizenInfo.current_location.latitude);
-      const lng = parseFloat(citizenInfo.current_location.longitude);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        setLocationPosition([lat, lng]);
-        setMapCenter([lat, lng]);
+      const isInside =
+        citizenInfo.current_location.accommodation_type === "in_gaza" ||
+        (!citizenInfo.current_location.accommodation_type &&
+          citizenInfo.current_location.latitude &&
+          citizenInfo.current_location.longitude);
+      setIsInsideGaza(!!isInside);
+
+      if (isInside) {
+        const lat = parseFloat(citizenInfo.current_location.latitude);
+        const lng = parseFloat(citizenInfo.current_location.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setLocationPosition([lat, lng]);
+          setMapCenter([lat, lng]);
+        }
+        setLocationAddress(citizenInfo.current_location.address || "");
+
+        const govId = citizenInfo.current_location.governorate_id;
+        const muniId = citizenInfo.current_location.municipality_id;
+        const neighId = citizenInfo.current_location.neighborhood_id;
+        const landmarkId = citizenInfo.current_location.landmark_id;
+
+        if (govId) setSelectedGovernorateId(govId.toString());
+        if (muniId) setSelectedMunicipalityId(muniId.toString());
+        if (neighId) setSelectedNeighborhoodId(neighId.toString());
+        if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
+        setOutsideAddress("");
+      } else {
+        setOutsideAddress(citizenInfo.current_location.address || "");
+        setLocationPosition(null);
+        setLocationAddress("");
+        setSelectedGovernorateId("");
+        setSelectedMunicipalityId("");
+        setSelectedNeighborhoodId("");
+        setSelectedLandmarkId("");
       }
-      setLocationAddress(citizenInfo.current_location.address || "");
-
-      // Safety fix: Safe access to nested properties
-      const govId = citizenInfo.current_location.governorate_id;
-      const muniId = citizenInfo.current_location.municipality_id;
-      const neighId = citizenInfo.current_location.neighborhood_id;
-      const landmarkId = citizenInfo.current_location.landmark_id;
-
-      if (govId) setSelectedGovernorateId(govId.toString());
-      if (muniId) setSelectedMunicipalityId(muniId.toString());
-      if (neighId) setSelectedNeighborhoodId(neighId.toString());
-      if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
     } else {
+      setIsInsideGaza(true);
+      setOutsideAddress("");
       setLocationPosition(null);
       setLocationAddress("");
       setSelectedGovernorateId("");
@@ -677,6 +696,7 @@ const MyApplications = () => {
     setLocationDialogOpen(false);
     setLocationPosition(null);
     setLocationAddress("");
+    setOutsideAddress("");
   };
 
   const handleResetLocation = () => {
@@ -685,69 +705,74 @@ const MyApplications = () => {
   };
 
   const handleConfirmLocationUpdate = () => {
-    if (locationPosition && locationAddress) {
-      setLocationLoading(true);
-
-      axiosClient
-        .put(
-          `${API.citizen.locations.current}`,
-          isInsideGaza
-            ? {
-                accommodation_type: "inside_gaza",
-                latitude: locationPosition[0].toString(),
-                longitude: locationPosition[1].toString(),
-                address: locationAddress,
-                governorate_id: selectedGovernorateId
-                  ? Number(selectedGovernorateId)
-                  : null,
-                municipality_id: selectedMunicipalityId
-                  ? Number(selectedMunicipalityId)
-                  : null,
-                neighborhood_id: selectedNeighborhoodId
-                  ? Number(selectedNeighborhoodId)
-                  : null,
-                landmark_id: selectedLandmarkId
-                  ? Number(selectedLandmarkId)
-                  : null,
-              }
-            : {
-                accommodation_type: "outside_gaza",
-                address: outsideAddress,
-              },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
-        .then((res: any) => {
-          setLocationLoading(false);
-          enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-            variant: "success",
-          });
-          setLocationDialogOpen(false);
-
-          const citizenInfo = JSON.parse(
-            localStorage.getItem("citizenInfo") || "{}",
-          );
-
-          const updated = {
-            ...citizenInfo,
-            current_location: res.data.citizen.current_location,
-          };
-
-          localStorage.setItem("citizenInfo", JSON.stringify(updated));
-          console.log(res.data);
-        })
-        .catch((err: any) => {
-          setLocationLoading(false);
-          enqueueSnackbar(t("citizen.updateLocationError"), {
-            variant: "error",
-          });
-          console.log(err);
-        });
+    // Validation
+    if (isInsideGaza) {
+      if (!locationPosition || !locationAddress) return;
+    } else {
+      if (!outsideAddress.trim()) return;
     }
+
+    setLocationLoading(true);
+
+    axiosClient
+      .put(
+        `${API.citizen.locations.current}`,
+        isInsideGaza
+          ? {
+              accommodation_type: "inside_gaza",
+              latitude: locationPosition![0].toString(),
+              longitude: locationPosition![1].toString(),
+              address: locationAddress,
+              governorate_id: selectedGovernorateId
+                ? Number(selectedGovernorateId)
+                : null,
+              municipality_id: selectedMunicipalityId
+                ? Number(selectedMunicipalityId)
+                : null,
+              neighborhood_id: selectedNeighborhoodId
+                ? Number(selectedNeighborhoodId)
+                : null,
+              landmark_id: selectedLandmarkId
+                ? Number(selectedLandmarkId)
+                : null,
+            }
+          : {
+              accommodation_type: "outside_gaza",
+              address: outsideAddress,
+            },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then((res: any) => {
+        setLocationLoading(false);
+        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+          variant: "success",
+        });
+        setLocationDialogOpen(false);
+
+        const currentCitizenInfo = JSON.parse(
+          localStorage.getItem("citizenInfo") || "{}",
+        );
+
+        const updated = {
+          ...currentCitizenInfo,
+          current_location: res.data.citizen.current_location,
+        };
+
+        localStorage.setItem("citizenInfo", JSON.stringify(updated));
+        console.log(res.data);
+      })
+      .catch((err: any) => {
+        setLocationLoading(false);
+        enqueueSnackbar(t("citizen.updateLocationError"), {
+          variant: "error",
+        });
+        console.log(err);
+      });
   };
 
   console.log(
@@ -1294,7 +1319,13 @@ const MyApplications = () => {
               <RadioGroup
                 row
                 value={isInsideGaza ? "inside" : "outside"}
-                onChange={(e) => setIsInsideGaza(e.target.value === "inside")}
+                onChange={(e) => {
+                  const inside = e.target.value === "inside";
+                  setIsInsideGaza(inside);
+                  if (!inside) {
+                    setOutsideAddress("");
+                  }
+                }}
                 sx={{ justifyContent: "center", mb: 2 }}
               >
                 <FormControlLabel

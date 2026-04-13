@@ -74,15 +74,22 @@ const CurrentLocationMapPage = () => {
     landmark: string;
   } | null>(null);
 
+  const explorerCitizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   const [selectedGovernorateId, setSelectedGovernorateId] =
-    useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.governorate_id?.toString() || "");
   const [selectedMunicipalityId, setSelectedMunicipalityId] =
-    useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.municipality_id?.toString() || "");
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
-    useState<string>("");
-  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
-  const [isInsideGaza, setIsInsideGaza] = useState<boolean>(true);
-  const [outsideAddress, setOutsideAddress] = useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.neighborhood_id?.toString() || "");
+  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>(explorerCitizenInfo?.current_location?.landmark_id?.toString() || "");
+  const [isInsideGaza, setIsInsideGaza] = useState<boolean>(
+    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" ? false : true
+  );
+  const [outsideAddress, setOutsideAddress] = useState<string>(
+    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" 
+      ? explorerCitizenInfo?.current_location?.address || "" 
+      : ""
+  );
 
   // Map Navigation state (keep original map)
   const defaultCenter: [number, number] = [31.3547, 34.3088];
