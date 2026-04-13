@@ -1179,6 +1179,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.MixedUsage": "مزدوج الاستخدام ",
     "form.BuildingContent": "محتوى المبنى",
     "form.buildingDetails": "تفاصيل المبنى :",
+    "form.streetName": "اسم الشارع",
 
     "form.floorNumber": "رقم الطابق",
     "form.apartmentNumber": "رقم الشقة",
