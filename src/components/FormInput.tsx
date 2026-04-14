@@ -29,6 +29,8 @@ export default function FormInput({
   isNationalId,
   fixedLabel = false,
   note,
+  readOnly,
+  disabled,
 }: IFormInputProps & { fixedLabel?: boolean }) {
   const { language, t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
@@ -126,6 +128,7 @@ export default function FormInput({
           placeholder={placeholder}
           type={inputType}
           fullWidth
+          disabled={disabled}
           variant="outlined"
           error={!!errors[id]}
           helperText={
@@ -142,8 +145,10 @@ export default function FormInput({
           }}
           inputProps={{
             maxLength: maxLength,
+            readOnly: readOnly,
             style: {
               textAlign: textAlign,
+              cursor: readOnly ? "not-allowed" : "text",
             },
           }}
           InputProps={{

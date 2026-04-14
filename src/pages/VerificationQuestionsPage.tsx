@@ -98,12 +98,16 @@ const VerificationQuestionsPage = () => {
     console.log(questions);
 
     try {
-      await axiosClient.post(`${API.citizen.auth.verifyQuestions}`, {
-        national_id: id,
-        answers: answers,
-      });
+      const res = await axiosClient.post(
+        `${API.citizen.auth.verifyQuestions}`,
+        {
+          national_id: id,
+          answers: answers,
+        },
+      );
       setLoadingInput(false);
       navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
+      localStorage.setItem("citizenName", JSON.stringify(res?.data?.citizen));
     } catch (error: any) {
       setLoadingInput(false);
       setError(error.response?.data?.message || "Something went wrong");
