@@ -236,7 +236,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.groundFloorArea": "Ground Floor Area",
     "form.nearestLandmark": "Nearest Landmark",
     "form.propertyOwnerName": "Property Owner Name",
-
+    "form.before_damage_image": "Before Damage Images",
+    "form.after_damage_image": "After Damage Images",
+    "form.ownership_documents": "Ownership Documents",
     "form.unusableFloors": "Unusable Floors",
     "form.collapsedFloors": "Number of Collapsed Floors",
     "form.criticalRoofBelts": "Damage to Roof Belts",
@@ -549,7 +551,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "admin.viewOnMap": "View on map",
     "admin.noAccess": "No Access",
     "form.propertyEnterOwnerName": "Enter Owner Name ....",
-
+    "building_content.habitable_room": "Contains at least one habitable room",
+    "building_content.usable_kitchen": "Contains at least one usable kitchen",
+    "building_content.usable_bathroom": "Contains at least one usable bathroom",
     "admin.selectOnMap": "Select coordinates on map",
     "admin.selectOnMapHelp":
       "Click anywhere on the map to set latitude and longitude for this location.",
@@ -1191,6 +1195,15 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.partialCollapses": "انهيارات جزئية",
     "form.apartmentsPerFloor": "عدد الشقق في كل طابق",
     "form.criticalShearWallDamage": "تلف الجدران",
+    "form.before_damage_image": "صور قبل الضرر",
+    "form.after_damage_image": "صور بعد الضرر",
+    "form.ownership_documents": "مستندات الملكية",
+
+    "building_content.habitable_room": "يحتوي على غرفة قابلة للسكن على الأقل",
+    "building_content.usable_kitchen":
+      "يحتوي على مطبخ قابل للاستخدام على الأقل",
+    "building_content.usable_bathroom":
+      "يحتوي على دورة مياه قابلة للاستخدام على الأقل",
 
     "form.unitsCount": "عدد الوحدات (شقق / مكاتب / محلات )",
     "form.totalFloors": "عدد الطوابق",
@@ -1204,6 +1217,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.ownershipDocuments": "مستندات الملكية (إن وجد)",
     "form.submissionDate": "تاريخ إرسال الطلب",
     "form.enterTrackingNumber": "أدخل رقم التتبع للبحث",
+
     // Documents
     "form.uploadDocuments": "رفع المستندات",
     "form.dragDrop": "انقر للرفع أو اسحب وأفلت",

@@ -24,6 +24,10 @@ import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import AvatarEditOverlay from "../../components/AvatarEditOverlay";
 import { setCitizenInfo } from "../../redux/slices/authSlice";
 import LanguageToggle from "../../components/LanguageToggle";
+import { Controller } from "react-hook-form";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 interface EditProfileForm {
   first_name: string;
@@ -58,6 +62,7 @@ const EditProfilePage = () => {
     handleSubmit,
     watch,
     reset,
+    control,
     formState: { errors },
   } = useForm<EditProfileForm>({
     defaultValues: {
@@ -71,7 +76,7 @@ const EditProfilePage = () => {
       place_of_birth: citizenInfo?.place_of_birth,
       country: citizenInfo?.country,
       date_of_birth: citizenInfo?.date_of_birth
-        ? new Date(citizenInfo.date_of_birth).toISOString().split("T")[0]
+        ? citizenInfo.date_of_birth
         : "",
       gender: citizenInfo?.gender,
       marital_status: citizenInfo?.marital_status,
@@ -94,7 +99,7 @@ const EditProfilePage = () => {
         place_of_birth: citizenInfo?.place_of_birth,
         country: citizenInfo?.country,
         date_of_birth: citizenInfo?.date_of_birth
-          ? new Date(citizenInfo.date_of_birth).toISOString().split("T")[0]
+          ? citizenInfo.date_of_birth
           : "",
         gender: citizenInfo?.gender,
         marital_status: citizenInfo?.marital_status,
@@ -362,16 +367,32 @@ const EditProfilePage = () => {
                 <FormHelperText error>{errors.country.message}</FormHelperText>
               )}
 
-              <TextField
-                type="date"
-                label={t("form.dateOfBirth")}
-                fullWidth
-                {...register("date_of_birth", {
-                  required: t("validation.required"),
-                })}
-                error={!!errors.date_of_birth}
-                InputProps={{ sx: { height: 56 } }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                  name="date_of_birth"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      label={t("form.dateOfBirth")}
+                      value={
+                        field.value ? dayjs(field.value, "YYYY-MM-DD") : null
+                      }
+                      onChange={(date) => {
+                        field.onChange(date ? date.format("YYYY-MM-DD") : "");
+                      }}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          error: !!errors.date_of_birth,
+                          helperText: errors.date_of_birth?.message as string,
+                          sx: { height: 56, direction: "ltr" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+
               {errors.date_of_birth && (
                 <FormHelperText error>
                   {errors.date_of_birth.message}

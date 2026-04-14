@@ -113,16 +113,16 @@ export const DAMAGE_TYPE_CompHouse = [
 
 export const BuildingContent = [
   {
-    label: "يحتوي على غرفة قابلة للسكن على الأقل",
-    value: "يحتوي على غرفة قابلة للسكن على الأقل",
+    label: "building_content.habitable_room",
+    value: "building_content.habitable_room",
   },
   {
-    label: "يحتوي على مطبخ قابل للاستخدام على الأقل",
-    value: "يحتوي على مطبخ قابل للاستخدام على الأقل",
+    label: "building_content.usable_kitchen",
+    value: "building_content.usable_kitchen",
   },
   {
-    label: "يحتوي على دورة مياه قابلة للاستخدام على الأقل",
-    value: "يحتوي على دورة مياه قابلة للاستخدام على الأقل",
+    label: "building_content.usable_bathroom",
+    value: "building_content.usable_bathroom",
   },
 ];
 

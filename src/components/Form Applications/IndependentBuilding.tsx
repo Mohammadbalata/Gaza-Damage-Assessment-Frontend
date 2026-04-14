@@ -19,13 +19,18 @@ const IndependentBuilding = ({
   const [textLength, setTextLength] = useState(0);
 
   const propertyType = watch("IndependentBuilding.propertyType");
-  const showOwnerName = propertyType === "ايجار" || propertyType === "انتفاع";
+  const showOwnerName =
+    propertyType === "ايجار" ||
+    propertyType === "انتفاع" ||
+    propertyType === "rent" ||
+    propertyType === "usufruct";
   const damageTypeWatch = watch("IndependentBuilding.damageType");
   const showDamageValue =
     damageTypeWatch === "هدم جزئي" || damageTypeWatch === "Partial collapse";
 
   const BuildingContentWatch = watch("IndependentBuilding.isHabitable");
-  const showBuildingContent = BuildingContentWatch === "نعم";
+  const showBuildingContent =
+    BuildingContentWatch === "نعم" || BuildingContentWatch === "Yes";
 
   useEffect(() => {
     const currentDamage = getValues("IndependentBuilding.damagePercentage");
@@ -35,7 +40,7 @@ const IndependentBuilding = ({
       if (currentDamage !== "100%")
         setValue("IndependentBuilding.damagePercentage", "100%");
       if (currentHabitable !== "لا")
-        setValue("IndependentBuilding.isHabitable", "لا");
+        setValue("IndependentBuilding.isHabitable", t("form.no"));
     }
 
     if (
@@ -353,7 +358,7 @@ const IndependentBuilding = ({
                         "pointer-events-none accent-gray-200",
                     )}
                   />
-                  <span className="mr-2">{t(item.label)}</span>
+                  <span className="mr-2"> {t(item.label)}</span>
                 </div>
               ),
           )}
@@ -427,7 +432,7 @@ const IndependentBuilding = ({
             damageTypeWatch === "هدم كلي" ||
             damageTypeWatch === "Total collapse"
           }
-          value={t("form.no")}
+          // value={t("form.no")}
         >
           <option value={t("common.selectType")}>
             {t("common.selectType")}
@@ -453,7 +458,7 @@ const IndependentBuilding = ({
               >
                 <input
                   type="checkbox"
-                  value={item.value}
+                  value={t(item.value)}
                   {...register("IndependentBuilding.BuildingContent", {
                     required: t("common.selectAtLeastOne"),
                   })}
@@ -463,7 +468,7 @@ const IndependentBuilding = ({
                       "pointer-events-none accent-gray-200",
                   )}
                 />
-                <span className="mr-2">{item.label}</span>
+                <span className="mr-2"> {t(item.label)}</span>
               </div>
             ))}
 
