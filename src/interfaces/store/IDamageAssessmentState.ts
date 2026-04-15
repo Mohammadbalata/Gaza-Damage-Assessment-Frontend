@@ -41,11 +41,14 @@ export interface DamageState {
   };
 }
 export interface IndependentBuilding {
+  independentBuildingType?: string;
   numberOfFloors?: number | null;
   groundFloorArea?: number | null;
   commonFloorArea?: number | null;
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   roofType?: string;
   wallType?: string;
   buildingAge?: string | null;
@@ -70,6 +73,8 @@ export interface ApartmentInsideBuilding {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   usageType?: string;
 
   mainBuildingDamage?: string;
@@ -98,6 +103,8 @@ export interface ResidentialBuilding {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   nearestLandmark?: string;
   buildingNumber?: string;
   nameOfStreet?: string;
@@ -139,9 +146,12 @@ export interface ITower {
   groundFloorArea?: number | null;
   commonFloorArea?: number | null;
   unitsCount?: number | null;
+  towerName?: string;
 
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   nearestLandmark?: string;
   buildingNumber?: string;
   nameOfStreet?: string;
@@ -182,6 +192,8 @@ export interface ICompHouse {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   buildingAge?: string | null;
 
   damageType?: string;
@@ -213,6 +225,8 @@ export interface IAdditionalBuildings {
 
   propertyType?: string;
   propertyOwnerName?: string;
+  hasPartners?: string;
+  partnersCount?: number | null;
   buildingAge?: string | null;
 
   damageType?: string;

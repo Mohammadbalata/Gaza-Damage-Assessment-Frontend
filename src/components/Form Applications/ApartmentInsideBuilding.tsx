@@ -24,6 +24,9 @@ const ApartmentInsideBuilding = ({
   const showDamageValue = damageTypeWatch === "هدم جزئي";
   const BuildingContentWatch = watch("ApartmentInsideBuilding.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
+  const showHasPartners = propertyType === "ملك";
+  const hasPartners = watch("ApartmentInsideBuilding.hasPartners");
+  const showPartnersCount = hasPartners === "نعم";
   useEffect(() => {
     const currentDamage = getValues("ApartmentInsideBuilding.damagePercentage");
     const currentHabitable = getValues("ApartmentInsideBuilding.isHabitable");
@@ -42,6 +45,19 @@ const ApartmentInsideBuilding = ({
         setValue("ApartmentInsideBuilding.isHabitable", "");
     }
   }, [damageTypeWatch, setValue, getValues]);
+
+  useEffect(() => {
+    if (!showHasPartners) {
+      setValue("ApartmentInsideBuilding.hasPartners", "");
+      setValue("ApartmentInsideBuilding.partnersCount", null);
+    }
+  }, [showHasPartners, setValue]);
+
+  useEffect(() => {
+    if (!showPartnersCount && showHasPartners) {
+      setValue("ApartmentInsideBuilding.partnersCount", null);
+    }
+  }, [showPartnersCount, showHasPartners, setValue]);
   return (
     <div className="space-y-6">
       {/* رقم الطابق */}
@@ -144,7 +160,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">لا يوجد</option>
+          <option value="" disabled>نوع حيازة العقار</option>
           <option value="ملك">ملك</option>
           <option value="ايجار">ايجار </option>
           <option value="انتفاع">انتفاع </option>
@@ -155,6 +171,63 @@ const ApartmentInsideBuilding = ({
           </p>
         )}
       </div>
+
+      {showHasPartners && (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t("form.hasPartners")} <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("ApartmentInsideBuilding.hasPartners", {
+                required: showHasPartners ? t("common.required") : false,
+              })}
+              className={classNames(
+                "input-field",
+                isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+              )}
+              disabled={isChangeToReviewPage}
+            >
+              <option value="" disabled>{t("form.hasPartners")}</option>
+              <option value="نعم">{t("form.yes")}</option>
+              <option value="لا">{t("form.no")}</option>
+            </select>
+            {errors?.ApartmentInsideBuilding?.hasPartners && (
+              <p className="text-red-600 text-sm">
+                {errors.ApartmentInsideBuilding.hasPartners.message}
+              </p>
+            )}
+          </div>
+
+          {showPartnersCount && (
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("form.partnersCount")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min={1}
+                placeholder={t("form.partnersCountPlaceholder")}
+                {...register("ApartmentInsideBuilding.partnersCount", {
+                  required: showPartnersCount ? t("common.required") : false,
+                  min: { value: 1, message: t("validation.minPartners") || "1" },
+                  valueAsNumber: true,
+                })}
+                className={classNames(
+                  "input-field",
+                  isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                )}
+                disabled={isChangeToReviewPage}
+              />
+              {errors?.ApartmentInsideBuilding?.partnersCount && (
+                <p className="text-red-600 text-sm">
+                  {errors.ApartmentInsideBuilding.partnersCount.message}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {showOwnerName && (
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -200,7 +273,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر النوع</option>
+          <option value="" disabled>نوع الاستخدام</option>
           <option value="سكني">سكني</option>
           <option value="تجاري">تجاري</option>
           <option value="اداري">اداري</option>
@@ -228,7 +301,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر نوع الضرر</option>
+          <option value="" disabled>ضرر المبنى الأساسي (إن وجد)</option>
           <option value="لا يوجد ضرر">لا يوجد ضرر</option>
           <option value="تشققات في الأعمدة">تشققات في الأعمدة</option>
           <option value="تضرر الواجهات">تضرر الواجهات</option>
@@ -242,7 +315,7 @@ const ApartmentInsideBuilding = ({
       {/*  عمر المبنى الأم*/}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          عمر المبنى الأم<span className="text-red-500">*</span>
+          عمر المبنى الأساسي<span className="text-red-500">*</span>
         </label>
         <select
           {...register("ApartmentInsideBuilding.mainBuildingAge", {
@@ -256,10 +329,8 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="" disabled>
-            اختر العمر التقريبي
-          </option>
-          <option value="0-10">0 - 10 سنوات</option>
+            <option value="" disabled>عمر المبنى الأساسي</option>
+            <option value="0-10">0 - 10 سنوات</option>
           <option value="11-20">11 - 20 سنة</option>
           <option value="21-30">21 - 30 سنة</option>
           <option value="31-40">31 - 40 سنة</option>
@@ -291,7 +362,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر نوع الضرر</option>
+          <option value="" disabled>تفاصيل الضرر</option>
           <option value="هدم كلي"> هدم كلي</option>
           <option value="هدم جزئي">هدم جزئي</option>
         </select>
@@ -317,7 +388,7 @@ const ApartmentInsideBuilding = ({
                         "pointer-events-none accent-gray-200",
                     )}
                   />
-                  <span className="mr-2">{item.label}</span>
+                  <span className="mr-2">{t(item.label)}</span>
                 </div>
               ),
           )}
@@ -350,7 +421,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">0</option>
+          <option value="" disabled>نسبة الضرر (%)</option>
           <option value="25%">25%</option>
           <option value="50%">50% </option>
           <option value="75%">75% </option>
@@ -380,7 +451,7 @@ const ApartmentInsideBuilding = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">اختر نوع</option>
+          <option value="" disabled>هل هو قابل للسكن حالياً؟</option>
           <option value="نعم">نعم</option>
           <option value="لا">لا </option>
         </select>
