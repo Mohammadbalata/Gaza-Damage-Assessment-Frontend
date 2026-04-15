@@ -210,7 +210,11 @@ export const signUp = createAsyncThunk(
         return { payload, data: res.data, token, citizenInfo };
       } catch (err: any) {
         console.log("err", err);
-        return rejectWithValue(err.response?.data?.errors || "Sign up failed");
+        return rejectWithValue(
+          err.response?.data?.errors ||
+            err.response?.data?.message ||
+            "Sign up failed",
+        );
       }
     } else {
       try {

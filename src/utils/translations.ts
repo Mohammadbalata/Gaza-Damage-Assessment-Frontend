@@ -205,6 +205,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.towerNamePlaceholder": "Enter tower name",
     "form.compHouse": "Comp House",
     "form.additionalBuildings": "Additional Buildings",
+    "phoneNumber.sms": "SMS",
+    "form.titleVerify":
+      "Choose how you would like to receive the verification code : ",
 
     // Damage Assessment
     "form.damageLevel": "Damage Level",
@@ -262,6 +265,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "floors.roof": "roof",
     "floors.ground": "ground",
     "floors.mezzanine": "mezzanine",
+    "form.title": "Enter the verification code sent to you",
+    "form.verifySubTitle": "Didn't receive the code? Try another method : ",
+
     // Documents
     "form.uploadDocuments": "Upload Documents",
     "form.dragDrop": "Click to upload or drag and drop",
@@ -1058,6 +1064,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.alternatePhoneNumber": " رقم هاتف بديل",
     "form.alternatePhoneNumberPlaceholder":
       " أدخل رقم الهاتف البديل ( ان وجد ) ",
+    "form.title": " ادخل رمز التحقق المرسل اليك",
+    "form.verifySubTitle": "ألم يصلك الرمز؟ تجربة طريقة أخرى :",
 
     "damage.structuralCeilingCracks": "تشققات إنشائية (أسقف)",
     "damage.structuralColumnCracks": "تشققات إنشائية (أعمدة)",
@@ -1119,6 +1127,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.whatsappNumber": "رقم واتساب",
     "form.invalidEmail": "البريد الالكتروني غير صحيح",
     "form.success": "تم التحقق",
+    "phoneNumber.sms": "رسالة نصية",
+
     "form.successDescription":
       " تم التحقق من هويتك بنجاح، يرجى تعبئة بياناتك الشخصية",
     "form.familyMembersNumber": "عدد أفراد العائلة",
@@ -1214,6 +1224,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.before_damage_image": "صور قبل الضرر",
     "form.after_damage_image": "صور بعد الضرر",
     "form.ownership_documents": "مستندات الملكية",
+    "form.titleVerify":
+      "اختر طريقة استلام رمز التحقق : ",
 
     "building_content.habitable_room": "يحتوي على غرفة قابلة للسكن على الأقل",
     "building_content.usable_kitchen":
