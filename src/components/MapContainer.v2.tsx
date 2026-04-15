@@ -256,7 +256,6 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
     location?.governorate_id && 
     location?.municipality_id && 
     location?.neighborhood_id && 
-    location?.landmark_id && 
     location?.address;
 
   return (

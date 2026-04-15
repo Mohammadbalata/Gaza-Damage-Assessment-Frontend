@@ -94,9 +94,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
       const isLocationValid = 
         location?.governorate_id && 
         location?.municipality_id && 
-        location?.neighborhood_id && 
-        location?.landmark_id && 
-        location?.address;
+        location?.neighborhood_id 
 
   return (
     <>

@@ -1251,6 +1251,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "map.previousLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقع منشأتك قبل الحرب.",
     "map.currentLocation": "اختر موقع النزوح / الإقامة الحالي (بعد الحرب)",
+    "map.editCurrentLocation": "تعديل موقع النزوح / الإقامة الحالي (بعد الحرب)",
     "map.currentLocationDescription":
       "يرجى النقر على الخريطة لتحديد موقعك الحالي (مكان وجودك الآن).",
     "map.invalidCoords": "الإحداثيات غير صالحة",

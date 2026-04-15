@@ -730,12 +730,10 @@ const DamageAssessmentDialog = ({
               "pointer-events-none opacity-90": readOnly,
             })}
           >
-            {/* Location Validation Guard */}
             {!(
               (location?.governorate_id || initialData?.governorate_id) &&
               (location?.municipality_id || initialData?.municipality_id) &&
-              (location?.neighborhood_id || initialData?.neighborhood_id) &&
-              (location?.landmark_id || initialData?.landmark_id)
+              (location?.neighborhood_id || initialData?.neighborhood_id)
             ) && (
               <Box
                 sx={{
@@ -763,8 +761,7 @@ const DamageAssessmentDialog = ({
                 !(
                   (location?.governorate_id || initialData?.governorate_id) &&
                   (location?.municipality_id || initialData?.municipality_id) &&
-                  (location?.neighborhood_id || initialData?.neighborhood_id) &&
-                  (location?.landmark_id || initialData?.landmark_id)
+                  (location?.neighborhood_id || initialData?.neighborhood_id)
                 )
                   ? "opacity-50 pointer-events-none"
                   : ""

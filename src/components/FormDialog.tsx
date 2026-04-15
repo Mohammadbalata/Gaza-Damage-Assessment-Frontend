@@ -75,7 +75,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
             تحديد الموقع بالكامل مطلوب
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 350, mx: 'auto' }}>
-            يرجى التأكد من تحديد (المحافظة، البلدية، الحي، والمعلم) بشكل صحيح قبل البدء في تعبئة النموذج.
+            يرجى التأكد من تحديد (المحافظة، البلدية، والحي) بشكل صحيح قبل البدء في تعبئة النموذج.
           </Typography>
           <Button 
             variant="contained" 
