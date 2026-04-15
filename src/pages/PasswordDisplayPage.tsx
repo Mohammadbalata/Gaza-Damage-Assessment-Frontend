@@ -59,8 +59,8 @@ const PasswordDisplayPage = () => {
   const [openCodeDialog, setOpenCodeDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
-  const [otpValue, setOtpValue] = useState("");
   const [isGoTOHomePage, setIsGoToHomePage] = useState(false);
+  const [isSent, setIsSent] = useState(false);
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -116,10 +116,10 @@ const PasswordDisplayPage = () => {
       formData.append("avatar", data.avatar);
     }
     if (!isGoTOHomePage) {
-      const phoneNumber = getValues("phoneNumber");
-      sendOtp(phoneNumber || "");
-      setOtpValue(phoneNumber || "");
-      console.log("phoneNumber", phoneNumber);
+      setOpenCodeDialog(true);
+      // const phoneNumber = getValues("phoneNumber");
+      // sendOtp("phoneNumber", phoneNumber || "");
+      // console.log("phoneNumber", phoneNumber);
     }
     if (isGoTOHomePage) {
       try {
@@ -155,23 +155,42 @@ const PasswordDisplayPage = () => {
     }
   };
 
-  const sendOtp = async (phoneNumber: string) => {
+  const sendOtp = async (
+    method: "phoneNumber" | "whatsappNumber" | "email",
+    value: string,
+  ) => {
     try {
-      const res = await axiosClient.post("/otp/send", {
-        phone_number: phoneNumber,
-        national_id: id,
-      });
+      let endpoint = "";
+      let payload: any = { national_id: id };
+
+      switch (method) {
+        case "phoneNumber":
+          endpoint = "/otp/send";
+          payload.phone_number = value;
+          break;
+
+        case "whatsappNumber":
+          endpoint = "/otp/send-whatsapp";
+          payload.whatsapp_number = value;
+          break;
+
+        case "email":
+          endpoint = "/verify/email";
+          payload.email = value;
+          break;
+      }
+
+      const res = await axiosClient.post(endpoint, payload);
       if (res) {
-        setOpenCodeDialog(true);
-        enqueueSnackbar(
-          res.data.message || "تم ارسال رمز الى رقم الهاتف بنجاح",
-          { variant: "success" },
-        );
-        console.log("res0", res);
+        console.log("ress", res);
+        enqueueSnackbar(res.data.message || "OTP sent successfully", {
+          variant: "success",
+        });
+        setIsSent(true);
       }
     } catch (error: any) {
       console.error("error....", error);
-      setOpenCodeDialog(false);
+      // setOpenCodeDialog(false);
       if (typeof error.response.data.message === "string") {
         enqueueSnackbar(error.response.data.message, {
           variant: "error",
@@ -190,28 +209,52 @@ const PasswordDisplayPage = () => {
     }
   };
 
-  const handleVerifyCode = async (code: string) => {
-    try {
-      const phoneNumber = getValues("phoneNumber");
-      const res = await axiosClient.post("/otp/verify", {
-        phone_number: phoneNumber,
-        national_id: id,
-        otp: code,
-      });
-
-      if (res) {
-        console.log("responeFromVerify", res);
-        enqueueSnackbar(res.data.message, {
-          variant: "success",
+  const handleVerifyCode = async (method: string, code: string) => {
+    if (method === "phoneNumber") {
+      try {
+        const phoneNumber = getValues("phoneNumber");
+        const res = await axiosClient.post("/otp/verify", {
+          phone_number: phoneNumber,
+          national_id: id,
+          otp: code,
         });
-        setIsGoToHomePage(true);
-        setOpenCodeDialog(false);
+
+        if (res) {
+          console.log("responeFromVerify", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+          setIsGoToHomePage(true);
+          setOpenCodeDialog(false);
+        }
+      } catch (error: any) {
+        console.log(error);
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
       }
-    } catch (error: any) {
-      console.log(error);
-      enqueueSnackbar(error.response.data.message, {
-        variant: "error",
-      });
+    } else if (method === "email") {
+      try {
+        const email = getValues("email");
+        const res = await axiosClient.post("/verify/email/code", {
+          email: email,
+          code: code,
+        });
+
+        if (res) {
+          console.log("responeFromVerify", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+          setIsGoToHomePage(true);
+          setOpenCodeDialog(false);
+        }
+      } catch (error: any) {
+        console.log(error);
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
+      }
     }
   };
 
@@ -422,9 +465,12 @@ const PasswordDisplayPage = () => {
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            onResend={(phoneNumber) => sendOtp(phoneNumber)}
-            otpValue={otpValue}
-            onVerify={(code) => handleVerifyCode(code)}
+            onResend={(method, value) => sendOtp(method, value)}
+            onVerify={(method, code) => handleVerifyCode(method, code)}
+            phoneNumber={getValues("phoneNumber")}
+            email={getValues("email")}
+            whatsappNumber={getValues("whatsappNumber")}
+            isSent={isSent}
           />
         </Box>
         <Box>
