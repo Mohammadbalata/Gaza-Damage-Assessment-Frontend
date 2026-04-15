@@ -50,6 +50,7 @@ const PreviousLocationMapPage = () => {
   const [muniLoading, setMuniLoading] = useState(false);
   const [nhLoading, setNhLoading] = useState(false);
   const [lmLoading, setLmLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Selection States
   const [selectedGovernorate, setSelectedGovernorate] = useState<string>("");
@@ -70,7 +71,7 @@ const PreviousLocationMapPage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const defaultCenter: [number, number] = [31.5017, 34.4668];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
-  const [zoom, setZoom] = useState<number>(12);
+  // const [zoom, setZoom] = useState<number>(12);
 
   // Load Data
   useEffect(() => {
@@ -184,6 +185,19 @@ const PreviousLocationMapPage = () => {
       }
     }
   }, [selectedNeighborhoodName, allNeighborhoods]);
+
+  // Unified Sync Completion Watcher
+  useEffect(() => {
+    if (isSyncing) {
+      if (targetNames && !govLoading && !muniLoading && !nhLoading && !lmLoading) {
+        const timer = setTimeout(() => {
+          setIsSyncing(false);
+        }, 500); 
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isSyncing, targetNames, govLoading, muniLoading, nhLoading, lmLoading]);
+
   // Sync targetNames with Selects (Cascading)
   useEffect(() => {
     if (targetNames.governorate && governoratesList.length > 0) {
@@ -352,7 +366,7 @@ const PreviousLocationMapPage = () => {
           first.geometry.coordinates[1],
           first.geometry.coordinates[0],
         ]);
-        setZoom(11);
+        // setZoom(11);
       }
     }
   };
@@ -380,7 +394,7 @@ const PreviousLocationMapPage = () => {
 
       if (muniFeature && muniFeature.properties.X && muniFeature.properties.Y) {
         setCenter([muniFeature.properties.Y, muniFeature.properties.X]);
-        setZoom(13);
+        // setZoom(13);
       } else {
         const muniLandmarks = localLmData.filter(
           (f) =>
@@ -397,7 +411,7 @@ const PreviousLocationMapPage = () => {
             first.geometry.coordinates[1],
             first.geometry.coordinates[0],
           ]);
-          setZoom(13);
+          // setZoom(13);  
         }
       }
     }
@@ -423,7 +437,7 @@ const PreviousLocationMapPage = () => {
 
     if (nhFeature && nhFeature.properties.X && nhFeature.properties.Y) {
       setCenter([nhFeature.properties.Y, nhFeature.properties.X]);
-      setZoom(15);
+      // setZoom(15);
     } else {
       const neighborhoodLandmarks = localLmData.filter(
         (f) =>
@@ -439,7 +453,7 @@ const PreviousLocationMapPage = () => {
           first.geometry.coordinates[1],
           first.geometry.coordinates[0],
         ]);
-        setZoom(15);
+        // setZoom(15);  
       }
     }
   };
@@ -473,7 +487,7 @@ const PreviousLocationMapPage = () => {
       ];
       setCenter(coords);
       setPosition(coords);
-      setZoom(18);
+      // setZoom(18);
     }
   };
 
@@ -567,6 +581,7 @@ const PreviousLocationMapPage = () => {
       }
 
       // Set target names for synchronization (triggers cascading matching effects)
+      setIsSyncing(true);
       setTargetNames({
         governorate: govNameFound,
         municipality: muniNameFound,
@@ -610,7 +625,7 @@ const PreviousLocationMapPage = () => {
     setSelectedNeighborhoodName("");
     setSelectedLandmarkName("");
     setCenter(defaultCenter);
-    setZoom(12);
+    // setZoom(12);
   };
 
   const handleCloseDialog = () => {
@@ -840,12 +855,14 @@ const PreviousLocationMapPage = () => {
           >
             <ArcGISMapContainer
               center={center}
-              zoom={zoom}
+              // zoom={zoom}
               markerPosition={position}
               setMarkerPosition={setPosition}
               height="100%"
               width="100%"
               setAddress={setAddress}
+              isLoading={isSyncing}
+              // setZoom={setZoom}
               location={{
                 position,
                 address,
@@ -953,15 +970,24 @@ const PreviousLocationMapPage = () => {
                 {t("map.reset")}
               </Button>
 
-              {/* <Button
+              <Button
                 variant="contained"
                 color="primary"
                 onClick={() => setOpenDialog(true)}
-                disabled={!position}
-                sx={{ flex: 1, py: 1.5, borderRadius: 2, fontWeight: 'bold' }}
+                disabled={
+                  !(
+                    position &&
+                    address &&
+                    resolvedIds.governorate_id &&
+                    resolvedIds.municipality_id &&
+                    resolvedIds.neighborhood_id &&
+                    resolvedIds.landmark_id
+                  )
+                }
+                sx={{ flex: 1, py: 1.5, borderRadius: 2, fontWeight: "bold" }}
               >
                 {isRTL ? "تأكيد الموقع" : "Confirm Location"}
-              </Button> */}
+              </Button>
             </Stack>
           </Stack>
         </CardContent>

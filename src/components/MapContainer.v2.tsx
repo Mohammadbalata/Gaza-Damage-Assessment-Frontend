@@ -14,6 +14,8 @@ interface ArcGISMapContainerProps {
   setAddress?: (addr: string) => void;
   webmapId?: string; // ArcGIS WebMap ID (optional)
   readOnly?: boolean; // إذا true، الخريطة للعرض فقط
+  isLoading?: boolean;
+  setZoom?: (zoom: number) => void;
 }
 
 // Extend Window interface to include esri
@@ -36,6 +38,8 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
   location,
   setAddress,
   webmapId = "904af244856c476d809250d2604d9db0", // default WebMap
+  isLoading,
+  setZoom,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [, setView] = useState<any>(null);
@@ -84,6 +88,13 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
         });
 
         viewRef.current = viewInstance;
+
+        // Watch for zoom changes
+        viewInstance.watch("zoom", (newValue: number) => {
+          if (typeof setZoom === "function") {
+            setZoom(newValue);
+          }
+        });
 
         // Wait for webmap to load before adding graphics layer
         webmap.when(() => {
@@ -241,6 +252,13 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
     });
   }, [markerPosition, zoom, loading]);
 
+  const isLocationValid = 
+    location?.governorate_id && 
+    location?.municipality_id && 
+    location?.neighborhood_id && 
+    location?.landmark_id && 
+    location?.address;
+
   return (
     <>
       {loading && (
@@ -263,11 +281,23 @@ const ArcGISMapContainer: React.FC<ArcGISMapContainerProps> = ({
       )}
       <div ref={mapRef} style={{ height, width }} />
       {children}
-      {location?.address && (
+      {isLocationValid ? (
         <FormDialog
           {...{ location }}
+          isLoading={isLoading}
           open={openDialog}
           onClose={() => setOpenDialog(false)}
+          canOpenDialogBuildings={true}
+          {...{isLocationValid}}
+        />
+      ) : (
+        <FormDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          isLoading={isLoading}
+          location={null} // Passing null indicates invalid location to FormDialog
+          canOpenDialogBuildings={true}
+          {...{isLocationValid}}
         />
       )}
     </>

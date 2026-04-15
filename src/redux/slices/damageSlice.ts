@@ -9,6 +9,7 @@ import { AppDispatch } from "../store";
 const initialState: IDamageAssessmentState = {
   buildingType: "",
   IndependentBuilding: {
+    independentBuildingType: "",
     numberOfFloors: null,
     groundFloorArea: null,
     commonFloorArea: null,
@@ -22,6 +23,8 @@ const initialState: IDamageAssessmentState = {
     additionalNotes: "",
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     before_damage_image: null,
     after_damage_image: null,
     ownership_documents: [],
@@ -33,6 +36,8 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     usageType: "",
 
     mainBuildingDamage: "",
@@ -58,6 +63,8 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     buildingAge: "",
 
     usageType: "",
@@ -94,9 +101,12 @@ const initialState: IDamageAssessmentState = {
     groundFloorArea: null,
     commonFloorArea: null,
     unitsCount: null,
+    towerName: "",
 
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     buildingAge: "",
 
     usageType: "",
@@ -134,6 +144,8 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     buildingAge: "",
 
     damageType: "",
@@ -160,6 +172,8 @@ const initialState: IDamageAssessmentState = {
 
     propertyType: "",
     propertyOwnerName: "",
+    hasPartners: "",
+    partnersCount: null,
     buildingAge: "",
 
     damageType: "",

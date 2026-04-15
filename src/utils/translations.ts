@@ -195,9 +195,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
       " Enter Alternate Phone Number (if available)",
     // BuildingsType
     "form.IndependentBuilding": "Independent Building",
+    "form.independentBuildingType": "Independent Building Classification",
+    "form.independentVilla": "Independent Building / Villa",
+    "form.arabicHouse": "Arabic House",
     "form.ApartmentInsideBuilding": "Apartment Inside Building",
     "form.ResidentialBuilding": "Residential Building ",
     "form.tower": "Tower",
+    "form.towerName": "Tower Name",
+    "form.towerNamePlaceholder": "Enter tower name",
     "form.compHouse": "Comp House",
     "form.additionalBuildings": "Additional Buildings",
 
@@ -236,6 +241,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.groundFloorArea": "Ground Floor Area",
     "form.nearestLandmark": "Nearest Landmark",
     "form.propertyOwnerName": "Property Owner Name",
+    "form.hasPartners": "Are there partners in ownership?",
+    "form.partnersCount": "Number of Partners",
+    "form.partnersCountPlaceholder": "Enter number of partners",
     "form.before_damage_image": "Before Damage Images",
     "form.after_damage_image": "After Damage Images",
     "form.ownership_documents": "Ownership Documents",
@@ -312,8 +320,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "AboutSection.title": "About the Platform",
     "AboutSection.description":
       " Sawa Benaamerha is an innovative technology platform born from the urgent need to organize and guide reconstruction efforts. Our team combines deep architectural engineering expertise with advanced geospatial artificial intelligence technologies. We rely on Esri's global software to create a digital twin of affected areas, enabling us to analyze damage, predict needs, and optimize resource distribution through a scientific approach that goes beyond traditional methods.",
-    "AboutSection.name1": "Sawa Platform ",
-    "AboutSection.name2": " We Rebuild It ",
+    "AboutSection.name1": "Sawa Build Gaza ",
+    "AboutSection.name2": " Platform ",
 
     "systemDetails.housesRenovated": "Renovated Houses",
     "systemDetails.beneficiaries": "Beneficiaries",
@@ -1126,9 +1134,14 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.verificationCode": "ارسل رمز التحقق ",
     // BuildingsType
     "form.IndependentBuilding": "مبنى مستقل (منزل منفصل / فيلا / بيت عربي)",
+    "form.independentBuildingType": "تصنيف المبنى المستقل",
+    "form.independentVilla": "مبنى منفصل / فيلا",
+    "form.arabicHouse": "بيت عربي",
     "form.ApartmentInsideBuilding": "شقة ( داخل بناية أو برج )",
     "form.ResidentialBuilding": "بناية ",
     "form.tower": "برج",
+    "form.towerName": "اسم البرج",
+    "form.towerNamePlaceholder": "أدخل اسم البرج",
     "form.compHouse": "منازل شعبية (سقف زينكو / كرميد / أسبست)",
     "form.additionalBuildings":
       "مبانٍ إضافية (استراحات – غرف زراعية – أسوار – مخازن - أخرى )",
@@ -1171,6 +1184,9 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.groundFloorArea": "مساحة الطابق الأرضي (م²)",
     "form.nearestLandmark": "أقرب معلم",
     "form.propertyOwnerName": "اسم مالك العقار",
+    "form.hasPartners": "هل يوجد شركاء في الملكية؟",
+    "form.partnersCount": "عدد الشركاء",
+    "form.partnersCountPlaceholder": "أدخل عدد الشركاء",
     "form.propertyEnterOwnerName": "أدخل اسم مالك العقار الأساسي ....",
     "common.selectType": "اختر النوع",
     "wall.blockStone": "بلوك / حجر",
@@ -1278,7 +1294,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
 
     "AboutSection.title": "نبذة عن المنصة",
     "AboutSection.description":
-      " منصة سوا بنعمرها هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
+      "  هي منصة تكنولوجية رائدة ولدت من قلب الحاجة لتنظيم وتوجيه جهود إعادة الإعمار. نحن فريق يجمع بين الخبرة الهندسية المعمارية العميقة وأحدث تقنيات الذكاء الاصطناعي الجغرافي. نعتمد على برمجيات Esri العالمية لخلق توأم رقمي للمناطق المتضررة، مما يسمح لنا بتحليل الأضرار، التنبؤ بالاحتياجات، وتحسين توزيع الموارد بأسلوب علمي يتجاوز الطرق التقليدية.",
     "AboutSection.name1": " منصة سوا ",
     "AboutSection.name2": " بنعمرها ",
 

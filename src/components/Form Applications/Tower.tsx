@@ -26,6 +26,9 @@ const Tower = ({
   const [textLength, setTextLength] = useState(0);
   const BuildingContentWatch = watch("tower.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
+  const showHasPartners = propertyType === "ملك";
+  const hasPartners = watch("tower.hasPartners");
+  const showPartnersCount = hasPartners === "نعم";
   useEffect(() => {
     const currentDamage = getValues("tower.damagePercentage");
     const currentHabitable = getValues("tower.isHabitable");
@@ -40,9 +43,45 @@ const Tower = ({
       if (currentHabitable !== "") setValue("tower.isHabitable", "");
     }
   }, [damageTypeWatch, setValue, getValues]);
+
+  useEffect(() => {
+    if (!showHasPartners) {
+      setValue("tower.hasPartners", "");
+      setValue("tower.partnersCount", null);
+    }
+  }, [showHasPartners, setValue]);
+
+  useEffect(() => {
+    if (!showPartnersCount && showHasPartners) {
+      setValue("tower.partnersCount", null);
+    }
+  }, [showPartnersCount, showHasPartners, setValue]);
   return (
     <div className="space-y-10">
       <section className="space-y-6">
+        {/* Tower Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t("form.towerName")} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder={t("form.towerNamePlaceholder")}
+            {...register("tower.towerName", {
+              required: t("common.required"),
+            })}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+            )}
+            disabled={isChangeToReviewPage}
+          />
+          {errors?.tower?.towerName && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.towerName.message}
+            </p>
+          )}
+        </div>
         {/* Total Floors */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -143,7 +182,7 @@ const Tower = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">لا يوجد</option>
+            <option value="" disabled>نوع حيازة العقار</option>
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
             <option value="انتفاع">انتفاع </option>
@@ -154,6 +193,63 @@ const Tower = ({
             </p>
           )}
         </div>
+
+        {showHasPartners && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("form.hasPartners")} <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...register("tower.hasPartners", {
+                  required: showHasPartners ? t("common.required") : false,
+                })}
+                className={classNames(
+                  "input-field",
+                  isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                )}
+                disabled={isChangeToReviewPage}
+              >
+                <option value="" disabled>{t("form.hasPartners")}</option>
+                <option value="نعم">{t("form.yes")}</option>
+                <option value="لا">{t("form.no")}</option>
+              </select>
+              {errors?.tower?.hasPartners && (
+                <p className="text-red-600 text-sm">
+                  {errors.tower.hasPartners.message}
+                </p>
+              )}
+            </div>
+
+            {showPartnersCount && (
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("form.partnersCount")} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder={t("form.partnersCountPlaceholder")}
+                  {...register("tower.partnersCount", {
+                    required: showPartnersCount ? t("common.required") : false,
+                    min: { value: 1, message: t("validation.minPartners") || "1" },
+                    valueAsNumber: true,
+                  })}
+                  className={classNames(
+                    "input-field",
+                    isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                  )}
+                  disabled={isChangeToReviewPage}
+                />
+                {errors?.tower?.partnersCount && (
+                  <p className="text-red-600 text-sm">
+                    {errors.tower.partnersCount.message}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         {showOwnerName && (
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -210,59 +306,6 @@ const Tower = ({
             </p>
           )}
         </div>
-
-        {/* Usage Type */}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            نوع الاستخدام <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("tower.usageType", {
-              required: t("common.required"),
-            })}
-            className={classNames(
-              "input-field",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : ""
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          >
-            <option value="">اختر النوع</option>
-            <option value="سكني">سكني</option>
-            <option value="تجاري">تجاري</option>
-            <option value="مزدوج الاستخدام">مزدوج الاستخدام</option>
-            <option value="أخرى">أخرى</option>
-          </select>
-          <div className="mr-3 mt-5">
-            {showUsageType && (
-              <input
-                type="text"
-                placeholder="أدخل نوع الاستخدام"
-                {...register("tower.otherUsageType", {
-                  required: t("common.required"),
-                })}
-                className={classNames(
-                  "input-field",
-                  isChangeToReviewPage == true
-                    ? "cursor-not-allowed bg-gray-200"
-                    : ""
-                )}
-                disabled={isChangeToReviewPage ? true : false}
-              />
-            )}
-            {errors?.tower?.otherUsageType && (
-              <p className="text-red-600 text-sm">
-                {errors.tower.otherUsageType.message}
-              </p>
-            )}
-          </div>
-          {errors?.tower?.usageType && (
-            <p className="text-red-600 text-sm">
-              {errors.tower.usageType.message}
-            </p>
-          )}
-        </div> */}
         <MixedUsageComponent
           {...{ register }}
           {...{ isChangeToReviewPage }}
@@ -305,9 +348,7 @@ const Tower = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="" disabled>
-              اختر العمر التقريبي
-            </option>
+            <option value="" disabled>عمر المبنى</option>
             <option value="0-10">0 - 10 سنوات</option>
             <option value="11-20">11 - 20 سنة</option>
             <option value="21-30">21 - 30 سنة</option>
@@ -324,7 +365,95 @@ const Tower = ({
           )}
         </div>
       </section>
+      
       <section className="space-y-6">
+        {/* Unusable Floors */}
+       
+        {/* تفاصيل الضرر */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            تفاصيل الضرر <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("tower.damageType", {
+              required: t("common.required"),
+            })}
+            className={classNames(
+              "input-field mb-4",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : "",
+            )}
+            disabled={isChangeToReviewPage ? true : false}
+          >
+            <option value="" disabled>تفاصيل الضرر</option>
+            <option value="هدم كلي"> هدم كلي</option>
+            <option value="هدم جزئي">هدم جزئي</option>
+          </select>
+          {showDamageValue &&
+            DAMAGE_TYPES.map((item, index) => (
+              <div
+                className={classNames("mr-3", {
+                  "cursor-not-allowed": isChangeToReviewPage,
+                })}
+                key={index}
+              >
+                <input
+                  type="checkbox"
+                  value={item.value}
+                  {...register("tower.damageTypes", {
+                    required: "اختر نوع ضرر واحد على الأقل",
+                  })}
+                  className={classNames(
+                    "accent-primary",
+                    isChangeToReviewPage &&
+                      "pointer-events-none accent-gray-200",
+                  )}
+                />
+                <span className="mr-2">{t(item.label)}</span>
+              </div>
+            ))}
+
+          {errors?.tower?.damageTypes && (
+            <p className="text-red-600 mr-3 mt-2 text-sm">
+              {errors.tower.damageTypes.message}
+            </p>
+          )}
+          {errors?.tower?.damageType && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.damageType.message}
+            </p>
+          )}
+        </div>
+
+        {showDamageValue &&  <div>
+          <label className="block text-sm font-medium mb-1">
+            عدد الطوابق غير الصالحة للاستخدام{" "}
+            <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            {...register("tower.unusableFloors", {
+              valueAsNumber: true,
+              required: t("common.required"),
+            })}
+            min={0}
+            className={classNames(
+              "input-field",
+              isChangeToReviewPage == true
+                ? "cursor-not-allowed bg-gray-200"
+                : "",
+            )}
+            disabled={isChangeToReviewPage ? true : false}
+          />
+          {errors?.tower?.unusableFloors && (
+            <p className="text-red-600 text-sm">
+              {errors.tower.unusableFloors.message}
+            </p>
+          )}
+        </div>}
+
+        {showDamageValue && <section className="space-y-6">
         {/* Collapsed Floors */}
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -420,91 +549,7 @@ const Tower = ({
             <span>أحزمة و كشفات أسقف</span>
           </div>
         </div>
-      </section>
-      <section className="space-y-6">
-        {/* Unusable Floors */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            عدد الطوابق غير الصالحة للاستخدام{" "}
-            <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            {...register("tower.unusableFloors", {
-              valueAsNumber: true,
-              required: t("common.required"),
-            })}
-            min={0}
-            className={classNames(
-              "input-field",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : "",
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          />
-          {errors?.tower?.unusableFloors && (
-            <p className="text-red-600 text-sm">
-              {errors.tower.unusableFloors.message}
-            </p>
-          )}
-        </div>
-        {/* تفاصيل الضرر */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            تفاصيل الضرر <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register("tower.damageType", {
-              required: t("common.required"),
-            })}
-            className={classNames(
-              "input-field mb-4",
-              isChangeToReviewPage == true
-                ? "cursor-not-allowed bg-gray-200"
-                : "",
-            )}
-            disabled={isChangeToReviewPage ? true : false}
-          >
-            <option value="">اختر نوع الضرر</option>
-            <option value="هدم كلي"> هدم كلي</option>
-            <option value="هدم جزئي">هدم جزئي</option>
-          </select>
-          {showDamageValue &&
-            DAMAGE_TYPES.map((item, index) => (
-              <div
-                className={classNames("mr-3", {
-                  "cursor-not-allowed": isChangeToReviewPage,
-                })}
-                key={index}
-              >
-                <input
-                  type="checkbox"
-                  value={item.value}
-                  {...register("tower.damageTypes", {
-                    required: "اختر نوع ضرر واحد على الأقل",
-                  })}
-                  className={classNames(
-                    "accent-primary",
-                    isChangeToReviewPage &&
-                      "pointer-events-none accent-gray-200",
-                  )}
-                />
-                <span className="mr-2">{item.label}</span>
-              </div>
-            ))}
-
-          {errors?.tower?.damageTypes && (
-            <p className="text-red-600 mr-3 mt-2 text-sm">
-              {errors.tower.damageTypes.message}
-            </p>
-          )}
-          {errors?.tower?.damageType && (
-            <p className="text-red-600 text-sm">
-              {errors.tower.damageType.message}
-            </p>
-          )}
-        </div>
+      </section>}
         {/* نسبة الضرر */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -522,7 +567,7 @@ const Tower = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">0</option>
+            <option value="" disabled>نسبة الضرر (%)</option>
             <option value="25%">25%</option>
             <option value="50%">50% </option>
             <option value="75%">75% </option>
@@ -552,7 +597,7 @@ const Tower = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع</option>
+            <option value="" disabled>هل هو قابل للسكن حالياً؟</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا </option>
           </select>

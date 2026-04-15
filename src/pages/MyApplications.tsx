@@ -73,7 +73,7 @@ const MyApplications = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [isInsideGaza, setIsInsideGaza] = useState(true);
+  const [isInsideGaza, setIsInsideGaza] = useState(false);
   // Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -101,17 +101,28 @@ const MyApplications = () => {
   const [locationAddress, setLocationAddress] = useState("");
   const defaultCenter: [number, number] = [31.3547, 34.3088];
   const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
+  const [zoom, setZoom] = useState(15);
+  const [isSyncing, setIsSyncing] = useState(false);
   const theme = useTheme();
   const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
   const [locationLoading, setLocationLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
 
   // Cascading Location States for Dialog
   const [governorates, setGovernorates] = useState<any[]>([]);
   const [municipalities, setMunicipalities] = useState<any[]>([]);
   const [neighborhoodLocations, setNeighborhoodLocations] = useState<any[]>([]);
   const [landmarks, setLandmarks] = useState<any[]>([]);
+  const [govLoading, setGovLoading] = useState(false);
+  const [muniLoading, setMuniLoading] = useState(false);
+  const [nhLoading, setNhLoading] = useState(false);
+  const [lmLoading, setLmLoading] = useState(false);
 
-  const [landmarksData, setLandmarksData] = useState<any[]>([]);
+  const [localGovData, setLocalGovData] = useState<any[]>([]);
+  const [localMuniData, setLocalMuniData] = useState<any[]>([]);
+  const [localNhData, setLocalNhData] = useState<any[]>([]);
+  const [localLmData, setLocalLmData] = useState<any[]>([]);
+  const [loadingLocalData, setLoadingLocalData] = useState(true);
   const [targetNames, setTargetNames] = useState<{
     governorate: string;
     municipality: string;
@@ -127,36 +138,81 @@ const MyApplications = () => {
     useState<string>("");
   const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
 
-  // Load Landmarks.json for reverse lookup
+  // Load Data
   useEffect(() => {
-    fetch("/Landmarks.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.features) setLandmarksData(data.features);
-      })
-      .catch((err) => console.error("Error loading Landmarks.json:", err));
-  }, []);
+    const loadAllData = async () => {
+      setGovLoading(true);
+      setLoadingLocalData(true);
+      try {
+        const [
+          govLocalRes,
+          muniLocalRes,
+          nhLocalRes,
+          lmLocalRes,
+          govBackendRes,
+        ] = await Promise.all([
+          fetch("/Governorates.json"),
+          fetch("/Municipalitys.json"),
+          fetch("/Neighborhoods.json"),
+          fetch("/Landmarks.json"),
+          axiosClient
+            .get("/locations/governorates")
+            .catch(() => ({ data: { governorates: [] } })),
+        ]);
 
-  // Fetch governorates for dialog
-  useEffect(() => {
-    axiosClient
-      .get("/locations/governorates")
-      .then((res: any) => {
-        setGovernorates(res.data.governorates || []);
-      })
-      .catch((err: any) => console.error("Error fetching governorates:", err));
+        const [govL, muniL, nhL, lmL] = await Promise.all([
+          govLocalRes.json(),
+          muniLocalRes.json(),
+          nhLocalRes.json(),
+          lmLocalRes.json(),
+        ]);
+
+        if (govL.features) setLocalGovData(govL.features);
+        if (muniL.features) setLocalMuniData(muniL.features);
+        if (nhL.features) setLocalNhData(nhL.features);
+        if (lmL.features) setLocalLmData(lmL.features);
+
+        if (govBackendRes.data.governorates)
+          setGovernorates(govBackendRes.data.governorates);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoadingLocalData(false);
+        setGovLoading(false);
+      }
+    };
+    loadAllData();
   }, []);
 
   // Normalization and Match Helpers
-  const normalizeText = (text: string) => {
+   const normalizeText = (text: string) => {
     if (!text) return "";
     return text
+      .toString()
       .trim()
-      .replace(/[\uFEFF\u200B\u200C\u200D]/g, "")
+      .replace(/[\uFEFF\u200B\u200C\u200D\u0640]/g, "") 
       .replace(/[أإآ]/g, "ا")
       .replace(/ى/g, "ي")
       .replace(/ة/g, "ه")
+      .replace(/^(محافظه|بلديه|حي|قريه|مخيم)\s+/g, "")
       .replace(/\s+/g, "");
+  };
+
+  const isPointInPolygon = (point: [number, number], vs: number[][][]) => {
+    const x = point[1],
+      y = point[0]; // lng, lat
+    let inside = false;
+    const polygon = vs[0]; // First ring
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i][0],
+        yi = polygon[i][1];
+      const xj = polygon[j][0],
+        yj = polygon[j][1];
+      const intersect =
+        yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+    return inside;
   };
 
   const GOV_MAPPING: Record<string, string> = {
@@ -195,34 +251,102 @@ const MyApplications = () => {
   //         variant: "success",
   //       });
   // Cascading Selection Sync (Copy of CurrentLocationMapPage logic)
-  useEffect(() => {
-    if (locationPosition && landmarksData.length > 0 && locationDialogOpen) {
-      let minDistance = Infinity;
-      let nearest: any = null;
+   useEffect(() => {
+    if (locationPosition && (localLmData.length > 0 || localGovData.length > 0) && locationDialogOpen) {
+      // 1. Find Governorate by Polygon
+      let govNameFound = "";
+      for (const feature of localGovData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(locationPosition, feature.geometry.coordinates)) {
+            govNameFound =
+              feature.properties.Name ||
+              feature.properties.المحافظة ||
+              feature.properties.Governorat ||
+              feature.properties.المحا;
+            break;
+          }
+        }
+      }
 
-      landmarksData.forEach((f: any) => {
+      // 2. Find Municipality by Polygon
+      let muniNameFound = "";
+      for (const feature of localMuniData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(locationPosition, feature.geometry.coordinates)) {
+            muniNameFound =
+              feature.properties.Mun_Name ||
+              feature.properties.البلدية ||
+              feature.properties.Municipali ||
+              feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 3. Find Neighborhood by Polygon
+      let nhNameFound = "";
+      for (const feature of localNhData) {
+        if (feature.geometry?.type === "Polygon") {
+          if (isPointInPolygon(locationPosition, feature.geometry.coordinates)) {
+            nhNameFound =
+              feature.properties.الحي ||
+              feature.properties.Neighborho ||
+              feature.properties.name;
+            if (!muniNameFound) muniNameFound = feature.properties.البلد;
+            if (!govNameFound) govNameFound = feature.properties.المحا;
+            break;
+          }
+        }
+      }
+
+      // 4. Find nearest landmark
+      let minDistance = Infinity;
+      let nearestLandmark: any = null;
+      localLmData.forEach((f: any) => {
         if (!f.geometry || !f.geometry.coordinates) return;
         const [lLng, lLat] = f.geometry.coordinates;
         const dist =
-          Math.pow(locationPosition[0] - lLat, 2) +
-          Math.pow(locationPosition[1] - lLng, 2);
+          Math.pow(locationPosition[0] - lLat, 2) + Math.pow(locationPosition[1] - lLng, 2);
         if (dist < minDistance) {
           minDistance = dist;
-          nearest = f;
+          nearestLandmark = f;
         }
       });
 
-      if (nearest) {
-        const props = nearest.properties;
-        setTargetNames({
-          governorate: props.المحافظة || "",
-          municipality: props.البلدية || "",
-          neighborhood: props.الحي || "",
-          landmark: props.اسم_المعلم || "",
-        });
+      let lmNameFound = "";
+      if (nearestLandmark && minDistance < 0.0005) {
+        lmNameFound =
+          nearestLandmark.properties.اسم_المعلم ||
+          nearestLandmark.properties.name ||
+          nearestLandmark.properties.Landmark;
+
+        // Contextual Fallbacks
+        if (!govNameFound)
+          govNameFound =
+            nearestLandmark.properties.المحافظة ||
+            nearestLandmark.properties.Governorat ||
+            nearestLandmark.properties.المحا;
+        if (!muniNameFound)
+          muniNameFound =
+            nearestLandmark.properties.البلدية ||
+            nearestLandmark.properties.Municipali ||
+            nearestLandmark.properties.البلد;
+        if (!nhNameFound)
+          nhNameFound =
+            nearestLandmark.properties.الحي ||
+            nearestLandmark.properties.Neighborho;
       }
+
+      setIsSyncing(true);
+      setTargetNames({
+        governorate: govNameFound,
+        municipality: muniNameFound,
+        neighborhood: nhNameFound,
+        landmark: lmNameFound,
+      });
     }
-  }, [locationPosition, landmarksData, locationDialogOpen]);
+  }, [locationPosition, localLmData, localGovData, localMuniData, localNhData, locationDialogOpen]);
 
   useEffect(() => {
     if (targetNames && governorates.length > 0) {
@@ -266,21 +390,25 @@ const MyApplications = () => {
   // Fetch municipalities when governorate changes
   useEffect(() => {
     if (selectedGovernorateId) {
+      setMuniLoading(true);
       axiosClient
         .get("/locations/municipalities", {
           params: { governorate_id: selectedGovernorateId },
         })
         .then((res: any) => {
           setMunicipalities(res.data.municipalities || []);
-          setNeighborhoodLocations([]);
-          setLandmarks([]);
-          setSelectedMunicipalityId("");
-          setSelectedNeighborhoodId("");
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.municipality) {
+            setNeighborhoodLocations([]);
+            setLandmarks([]);
+            setSelectedMunicipalityId("");
+            setSelectedNeighborhoodId("");
+            setSelectedLandmarkId("");
+          }
         })
         .catch((err: any) =>
           console.error("Error fetching municipalities:", err),
-        );
+        )
+        .finally(() => setMuniLoading(false));
     } else {
       setMunicipalities([]);
     }
@@ -289,19 +417,23 @@ const MyApplications = () => {
   // Fetch neighborhoods when municipality changes
   useEffect(() => {
     if (selectedMunicipalityId) {
+      setNhLoading(true);
       axiosClient
         .get("/locations/neighborhoods", {
           params: { municipality_id: selectedMunicipalityId },
         })
         .then((res: any) => {
           setNeighborhoodLocations(res.data.neighborhoods || []);
-          setLandmarks([]);
-          setSelectedNeighborhoodId("");
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.neighborhood) {
+            setLandmarks([]);
+            setSelectedNeighborhoodId("");
+            setSelectedLandmarkId("");
+          }
         })
         .catch((err: any) =>
           console.error("Error fetching neighborhoods:", err),
-        );
+        )
+        .finally(() => setNhLoading(false));
     } else {
       setNeighborhoodLocations([]);
     }
@@ -310,19 +442,35 @@ const MyApplications = () => {
   // Fetch landmarks when neighborhood changes
   useEffect(() => {
     if (selectedNeighborhoodId) {
+      setLmLoading(true);
       axiosClient
         .get("/locations/landmarks", {
           params: { neighborhood_id: selectedNeighborhoodId },
         })
         .then((res: any) => {
           setLandmarks(res.data.landmarks || []);
-          setSelectedLandmarkId("");
+          if (targetNames && !targetNames.landmark) {
+            setSelectedLandmarkId("");
+          }
         })
-        .catch((err: any) => console.error("Error fetching landmarks:", err));
+        .catch((err: any) => console.error("Error fetching landmarks:", err))
+        .finally(() => setLmLoading(false));
     } else {
       setLandmarks([]);
     }
   }, [selectedNeighborhoodId]);
+ 
+  // Unified Sync Completion Watcher
+  useEffect(() => {
+    if (isSyncing) {
+      if (targetNames && !govLoading && !muniLoading && !nhLoading && !lmLoading) {
+        const timer = setTimeout(() => {
+          setIsSyncing(false);
+        }, 500); 
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isSyncing, targetNames, govLoading, muniLoading, nhLoading, lmLoading]);
   //     },
   //     onError: (err) => {
   //       enqueueSnackbar(t("citizen.updateLocationError"), { variant: "error" });
@@ -462,9 +610,9 @@ const MyApplications = () => {
     setAnchorEl(event.currentTarget);
   };
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    citizenInfo.current_location?.accommodation_type === "in_gaza"
-      ? ""
-      : citizenInfo?.current_location?.address,
+    citizenInfo.current_location?.accommodation_type === "outside_gaza"
+      ? citizenInfo?.current_location?.address || ""
+      : "",
   );
 
   // const filterdApplications = id
@@ -644,25 +792,44 @@ const MyApplications = () => {
     setTargetNames(null);
     // Pre-fill with existing location if available
     if (citizenInfo?.current_location) {
-      const lat = parseFloat(citizenInfo.current_location.latitude);
-      const lng = parseFloat(citizenInfo.current_location.longitude);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        setLocationPosition([lat, lng]);
-        setMapCenter([lat, lng]);
+      const isInside =
+        citizenInfo.current_location.accommodation_type === "in_gaza" ||
+        (!citizenInfo.current_location.accommodation_type &&
+          citizenInfo.current_location.latitude &&
+          citizenInfo.current_location.longitude);
+      setIsInsideGaza(!!isInside);
+
+      if (isInside) {
+        const lat = parseFloat(citizenInfo.current_location.latitude);
+        const lng = parseFloat(citizenInfo.current_location.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setLocationPosition([lat, lng]);
+          setMapCenter([lat, lng]);
+        }
+        setLocationAddress(citizenInfo.current_location.address || "");
+
+        const govId = citizenInfo.current_location.governorate_id;
+        const muniId = citizenInfo.current_location.municipality_id;
+        const neighId = citizenInfo.current_location.neighborhood_id;
+        const landmarkId = citizenInfo.current_location.landmark_id;
+
+        if (govId) setSelectedGovernorateId(govId.toString());
+        if (muniId) setSelectedMunicipalityId(muniId.toString());
+        if (neighId) setSelectedNeighborhoodId(neighId.toString());
+        if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
+        setOutsideAddress("");
+      } else {
+        setOutsideAddress(citizenInfo.current_location.address || "");
+        setLocationPosition(null);
+        setLocationAddress("");
+        setSelectedGovernorateId("");
+        setSelectedMunicipalityId("");
+        setSelectedNeighborhoodId("");
+        setSelectedLandmarkId("");
       }
-      setLocationAddress(citizenInfo.current_location.address || "");
-
-      // Safety fix: Safe access to nested properties
-      const govId = citizenInfo.current_location.governorate_id;
-      const muniId = citizenInfo.current_location.municipality_id;
-      const neighId = citizenInfo.current_location.neighborhood_id;
-      const landmarkId = citizenInfo.current_location.landmark_id;
-
-      if (govId) setSelectedGovernorateId(govId.toString());
-      if (muniId) setSelectedMunicipalityId(muniId.toString());
-      if (neighId) setSelectedNeighborhoodId(neighId.toString());
-      if (landmarkId) setSelectedLandmarkId(landmarkId.toString());
     } else {
+      setIsInsideGaza(true);
+      setOutsideAddress("");
       setLocationPosition(null);
       setLocationAddress("");
       setSelectedGovernorateId("");
@@ -677,77 +844,99 @@ const MyApplications = () => {
     setLocationDialogOpen(false);
     setLocationPosition(null);
     setLocationAddress("");
+    setOutsideAddress("");
   };
 
   const handleResetLocation = () => {
     setLocationPosition(null);
     setLocationAddress("");
+    setSelectedGovernorateId("");
+    setSelectedMunicipalityId("");
+    setSelectedNeighborhoodId("");
+    setSelectedLandmarkId("");
   };
 
   const handleConfirmLocationUpdate = () => {
-    if (locationPosition && locationAddress) {
-      setLocationLoading(true);
+    // Validation
+    if (isInsideGaza) {
+      const isLocationValid = 
+        locationPosition && 
+        locationAddress && 
+        locationAddress !== "لا يوجد اتصال في الانترنت" &&
+        selectedGovernorateId && 
+        selectedMunicipalityId && 
+        selectedNeighborhoodId && 
+        selectedLandmarkId;
 
-      axiosClient
-        .put(
-          `${API.citizen.locations.current}`,
-          isInsideGaza
-            ? {
-                accommodation_type: "inside_gaza",
-                latitude: locationPosition[0].toString(),
-                longitude: locationPosition[1].toString(),
-                address: locationAddress,
-                governorate_id: selectedGovernorateId
-                  ? Number(selectedGovernorateId)
-                  : null,
-                municipality_id: selectedMunicipalityId
-                  ? Number(selectedMunicipalityId)
-                  : null,
-                neighborhood_id: selectedNeighborhoodId
-                  ? Number(selectedNeighborhoodId)
-                  : null,
-                landmark_id: selectedLandmarkId
-                  ? Number(selectedLandmarkId)
-                  : null,
-              }
-            : {
-                accommodation_type: "outside_gaza",
-                address: outsideAddress,
-              },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        )
-        .then((res: any) => {
-          setLocationLoading(false);
-          enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-            variant: "success",
-          });
-          setLocationDialogOpen(false);
-
-          const citizenInfo = JSON.parse(
-            localStorage.getItem("citizenInfo") || "{}",
-          );
-
-          const updated = {
-            ...citizenInfo,
-            current_location: res.data.citizen.current_location,
-          };
-
-          localStorage.setItem("citizenInfo", JSON.stringify(updated));
-          console.log(res.data);
-        })
-        .catch((err: any) => {
-          setLocationLoading(false);
-          enqueueSnackbar(t("citizen.updateLocationError"), {
-            variant: "error",
-          });
-          console.log(err);
-        });
+      if (!isLocationValid) {
+        setOpenDialog(true);
+        return;
+      }
+    } else {
+      if (!outsideAddress.trim()) return;
     }
+
+    setLocationLoading(true);
+
+    axiosClient
+      .put(
+        `${API.citizen.locations.current}`,
+        isInsideGaza
+          ? {
+              accommodation_type: "inside_gaza",
+              latitude: locationPosition![0].toString(),
+              longitude: locationPosition![1].toString(),
+              address: locationAddress,
+              governorate_id: selectedGovernorateId
+                ? Number(selectedGovernorateId)
+                : null,
+              municipality_id: selectedMunicipalityId
+                ? Number(selectedMunicipalityId)
+                : null,
+              neighborhood_id: selectedNeighborhoodId
+                ? Number(selectedNeighborhoodId)
+                : null,
+              landmark_id: selectedLandmarkId
+                ? Number(selectedLandmarkId)
+                : null,
+            }
+          : {
+              accommodation_type: "outside_gaza",
+              address: outsideAddress,
+            },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      )
+      .then((res: any) => {
+        setLocationLoading(false);
+        enqueueSnackbar(t("citizen.updateLocationSuccess"), {
+          variant: "success",
+        });
+        setLocationDialogOpen(false);
+
+        const currentCitizenInfo = JSON.parse(
+          localStorage.getItem("citizenInfo") || "{}",
+        );
+
+        const updated = {
+          ...currentCitizenInfo,
+          current_location: res.data.citizen.current_location,
+        };
+
+        localStorage.setItem("citizenInfo", JSON.stringify(updated));
+        console.log(res.data);
+      })
+      .catch((err: any) => {
+        setLocationLoading(false);
+        enqueueSnackbar(t("citizen.updateLocationError"), {
+          variant: "error",
+        });
+        console.log(err);
+      });
   };
 
   console.log(
@@ -1294,7 +1483,13 @@ const MyApplications = () => {
               <RadioGroup
                 row
                 value={isInsideGaza ? "inside" : "outside"}
-                onChange={(e) => setIsInsideGaza(e.target.value === "inside")}
+                onChange={(e) => {
+                  const inside = e.target.value === "inside";
+                  setIsInsideGaza(inside);
+                  if (!inside) {
+                    setOutsideAddress("");
+                  }
+                }}
                 sx={{ justifyContent: "center", mb: 2 }}
               >
                 <FormControlLabel
@@ -1333,16 +1528,23 @@ const MyApplications = () => {
                 >
                   <MapContainer
                     center={mapCenter}
-                    zoom={15}
+                    zoom={zoom}
                     markerPosition={locationPosition}
                     setMarkerPosition={setLocationPosition}
                     height="100%"
                     width="100%"
                     setAddress={setLocationAddress}
+                    isLoading={isSyncing}
+                    setZoom={setZoom}
                     location={{
-                      neighborhood:
-                        citizenInfo?.current_location?.neighborhood?.name,
+                      governorate_id: selectedGovernorateId,
+                      municipality_id: selectedMunicipalityId,
+                      neighborhood_id: selectedNeighborhoodId,
+                      landmark_id: selectedLandmarkId,
+                      address: locationAddress,
                     }}
+                    openDialog={openDialog}
+                    setOpenDialog={setOpenDialog}
                   />
                 </Box>
 
@@ -1582,8 +1784,8 @@ const MyApplications = () => {
               onClick={handleConfirmLocationUpdate}
               disabled={
                 isInsideGaza
-                  ? !locationPosition || !locationAddress || locationLoading
-                  : !outsideAddress 
+                  ? locationLoading || loadingLocalData
+                  : !outsideAddress || locationLoading || loadingLocalData
               }
               startIcon={
                 locationLoading ? (

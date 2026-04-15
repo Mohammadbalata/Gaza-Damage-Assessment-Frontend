@@ -49,6 +49,7 @@ const CurrentLocationMapPage = () => {
       : null,
   );
   const [address, setAddress] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
 
   // Selection States
   const [governorates, setGovernorates] = useState<any[]>([]);
@@ -74,15 +75,22 @@ const CurrentLocationMapPage = () => {
     landmark: string;
   } | null>(null);
 
+  const explorerCitizenInfo = useAppSelector((state) => state.auth.citizenInfo);
   const [selectedGovernorateId, setSelectedGovernorateId] =
-    useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.governorate_id?.toString() || "");
   const [selectedMunicipalityId, setSelectedMunicipalityId] =
-    useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.municipality_id?.toString() || "");
   const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
-    useState<string>("");
-  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>("");
-  const [isInsideGaza, setIsInsideGaza] = useState<boolean>(true);
-  const [outsideAddress, setOutsideAddress] = useState<string>("");
+    useState<string>(explorerCitizenInfo?.current_location?.neighborhood_id?.toString() || "");
+  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>(explorerCitizenInfo?.current_location?.landmark_id?.toString() || "");
+  const [isInsideGaza, setIsInsideGaza] = useState<boolean>(
+    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" ? false : true
+  );
+  const [outsideAddress, setOutsideAddress] = useState<string>(
+    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" 
+      ? explorerCitizenInfo?.current_location?.address || "" 
+      : ""
+  );
 
   // Map Navigation state (keep original map)
   const defaultCenter: [number, number] = [31.3547, 34.3088];
@@ -90,11 +98,13 @@ const CurrentLocationMapPage = () => {
     position || defaultCenter,
   );
   const [zoom, setZoom] = useState<number>(position ? 16 : 13);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Load Data
   useEffect(() => {
     const loadAllData = async () => {
       setGovLoading(true);
+      setLoadingLocal(true);
       try {
         const [
           govLocalRes,
@@ -285,6 +295,7 @@ const CurrentLocationMapPage = () => {
             nearestLandmark.properties.Neighborho;
       }
 
+      setIsSyncing(true);
       setTargetNames({
         governorate: govNameFound,
         municipality: muniNameFound,
@@ -402,6 +413,18 @@ const CurrentLocationMapPage = () => {
       setLandmarks([]);
     }
   }, [selectedNeighborhoodId]);
+ 
+  // Unified Sync Completion Watcher
+  useEffect(() => {
+    if (isSyncing) {
+      if (targetNames && !govLoading && !muniLoading && !nhLoading && !lmLoading) {
+        const timer = setTimeout(() => {
+          setIsSyncing(false);
+        }, 500); 
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isSyncing, targetNames, govLoading, muniLoading, nhLoading, lmLoading]);
 
   // Sync center with position on initial load or landmark/reset selection
   useEffect(() => {
@@ -566,6 +589,21 @@ const CurrentLocationMapPage = () => {
 
   const handleConfirm = () => {
     if (isInsideGaza) {
+      // Validate all required fields
+      const isLocationValid = 
+        position && 
+        address && 
+        address !== "لا يوجد اتصال في الانترنت" &&
+        selectedGovernorateId && 
+        selectedMunicipalityId && 
+        selectedNeighborhoodId && 
+        selectedLandmarkId;
+
+      if (!isLocationValid) {
+        setOpenDialog(true);
+        return;
+      }
+
       if (position) {
         const finalAddress =
           address ||
@@ -863,9 +901,21 @@ const CurrentLocationMapPage = () => {
                   height="100%"
                   width="100%"
                   setAddress={setAddress}
+                  isLoading={isSyncing}
+                  openDialog={openDialog}
+                  setOpenDialog={setOpenDialog}
+                  setZoom={setZoom}
                   location={{
+                    position,
+                    address,
+                    governorate_id: selectedGovernorateId,
+                    municipality_id: selectedMunicipalityId,
                     neighborhood_id: selectedNeighborhoodId,
+                    landmark_id: selectedLandmarkId,
+                    governorate: getGovernorateName(selectedGovernorateId),
+                    municipality: getMunicipalityName(selectedMunicipalityId),
                     neighborhood: getNeighborhoodName(selectedNeighborhoodId),
+                    landmark: getLandmarkName(selectedLandmarkId),
                   }}
                 />
               </Box>
@@ -970,10 +1020,6 @@ const CurrentLocationMapPage = () => {
               onClick={handleConfirm}
               disabled={
                 loading ||
-                (isInsideGaza &&
-                  (!position ||
-                    !address ||
-                    address === "لا يوجد اتصال في الانترنت")) ||
                 (!isInsideGaza && !outsideAddress.trim())
               }
               startIcon={
