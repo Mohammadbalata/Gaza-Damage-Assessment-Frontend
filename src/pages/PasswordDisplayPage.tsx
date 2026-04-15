@@ -56,7 +56,7 @@ const PasswordDisplayPage = () => {
     getValues,
   } = useForm<FormDataCustom>();
 
-  const [openCodeDialog, setOpenCodeDialog] = useState(false);
+  const [openCodeDialog, setOpenCodeDialog] = useState(true);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
   const [isGoTOHomePage, setIsGoToHomePage] = useState(false);

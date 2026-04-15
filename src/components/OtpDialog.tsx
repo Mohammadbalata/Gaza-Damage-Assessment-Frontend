@@ -11,9 +11,9 @@ import {
   Box,
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
+import SmartphoneIcon from "@mui/icons-material/Smartphone";
 
 type OtpMethod = "phoneNumber" | "whatsappNumber" | "email";
 
@@ -37,7 +37,7 @@ const OtpDialog = ({
   onResend,
   length = 6,
   email,
-  whatsappNumber,
+  // whatsappNumber,
   phoneNumber,
   isSent,
 }: OtpDialogProps) => {
@@ -138,7 +138,7 @@ const OtpDialog = ({
       {isSent ? (
         <DialogTitle>{t("form.title")}</DialogTitle>
       ) : (
-        <DialogTitle>اختر طريقة استلام رمز التحقق :</DialogTitle>
+        <DialogTitle>{t("form.titleVerify")}</DialogTitle>
       )}
 
       <DialogContent
@@ -165,10 +165,11 @@ const OtpDialog = ({
               value="phoneNumber"
               onClick={() => handleResend("phoneNumber", phoneNumber || "")}
             >
-              📱 {t("phoneNumber.sms")} : {phoneNumber}
+              <SmartphoneIcon color="primary" />
+              {t("phoneNumber.sms")} : {phoneNumber}
             </ToggleButton>
 
-            <ToggleButton
+            {/* <ToggleButton
               value="whatsappNumber"
               onClick={() =>
                 handleResend("whatsappNumber", whatsappNumber || "")
@@ -184,7 +185,7 @@ const OtpDialog = ({
             >
               <WhatsAppIcon color="success" />
               {t("form.whatsappNumber")} : {whatsappNumber}
-            </ToggleButton>
+            </ToggleButton> */}
 
             <ToggleButton
               value="email"
@@ -250,10 +251,11 @@ const OtpDialog = ({
                   value="phoneNumber"
                   onClick={() => handleResend("phoneNumber", phoneNumber || "")}
                 >
-                  📱 {t("phoneNumber.sms")} : {phoneNumber}
+                  <SmartphoneIcon color="primary" />
+                  {t("phoneNumber.sms")} : {phoneNumber}
                 </ToggleButton>
 
-                <ToggleButton
+                {/* <ToggleButton
                   value="whatsappNumber"
                   disabled={isDisabled}
                   onClick={() =>
@@ -275,7 +277,7 @@ const OtpDialog = ({
                 >
                   <WhatsAppIcon color="success" />
                   {t("form.whatsappNumber")} : {whatsappNumber}
-                </ToggleButton>
+                </ToggleButton> */}
 
                 <ToggleButton
                   value="email"

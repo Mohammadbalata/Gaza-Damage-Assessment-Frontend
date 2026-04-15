@@ -206,6 +206,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.compHouse": "Comp House",
     "form.additionalBuildings": "Additional Buildings",
     "phoneNumber.sms": "SMS",
+    "form.titleVerify":
+      "Choose how you would like to receive the verification code : ",
 
     // Damage Assessment
     "form.damageLevel": "Damage Level",
@@ -1222,6 +1224,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.before_damage_image": "صور قبل الضرر",
     "form.after_damage_image": "صور بعد الضرر",
     "form.ownership_documents": "مستندات الملكية",
+    "form.titleVerify":
+      "اختر طريقة استلام رمز التحقق : ",
 
     "building_content.habitable_room": "يحتوي على غرفة قابلة للسكن على الأقل",
     "building_content.usable_kitchen":
