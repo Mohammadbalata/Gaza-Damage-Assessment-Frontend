@@ -21,6 +21,9 @@ const AdditionalBuildings = ({
   const showDamageValue = damageTypeWatch === "هدم جزئي";
   const BuildingContentWatch = watch("additionalBuildings.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
+  const showHasPartners = propertyType === "ملك";
+  const hasPartners = watch("additionalBuildings.hasPartners");
+  const showPartnersCount = hasPartners === "نعم";
 
   const roomTypeWatch = watch("additionalBuildings.roomType");
   const showUsageType = roomTypeWatch === "أخرى";
@@ -47,6 +50,19 @@ const AdditionalBuildings = ({
     }
   }, [damageTypeWatch, setValue, getValues]);
 
+  useEffect(() => {
+    if (!showHasPartners) {
+      setValue("additionalBuildings.hasPartners", "");
+      setValue("additionalBuildings.partnersCount", null);
+    }
+  }, [showHasPartners, setValue]);
+
+  useEffect(() => {
+    if (!showPartnersCount && showHasPartners) {
+      setValue("additionalBuildings.partnersCount", null);
+    }
+  }, [showPartnersCount, showHasPartners, setValue]);
+
   return (
     <div className="space-y-10">
       <section className="space-y-6">
@@ -66,7 +82,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر النوع</option>
+            <option value="" disabled>نوع الغرفة / المبنى</option>
             <option value="غرف زراعية">غرفة زراعية / خدمات</option>
             <option value="مخازن"> مخازن / بركسات</option>
             <option value="استراحات">استراحات / كافتيريا</option>
@@ -203,7 +219,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">لا يوجد</option>
+            <option value="" disabled>نوع حيازة العقار</option>
             <option value="ملك">ملك</option>
             <option value="ايجار">ايجار </option>
             <option value="انتفاع">انتفاع </option>
@@ -214,6 +230,63 @@ const AdditionalBuildings = ({
             </p>
           )}
         </div>
+
+        {showHasPartners && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("form.hasPartners")} <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...register("additionalBuildings.hasPartners", {
+                  required: showHasPartners ? t("common.required") : false,
+                })}
+                className={classNames(
+                  "input-field",
+                  isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                )}
+                disabled={isChangeToReviewPage}
+              >
+                <option value="" disabled>{t("form.hasPartners")}</option>
+                <option value="نعم">{t("form.yes")}</option>
+                <option value="لا">{t("form.no")}</option>
+              </select>
+              {errors?.additionalBuildings?.hasPartners && (
+                <p className="text-red-600 text-sm">
+                  {errors.additionalBuildings.hasPartners.message}
+                </p>
+              )}
+            </div>
+
+            {showPartnersCount && (
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t("form.partnersCount")} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder={t("form.partnersCountPlaceholder")}
+                  {...register("additionalBuildings.partnersCount", {
+                    required: showPartnersCount ? t("common.required") : false,
+                    min: { value: 1, message: t("validation.minPartners") || "1" },
+                    valueAsNumber: true,
+                  })}
+                  className={classNames(
+                    "input-field",
+                    isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                  )}
+                  disabled={isChangeToReviewPage}
+                />
+                {errors?.additionalBuildings?.partnersCount && (
+                  <p className="text-red-600 text-sm">
+                    {errors.additionalBuildings.partnersCount.message}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         {showOwnerName && (
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -259,7 +332,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع الإنشاء</option>
+            <option value="" disabled>نوع الإنشاء</option>
             <option value="معرشات زينكو">معرشات زينكو</option>
             <option value="جدران زينكو">جدران زينكو</option>
             <option value="منشئة خرسانية">منشئة خرسانية</option>
@@ -290,9 +363,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="" disabled>
-              اختر العمر التقريبي
-            </option>
+            <option value="" disabled>عمر المبنى</option>
             <option value="0-10">0 - 10 سنوات</option>
             <option value="11-20">11 - 20 سنة</option>
             <option value="21-30">21 - 30 سنة</option>
@@ -328,7 +399,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع الضرر</option>
+            <option value="" disabled>نوع الضرر</option>
             <option value="هدم كلي"> هدم كلي</option>
             <option value="هدم جزئي">هدم جزئي</option>
           </select>
@@ -354,7 +425,7 @@ const AdditionalBuildings = ({
                           "pointer-events-none accent-gray-200",
                       )}
                     />
-                    <span className="mr-2">{item.label}</span>
+                    <span className="mr-2">{t(item.label)}</span>
                   </div>
                 ),
             )}
@@ -388,7 +459,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">0</option>
+            <option value="" disabled>نسبة الضرر (%)</option>
             <option value="25%">25%</option>
             <option value="50%">50% </option>
             <option value="75%">75% </option>
@@ -417,7 +488,7 @@ const AdditionalBuildings = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع</option>
+            <option value="" disabled>هل هو قابل للاستخدام ؟</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا </option>
           </select>

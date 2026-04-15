@@ -217,8 +217,35 @@ export const generateApplicationPDF = async (
   const buildingData = buildingType
     ? application?.damage_details?.[buildingType]
     : null;
+  const damageAttachments = application?.damageAttachments;
 
+  const groupedAttachments = damageAttachments?.reduce(
+    (acc: any, file: any) => {
+      const category = file.category;
+
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+
+      acc[category].push(file.file_url);
+
+      return acc;
+    },
+    {},
+  );
+
+  const categoryTitles: any = {
+    before_damage_image: `${t("form.before_damage_image")} :`,
+    after_damage_image: `${t("form.after_damage_image")} :`,
+    ownership_documents: `${t("form.ownership_documents")} :`,
+  };
+
+  console.log("applicationData", application);
   const citizen = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+
+  const isArabic = language === "ar";
+  const direction = isArabic ? "rtl" : "ltr";
+  const align = isArabic ? "right" : "left";
 
   // إنشاء PDF
   const pdf = new jsPDF("p", "pt", "a4");
@@ -321,13 +348,14 @@ export const generateApplicationPDF = async (
   firstPageElement.style.width = "800px";
   firstPageElement.style.height = "1000px"; // ارتفاع ثابت بحجم صفحة A4
   firstPageElement.style.fontFamily = "'Amiri', Arial, sans-serif";
-  firstPageElement.style.direction = language === "en" ? "ltr" : "rtl";
   firstPageElement.style.padding = "40px";
   firstPageElement.style.background = "#fdfdfd";
   firstPageElement.style.color = "#333";
   firstPageElement.style.lineHeight = "1.8";
   firstPageElement.style.display = "flex";
   firstPageElement.style.flexDirection = "column";
+  firstPageElement.style.direction = direction;
+  firstPageElement.style.textAlign = align;
 
   firstPageElement.innerHTML = `
     <!-- الشعار في الرأس (الجزء العلوي) -->
@@ -456,6 +484,8 @@ export const generateApplicationPDF = async (
     secondPageElement.style.background = "#fdfdfd";
     secondPageElement.style.color = "#333";
     secondPageElement.style.lineHeight = "1.8";
+    secondPageElement.style.direction = direction;
+    secondPageElement.style.textAlign = align;
 
     secondPageElement.innerHTML = `
       <h3 style="font-size:25px; color:#1E3A8A; margin-bottom:20px;">
@@ -481,6 +511,79 @@ export const generateApplicationPDF = async (
     pdf.addPage();
     pdf.addImage(imgSecond, "JPEG", 0, 0, pageWidth, heightSecond);
     document.body.removeChild(secondPageElement);
+  }
+
+  if (groupedAttachments && Object.keys(groupedAttachments).length > 0) {
+    const imagesPage = document.createElement("div");
+
+    imagesPage.style.width = "800px";
+    imagesPage.style.padding = "40px";
+    imagesPage.style.fontFamily = "'Amiri', Arial, sans-serif";
+    imagesPage.style.direction = language === "en" ? "ltr" : "rtl";
+    imagesPage.style.background = "#fff";
+
+    let html = ``;
+
+    Object.entries(groupedAttachments).forEach(([category, images]: any) => {
+      html += `
+      <div style="margin-bottom:40px;">
+        <h3 style="margin-bottom:10px; color:#333;">
+          ${categoryTitles[category] || category}
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          ${images
+            .map(
+              (url: string) => `
+                <div style="page-break-inside: avoid;">
+                  <img
+                    src="${url}"
+                    style="
+                      width:100%;
+                      height:220px;
+                      object-fit:cover;
+                      border-radius:8px;
+                      border:1px solid #ddd;
+                    "
+                  />
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+    });
+
+    imagesPage.innerHTML = html;
+
+    document.body.appendChild(imagesPage);
+
+    const canvas = await html2canvas(imagesPage, {
+      scale: 2,
+      useCORS: true, // مهم جداً للـ S3 images
+    });
+
+    const img = canvas.toDataURL("image/jpeg", 1.0);
+    const imgProps = pdf.getImageProperties(img);
+
+    const pdfWidth = pageWidth;
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    let heightLeft = pdfHeight;
+    let position = 0;
+
+    pdf.addPage();
+
+    while (heightLeft > 0) {
+      pdf.addImage(img, "JPEG", 0, position, pdfWidth, pdfHeight);
+      heightLeft -= 1000;
+      position -= 1000;
+
+      if (heightLeft > 0) pdf.addPage();
+    }
+
+    document.body.removeChild(imagesPage);
   }
 
   // =============== حفظ الملف ===============

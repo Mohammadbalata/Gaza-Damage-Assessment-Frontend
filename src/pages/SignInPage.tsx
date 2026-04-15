@@ -174,6 +174,7 @@ const LoginPage = () => {
             >
               {t("auth.nationalId")}
             </Typography>
+
             <FormInput
               id="national_id"
               type="text"

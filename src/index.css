@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -67,6 +67,19 @@
   .badge-rejected {
     @apply bg-red-100 text-red-800;
   }
+
+  /* Placeholder styling for selects */
+  select.input-field:has(option[value=""]:checked) {
+    color: #9ca3af; /* gray-400 */
+  }
+
+  select.input-field option:not([value=""]) {
+    color: #1f2937; /* gray-800 */
+  }
+
+  select.input-field option[value=""] {
+    color: #9ca3af;
+  }
 }
 
 .MuiSelect-select {
@@ -83,8 +96,8 @@
   text-align: right;
 }
 
-.bg-header{
-   background: linear-gradient(
+.bg-header {
+  background: linear-gradient(
     to left,
     #c8d8ee 5%,
     #c8d8ee 25%,
@@ -95,47 +108,41 @@
     #f2f8ff 100%
   );
 }
-.background-hero{
+.background-hero {
   background-size: cover;
 }
 
-@media (min-width:800px) {
-  .background-hero{
-  background-size: auto;
+@media (min-width: 800px) {
+  .background-hero {
+    background-size: auto;
+  }
 }
+@media (max-width: 800px) {
+  .hero-btn {
+    bottom: 23%;
+    right: 0;
+  }
 
-  
+  .thin-scrollbar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
 }
-@media (max-width:800px) {
-.hero-btn{
-  bottom: 23%;
-  right: 0;
-}
-
-.thin-scrollbar::-webkit-scrollbar {
-  height: 4px;
-}
-.thin-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-.thin-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-}
-.thin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-  
-}
-@media (max-width:400px) {
-  .logo{
+@media (max-width: 400px) {
+  .logo {
     width: 240px;
+  }
 }
-  
-}
-
 
 /* Driver.js Custom Style */
 .driver-popover-custom {
@@ -146,7 +153,6 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid rgba(45, 95, 63, 0.1) !important;
   max-width: 350px !important;
-
 }
 
 .driver-popover-custom .driver-popover-title {
@@ -171,7 +177,7 @@
   display: flex !important;
   gap: 10px !important;
   justify-content: flex-end !important;
-  direction: ltr !important; 
+  direction: ltr !important;
 }
 
 .driver-popover-custom .driver-popover-btn {
@@ -190,7 +196,7 @@
   color: #ffffff !important;
   border: none !important;
 }
-.driver-popover-custom .driver-popover-close-btn{
+.driver-popover-custom .driver-popover-close-btn {
   position: absolute;
   top: -1px;
   right: -1px;
@@ -202,8 +208,8 @@
   -ms-border-radius: 20%;
   -o-border-radius: 20%;
 }
-.driver-popover-custom .driver-popover-next-btn{
-padding: 5px 15px;
+.driver-popover-custom .driver-popover-next-btn {
+  padding: 5px 15px;
   font-size: 13px !important;
 }
 
@@ -222,7 +228,6 @@ padding: 5px 15px;
 .driver-popover-custom .driver-popover-progress-text {
   color: #9ca3af !important;
   font-size: 13px !important;
-  
 }
 
 .driver-popover-custom .driver-popover-arrow {

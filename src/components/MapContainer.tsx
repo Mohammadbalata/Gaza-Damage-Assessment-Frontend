@@ -6,7 +6,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import ChangeView from "./ChangeView";
 import FormDialog from "./FormDialog";
 // import { Box, Button, Dialog, Typography } from "@mui/material";
@@ -32,19 +32,30 @@ interface MapContainerProps {
   width?: string;
   setAddress: any;
   location?: any;
+  isLoading?: boolean;
+  openDialog: boolean;
+  setOpenDialog: (open: boolean) => void;
+  setZoom?: (zoom: number) => void;
 }
 
 function LocationMarker({
   position,
   setPosition,
+  setZoom,
 }: {
   position: [number, number] | null;
   setPosition: (pos: [number, number]) => void;
+  setZoom?: (zoom: number) => void;
 }) {
   useMapEvents({
     click(e) {
       setPosition([e.latlng.lat, e.latlng.lng]);
     },
+    zoomend(e) {
+      if (typeof setZoom === 'function') {
+        setZoom(e.target.getZoom());
+      }
+    }
   });
 
   return position ? <Marker position={position} /> : null;
@@ -60,8 +71,11 @@ const MapContainer: React.FC<MapContainerProps> = ({
   width = "100%",
   setAddress,
   location,
+  isLoading,
+  openDialog,
+  setOpenDialog,
+  setZoom,
 }) => {
-  const [openDialog, setOpenDialog] = useState(false);
 
   // Robust coordinate sanitation with stability
   const safeCenter: [number, number] = useMemo(() => [
@@ -73,9 +87,16 @@ const MapContainer: React.FC<MapContainerProps> = ({
     typeof zoom === 'number' && !isNaN(zoom) ? zoom : 15
   , [zoom]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (setAddress) setAddress("");
   }, [markerPosition]);
+
+      const isLocationValid = 
+        location?.governorate_id && 
+        location?.municipality_id && 
+        location?.neighborhood_id && 
+        location?.landmark_id && 
+        location?.address;
 
   return (
     <>
@@ -94,6 +115,7 @@ const MapContainer: React.FC<MapContainerProps> = ({
               setMarkerPosition(pos);
               setOpenDialog(true);
             }}
+            setZoom={setZoom}
           />
         ) : (
           markerPosition && <Marker position={markerPosition} />
@@ -102,11 +124,23 @@ const MapContainer: React.FC<MapContainerProps> = ({
         {children}
       </LeafletMap>
       {/* Remove location?.address check to ensure dialog opens even if geocoding is slow */}
-      {location?.address && (
+      {isLocationValid ? (
         <FormDialog
           {...{ location }}
+          isLoading={isLoading}
           open={openDialog}
           onClose={() => setOpenDialog(false)}
+          canOpenDialogBuildings={false}
+          {...{isLocationValid}}
+        />
+      ) : (
+        <FormDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          isLoading={isLoading}
+          location={null}
+          canOpenDialogBuildings={false}
+          {...{isLocationValid}}
         />
       )}
       {/* {!location?.neighborhood &&<Dialog open={openDialog} onClose={() => setOpenDialog(false)}>

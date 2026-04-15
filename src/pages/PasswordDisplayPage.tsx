@@ -36,15 +36,16 @@ import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
-import { axiosClient } from "../api/baseUrl";
+// import { axiosClient } from "../api/baseUrl";
 import LanguageToggle from "../components/LanguageToggle";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.auth);
   const { search } = useLocation();
+
   const query = new URLSearchParams(search);
   const id = query.get("id");
   const {
@@ -52,16 +53,26 @@ const PasswordDisplayPage = () => {
     formState: { errors },
     handleSubmit,
     control,
-    getValues,
+    // getValues,
   } = useForm<FormDataCustom>();
 
   const [openCodeDialog, setOpenCodeDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
-  const [otpValue, setOtpValue] = useState("");
-  const [isGoTOHomePage, setIsGoToHomePage] = useState(false);
+  // const [otpValue, setOtpValue] = useState("");
+  // const [isGoTOHomePage, setIsGoToHomePage] = useState(true);
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
+
+  const citizenName = JSON.parse(localStorage.getItem("citizenName") || "{}");
+  const fullName = [
+    citizenName?.first_name,
+    citizenName?.father_name,
+    citizenName?.grandfather_name,
+    citizenName?.last_name,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   useEffect(() => {
     dispatch(
@@ -88,10 +99,10 @@ const PasswordDisplayPage = () => {
 
     formData.append("national_id", id ?? "");
     formData.append("password", data.password);
-    formData.append("first_name", data.firstName);
-    formData.append("father_name", data.fatherName);
-    formData.append("grandfather_name", data.grandfatherName);
-    formData.append("family_name", data.familyName);
+    // formData.append("first_name", citizenName?.firstName);
+    // formData.append("father_name", citizenName?.fatherName);
+    // formData.append("grandfather_name", citizenName?.grandfatherName);
+    // formData.append("family_name", citizenName?.familyName);
     formData.append("email", data.email);
     formData.append("phone_number", data.phoneNumber);
     formData.append("whatsapp_number", data.whatsappNumber);
@@ -104,103 +115,103 @@ const PasswordDisplayPage = () => {
     if (data.avatar) {
       formData.append("avatar", data.avatar);
     }
-    if (!isGoTOHomePage) {
-      const email = getValues("email");
-      sendOtp(email || "");
-      setOtpValue(email || "");
-    }
-    if (isGoTOHomePage) {
-      try {
-        const res = await dispatch(
-          signUp({
-            pathSignUp: API.citizen.auth.completeSignup,
-            formData,
-          }),
-        ).unwrap();
-        if (res) {
-          console.log("resssss", res);
-          enqueueSnackbar(res.data.message, {
-            variant: "success",
-          });
-          navigate(ROUTES.HOME);
-          localStorage.setItem("token", res.token);
-        }
-      } catch (error: any) {
-        console.log("error", error);
-        if (typeof error === "string") {
-          enqueueSnackbar(error, { variant: "error" });
-          return;
-        }
-        if (typeof error === "object") {
-          Object.entries(error).forEach(([key, value]: any) => {
-            console.log(key);
-            enqueueSnackbar(`${value}`, {
-              variant: "error",
-            });
-          });
-        }
-      }
-    }
-  };
-
-  const sendOtp = async (email: string) => {
+    // if (!isGoTOHomePage) {
+    //   const email = getValues("email");
+    //   sendOtp(email || "");
+    //   setOtpValue(email || "");
+    // }
+    // if (isGoTOHomePage) {
     try {
-      const res = await axiosClient.post("/verify/email", {
-        email: email,
-        national_id: id,
-      });
+      const res = await dispatch(
+        signUp({
+          pathSignUp: API.citizen.auth.completeSignup,
+          formData,
+        }),
+      ).unwrap();
       if (res) {
-        setOpenCodeDialog(true);
-        enqueueSnackbar(
-          res.data.message || "تم ارسال رمز الى بريدك الالكتروني بنجاح",
-          { variant: "success" },
-        );
-        console.log("res0", res);
-      }
-    } catch (error: any) {
-      console.error("error....", error);
-      setOpenCodeDialog(false);
-      if (typeof error.response.data.message === "string") {
-        enqueueSnackbar(error.response.data.message, {
-          variant: "error",
-        });
-      }
-      if (typeof error === "object") {
-        Object.entries(error.response.data.errors).forEach(
-          ([key, value]: any) => {
-            console.log(key);
-            enqueueSnackbar(`${value}`, {
-              variant: "error",
-            });
-          },
-        );
-      }
-    }
-  };
-
-  const handleVerifyCode = async (code: string) => {
-    try {
-      const email = getValues("email");
-      const res = await axiosClient.post("/verify/email/code", {
-        email: email,
-        code: code,
-      });
-
-      if (res) {
-        console.log("responeFromVerify", res);
+        console.log("resssss", res);
         enqueueSnackbar(res.data.message, {
           variant: "success",
         });
-        setIsGoToHomePage(true);
-        setOpenCodeDialog(false);
+        navigate(ROUTES.HOME);
+        localStorage.setItem("token", res.token);
       }
     } catch (error: any) {
-      console.log(error);
-      enqueueSnackbar(error.response.data.message, {
-        variant: "error",
-      });
+      console.log("error", error);
+      if (typeof error === "string") {
+        enqueueSnackbar(error, { variant: "error" });
+        return;
+      }
+      if (typeof error === "object") {
+        Object.entries(error).forEach(([key, value]: any) => {
+          console.log(key);
+          enqueueSnackbar(`${value}`, {
+            variant: "error",
+          });
+        });
+      }
     }
   };
+  // };
+
+  // const sendOtp = async (email: string) => {
+  //   try {
+  //     const res = await axiosClient.post("/verify/email", {
+  //       email: email,
+  //       national_id: id,
+  //     });
+  //     if (res) {
+  //       setOpenCodeDialog(true);
+  //       enqueueSnackbar(
+  //         res.data.message || "تم ارسال رمز الى بريدك الالكتروني بنجاح",
+  //         { variant: "success" },
+  //       );
+  //       console.log("res0", res);
+  //     }
+  //   } catch (error: any) {
+  //     console.error("error....", error);
+  //     setOpenCodeDialog(false);
+  //     if (typeof error.response.data.message === "string") {
+  //       enqueueSnackbar(error.response.data.message, {
+  //         variant: "error",
+  //       });
+  //     }
+  //     if (typeof error === "object") {
+  //       Object.entries(error.response.data.errors).forEach(
+  //         ([key, value]: any) => {
+  //           console.log(key);
+  //           enqueueSnackbar(`${value}`, {
+  //             variant: "error",
+  //           });
+  //         },
+  //       );
+  //     }
+  //   }
+  // };
+
+  // const handleVerifyCode = async (code: string) => {
+  //   try {
+  //     const email = getValues("email");
+  //     const res = await axiosClient.post("/verify/email/code", {
+  //       email: email,
+  //       code: code,
+  //     });
+
+  //     if (res) {
+  //       console.log("responeFromVerify", res);
+  //       enqueueSnackbar(res.data.message, {
+  //         variant: "success",
+  //       });
+  //       setIsGoToHomePage(true);
+  //       setOpenCodeDialog(false);
+  //     }
+  //   } catch (error: any) {
+  //     console.log(error);
+  //     enqueueSnackbar(error.response.data.message, {
+  //       variant: "error",
+  //     });
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -242,12 +253,34 @@ const PasswordDisplayPage = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            gridTemplateColumns: { xs: "1fr", sm: "1fr" },
             gap: 2,
           }}
         >
           {/* Name Fields Row 1 */}
-          <Box>
+          <Box
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+                backgroundColor: "#e0e0e0 !important",
+              },
+
+              "& .MuiOutlinedInput-input": {
+                backgroundColor: "#e0e0e0 !important",
+              },
+            }}
+          >
+            <FormInput
+              id="fullName"
+              label={t("form.fullName")}
+              register={register}
+              errors={errors}
+              fixedLabel
+              defaultValue={fullName}
+              readOnly
+            />
+          </Box>
+          {/* <Box>
             <FormInput
               id="firstName"
               label={t("form.firstName")}
@@ -265,8 +298,8 @@ const PasswordDisplayPage = () => {
               isRequired={true}
               fixedLabel={true}
             />
-          </Box>
-          <Box>
+          </Box> */}
+          {/* <Box>
             <FormInput
               id="fatherName"
               label={t("form.fatherName")}
@@ -287,10 +320,10 @@ const PasswordDisplayPage = () => {
               isRequired={true}
               fixedLabel={true}
             />
-          </Box>
+          </Box> */}
 
           {/* Name Fields Row 2 */}
-          <Box>
+          {/* <Box>
             <FormInput
               id="grandfatherName"
               label={t("form.grandfatherName")}
@@ -308,8 +341,8 @@ const PasswordDisplayPage = () => {
               isRequired={true}
               fixedLabel={true}
             />
-          </Box>
-          <Box>
+          </Box> */}
+          {/* <Box>
             <FormInput
               id="familyName"
               label={t("form.familyName")}
@@ -327,7 +360,7 @@ const PasswordDisplayPage = () => {
               isRequired={true}
               fixedLabel={true}
             />
-          </Box>
+          </Box> */}
 
           {/* Email - Spans 2 columns on small screens if desired, or just full width row */}
           <Box
@@ -343,11 +376,11 @@ const PasswordDisplayPage = () => {
               <FormInput
                 id="email"
                 label={t("form.email")}
-                note={
-                  language === "ar"
-                    ? "يرجى إدخال بريد إلكتروني فعال، سيتم إرسال رمز التحقق إليه"
-                    : "Please enter a valid email address. A verification code will be sent to it."
-                }
+                // note={
+                //   language === "ar"
+                //     ? "يرجى إدخال بريد إلكتروني فعال، سيتم إرسال رمز التحقق إليه"
+                //     : "Please enter a valid email address. A verification code will be sent to it."
+                // }
                 placeholder={t("form.emailPlaceholder")}
                 type="email"
                 register={register}
@@ -387,9 +420,9 @@ const PasswordDisplayPage = () => {
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            onResend={(email) => sendOtp(email)}
-            otpValue={otpValue}
-            onVerify={(code) => handleVerifyCode(code)}
+            // onResend={(email) => sendOtp(email)}
+            // otpValue={otpValue}
+            // onVerify={(code) => handleVerifyCode(code)}
           />
         </Box>
         <Box>

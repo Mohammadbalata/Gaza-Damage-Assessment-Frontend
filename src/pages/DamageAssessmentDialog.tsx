@@ -20,7 +20,14 @@ import AdditionalBuildings from "../components/Form Applications/AdditionalBuild
 import ResidentialBuilding from "../components/Form Applications/ResidentialBuilding";
 import { AlertCircle } from "lucide-react";
 import DamageAssessmentStepper from "../components/Shared/DamageAssessmentStepper";
-import { Button, CircularProgress, DialogActions } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  DialogActions,
+  Box,
+  Typography,
+  alpha,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { updatePreviousLocation } from "../redux/slices/locationSlice";
@@ -75,6 +82,8 @@ const DamageAssessmentDialog = ({
       ApartmentInsideBuilding: damageAssessmentInfo.ApartmentInsideBuilding,
       ResidentialBuilding: damageAssessmentInfo.ResidentialBuilding,
       tower: damageAssessmentInfo.tower || "",
+      compHouse: damageAssessmentInfo.compHouse,
+      additionalBuildings: damageAssessmentInfo.additionalBuildings,
       loading: damageAssessmentInfo.loading,
       error: damageAssessmentInfo.error,
     },
@@ -721,11 +730,50 @@ const DamageAssessmentDialog = ({
               "pointer-events-none opacity-90": readOnly,
             })}
           >
+            {/* Location Validation Guard */}
+            {!(
+              (location?.governorate_id || initialData?.governorate_id) &&
+              (location?.municipality_id || initialData?.municipality_id) &&
+              (location?.neighborhood_id || initialData?.neighborhood_id) &&
+              (location?.landmark_id || initialData?.landmark_id)
+            ) && (
+              <Box
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  bgcolor: "error.lighter",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "error.light",
+                  textAlign: "center",
+                  backgroundColor: (theme) => alpha(theme.palette.error.main, 0.05)
+                }}
+              >
+                <Typography variant="body1" color="error.main" fontWeight="bold">
+                  {t("common.locationRequired")}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mt={1}>
+                  يرجى التأكد من استكمال بيانات الموقع قبل البدء في تعبئة تفاصيل الضرر.
+                </Typography>
+              </Box>
+            )}
+
             <div
-              className={classNames({
-                "cursor-not-allowed": isViewMode,
-              })}
+              className={`space-y-4 ${
+                !(
+                  (location?.governorate_id || initialData?.governorate_id) &&
+                  (location?.municipality_id || initialData?.municipality_id) &&
+                  (location?.neighborhood_id || initialData?.neighborhood_id) &&
+                  (location?.landmark_id || initialData?.landmark_id)
+                )
+                  ? "opacity-50 pointer-events-none"
+                  : ""
+              }`}
             >
+              <div
+                className="rtl:text-right"
+                style={{ direction: language === "ar" ? "rtl" : "ltr" }}
+              >
               <label
                 htmlFor="buildingType"
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -763,6 +811,7 @@ const DamageAssessmentDialog = ({
             </div>
             {/* Inline Rendering to prevent remounts */}
             {renderBuildingContent()}
+          </div>
           </div>
           {/* Actions Area */}
           {!readOnly && (

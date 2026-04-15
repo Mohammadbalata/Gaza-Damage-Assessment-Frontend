@@ -26,6 +26,9 @@ const CampHousing = ({
   const [textLength, setTextLength] = useState(0);
   const BuildingContentWatch = watch("compHouse.isHabitable");
   const showBuildingContent = BuildingContentWatch === "نعم";
+  const showHasPartners = propertyType === "ملك";
+  const hasPartners = watch("compHouse.hasPartners");
+  const showPartnersCount = hasPartners === "نعم";
 
   useEffect(() => {
     const currentDamage = getValues("compHouse.damagePercentage");
@@ -42,6 +45,19 @@ const CampHousing = ({
       if (currentHabitable !== "") setValue("compHouse.isHabitable", "");
     }
   }, [damageTypeWatch, setValue, getValues]);
+
+  useEffect(() => {
+    if (!showHasPartners) {
+      setValue("compHouse.hasPartners", "");
+      setValue("compHouse.partnersCount", null);
+    }
+  }, [showHasPartners, setValue]);
+
+  useEffect(() => {
+    if (!showPartnersCount && showHasPartners) {
+      setValue("compHouse.partnersCount", null);
+    }
+  }, [showPartnersCount, showHasPartners, setValue]);
   return (
     <div className="space-y-6">
       {/* مساحة المسكن */}
@@ -88,7 +104,7 @@ const CampHousing = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="">لا يوجد</option>
+          <option value="" disabled>نوع حيازة العقار</option>
           <option value="ملك">ملك</option>
           <option value="ايجار">ايجار </option>
           <option value="انتفاع">انتفاع </option>
@@ -99,6 +115,63 @@ const CampHousing = ({
           </p>
         )}
       </div>
+
+      {showHasPartners && (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              {t("form.hasPartners")} <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("compHouse.hasPartners", {
+                required: showHasPartners ? t("common.required") : false,
+              })}
+              className={classNames(
+                "input-field",
+                isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+              )}
+              disabled={isChangeToReviewPage}
+            >
+              <option value="" disabled>{t("form.hasPartners")}</option>
+              <option value="نعم">{t("form.yes")}</option>
+              <option value="لا">{t("form.no")}</option>
+            </select>
+            {errors?.compHouse?.hasPartners && (
+              <p className="text-red-600 text-sm">
+                {errors.compHouse.hasPartners.message}
+              </p>
+            )}
+          </div>
+
+          {showPartnersCount && (
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t("form.partnersCount")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min={1}
+                placeholder={t("form.partnersCountPlaceholder")}
+                {...register("compHouse.partnersCount", {
+                  required: showPartnersCount ? t("common.required") : false,
+                  min: { value: 1, message: t("validation.minPartners") || "1" },
+                  valueAsNumber: true,
+                })}
+                className={classNames(
+                  "input-field",
+                  isChangeToReviewPage && "cursor-not-allowed bg-gray-200",
+                )}
+                disabled={isChangeToReviewPage}
+              />
+              {errors?.compHouse?.partnersCount && (
+                <p className="text-red-600 text-sm">
+                  {errors.compHouse.partnersCount.message}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {showOwnerName && (
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -144,9 +217,7 @@ const CampHousing = ({
           )}
           disabled={isChangeToReviewPage ? true : false}
         >
-          <option value="" disabled>
-            اختر العمر التقريبي
-          </option>
+          <option value="" disabled>عمر العقار</option>
           <option value="0-10">0 - 10 سنوات</option>
           <option value="11-20">11 - 20 سنة</option>
           <option value="21-30">21 - 30 سنة</option>
@@ -180,7 +251,7 @@ const CampHousing = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع الضرر</option>
+            <option value="" disabled>تفاصيل الضرر</option>
             <option value="هدم كلي"> هدم كلي</option>
             <option value="هدم جزئي">هدم جزئي</option>
           </select>
@@ -204,7 +275,7 @@ const CampHousing = ({
                       "pointer-events-none accent-gray-200",
                   )}
                 />
-                <span className="mr-2">{item.label}</span>
+                <span className="mr-2">{t(item.label)}</span>
               </div>
             ))}
           {errors?.compHouse?.damageTypes && (
@@ -235,7 +306,7 @@ const CampHousing = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">0</option>
+            <option value="" disabled>نسبة الضرر (%)</option>
             <option value="25%">25%</option>
             <option value="50%">50% </option>
             <option value="75%">75% </option>
@@ -265,7 +336,7 @@ const CampHousing = ({
             )}
             disabled={isChangeToReviewPage ? true : false}
           >
-            <option value="">اختر نوع</option>
+            <option value="" disabled>هل هو قابل للسكن حالياً؟</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا </option>
           </select>

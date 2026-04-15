@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
-
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useAppDispatch, useAppSelector } from "../hooks/redux"; // Removed AlertCircle import as it's replaced by MUI Alert
 
 import { ROUTES } from "../routes/Routes";
 import { signUp } from "../redux/slices/authSlice";
 import { axiosClient } from "../api/baseUrl";
 import AuthComp from "./AuthComp";
+import dayjs from "dayjs";
 
 import {
   Alert,
@@ -46,6 +49,7 @@ const VerificationQuestionsPage = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormData>();
 
@@ -80,6 +84,7 @@ const VerificationQuestionsPage = () => {
     }
   }, [verificationQuestion, dispatch, id, loadingStore, navigate]);
   console.log(questions);
+
   const onSubmit = async (formData: FormData) => {
     setLoadingInput(true);
     let answers: { [key: string]: string } = {};
@@ -95,15 +100,19 @@ const VerificationQuestionsPage = () => {
         answers[key] = value;
       }
     }
-    console.log(questions);
+    console.log("questions", questions);
 
     try {
-      await axiosClient.post(`${API.citizen.auth.verifyQuestions}`, {
-        national_id: id,
-        answers: answers,
-      });
+      const res = await axiosClient.post(
+        `${API.citizen.auth.verifyQuestions}`,
+        {
+          national_id: id,
+          answers: answers,
+        },
+      );
       setLoadingInput(false);
       navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
+      localStorage.setItem("citizenName", JSON.stringify(res?.data?.citizen));
     } catch (error: any) {
       setLoadingInput(false);
       setError(error.response?.data?.message || "Something went wrong");
@@ -172,28 +181,53 @@ const VerificationQuestionsPage = () => {
                 {index + 1}.{" "}
                 {language === "ar" ? question.question : question.en_question}
               </Typography>
-              <TextField
-                key={question.key}
-                type={
-                  question.key.toString().split("_").pop() === "bd"
-                    ? "date"
-                    : "text"
-                }
-                fullWidth
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-                error={!!errors[question.key]}
-                helperText={errors[question.key]?.message as string}
-                {...register(question.key, {
-                  required: t("common.required"),
-                })}
-                placeholder={
-                  language === "ar" ? "أدخل الإجابة" : "Enter your answer"
-                }
-              />
+              {question.key.toString().split("_").pop() === "bd" ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <Controller
+                    name={question.key}
+                    control={control}
+                    rules={{ required: t("common.required") }}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date) => {
+                          field.onChange(date ? date.format("YYYY-MM-DD") : "");
+                        }}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            error: !!errors[question.key],
+                            helperText: errors[question.key]?.message as string,
+                            sx: {
+                              direction: "ltr",
+                              width: "100%",
+                            },
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              ) : (
+                <TextField
+                  key={question.key}
+                  type={"text"}
+                  fullWidth
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                  error={!!errors[question.key]}
+                  helperText={errors[question.key]?.message as string}
+                  {...register(question.key, {
+                    required: t("common.required"),
+                  })}
+                  placeholder={
+                    language === "ar" ? "أدخل الإجابة" : "Enter your answer"
+                  }
+                />
+              )}
             </Box>
           ))}
 
