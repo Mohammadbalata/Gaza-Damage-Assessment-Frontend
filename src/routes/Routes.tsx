@@ -23,8 +23,8 @@ import MyComplaintsPage from "../pages/Citizen/MyComplaintsPage";
 import ComplaintDetailsPage from "../pages/Citizen/ComplaintDetailsPage";
 import LandingPage from "../pages/LandingPage/LandingPage";
 import DamageAssessmentPage from "../pages/Citizen/DamageAssessmentPage";
+import CentralDatabasePage from "../pages/Citizen/CentralDatabasePage";
 import {
-  CentralDatabasePage,
   PublicServicesPage,
   EmergencyManagementPage,
   SupportNetworkPage,
