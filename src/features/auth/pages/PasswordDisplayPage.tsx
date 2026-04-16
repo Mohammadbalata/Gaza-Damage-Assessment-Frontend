@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../../../app/providers/LanguageContext";
-
+import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
 import { Controller, useForm } from "react-hook-form";
-import FormInput from "../../../shared/ui/FormInput";
+
 import {
   checkPasswordRules,
   validatePassword,
@@ -12,8 +12,8 @@ import {
 import { FormDataCustom } from "./SignInPage";
 
 
-import { ROUTES } from "../../../app/router/Routes";
-import PhoneNumberInput from "../../../shared/ui/PhoneNumberInput";
+
+
 import AuthComp from "./AuthComp";
 import {
   Box,
@@ -32,14 +32,19 @@ import {
   Link,
 } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
-import { API } from "../../../shared/constants/ApiRoutes";
+
 import { useSnackbar } from "notistack";
-import OtpDialog from "../../../shared/components/dialogs/OtpDialog";
+
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
-import { axiosClient } from "../../../shared/api/baseUrl";
-import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
+
+import { ROUTES } from "../../../app/router/Routes";
 import { signUp } from "../../../app/store/slices/authSlice";
+import { API } from "../../../shared/constants/ApiRoutes";
+import { axiosClient } from "../../../shared/api/baseUrl";
 import SingleImageInput from "../../damage-assessment/components/ImagesInput/SingleImageInput";
+import FormInput from "../../../shared/ui/FormInput";
+import OtpDialog from "../../../shared/components/dialogs/OtpDialog";
+import PhoneNumberInput from "../../../shared/ui/PhoneNumberInput";
 
 
 const PasswordDisplayPage = () => {
@@ -86,7 +91,7 @@ const PasswordDisplayPage = () => {
       }),
     )
       .unwrap()
-      .then((res:any) => {
+      .then((res) => {
         console.log(res.data.verification_status);
         if (res.data.verification_status !== "NATIONAL_ID_VERIFIED") {
           navigate(`${ROUTES.VERIFICATION_QUESTIONS}?id=${id}`);
@@ -148,7 +153,7 @@ const PasswordDisplayPage = () => {
         }
         if (typeof error === "object") {
           Object.entries(error).forEach(([key, value]: any) => {
-            console.log(key);
+            console.log("key", key, value);
             enqueueSnackbar(`${value}`, {
               variant: "error",
             });
@@ -158,32 +163,13 @@ const PasswordDisplayPage = () => {
     }
   };
 
-  const sendOtp = async (
-    method: "phoneNumber" | "whatsappNumber" | "email",
-    value: string,
-  ) => {
+  const sendOtp = async (type: string, target: string) => {
     try {
-      let endpoint = "";
-      let payload: any = { national_id: id };
-
-      switch (method) {
-        case "phoneNumber":
-          endpoint = "/otp/send";
-          payload.phone_number = value;
-          break;
-
-        case "whatsappNumber":
-          endpoint = "/otp/send-whatsapp";
-          payload.whatsapp_number = value;
-          break;
-
-        case "email":
-          endpoint = "/verify/email";
-          payload.email = value;
-          break;
-      }
-
-      const res = await axiosClient.post(endpoint, payload);
+      const res = await axiosClient.post("/verification/send", {
+        national_id: id,
+        type: type, // email , sms , and later whatsapp
+        target: target,
+      });
       if (res) {
         console.log("ress", res);
         enqueueSnackbar(res.data.message || "OTP sent successfully", {
@@ -212,52 +198,32 @@ const PasswordDisplayPage = () => {
     }
   };
 
-  const handleVerifyCode = async (method: string, code: string) => {
-    if (method === "phoneNumber") {
-      try {
-        const phoneNumber = getValues("phoneNumber");
-        const res = await axiosClient.post("/otp/verify", {
-          phone_number: phoneNumber,
-          national_id: id,
-          otp: code,
-        });
+  const handleVerifyCode = async (
+    type: string,
+    code: string,
+    target: string,
+  ) => {
+    try {
+      const res = await axiosClient.post("/verification/verify", {
+        national_id: id,
+        type: type, // email , sms , and later whatsapp
+        target: target,
+        code: code,
+      });
 
-        if (res) {
-          console.log("responeFromVerify", res);
-          enqueueSnackbar(res.data.message, {
-            variant: "success",
-          });
-          setIsGoToHomePage(true);
-          setOpenCodeDialog(false);
-        }
-      } catch (error: any) {
-        console.log(error);
-        enqueueSnackbar(error.response.data.message, {
-          variant: "error",
+      if (res) {
+        console.log("responeFromVerify", res);
+        enqueueSnackbar(res.data.message, {
+          variant: "success",
         });
+        setIsGoToHomePage(true);
+        setOpenCodeDialog(false);
       }
-    } else if (method === "email") {
-      try {
-        const email = getValues("email");
-        const res = await axiosClient.post("/verify/email/code", {
-          email: email,
-          code: code,
-        });
-
-        if (res) {
-          console.log("responeFromVerify", res);
-          enqueueSnackbar(res.data.message, {
-            variant: "success",
-          });
-          setIsGoToHomePage(true);
-          setOpenCodeDialog(false);
-        }
-      } catch (error: any) {
-        console.log(error);
-        enqueueSnackbar(error.response.data.message, {
-          variant: "error",
-        });
-      }
+    } catch (error: any) {
+      console.log(error);
+      enqueueSnackbar(error.response.data.message, {
+        variant: "error",
+      });
     }
   };
 
@@ -468,11 +434,13 @@ const PasswordDisplayPage = () => {
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            onResend={(method, value) => sendOtp(method, value)}
-            onVerify={(method, code) => handleVerifyCode(method, code)}
-            phoneNumber={getValues("phoneNumber")}
-            email={getValues("email")}
-            whatsappNumber={getValues("whatsappNumber")}
+            onResend={(type, value) => sendOtp(type, value)}
+            onVerify={(type, code, target) =>
+              handleVerifyCode(type, code, target)
+            }
+            phoneNumber={getValues("phoneNumber") || ""}
+            email={getValues("email") || ""}
+            whatsappNumber={getValues("whatsappNumber") || ""}
             isSent={isSent}
           />
         </Box>
