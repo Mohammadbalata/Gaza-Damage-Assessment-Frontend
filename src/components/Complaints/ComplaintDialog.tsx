@@ -13,6 +13,9 @@ import {
   CircularProgress,
   alpha,
   useTheme,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { Close as CloseIcon, Feedback as ComplaintIcon } from "@mui/icons-material";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -36,6 +39,7 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = React.useState(false);
+  const [complaintType, setComplaintType] = React.useState("COMPLAINT");
 
   const {
     register,
@@ -54,12 +58,17 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
       await axiosClient.post(API.citizen.complaints.create, {
         damage_report_id: application.id,
         description: data.description,
+        type:complaintType
       }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      enqueueSnackbar(t("complaint.success"), { variant: "success" });
+      if(complaintType === "COMPLAINT"){
+        enqueueSnackbar(t("complaint.success"), { variant: "success" });
+      }else{
+        enqueueSnackbar(t("complaint.objectionSuccess"), { variant: "success" });
+      }
       reset();
       onClose();
     } catch (error: any) {
@@ -98,7 +107,7 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
         <Stack direction="row" spacing={1.5} alignItems="center">
           <ComplaintIcon color="error" />
           <Typography variant="h6" fontWeight="bold">
-            {t("complaint.add")} - #{application?.report_code}
+            {complaintType === "COMPLAINT" ? t("complaintType.COMPLAINT") : t("complaintType.OBJECTION")} - #{application?.report_code}
           </Typography>
         </Stack>
         <IconButton onClick={onClose} size="small">
@@ -113,12 +122,31 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
               {t("complaint.application")}: #{application?.report_code}
             </Typography>
           </Box>
+           <Box sx={{ mb: 4 }}>
+                      <RadioGroup
+                        row
+                        value={complaintType}
+                        onChange={(e) => setComplaintType(e.target.value)}
+                        sx={{ justifyContent: "center", mb: 2 }}
+                      >
+                        <FormControlLabel
+                          value="COMPLAINT"
+                          control={<Radio />}
+                          label={t("complaintType.COMPLAINT")}
+                        />
+                        <FormControlLabel
+                          value="OBJECTION"
+                          control={<Radio />}
+                          label={t("complaintType.OBJECTION")}
+                        />
+                      </RadioGroup>
+                    </Box>
           <TextField
             fullWidth
             multiline
             rows={4}
-            label={t("complaint.description")}
-            placeholder={t("complaint.descriptionPlaceholder")}
+            label={complaintType === "COMPLAINT" ? t("complaint.description") : t("complaintType.OBJECTION")}
+            placeholder={complaintType === "COMPLAINT" ? t("complaint.descriptionPlaceholder") : t("complaint.descriptionPlaceholder")}
             {...register("description", { required: true, minLength: 10 })}
             error={!!errors.description}
             helperText={
@@ -142,7 +170,7 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
             startIcon={loading ? <CircularProgress size={20} /> : null}
             sx={{ px: 4, borderRadius: 2 }}
           >
-            {t("complaint.submit")}
+            {complaintType === "COMPLAINT" ? t("complaint.submit") : t("complaintType.OBJECTION")}
           </Button>
         </DialogActions>
       </form>

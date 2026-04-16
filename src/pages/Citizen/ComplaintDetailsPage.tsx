@@ -68,7 +68,12 @@ const ComplaintDetailsPage = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      enqueueSnackbar(t("complaint.closeSuccess"), { variant: "success" });
+      enqueueSnackbar(
+        complaint?.type === "COMPLAINT"
+          ? t("complaint.closeSuccess")
+          : t("complaint.closeObjectionSuccess"),
+        { variant: "success" },
+      );
       // Refresh details
       const res = await axiosClient.get(API.citizen.complaints.details(id!), {
         headers: {
@@ -78,7 +83,12 @@ const ComplaintDetailsPage = () => {
       setComplaint(res.data?.complaint || res.data?.data?.complaint || res.data);
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(t("complaint.closeError"), { variant: "error" });
+      enqueueSnackbar(
+        complaint?.type === "COMPLAINT"
+          ? t("complaint.closeError")
+          : t("complaint.closeObjectionError"),
+        { variant: "error" },
+      );
     } finally {
       setClosing(false);
     }
@@ -128,7 +138,7 @@ const ComplaintDetailsPage = () => {
         >
           <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {t("complaint.details")}
+              {complaint.type === "COMPLAINT" ? t("complaint.details") : t("complaint.objectionDetails")}
             </Typography>
           </Box>
           <BackButton language={language} to={"/citizen/my-complaints"} />
@@ -166,7 +176,7 @@ const ComplaintDetailsPage = () => {
               </Box>
               <Box>
                 <Typography variant="overline" color="text.secondary">
-                  {t("complaint.code")}
+                  {complaint.type === "COMPLAINT" ? t("complaint.code") : t("complaint.objectionCode")}
                 </Typography>
                 <Typography variant="h5" fontWeight="bold">
                   {complaint.code}
@@ -191,7 +201,7 @@ const ComplaintDetailsPage = () => {
                 startIcon={closing ? <CircularProgress size={20} color="inherit" /> : null}
                 sx={{ borderRadius: 2, py: 1.5, fontWeight: "bold", borderStyle: "dashed", borderWidth: 2, "&:hover": { borderWidth: 2 } }}
               >
-                {t("complaint.close")}
+                {complaint.type === "COMPLAINT" ? t("complaint.closeComplaint") : t("complaint.closeObjection")}
               </Button>
             </Box>
           )}
@@ -201,7 +211,7 @@ const ComplaintDetailsPage = () => {
           <Stack spacing={4}>
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                {t("complaint.description")}
+                {complaint.type === "COMPLAINT" ? t("complaint.description") : t("complaint.objectionDescription")}
               </Typography>
               <Paper
                 elevation={0}
@@ -299,8 +309,16 @@ const ComplaintDetailsPage = () => {
           open={confirmOpen}
           onClose={() => setConfirmOpen(false)}
           onConfirm={handleConfirmClose}
-          title={t("complaint.close")}
-          message={t("complaint.closeConfirm")}
+          title={
+            complaint.type === "COMPLAINT"
+              ? t("complaint.closeComplaint")
+              : t("complaint.closeObjection")
+          }
+          message={
+            complaint.type === "COMPLAINT"
+              ? t("complaint.closeConfirm")
+              : t("complaint.closeObjectionConfirm")
+          }
           type="warning"
           loading={closing}
         />

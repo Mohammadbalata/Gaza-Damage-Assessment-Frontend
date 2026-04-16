@@ -36,12 +36,12 @@ import { API } from "../constants/ApiRoutes";
 import SingleImageInput from "../components/Form Applications/ImagesInput/SingleImageInput";
 import { useSnackbar } from "notistack";
 import OtpDialog from "../components/OtpDialog";
-// import { axiosClient } from "../api/baseUrl";
 import LanguageToggle from "../components/LanguageToggle";
+import { axiosClient } from "../api/baseUrl";
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
   const { loading } = useAppSelector((state) => state.auth);
   const { search } = useLocation();
@@ -53,14 +53,14 @@ const PasswordDisplayPage = () => {
     formState: { errors },
     handleSubmit,
     control,
-    // getValues,
+    getValues,
   } = useForm<FormDataCustom>();
 
   const [openCodeDialog, setOpenCodeDialog] = useState(false);
   const [password, setPassword] = useState("");
   const [isTouchInput, setIsTouchInput] = useState(false);
-  // const [otpValue, setOtpValue] = useState("");
-  // const [isGoTOHomePage, setIsGoToHomePage] = useState(true);
+  const [isGoTOHomePage, setIsGoToHomePage] = useState(false);
+  const [isSent, setIsSent] = useState(false);
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -115,103 +115,148 @@ const PasswordDisplayPage = () => {
     if (data.avatar) {
       formData.append("avatar", data.avatar);
     }
-    // if (!isGoTOHomePage) {
-    //   const email = getValues("email");
-    //   sendOtp(email || "");
-    //   setOtpValue(email || "");
-    // }
-    // if (isGoTOHomePage) {
+    if (!isGoTOHomePage) {
+      setOpenCodeDialog(true);
+      // const phoneNumber = getValues("phoneNumber");
+      // sendOtp("phoneNumber", phoneNumber || "");
+      // console.log("phoneNumber", phoneNumber);
+    }
+    if (isGoTOHomePage) {
+      try {
+        const res = await dispatch(
+          signUp({
+            pathSignUp: API.citizen.auth.completeSignup,
+            formData,
+          }),
+        ).unwrap();
+        if (res) {
+          console.log("resssss", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+          navigate(ROUTES.HOME);
+          localStorage.setItem("token", res.token);
+        }
+      } catch (error: any) {
+        console.log("error", error);
+        if (typeof error === "string") {
+          enqueueSnackbar(error, { variant: "error" });
+          return;
+        }
+        if (typeof error === "object") {
+          Object.entries(error).forEach(([key, value]: any) => {
+            console.log(key);
+            enqueueSnackbar(`${value}`, {
+              variant: "error",
+            });
+          });
+        }
+      }
+    }
+  };
+
+  const sendOtp = async (
+    method: "phoneNumber" | "whatsappNumber" | "email",
+    value: string,
+  ) => {
     try {
-      const res = await dispatch(
-        signUp({
-          pathSignUp: API.citizen.auth.completeSignup,
-          formData,
-        }),
-      ).unwrap();
+      let endpoint = "";
+      let payload: any = { national_id: id };
+
+      switch (method) {
+        case "phoneNumber":
+          endpoint = "/otp/send";
+          payload.phone_number = value;
+          break;
+
+        case "whatsappNumber":
+          endpoint = "/otp/send-whatsapp";
+          payload.whatsapp_number = value;
+          break;
+
+        case "email":
+          endpoint = "/verify/email";
+          payload.email = value;
+          break;
+      }
+
+      const res = await axiosClient.post(endpoint, payload);
       if (res) {
-        console.log("resssss", res);
-        enqueueSnackbar(res.data.message, {
+        console.log("ress", res);
+        enqueueSnackbar(res.data.message || "OTP sent successfully", {
           variant: "success",
         });
-        navigate(ROUTES.HOME);
-        localStorage.setItem("token", res.token);
+        setIsSent(true);
       }
     } catch (error: any) {
-      console.log("error", error);
-      if (typeof error === "string") {
-        enqueueSnackbar(error, { variant: "error" });
-        return;
+      console.error("error....", error);
+      // setOpenCodeDialog(false);
+      if (typeof error.response.data.message === "string") {
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
       }
       if (typeof error === "object") {
-        Object.entries(error).forEach(([key, value]: any) => {
-          console.log(key);
-          enqueueSnackbar(`${value}`, {
-            variant: "error",
+        Object.entries(error.response.data.errors).forEach(
+          ([key, value]: any) => {
+            console.log(key);
+            enqueueSnackbar(`${value}`, {
+              variant: "error",
+            });
+          },
+        );
+      }
+    }
+  };
+
+  const handleVerifyCode = async (method: string, code: string) => {
+    if (method === "phoneNumber") {
+      try {
+        const phoneNumber = getValues("phoneNumber");
+        const res = await axiosClient.post("/otp/verify", {
+          phone_number: phoneNumber,
+          national_id: id,
+          otp: code,
+        });
+
+        if (res) {
+          console.log("responeFromVerify", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
           });
+          setIsGoToHomePage(true);
+          setOpenCodeDialog(false);
+        }
+      } catch (error: any) {
+        console.log(error);
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
+        });
+      }
+    } else if (method === "email") {
+      try {
+        const email = getValues("email");
+        const res = await axiosClient.post("/verify/email/code", {
+          email: email,
+          code: code,
+        });
+
+        if (res) {
+          console.log("responeFromVerify", res);
+          enqueueSnackbar(res.data.message, {
+            variant: "success",
+          });
+          setIsGoToHomePage(true);
+          setOpenCodeDialog(false);
+        }
+      } catch (error: any) {
+        console.log(error);
+        enqueueSnackbar(error.response.data.message, {
+          variant: "error",
         });
       }
     }
   };
-  // };
-
-  // const sendOtp = async (email: string) => {
-  //   try {
-  //     const res = await axiosClient.post("/verify/email", {
-  //       email: email,
-  //       national_id: id,
-  //     });
-  //     if (res) {
-  //       setOpenCodeDialog(true);
-  //       enqueueSnackbar(
-  //         res.data.message || "تم ارسال رمز الى بريدك الالكتروني بنجاح",
-  //         { variant: "success" },
-  //       );
-  //       console.log("res0", res);
-  //     }
-  //   } catch (error: any) {
-  //     console.error("error....", error);
-  //     setOpenCodeDialog(false);
-  //     if (typeof error.response.data.message === "string") {
-  //       enqueueSnackbar(error.response.data.message, {
-  //         variant: "error",
-  //       });
-  //     }
-  //     if (typeof error === "object") {
-  //       Object.entries(error.response.data.errors).forEach(
-  //         ([key, value]: any) => {
-  //           console.log(key);
-  //           enqueueSnackbar(`${value}`, {
-  //             variant: "error",
-  //           });
-  //         },
-  //       );
-  //     }
-  //   }
-  // };
-
-  // const handleVerifyCode = async (code: string) => {
-  //   try {
-  //     const email = getValues("email");
-  //     const res = await axiosClient.post("/verify/email/code", {
-  //       email: email,
-  //       code: code,
-  //     });
-
-  //     if (res) {
-  //       console.log("responeFromVerify", res);
-  //       enqueueSnackbar(res.data.message, {
-  //         variant: "success",
-  //       });
-  //       setIsGoToHomePage(true);
-  //       setOpenCodeDialog(false);
-  //     }
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     enqueueSnackbar(error.response.data.message, {
-  //       variant: "error",
-  //     });
-  //   }
-  // };
 
   if (loading) {
     return (
@@ -420,9 +465,12 @@ const PasswordDisplayPage = () => {
           <OtpDialog
             open={openCodeDialog}
             onClose={() => setOpenCodeDialog(false)}
-            // onResend={(email) => sendOtp(email)}
-            // otpValue={otpValue}
-            // onVerify={(code) => handleVerifyCode(code)}
+            onResend={(method, value) => sendOtp(method, value)}
+            onVerify={(method, code) => handleVerifyCode(method, code)}
+            phoneNumber={getValues("phoneNumber")}
+            email={getValues("email")}
+            whatsappNumber={getValues("whatsappNumber")}
+            isSent={isSent}
           />
         </Box>
         <Box>
@@ -449,7 +497,16 @@ const PasswordDisplayPage = () => {
           {/* Phone Numbers */}
           <Box my={1}>
             <Typography variant="body2" fontWeight="medium" gutterBottom>
-              {t("form.phoneNumber")} <span style={{ color: "red" }}>*</span>
+              {t("form.phoneNumber")}
+              <span style={{ color: "red" }}>
+                {" "}
+                (
+                {language === "ar"
+                  ? "يرجى إدخال رقم الهاتف الصحيح، سيتم إرسال رمز التحقق إليه"
+                  : "Please enter a valid phoneNumber. A verification code will be sent to it."}
+                ){" "}
+              </span>
+              <span style={{ color: "red" }}>*</span>
             </Typography>
           </Box>
 

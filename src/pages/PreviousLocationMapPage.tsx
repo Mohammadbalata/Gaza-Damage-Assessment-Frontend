@@ -11,7 +11,6 @@ import {
   Box,
   Button,
   Stack,
-  Dialog,
   FormControl,
   InputLabel,
   Select,
@@ -21,7 +20,6 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
-import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
 import { axiosClient } from "../api/baseUrl";
 import { API } from "../constants/ApiRoutes";
@@ -68,10 +66,9 @@ const PreviousLocationMapPage = () => {
   });
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [address, setAddress] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
   const defaultCenter: [number, number] = [31.5017, 34.4668];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
-  // const [zoom, setZoom] = useState<number>(12);
+  const [zoom, setZoom] = useState<number>(12);
 
   // Load Data
   useEffect(() => {
@@ -366,7 +363,7 @@ const PreviousLocationMapPage = () => {
           first.geometry.coordinates[1],
           first.geometry.coordinates[0],
         ]);
-        // setZoom(11);
+        setZoom(11);
       }
     }
   };
@@ -394,7 +391,7 @@ const PreviousLocationMapPage = () => {
 
       if (muniFeature && muniFeature.properties.X && muniFeature.properties.Y) {
         setCenter([muniFeature.properties.Y, muniFeature.properties.X]);
-        // setZoom(13);
+        setZoom(13);
       } else {
         const muniLandmarks = localLmData.filter(
           (f) =>
@@ -411,7 +408,7 @@ const PreviousLocationMapPage = () => {
             first.geometry.coordinates[1],
             first.geometry.coordinates[0],
           ]);
-          // setZoom(13);  
+          setZoom(13);  
         }
       }
     }
@@ -437,7 +434,7 @@ const PreviousLocationMapPage = () => {
 
     if (nhFeature && nhFeature.properties.X && nhFeature.properties.Y) {
       setCenter([nhFeature.properties.Y, nhFeature.properties.X]);
-      // setZoom(15);
+      setZoom(15);
     } else {
       const neighborhoodLandmarks = localLmData.filter(
         (f) =>
@@ -453,7 +450,7 @@ const PreviousLocationMapPage = () => {
           first.geometry.coordinates[1],
           first.geometry.coordinates[0],
         ]);
-        // setZoom(15);  
+        setZoom(15);  
       }
     }
   };
@@ -487,7 +484,7 @@ const PreviousLocationMapPage = () => {
       ];
       setCenter(coords);
       setPosition(coords);
-      // setZoom(18);
+      setZoom(18);
     }
   };
 
@@ -625,11 +622,7 @@ const PreviousLocationMapPage = () => {
     setSelectedNeighborhoodName("");
     setSelectedLandmarkName("");
     setCenter(defaultCenter);
-    // setZoom(12);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+    setZoom(12);
   };
 
   if (loading) {
@@ -855,7 +848,7 @@ const PreviousLocationMapPage = () => {
           >
             <ArcGISMapContainer
               center={center}
-              // zoom={zoom}
+              zoom={zoom}
               markerPosition={position}
               setMarkerPosition={setPosition}
               height="100%"
@@ -973,15 +966,28 @@ const PreviousLocationMapPage = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => setOpenDialog(true)}
+                onClick={() => {
+                  navigate(ROUTES.DAMAGE_ASSESSMENT, {
+                    state: {
+                      location: {
+                        position,
+                        address,
+                        ...resolvedIds,
+                        neighborhood: selectedNeighborhoodName,
+                        landmark: selectedLandmarkName,
+                        governorate: selectedGovernorate,
+                        municipality: selectedMunicipality,
+                      },
+                    },
+                  });
+                }}
                 disabled={
                   !(
                     position &&
                     address &&
                     resolvedIds.governorate_id &&
                     resolvedIds.municipality_id &&
-                    resolvedIds.neighborhood_id &&
-                    resolvedIds.landmark_id
+                    resolvedIds.neighborhood_id
                   )
                 }
                 sx={{ flex: 1, py: 1.5, borderRadius: 2, fontWeight: "bold" }}
@@ -993,27 +999,6 @@ const PreviousLocationMapPage = () => {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        {position && (
-          <DamageAssessmentDialog
-            onClose={handleCloseDialog}
-            location={{
-              position,
-              address,
-              ...resolvedIds,
-              neighborhood: selectedNeighborhoodName,
-              landmark: selectedLandmarkName,
-              governorate: selectedGovernorate,
-              municipality: selectedMunicipality,
-            }}
-          />
-        )}
-      </Dialog>
       <LanguageToggle />
     </Container>
   );

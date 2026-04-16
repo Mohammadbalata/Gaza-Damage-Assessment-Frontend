@@ -22,7 +22,7 @@ import {
   // Settings,
 } from "@mui/icons-material";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useAppSelector } from "../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { ROUTES } from "../routes/Routes";
 // import { useSnackbar } from "notistack";
 import BackButton from "../components/Shared/BackButton";
@@ -30,6 +30,7 @@ import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useEffect } from "react";
 import LanguageToggle from "../components/LanguageToggle";
+import { resetAllBuildings } from "../redux/slices/damageSlice";
 
 /**
  * Citizen Dashboard Page
@@ -38,6 +39,7 @@ import LanguageToggle from "../components/LanguageToggle";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const activeTourStep = localStorage.getItem("activeTourStep");
@@ -92,6 +94,10 @@ const CitizenDashboard: React.FC = () => {
       };
     }
   }, [t, language]);
+
+  useEffect(() => {
+    dispatch(resetAllBuildings());
+  },[])
   // const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store

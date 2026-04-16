@@ -154,14 +154,6 @@ const ApplicationCard = ({
 
 
 
-  // const getNeighborhoodName = (id: string) => {
-  //   const neighborhood = neighborhoods.find(
-  //     (n) => n.id.toString() === id.toString(),
-  //   );
-  //   if (!neighborhood) return id;
-  //   return language === "ar" ? neighborhood.name : neighborhood.name_en;
-  // };
-
   const getStatusConfig = (status: ReportStatus) => {
     switch (status) {
       case ReportStatus.SUBMITTED:
@@ -503,7 +495,7 @@ const ApplicationCard = ({
                   color: "error",
                   show:
                     !application.complaint ||
-                    ["RESOLVED", "CLOSED"].includes(
+                    ["CLOSED"].includes(
                       application.complaint.status
                         ?.toUpperCase()
                         .replace("-", "_"),
@@ -631,7 +623,11 @@ const ApplicationCard = ({
                 <ListItemIcon>
                   <VisibilityIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary={t("citizen.viewDetails")} />
+                {application?.complaint?.type === "COMPLAINT" ?
+                <ListItemText primary={t("citizen.viewDetailsComplaint")} />
+                : 
+                <ListItemText primary={t("citizen.viewDetailsObjection")} />
+                }
               </MenuItem>
               <MenuItem
                 onClick={() => {
@@ -639,7 +635,7 @@ const ApplicationCard = ({
                   onCloseComplaint(application);
                 }}
                 disabled={
-                  application.complaint?.status
+                  application?.complaint?.status
                     ?.toUpperCase()
                     .replace("-", "_") !== "RESOLVED"
                 }
@@ -648,7 +644,7 @@ const ApplicationCard = ({
                   <ClosedIcon
                     fontSize="small"
                     color={
-                      application.complaint?.status
+                      application?.complaint?.status
                         ?.toUpperCase()
                         .replace("-", "_") === "RESOLVED"
                         ? "error"
@@ -656,8 +652,9 @@ const ApplicationCard = ({
                     }
                   />
                 </ListItemIcon>
+                {application.complaint?.type === "COMPLAINT" ?
                 <ListItemText
-                  primary={t("complaint.close")}
+                  primary={t("complaint.closeComplaint")}
                   secondary={
                     application.complaint?.status
                       ?.toUpperCase()
@@ -666,6 +663,18 @@ const ApplicationCard = ({
                       : null
                   }
                 />
+                : 
+                <ListItemText
+                  primary={t("complaint.closeObjection")}
+                  secondary={
+                    application.complaint?.status
+                      ?.toUpperCase()
+                      .replace("-", "_") !== "RESOLVED"
+                      ? t("complaint.waitingForResponse")
+                      : null
+                  }
+                />
+                }
               </MenuItem>
             </Menu>
           </Box>

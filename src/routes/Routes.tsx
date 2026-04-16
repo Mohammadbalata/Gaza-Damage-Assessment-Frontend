@@ -22,8 +22,9 @@ import BiometricDataPage from "../pages/Settings/BiometricDataPage";
 import MyComplaintsPage from "../pages/Citizen/MyComplaintsPage";
 import ComplaintDetailsPage from "../pages/Citizen/ComplaintDetailsPage";
 import LandingPage from "../pages/LandingPage/LandingPage";
+import DamageAssessmentPage from "../pages/Citizen/DamageAssessmentPage";
+import CentralDatabasePage from "../pages/Citizen/CentralDatabasePage";
 import {
-  CentralDatabasePage,
   PublicServicesPage,
   EmergencyManagementPage,
   SupportNetworkPage,
@@ -72,6 +73,7 @@ export const ROUTES: IRoutes = {
   PUBLIC_SERVICES: "/public-services",
   EMERGENCY_MANAGEMENT: "/emergency-management",
   SUPPORT_NETWORK: "/support-network",
+  DAMAGE_ASSESSMENT: "/citizen/damage-assessment",
 };
 
 export const routes = [
@@ -225,6 +227,14 @@ export const routes = [
   { path: ROUTES.PUBLIC_SERVICES, element: <PublicServicesPage /> },
   { path: ROUTES.EMERGENCY_MANAGEMENT, element: <EmergencyManagementPage /> },
   { path: ROUTES.SUPPORT_NETWORK, element: <SupportNetworkPage /> },
+  {
+    path: ROUTES.DAMAGE_ASSESSMENT,
+    element: (
+      <ProtectedRoutes>
+        <DamageAssessmentPage />
+      </ProtectedRoutes>
+    ),
+  },
 
   { path: "*", element: <NotFoundPage /> },
 ];

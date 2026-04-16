@@ -6,16 +6,28 @@ import {
   DialogActions,
   TextField,
   Button,
+  ToggleButtonGroup,
+  ToggleButton,
+  Box,
 } from "@mui/material";
+import EmailIcon from "@mui/icons-material/Email";
 import { useSnackbar } from "notistack";
+import { useLanguage } from "../contexts/LanguageContext";
+import SmartphoneIcon from "@mui/icons-material/Smartphone";
+
+type OtpMethod = "phoneNumber" | "whatsappNumber" | "email";
 
 interface OtpDialogProps {
   open: boolean;
   onClose: () => void;
-  onVerify?: (code: string) => void; // يمكن استقبال callback عند التحقق
-  onResend?: (otpVal: string) => void; // callback لإعادة إرسال الرمز
+  onVerify?: (method: OtpMethod, code: string) => void;
+  onResend?: (method: OtpMethod, value: string) => void;
+  otpValue?: string;
   length?: number;
-  otpValue?: string; // يمكن استقبال البريد الإلكتروني لإعادة الإرسال
+  phoneNumber?: string;
+  email?: string;
+  whatsappNumber?: string;
+  isSent?: boolean;
 }
 
 const OtpDialog = ({
@@ -24,21 +36,34 @@ const OtpDialog = ({
   onVerify,
   onResend,
   length = 6,
-  otpValue,
+  email,
+  // whatsappNumber,
+  phoneNumber,
+  isSent,
 }: OtpDialogProps) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useLanguage();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [otp, setOtp] = useState(Array(length).fill(""));
+  const [method, setMethod] = useState<OtpMethod>("phoneNumber");
+  const [showAnotherWay, setShowAnotherWay] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   useEffect(() => {
     if (open) {
       inputRefs.current[0]?.focus();
     }
   }, [open]);
+
+  setTimeout(() => {
+    setIsDisabled(false);
+  }, 10000);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
   ) => {
     const value = e.target.value;
+
     if (/^\d$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
@@ -51,13 +76,7 @@ const OtpDialog = ({
       const newOtp = [...otp];
       newOtp[index] = "";
       setOtp(newOtp);
-    } else {
-      e.target.value = "";
     }
-  };
-  const handleClose = () => {
-    setOtp(Array(length).fill(""));
-    onClose();
   };
 
   const handleKeyDown = (
@@ -66,32 +85,6 @@ const OtpDialog = ({
   ) => {
     if (e.key === "Backspace" && index > 0 && otp[index] === "") {
       inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleVerify = () => {
-    const code = otp.join("");
-    console.log(code);
-    if (onVerify) {
-      onVerify(code);
-    } else {
-      if (code === "123456") {
-        enqueueSnackbar("تم التحقق بنجاح!", { variant: "success" });
-        setOtp(Array(length).fill(""));
-        // onClose();
-      } else {
-        enqueueSnackbar("الرمز غير صحيح", { variant: "error" });
-      }
-    }
-  };
-
-  const handleResend = (otpValue: string) => {
-    console.log("otpValue is", otpValue);
-    if (onResend) {
-      onResend(otpValue);
-      enqueueSnackbar("تم إرسال رمز جديد", { variant: "info" });
-      setOtp(Array(length).fill(""));
-      inputRefs.current[0]?.focus();
     }
   };
 
@@ -114,58 +107,226 @@ const OtpDialog = ({
     inputRefs.current[nextIndex]?.focus();
   };
 
+  const handleVerify = (method: OtpMethod) => {
+    const code = otp.join("");
+
+    if (onVerify) {
+      onVerify(method, code);
+    } else {
+      if (code === "123456") {
+        enqueueSnackbar("تم التحقق بنجاح ✅", { variant: "success" });
+      } else {
+        enqueueSnackbar("الرمز غير صحيح ❌", { variant: "error" });
+      }
+    }
+  };
+
+  const handleResend = (method: OtpMethod, value: string) => {
+    onResend?.(method, value);
+    console.log("method", method, value);
+    setOtp(Array(length).fill(""));
+    inputRefs.current[0]?.focus();
+  };
+
+  const handleClose = () => {
+    setOtp(Array(length).fill(""));
+    onClose();
+  };
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
-      <DialogTitle>ادخل رمز التحقق المرسل اليك </DialogTitle>
+      {isSent ? (
+        <DialogTitle>{t("form.title")}</DialogTitle>
+      ) : (
+        <DialogTitle>{t("form.titleVerify")}</DialogTitle>
+      )}
+
       <DialogContent
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 1,
+          gap: 2,
           mt: 1,
         }}
       >
-        <div style={{ display: "flex", gap: 8, direction: "ltr" }}>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <TextField
-              key={index}
-              type="tel"
-              inputRef={(el) => (inputRefs.current[index] = el)}
-              value={otp[index]}
-              onPaste={handlePaste}
-              onChange={(e) =>
-                handleChange(e as React.ChangeEvent<HTMLInputElement>, index)
-              }
-              onKeyDown={(e) =>
-                handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)
-              }
-              inputProps={{
-                maxLength: 1,
-                inputMode: "numeric",
-                style: {
-                  textAlign: "center",
-                  direction: "ltr",
-                },
-              }}
-              sx={{
-                width: 50,
-              }}
-            />
-          ))}
-        </div>
+        {!isSent && (
+          <ToggleButtonGroup
+            value={method}
+            exclusive
+            onChange={(_, value) => value && setMethod(value)}
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: "10px",
+            }}
+          >
+            <ToggleButton
+              value="phoneNumber"
+              onClick={() => handleResend("phoneNumber", phoneNumber || "")}
+            >
+              <SmartphoneIcon color="primary" />
+              {t("phoneNumber.sms")} : {phoneNumber}
+            </ToggleButton>
 
-        <Button
-          onClick={() => handleResend(otpValue || "")}
-          variant="text"
-          sx={{ mt: 2, textDecoration: "underline" }}
-        >
-          ألم يصلك الرمز؟ إعادة إرسال
-        </Button>
+            {/* <ToggleButton
+              value="whatsappNumber"
+              onClick={() =>
+                handleResend("whatsappNumber", whatsappNumber || "")
+              }
+              sx={{
+                justifyContent: "flex-start",
+                textTransform: "none",
+                borderRadius: 2,
+                px: 2,
+                py: 1.2,
+                gap: 1,
+              }}
+            >
+              <WhatsAppIcon color="success" />
+              {t("form.whatsappNumber")} : {whatsappNumber}
+            </ToggleButton> */}
+
+            <ToggleButton
+              value="email"
+              onClick={() => handleResend("email", email || "")}
+              sx={{
+                justifyContent: "flex-start",
+                textTransform: "none",
+                borderRadius: 2,
+                px: 2,
+                py: 1.2,
+                gap: 1,
+              }}
+            >
+              <EmailIcon color="primary" />
+              {t("contact.email")} : {email}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        )}
+
+        {isSent && (
+          <>
+            <Box sx={{ display: "flex", gap: 1, direction: "ltr" }}>
+              {Array.from({ length }).map((_, index) => (
+                <TextField
+                  key={index}
+                  type="tel"
+                  inputRef={(el) => (inputRefs.current[index] = el)}
+                  value={otp[index]}
+                  onPaste={handlePaste}
+                  onChange={(e: any) => handleChange(e, index)}
+                  onKeyDown={(e: any) => handleKeyDown(e, index)}
+                  inputProps={{
+                    maxLength: 1,
+                    inputMode: "numeric",
+                    style: {
+                      textAlign: "center",
+                    },
+                  }}
+                  sx={{ width: 50 }}
+                />
+              ))}
+            </Box>
+
+            <Button
+              onClick={() => setShowAnotherWay(!showAnotherWay)}
+              variant="text"
+              sx={{ textDecoration: "underline" }}
+            >
+              {t("form.verifySubTitle")}
+            </Button>
+            {showAnotherWay && (
+              <ToggleButtonGroup
+                value={method}
+                exclusive
+                onChange={(_, value) => value && setMethod(value)}
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: "10px",
+                }}
+              >
+                <ToggleButton
+                  value="phoneNumber"
+                  onClick={() => handleResend("phoneNumber", phoneNumber || "")}
+                >
+                  <SmartphoneIcon color="primary" />
+                  {t("phoneNumber.sms")} : {phoneNumber}
+                </ToggleButton>
+
+                {/* <ToggleButton
+                  value="whatsappNumber"
+                  disabled={isDisabled}
+                  onClick={() =>
+                    handleResend("whatsappNumber", whatsappNumber || "")
+                  }
+                  sx={{
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1.2,
+                    gap: 1,
+                    "&.Mui-disabled": {
+                      cursor: "not-allowed",
+                      pointerEvents: "auto",
+                      opacity: 0.6,
+                    },
+                  }}
+                >
+                  <WhatsAppIcon color="success" />
+                  {t("form.whatsappNumber")} : {whatsappNumber}
+                </ToggleButton> */}
+
+                <ToggleButton
+                  value="email"
+                  disabled={isDisabled}
+                  onClick={() => handleResend("email", email || "")}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1.2,
+                    gap: 1,
+
+                    "&.Mui-disabled": {
+                      cursor: "not-allowed",
+                      pointerEvents: "auto",
+                      opacity: 0.6,
+                    },
+                  }}
+                >
+                  <EmailIcon color="primary" />
+                  {t("contact.email")} : {email}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            )}
+          </>
+        )}
       </DialogContent>
+
       <DialogActions>
         <Button onClick={handleClose}>إلغاء</Button>
-        <Button onClick={handleVerify} variant="contained">
+        <Button
+          disabled={!isSent}
+          onClick={() => handleVerify(method)}
+          variant="contained"
+          sx={{
+            justifyContent: "flex-start",
+            textTransform: "none",
+            borderRadius: 2,
+            px: 2,
+            py: 1.2,
+            gap: 1,
+            "&.Mui-disabled": {
+              cursor: "not-allowed",
+              pointerEvents: "auto",
+              opacity: 0.6,
+            },
+          }}
+        >
           تحقق
         </Button>
       </DialogActions>

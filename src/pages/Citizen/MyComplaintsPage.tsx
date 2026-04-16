@@ -103,7 +103,7 @@ const MyComplaintsPage = () => {
         >
           <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {t("complaint.myComplaints")}
+              {t("complaint.myComplaintsAndObjections")}
             </Typography>
           </Box>
           <BackButton language={language} to={ROUTES.MY_APPLICATIONS} />
@@ -172,7 +172,7 @@ const MyComplaintsPage = () => {
               <ComplaintIcon sx={{ fontSize: 40 }} />
             </Box>
             <Typography variant="h6" gutterBottom fontWeight="bold">
-              {filter === "ALL" ? t("complaint.noComplaints") : t("common.noResults")}
+            {filter === "ALL" ? t("complaint.noComplaintsOrObjections") : t("common.noResults")}
             </Typography>
           </Paper>
         ) : (
@@ -221,7 +221,7 @@ const MyComplaintsPage = () => {
                       </Box>
                       <Box>
                         <Typography variant="subtitle2" color="text.secondary">
-                          {t("complaint.code")}
+                          {complaint.type === "COMPLAINT" ? t("complaint.code") : t("complaint.objectionCode")}
                         </Typography>
                         <Typography variant="h6" fontWeight="bold">
                           {complaint.code}
@@ -275,7 +275,7 @@ const MyComplaintsPage = () => {
                       onClick={() => navigate(`/citizen/complaints/${complaint.id}`)}
                       sx={{ borderRadius: 2, textTransform: "none" }}
                     >
-                      {t("citizen.viewDetails")}
+                      {complaint.type === "COMPLAINT" ? t("citizen.viewDetailsComplaint") : t("citizen.viewDetailsObjection")}
                     </Button>
                   </Box>
                 </CardContent>

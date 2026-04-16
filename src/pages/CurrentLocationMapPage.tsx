@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
@@ -40,14 +40,20 @@ const CurrentLocationMapPage = () => {
   const { t, language } = useLanguage();
   const { currentLocation } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
-  const [position, setPosition] = useState<[number, number] | null>(
-    currentLocation.currentLatitude && currentLocation.currentLongitude
-      ? [
-          Number(currentLocation.currentLatitude),
-          Number(currentLocation.currentLongitude),
-        ]
-      : null,
-  );
+  const explorerCitizenInfo = useAppSelector((state) => state.auth.citizenInfo);
+  const storedCitizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const initialLoc = explorerCitizenInfo?.current_location || storedCitizenInfo?.current_location;
+
+  const [position, setPosition] = useState<[number, number] | null>(() => {
+    if (currentLocation.currentLatitude && currentLocation.currentLongitude) {
+      return [Number(currentLocation.currentLatitude), Number(currentLocation.currentLongitude)];
+    }
+    if (initialLoc?.latitude && initialLoc?.longitude) {
+      return [Number(initialLoc.latitude), Number(initialLoc.longitude)];
+    }
+    return null;
+  });
+
   const [address, setAddress] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -75,22 +81,51 @@ const CurrentLocationMapPage = () => {
     landmark: string;
   } | null>(null);
 
-  const explorerCitizenInfo = useAppSelector((state) => state.auth.citizenInfo);
-  const [selectedGovernorateId, setSelectedGovernorateId] =
-    useState<string>(explorerCitizenInfo?.current_location?.governorate_id?.toString() || "");
-  const [selectedMunicipalityId, setSelectedMunicipalityId] =
-    useState<string>(explorerCitizenInfo?.current_location?.municipality_id?.toString() || "");
-  const [selectedNeighborhoodId, setSelectedNeighborhoodId] =
-    useState<string>(explorerCitizenInfo?.current_location?.neighborhood_id?.toString() || "");
-  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>(explorerCitizenInfo?.current_location?.landmark_id?.toString() || "");
+  const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>(
+    (initialLoc?.governorate_id || initialLoc?.governorate?.id)?.toString() || ""
+  );
+  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState<string>(
+    (initialLoc?.municipality_id || initialLoc?.municipality?.id)?.toString() || ""
+  );
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<string>(
+    (initialLoc?.neighborhood_id || initialLoc?.neighborhood?.id)?.toString() || ""
+  );
+  const [selectedLandmarkId, setSelectedLandmarkId] = useState<string>(
+    (initialLoc?.landmark_id || initialLoc?.landmark?.id)?.toString() || ""
+  );
   const [isInsideGaza, setIsInsideGaza] = useState<boolean>(
-    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" ? false : true
+    initialLoc?.accommodation_type === "outside_gaza" ? false : true
   );
   const [outsideAddress, setOutsideAddress] = useState<string>(
-    explorerCitizenInfo?.current_location?.accommodation_type === "outside_gaza" 
-      ? explorerCitizenInfo?.current_location?.address || "" 
+    initialLoc?.accommodation_type === "outside_gaza" 
+      ? initialLoc?.address || "" 
       : ""
   );
+
+  // Sync effect to ensure IDs and position are populated if they arrive late
+  useEffect(() => {
+    if (initialLoc) {
+      if (!selectedGovernorateId) {
+        setSelectedGovernorateId((initialLoc.governorate_id || initialLoc.governorate?.id)?.toString() || "");
+        setSelectedMunicipalityId((initialLoc.municipality_id || initialLoc.municipality?.id)?.toString() || "");
+        setSelectedNeighborhoodId((initialLoc.neighborhood_id || initialLoc.neighborhood?.id)?.toString() || "");
+        setSelectedLandmarkId((initialLoc.landmark_id || initialLoc.landmark?.id)?.toString() || "");
+      }
+      
+      if (!position && initialLoc.latitude && initialLoc.longitude) {
+        const lat = Number(initialLoc.latitude);
+        const lng = Number(initialLoc.longitude);
+        setPosition([lat, lng]);
+        setCenter([lat, lng]);
+        setZoom(16);
+      }
+
+      if (initialLoc.accommodation_type === "outside_gaza") {
+        setIsInsideGaza(false);
+        setOutsideAddress(initialLoc.address || "");
+      }
+    }
+  }, [initialLoc]);
 
   // Map Navigation state (keep original map)
   const defaultCenter: [number, number] = [31.3547, 34.3088];
@@ -99,6 +134,11 @@ const CurrentLocationMapPage = () => {
   );
   const [zoom, setZoom] = useState<number>(position ? 16 : 13);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasInteractedWithMap, setHasInteractedWithMap] = useState(false);
+ const { search } = useLocation();
+   const query = new URLSearchParams(search);
+   const isEditCurrentLocationPage = Boolean(query.get("edit"));
+     
 
   // Load Data
   useEffect(() => {
@@ -209,7 +249,7 @@ const CurrentLocationMapPage = () => {
 
   // Find reverse lookup names from local JSON when map clicked
   useEffect(() => {
-    if (position && (localLmData.length > 0 || localGovData.length > 0)) {
+    if (position && (localLmData.length > 0 || localGovData.length > 0) && hasInteractedWithMap) {
       // 1. Find Governorate by Polygon
       let govNameFound = "";
       for (const feature of localGovData) {
@@ -596,8 +636,7 @@ const CurrentLocationMapPage = () => {
         address !== "لا يوجد اتصال في الانترنت" &&
         selectedGovernorateId && 
         selectedMunicipalityId && 
-        selectedNeighborhoodId && 
-        selectedLandmarkId;
+        selectedNeighborhoodId;
 
       if (!isLocationValid) {
         setOpenDialog(true);
@@ -695,12 +734,12 @@ const CurrentLocationMapPage = () => {
         }}
       >
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <DamageAssessmentStepper
+          {!isEditCurrentLocationPage && <DamageAssessmentStepper
             activeStep={3}
             step1Completed={true}
             step2Completed={true}
             step3Completed={true}
-          />
+          />}
           <Box
             sx={{
               mb: 3,
@@ -720,7 +759,8 @@ const CurrentLocationMapPage = () => {
                 gutterBottom
                 color="primary"
               >
-                {t("map.currentLocation")}
+                {!isEditCurrentLocationPage ? t("map.currentLocation") : t("map.editCurrentLocation") }
+                
               </Typography>
               <Typography variant="body1" color="text.secondary">
                 {t("map.currentLocationDescription")}
@@ -897,7 +937,10 @@ const CurrentLocationMapPage = () => {
                   center={center}
                   zoom={zoom}
                   markerPosition={position}
-                  setMarkerPosition={setPosition}
+                  setMarkerPosition={(pos) => {
+                    setPosition(pos);
+                    setHasInteractedWithMap(true);
+                  }}
                   height="100%"
                   width="100%"
                   setAddress={setAddress}
