@@ -15,13 +15,13 @@ import { useSnackbar } from "notistack";
 import { useLanguage } from "../contexts/LanguageContext";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 
-type OtpMethod = "phoneNumber" | "whatsappNumber" | "email";
+// type OtpMethod = "sms" | "whatsapp" | "email";
 
 interface OtpDialogProps {
   open: boolean;
   onClose: () => void;
-  onVerify?: (method: OtpMethod, code: string) => void;
-  onResend?: (method: OtpMethod, value: string) => void;
+  onVerify?: (type: string, code: string, target: string) => void;
+  onResend?: (type: string, target: string) => void;
   otpValue?: string;
   length?: number;
   phoneNumber?: string;
@@ -45,18 +45,14 @@ const OtpDialog = ({
   const { t } = useLanguage();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [otp, setOtp] = useState(Array(length).fill(""));
-  const [method, setMethod] = useState<OtpMethod>("phoneNumber");
+  const [method, setMethod] = useState("");
   const [showAnotherWay, setShowAnotherWay] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [target, setTarget] = useState("");
   useEffect(() => {
     if (open) {
       inputRefs.current[0]?.focus();
     }
   }, [open]);
-
-  setTimeout(() => {
-    setIsDisabled(false);
-  }, 10000);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -107,11 +103,11 @@ const OtpDialog = ({
     inputRefs.current[nextIndex]?.focus();
   };
 
-  const handleVerify = (method: OtpMethod) => {
+  const handleVerify = (type: string, target: string) => {
     const code = otp.join("");
 
     if (onVerify) {
-      onVerify(method, code);
+      onVerify(type, code, target);
     } else {
       if (code === "123456") {
         enqueueSnackbar("تم التحقق بنجاح ✅", { variant: "success" });
@@ -121,7 +117,7 @@ const OtpDialog = ({
     }
   };
 
-  const handleResend = (method: OtpMethod, value: string) => {
+  const handleResend = (method: string, value: string) => {
     onResend?.(method, value);
     console.log("method", method, value);
     setOtp(Array(length).fill(""));
@@ -162,8 +158,19 @@ const OtpDialog = ({
             }}
           >
             <ToggleButton
-              value="phoneNumber"
-              onClick={() => handleResend("phoneNumber", phoneNumber || "")}
+              value="sms"
+              onClick={() => {
+                setTarget(phoneNumber || "");
+                handleResend("sms", phoneNumber || "");
+              }}
+              disabled={method === "sms"}
+              sx={{
+                "&.Mui-disabled": {
+                  cursor: "not-allowed",
+                  pointerEvents: "auto",
+                  opacity: 0.6,
+                },
+              }}
             >
               <SmartphoneIcon color="primary" />
               {t("phoneNumber.sms")} : {phoneNumber}
@@ -171,9 +178,10 @@ const OtpDialog = ({
 
             {/* <ToggleButton
               value="whatsappNumber"
-              onClick={() =>
-                handleResend("whatsappNumber", whatsappNumber || "")
-              }
+              onClick={() => {
+                setTarget(whatsappNumber || "");
+                handleResend("whatsapp", target || "");
+              }}
               sx={{
                 justifyContent: "flex-start",
                 textTransform: "none",
@@ -189,7 +197,10 @@ const OtpDialog = ({
 
             <ToggleButton
               value="email"
-              onClick={() => handleResend("email", email || "")}
+              onClick={() => {
+                setTarget(email || "");
+                handleResend("email", email || "");
+              }}
               sx={{
                 justifyContent: "flex-start",
                 textTransform: "none",
@@ -197,7 +208,13 @@ const OtpDialog = ({
                 px: 2,
                 py: 1.2,
                 gap: 1,
+                "&.Mui-disabled": {
+                  cursor: "not-allowed",
+                  pointerEvents: "auto",
+                  opacity: 0.6,
+                },
               }}
+              disabled={method === "email"}
             >
               <EmailIcon color="primary" />
               {t("contact.email")} : {email}
@@ -248,8 +265,26 @@ const OtpDialog = ({
                 }}
               >
                 <ToggleButton
-                  value="phoneNumber"
-                  onClick={() => handleResend("phoneNumber", phoneNumber || "")}
+                  value="sms"
+                  disabled={method === "sms"}
+                  onClick={() => {
+                    setTarget(phoneNumber || "");
+                    handleResend("sms", phoneNumber || "");
+                  }}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1.2,
+                    gap: 1,
+
+                    "&.Mui-disabled": {
+                      cursor: "not-allowed",
+                      pointerEvents: "auto",
+                      opacity: 0.6,
+                    },
+                  }}
                 >
                   <SmartphoneIcon color="primary" />
                   {t("phoneNumber.sms")} : {phoneNumber}
@@ -258,9 +293,10 @@ const OtpDialog = ({
                 {/* <ToggleButton
                   value="whatsappNumber"
                   disabled={isDisabled}
-                  onClick={() =>
-                    handleResend("whatsappNumber", whatsappNumber || "")
-                  }
+                  onClick={() => {
+                    setTarget(email || "");
+                    handleResend("email", target || "");
+                  }}
                   sx={{
                     justifyContent: "flex-start",
                     textTransform: "none",
@@ -281,8 +317,11 @@ const OtpDialog = ({
 
                 <ToggleButton
                   value="email"
-                  disabled={isDisabled}
-                  onClick={() => handleResend("email", email || "")}
+                  disabled={method === "email"}
+                  onClick={() => {
+                    setTarget(email || "");
+                    handleResend("email", email || "");
+                  }}
                   sx={{
                     justifyContent: "flex-start",
                     textTransform: "none",
@@ -311,7 +350,7 @@ const OtpDialog = ({
         <Button onClick={handleClose}>إلغاء</Button>
         <Button
           disabled={!isSent}
-          onClick={() => handleVerify(method)}
+          onClick={() => handleVerify(method, target)}
           variant="contained"
           sx={{
             justifyContent: "flex-start",
