@@ -310,7 +310,12 @@ const MyApplications = () => {
           },
         },
       );
-      enqueueSnackbar(t("complaint.closeSuccess"), { variant: "success" });
+      enqueueSnackbar(
+        appToClose?.complaint?.type === "COMPLAINT"
+          ? t("complaint.closeSuccess")
+          : t("complaint.closeObjectionSuccess"),
+        { variant: "success" },
+      );
       setCloseConfirmOpen(false);
 
       // Refresh applications to update status
@@ -345,7 +350,7 @@ const MyApplications = () => {
       setRawData(enhancedApps);
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(t("complaint.closeError"), { variant: "error" });
+      enqueueSnackbar(appToClose?.complaint?.type === "COMPLAINT" ? t("complaint.closeError") : t("complaint.closeObjectionError"), { variant: "error" });
     } finally {
       setClosingComplaint(false);
       setAppToClose(null);
@@ -359,107 +364,6 @@ const MyApplications = () => {
     // if (!isReadOnly) refresh(); // If we have refresh exposed
   };
 
-  //   setLocationDialogOpen(false);
-  //   setLocationPosition(null);
-  //   setLocationAddress("");
-  //   setOutsideAddress("");
-  // };
-
-  // const handleResetLocation = () => {
-  //   setLocationPosition(null);
-  //   setLocationAddress("");
-  //   setSelectedGovernorateId("");
-  //   setSelectedMunicipalityId("");
-  //   setSelectedNeighborhoodId("");
-  //   setSelectedLandmarkId("");
-  // };
-
-  // const handleConfirmLocationUpdate = () => {
-  //   // Validation
-  //   if (isInsideGaza) {
-  //     const isLocationValid = 
-  //       locationPosition && 
-  //       locationAddress && 
-  //       locationAddress !== "لا يوجد اتصال في الانترنت" &&
-  //       selectedGovernorateId && 
-  //       selectedMunicipalityId && 
-  //       selectedNeighborhoodId;
-
-  //     if (!isLocationValid) {
-  //       setOpenDialog(true);
-  //       return;
-  //     }
-  //   } else {
-  //     if (!outsideAddress.trim()) return;
-  //   }
-
-  //   setLocationLoading(true);
-
-  //   axiosClient
-  //     .put(
-  //       `${API.citizen.locations.current}`,
-  //       isInsideGaza
-  //         ? {
-  //             accommodation_type: "inside_gaza",
-  //             latitude: locationPosition![0].toString(),
-  //             longitude: locationPosition![1].toString(),
-  //             address: locationAddress,
-  //             governorate_id: selectedGovernorateId
-  //               ? Number(selectedGovernorateId)
-  //               : null,
-  //             municipality_id: selectedMunicipalityId
-  //               ? Number(selectedMunicipalityId)
-  //               : null,
-  //             neighborhood_id: selectedNeighborhoodId
-  //               ? Number(selectedNeighborhoodId)
-  //               : null,
-  //             landmark_id: selectedLandmarkId
-  //               ? Number(selectedLandmarkId)
-  //               : null,
-  //           }
-  //         : {
-  //             accommodation_type: "outside_gaza",
-  //             address: outsideAddress,
-  //           },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       },
-  //     )
-  //     .then((res: any) => {
-  //       setLocationLoading(false);
-  //       enqueueSnackbar(t("citizen.updateLocationSuccess"), {
-  //         variant: "success",
-  //       });
-  //       setLocationDialogOpen(false);
-
-  //       const currentCitizenInfo = JSON.parse(
-  //         localStorage.getItem("citizenInfo") || "{}",
-  //       );
-
-  //       const updated = {
-  //         ...currentCitizenInfo,
-  //         current_location: res.data.citizen.current_location,
-  //       };
-
-  //       localStorage.setItem("citizenInfo", JSON.stringify(updated));
-  //       console.log(res.data);
-  //     })
-  //     .catch((err: any) => {
-  //       setLocationLoading(false);
-  //       enqueueSnackbar(t("citizen.updateLocationError"), {
-  //         variant: "error",
-  //       });
-  //       console.log(err);
-  //     });
-  // };
-
-  console.log(
-    "citizenInfo.current_locationcitizenInfo.current_location",
-    citizenInfo.current_location,
-  );
 
   if (loading) {
     return (
@@ -615,7 +519,7 @@ const MyApplications = () => {
                 width: { xs: "100%", sm: "auto" },
               }}
             >
-              {t("complaint.myComplaints")}
+              {t("complaint.myComplaintsAndObjections")}
             </Button>
 
             <Menu
@@ -810,8 +714,16 @@ const MyApplications = () => {
           open={closeConfirmOpen}
           onClose={() => setCloseConfirmOpen(false)}
           onConfirm={handleConfirmCloseComplaint}
-          title={t("complaint.close")}
-          message={t("complaint.closeConfirm")}
+          title={
+            appToClose?.complaint?.type === "COMPLAINT"
+              ? t("complaint.closeComplaint")
+              : t("complaint.closeObjection")
+          }
+          message={
+            appToClose?.complaint?.type === "COMPLAINT"
+              ? t("complaint.closeConfirm")
+              : t("complaint.closeObjectionConfirm")
+          }
           type="warning"
           loading={closingComplaint}
         />
