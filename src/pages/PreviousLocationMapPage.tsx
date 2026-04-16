@@ -11,7 +11,6 @@ import {
   Box,
   Button,
   Stack,
-  Dialog,
   FormControl,
   InputLabel,
   Select,
@@ -21,7 +20,6 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import { setError } from "../redux/slices/damageSlice";
 import { ROUTES } from "../routes/Routes";
-import DamageAssessmentDialog from "./DamageAssessmentDialog";
 import ArcGISMapContainer from "../components/MapContainer.v2";
 import { axiosClient } from "../api/baseUrl";
 import { API } from "../constants/ApiRoutes";
@@ -68,7 +66,6 @@ const PreviousLocationMapPage = () => {
   });
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [address, setAddress] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
   const defaultCenter: [number, number] = [31.5017, 34.4668];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
   const [zoom, setZoom] = useState<number>(12);
@@ -628,10 +625,6 @@ const PreviousLocationMapPage = () => {
     setZoom(12);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
   if (loading) {
     return (
       <Box
@@ -973,7 +966,21 @@ const PreviousLocationMapPage = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => setOpenDialog(true)}
+                onClick={() => {
+                  navigate(ROUTES.DAMAGE_ASSESSMENT, {
+                    state: {
+                      location: {
+                        position,
+                        address,
+                        ...resolvedIds,
+                        neighborhood: selectedNeighborhoodName,
+                        landmark: selectedLandmarkName,
+                        governorate: selectedGovernorate,
+                        municipality: selectedMunicipality,
+                      },
+                    },
+                  });
+                }}
                 disabled={
                   !(
                     position &&
@@ -992,27 +999,6 @@ const PreviousLocationMapPage = () => {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        {position && (
-          <DamageAssessmentDialog
-            onClose={handleCloseDialog}
-            location={{
-              position,
-              address,
-              ...resolvedIds,
-              neighborhood: selectedNeighborhoodName,
-              landmark: selectedLandmarkName,
-              governorate: selectedGovernorate,
-              municipality: selectedMunicipality,
-            }}
-          />
-        )}
-      </Dialog>
       <LanguageToggle />
     </Container>
   );

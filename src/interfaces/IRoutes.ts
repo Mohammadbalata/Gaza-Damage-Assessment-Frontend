@@ -45,6 +45,5 @@ export interface IRoutes {
   PUBLIC_SERVICES: string;
   EMERGENCY_MANAGEMENT: string;
   SUPPORT_NETWORK: string;
-  // ADMIN_PERMISSIONS:string
-  // ADMIN_ROLES:string
+  DAMAGE_ASSESSMENT: string;
 }

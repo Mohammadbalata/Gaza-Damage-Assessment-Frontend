@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Dialog, DialogContent, Box, Typography, Button, alpha, CircularProgress } from "@mui/material";
 import { LocationOn as LocationIcon } from "@mui/icons-material";
-import DamageAssessmentDialog from "../pages/DamageAssessmentDialog";
+
 
 
 interface FormDialogProps {
@@ -50,7 +50,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
           </Typography>
         </DialogContent>
       ) : location && canOpenDialogBuildings ? (
-    <DamageAssessmentDialog onClose={onClose} location={location} />
+   <>{onClose()}</>
   ) : (
         
         <DialogContent sx={{ textAlign: 'center', py: 4 }}>

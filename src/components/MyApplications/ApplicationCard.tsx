@@ -623,7 +623,7 @@ const ApplicationCard = ({
                 <ListItemIcon>
                   <VisibilityIcon fontSize="small" />
                 </ListItemIcon>
-                {application.complaint.type === "COMPLAINT" ?
+                {application?.complaint?.type === "COMPLAINT" ?
                 <ListItemText primary={t("citizen.viewDetailsComplaint")} />
                 : 
                 <ListItemText primary={t("citizen.viewDetailsObjection")} />
@@ -635,7 +635,7 @@ const ApplicationCard = ({
                   onCloseComplaint(application);
                 }}
                 disabled={
-                  application.complaint?.status
+                  application?.complaint?.status
                     ?.toUpperCase()
                     .replace("-", "_") !== "RESOLVED"
                 }
@@ -644,7 +644,7 @@ const ApplicationCard = ({
                   <ClosedIcon
                     fontSize="small"
                     color={
-                      application.complaint?.status
+                      application?.complaint?.status
                         ?.toUpperCase()
                         .replace("-", "_") === "RESOLVED"
                         ? "error"
@@ -652,7 +652,7 @@ const ApplicationCard = ({
                     }
                   />
                 </ListItemIcon>
-                {application.complaint.type === "COMPLAINT" ?
+                {application.complaint?.type === "COMPLAINT" ?
                 <ListItemText
                   primary={t("complaint.closeComplaint")}
                   secondary={

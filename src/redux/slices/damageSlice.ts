@@ -243,6 +243,7 @@ export const damageAssessmentSlice = createSlice({
       state.additionalBuildings = action.payload;
     },
     resetAllBuildings: (state) => {
+      state.buildingType = "";
       state.IndependentBuilding = initialState.IndependentBuilding;
       state.ApartmentInsideBuilding = initialState.ApartmentInsideBuilding;
       state.ResidentialBuilding = initialState.ResidentialBuilding;
