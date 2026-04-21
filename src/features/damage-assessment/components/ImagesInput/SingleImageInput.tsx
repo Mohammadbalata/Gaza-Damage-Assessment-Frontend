@@ -35,6 +35,7 @@ const SingleImageInput = ({
 }) => {
   const { t, language } = useLanguage();
   const sizeErrorMessage = t("imageUpload.sizeError");
+  const [isDragging, setIsDragging] = useState(false);
 
   return (
     <Controller
@@ -42,7 +43,6 @@ const SingleImageInput = ({
       control={control}
       defaultValue={null}
       rules={{
-        // required: isRequired ? t("common.required") : false,
         validate: (file: File | null) => {
           if (!file) return true;
           if (file.size > MAX_SIZE) return sizeErrorMessage;
@@ -64,7 +64,6 @@ const SingleImageInput = ({
           }
 
           if (typeof field.value === "string") {
-            // If the image is a URL from API
             setPreview(field.value);
           }
 
@@ -76,6 +75,36 @@ const SingleImageInput = ({
         const setFile = (file: File | null) => {
           if (isChangeToReviewPage) return;
           field.onChange(file);
+        };
+
+        const handleDragOver = (e: React.DragEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!isChangeToReviewPage) {
+            setIsDragging(true);
+          }
+        };
+
+        const handleDragLeave = (e: React.DragEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+        };
+
+        const handleDrop = (e: React.DragEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+
+          if (isChangeToReviewPage) return;
+
+          const file = Array.from(e.dataTransfer.files || []).find((f) =>
+            f.type.startsWith("image/"),
+          );
+
+          if (file) {
+            setFile(file);
+          }
         };
 
         return (
@@ -93,11 +122,6 @@ const SingleImageInput = ({
                 }}
               >
                 {label}
-                {/* {isRequired && (
-                  <span style={{ color: "red", marginInlineStart: "4px" }}>
-                    *
-                  </span>
-                )} */}
                 {isOptional && (
                   <Typography
                     component="span"
@@ -117,19 +141,25 @@ const SingleImageInput = ({
                 borderStyle: "dashed",
                 textAlign: "center",
                 cursor: isChangeToReviewPage ? "default" : "pointer",
-                bgcolor: "#fafafa",
+                bgcolor: isDragging ? "rgba(25, 118, 210, 0.08)" : "#fafafa",
                 borderRadius: 2,
                 transition: "all 0.2s ease",
-                "&:hover": !isChangeToReviewPage
-                  ? {
-                      borderColor: "primary.main",
-                      bgcolor: "rgba(25, 118, 210, 0.04)",
-                    }
-                  : {},
+                borderColor: isDragging ? "primary.main" : "divider",
+                borderWidth: isDragging ? 2 : 1,
+                "&:hover":
+                  !isChangeToReviewPage && !isDragging
+                    ? {
+                        borderColor: "primary.main",
+                        bgcolor: "rgba(25, 118, 210, 0.04)",
+                      }
+                    : {},
               }}
               className={classNames({
                 "pointer-events-none": isChangeToReviewPage,
               })}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
               onClick={() => {
                 if (!isChangeToReviewPage) {
                   inputRef.current?.click();
@@ -177,7 +207,11 @@ const SingleImageInput = ({
                       >
                         <IconButton
                           size="small"
-                          sx={{ bgcolor: "primary.main", color: "#fff" }}
+                          sx={{
+                            bgcolor: "primary.main",
+                            color: "#fff",
+                            "&:hover": { bgcolor: "primary.dark" },
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
                             setOpenCrop(true);
@@ -188,7 +222,11 @@ const SingleImageInput = ({
 
                         <IconButton
                           size="small"
-                          sx={{ bgcolor: "error.main", color: "#fff" }}
+                          sx={{
+                            bgcolor: "error.main",
+                            color: "#fff",
+                            "&:hover": { bgcolor: "error.dark" },
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
                             field.onChange(null);
