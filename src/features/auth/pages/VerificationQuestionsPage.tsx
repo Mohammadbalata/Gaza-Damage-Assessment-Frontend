@@ -222,10 +222,7 @@ const VerificationQuestionsPage = () => {
                     required: t("common.required"),
                   })}
                   onChange={(e) => {
-                    e.target.value = e.target.value.replace(
-                      /[\u0600-\u06FF\u0660-\u0669a-zA-Z0-9]/g,
-                      "",
-                    );
+                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
                   }}
                   placeholder={
                     language === "ar" ? "أدخل الإجابة" : "Enter your answer"
