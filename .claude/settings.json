@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "andrej-karpathy-skills@karpathy-skills": true
+  },
+  "plugins": [
+    {
+      "type": "remote-mcp",
+      "id": "andrej-karpathy-skills",
+      "name": "Karpathy Skills",
+      "url": "https://raw.githubusercontent.com/karpathy/skills/main/marketplace/andrej-karpathy-skills.json"
+    }
+  ]
+}
