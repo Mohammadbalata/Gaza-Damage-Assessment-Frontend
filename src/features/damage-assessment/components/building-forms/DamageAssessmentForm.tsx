@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import classNames from "classnames";
 import { ROUTES } from "../../../../app/router/Routes";
 import { useNavigate } from "react-router-dom";
-import { axiosClient } from "../../../../shared/api/baseUrl";
+import { axiosClient } from "../../../../shared/api/api";
 import { Login as LoginIcon, ArrowBack } from "@mui/icons-material";
 import { API } from "../../../../shared/constants/ApiRoutes";
 import { useSnackbar } from "notistack";

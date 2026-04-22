@@ -37,7 +37,7 @@ import LanguageToggle from "../../../shared/ui/LanguageToggle";
 import { ROUTES } from "../../../app/router/Routes";
 import { signUp } from "../../../app/store/slices/authSlice";
 import { API } from "../../../shared/constants/ApiRoutes";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import SingleImageInput from "../../damage-assessment/components/ImagesInput/SingleImageInput";
 import FormInput from "../../../shared/ui/FormInput";
 import OtpDialog from "../../../shared/components/dialogs/OtpDialog";

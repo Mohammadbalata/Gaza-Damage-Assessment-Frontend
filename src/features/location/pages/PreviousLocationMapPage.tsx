@@ -21,7 +21,7 @@ import { ArrowBack } from "@mui/icons-material";
 
 import { ROUTES } from "../../../app/router/Routes";
 import ArcGISMapContainer from "../components/ArcGISMapContainer";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import { API } from "../../../shared/constants/ApiRoutes";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
 import { useAppDispatch } from "../../../shared/hooks/redux";

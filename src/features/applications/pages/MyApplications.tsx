@@ -53,7 +53,7 @@ import { formatDate } from "../../../shared/utils/helpers";
 import { useForm } from "react-hook-form";
 // import SelectLocations from "../components/SelectLocations";
 // import { locations } from "../constants/locations";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
 
 const MyApplications = () => {

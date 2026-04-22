@@ -3,7 +3,7 @@ import { Phone, Mail, Send, User } from "lucide-react";
 import { motion } from "motion/react";
 import { enqueueSnackbar } from "notistack";
 import { useLanguage } from "../../../../app/providers/LanguageContext";
-import { axiosClient } from "../../../../shared/api/baseUrl";
+import { axiosClient } from "../../../../shared/api/api";
 import ContactInfo from "./ContactInfo";
 
 

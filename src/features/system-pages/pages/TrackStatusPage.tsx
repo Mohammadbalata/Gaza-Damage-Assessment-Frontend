@@ -24,7 +24,7 @@ import {
   Verified as VerifiedIcon,
   ArrowBack,
 } from "@mui/icons-material";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../shared/hooks/redux";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
