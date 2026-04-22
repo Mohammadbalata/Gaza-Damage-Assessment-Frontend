@@ -8,6 +8,7 @@ import {
   setCitizenInfo as setCitizenInfoStorage,
   setToken,
 } from "../../../shared/utils/storage";
+import { setCitizenInfo as setCitizenInfoAction } from "./citizenSlice";
 
 const initialState: IAuthState = {
   user: null,
@@ -30,6 +31,8 @@ export const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       clearCitizenSession();
+      // The citizen slice wipes its data in response to this action via
+      // extraReducers matching the "auth/logout" action type.
     },
     setTrackingNumber: (state, action) => {
       state.trackingNumber = action.payload;
@@ -76,7 +79,7 @@ export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
     payload: { national_id: string; password: string },
-    { rejectWithValue },
+    { rejectWithValue, dispatch },
   ) => {
     try {
       const res = await axiosClient.post(`${API.citizen.auth.login}`, {
@@ -90,6 +93,7 @@ export const signIn = createAsyncThunk(
       if (token) {
         setToken(token);
         setCitizenInfoStorage(citizenInfo);
+        dispatch(setCitizenInfoAction(citizenInfo));
       }
 
       if (payload.password.length < 3) {
@@ -124,7 +128,7 @@ export const signIn = createAsyncThunk(
 //---sign up dispatch ---//
 export const signUp = createAsyncThunk(
   "auth/signUp",
-  async (payload: IAuthState, { rejectWithValue }) => {
+  async (payload: IAuthState, { rejectWithValue, dispatch }) => {
     if (payload.pathSignUp === API.citizen.auth.completeSignup) {
       try {
         const res = await axiosClient.post(
@@ -135,6 +139,7 @@ export const signUp = createAsyncThunk(
 
         if (res.data?.citizen) {
           setCitizenInfoStorage(res.data.citizen);
+          dispatch(setCitizenInfoAction(res.data.citizen));
         }
 
         return { payload, data: res.data, token };

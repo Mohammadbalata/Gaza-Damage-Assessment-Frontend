@@ -11,18 +11,18 @@ import classNames from "classnames";
 import {
   clearCitizenSession,
   clearUser,
-  getCitizenInfo,
   getToken,
 } from "../../../../shared/utils/storage";
+import { useCitizenInfo } from "../../../profile/hooks/useCitizenInfo";
 export function Header() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const windowPathname = window.location.pathname;
 
-  const citizenInfo = getCitizenInfo<any>();
-  const citizenName = citizenInfo
-    ? `${citizenInfo?.full_name}`.split(" ")[0]
-    : citizenInfo.national_id;
+  const { citizenInfo } = useCitizenInfo();
+  const citizenName = citizenInfo?.full_name
+    ? `${citizenInfo.full_name}`.split(" ")[0]
+    : citizenInfo?.national_id;
 
   const avatarUrl = citizenInfo?.avatar_url || null;
   const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -11,6 +11,7 @@ import {
   Paper,
   Avatar,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import {
   AddCircleOutline as AddIcon,
@@ -26,7 +27,9 @@ import "driver.js/dist/driver.css";
 import { useEffect } from "react";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
 import { resetAllBuildings } from "../../../app/store/slices/damageSlice";
-import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
+import { useAppDispatch } from "../../../shared/hooks/redux";
+import { useCitizenInfo } from "../hooks/useCitizenInfo";
+
 
 /**
  * Citizen Dashboard Page
@@ -36,6 +39,7 @@ const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const dispatch = useAppDispatch();
+  const { citizenInfo, loading } = useCitizenInfo();
 
   useEffect(() => {
     const activeTourStep = localStorage.getItem("activeTourStep");
@@ -97,11 +101,10 @@ const CitizenDashboard: React.FC = () => {
   // const { enqueueSnackbar } = useSnackbar();
 
   // Get user info from Redux store
-  const authState: any = useAppSelector((state) => state.auth);
-  const citizenInfo = authState.citizenInfo;
-  const citizenName = citizenInfo
+
+  const citizenName = citizenInfo?.full_name
     ? `${citizenInfo?.full_name}`.split(" ")[0]
-    : citizenInfo.national_id;
+    : citizenInfo?.national_id;
 
   // Get avatar URL from citizenInfo (can be from API or local upload)
   const avatarUrl = citizenInfo?.avatar_url || null;
@@ -158,144 +161,160 @@ const CitizenDashboard: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Hero Section with Gradient */}
-      <Paper
-        elevation={0}
-        sx={{
-          mb: 4,
-          p: 4,
-          borderRadius: 3,
-          background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background Pattern */}
+    <>
+      {loading ? (
         <Box
           sx={{
-            position: "absolute",
-            top: -50,
-            right: language === "ar" ? "auto" : -50,
-            left: language === "ar" ? -50 : "auto",
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.1)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
           }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -30,
-            right: language === "ar" ? -30 : "auto",
-            left: language === "ar" ? "auto" : -30,
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.08)",
-          }}
-        />
-
-        <Stack
-          direction={{ xs: "column", sm: "row", md: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center", md: "center" }}
-          spacing={2}
-          sx={{ position: "relative", zIndex: 1 }}
         >
-          <Stack
-            direction="column"
-            spacing={2}
-            // alignItems="center"
-            useFlexGap={true}
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          {/* Hero Section with Gradient */}
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 4,
+              p: 4,
+              borderRadius: 3,
+              background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+              color: "white",
+              position: "relative",
+              overflow: "hidden",
+            }}
           >
-            <Box>
-              <Chip
-                label={t("citizen.dashboard")}
-                sx={{
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  color: "white",
-                  fontWeight: 600,
-                  px: 1,
-                }}
-              />
-            </Box>
+            {/* Background Pattern */}
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1,
+                position: "absolute",
+                top: -50,
+                right: language === "ar" ? "auto" : -50,
+                left: language === "ar" ? -50 : "auto",
+                width: 200,
+                height: 200,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.1)",
               }}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: -30,
+                right: language === "ar" ? -30 : "auto",
+                left: language === "ar" ? "auto" : -30,
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.08)",
+              }}
+            />
+
+            <Stack
+              direction={{ xs: "column", sm: "row", md: "row" }}
+              justifyContent="space-between"
+              alignItems={{ xs: "flex-start", sm: "center", md: "center" }}
+              spacing={2}
+              sx={{ position: "relative", zIndex: 1 }}
             >
-              <Avatar
-                src={avatarUrl || undefined}
-                sx={{
-                  width: 64,
-                  height: 64,
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  border: "2px solid rgba(255,255,255,0.3)",
-                  "& img": {
-                    objectFit: "cover",
-                  },
-                }}
+              <Stack
+                direction="column"
+                spacing={2}
+                // alignItems="center"
+                useFlexGap={true}
               >
-                {/* Fallback when no avatar */}
-                <PersonIcon sx={{ fontSize: 36 }} />
-              </Avatar>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "start",
-                  justifyContent: "start",
-                }}
-              >
-                <Box sx={{ display: "flex", gap: 0.5 }}>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    {t("citizen.welcome")}
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {citizenName}
-                  </Typography>
+                <Box>
+                  <Chip
+                    label={t("citizen.dashboard")}
+                    sx={{
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      color: "white",
+                      fontWeight: 600,
+                      px: 1,
+                    }}
+                  />
                 </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <Avatar
+                    src={avatarUrl || undefined}
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      border: "2px solid rgba(255,255,255,0.3)",
+                      "& img": {
+                        objectFit: "cover",
+                      },
+                    }}
+                  >
+                    {/* Fallback when no avatar */}
+                    <PersonIcon sx={{ fontSize: 36 }} />
+                  </Avatar>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "start",
+                      justifyContent: "start",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", gap: 0.5 }}>
+                      <Typography
+                        variant="h4"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        {t("citizen.welcome")}
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        {citizenName}
+                      </Typography>
+                    </Box>
 
-                <Typography>{citizenInfo.national_id}</Typography>
-              </Box>
-            </Box>
-          </Stack>
+                    <Typography>{citizenInfo?.national_id}</Typography>
+                  </Box>
+                </Box>
+              </Stack>
 
-          <BackButton
-            language={language}
-            to={ROUTES.HOME}
+              <BackButton
+                language={language}
+                to={ROUTES.HOME}
+                sx={{
+                  background: "white",
+                  borderRadius: 2,
+                  color: "#1976d2",
+                  "&:hover": { bgcolor: "white" },
+                }}
+              />
+            </Stack>
+          </Paper>
+
+          {/* Dashboard Cards Grid */}
+          <Box
             sx={{
-              background: "white",
-              borderRadius: 2,
-              color: "#1976d2",
-              "&:hover": { bgcolor: "white" },
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 3,
+              mb: 4,
             }}
-          />
-        </Stack>
-      </Paper>
+          >
+            {dashboardCards.map((card) => (
+              <DashboardCard key={card.key} card={card} language={language} />
+            ))}
+          </Box>
 
-      {/* Dashboard Cards Grid */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-          gap: 3,
-          mb: 4,
-        }}
-      >
-        {dashboardCards.map((card) => (
-          <DashboardCard key={card.key} card={card} language={language} />
-        ))}
-      </Box>
-
-      {/* Logout Section */}
-      {/* <Paper
+          {/* Logout Section */}
+          {/* <Paper
         elevation={0}
         sx={{
           p: 3,
@@ -352,8 +371,10 @@ const CitizenDashboard: React.FC = () => {
           </Button>
         </Stack>
       </Paper> */}
-      <LanguageToggle />
-    </Container>
+          <LanguageToggle />
+        </Container>
+      )}
+    </>
   );
 };
 

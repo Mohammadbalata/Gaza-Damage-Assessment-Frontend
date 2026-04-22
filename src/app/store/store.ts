@@ -5,6 +5,7 @@ import damageReducer from "./slices/damageSlice";
 import locationReducer from "./slices/locationSlice";
 import documentsReducer from "./slices/documentsSlice";
 import authReducer from "./slices/authSlice";
+import citizenReducer from "./slices/citizenSlice";
 import mixedUsageSlice from './slices/mixedUsageSlice'
 
 const store = configureStore({
@@ -15,6 +16,7 @@ const store = configureStore({
     location: locationReducer,
     documents: documentsReducer,
     auth: authReducer,
+    citizen: citizenReducer,
     mixedUsage : mixedUsageSlice
   },
 });

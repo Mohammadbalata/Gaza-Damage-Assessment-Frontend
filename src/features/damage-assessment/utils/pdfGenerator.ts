@@ -1,16 +1,14 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDate } from "../../../shared/utils/helpers";
-import { getCitizenInfo } from "../../../shared/utils/storage";
 // import Logo from "../../src/assets/logo.jpg";
 
 export const generatePDFReceipt = async (
   rawData: any,
   t: any,
   language: any,
+  citizenInfo: any = null,
 ) => {
-  const citizenInfo = getCitizenInfo<any>();
-  console.log(citizenInfo);
   const citizen = citizenInfo || {};
   const applications = rawData || [];
   console.log("rawDataaaa", rawData);
@@ -212,6 +210,7 @@ export const generateApplicationPDF = async (
   application: any,
   t: any,
   language: string,
+  citizenInfo: any = null,
 ) => {
   // نوع المبنى وبياناته
   const buildingType = application?.damage_details?.buildingType;
@@ -241,8 +240,7 @@ export const generateApplicationPDF = async (
     ownership_documents: `${t("form.ownership_documents")} :`,
   };
 
-  console.log("applicationData", application);
-  const citizen = getCitizenInfo<any>();
+  const citizen = citizenInfo || {};
 
   const isArabic = language === "ar";
   const direction = isArabic ? "rtl" : "ltr";

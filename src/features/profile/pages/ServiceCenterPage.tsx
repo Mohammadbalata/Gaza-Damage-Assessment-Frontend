@@ -22,7 +22,7 @@ import { useLanguage } from "../../../app/providers/LanguageContext";
 import { ROUTES } from "../../../app/router/Routes";
 import BackButton from "../../../shared/components/BackButton";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
-import { useAppSelector } from "../../../shared/hooks/redux";
+import { useCitizenInfo } from "../hooks/useCitizenInfo";
 
 /**
  * Citizen Dashboard Page
@@ -31,11 +31,10 @@ import { useAppSelector } from "../../../shared/hooks/redux";
 const CitizenDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const authState: any = useAppSelector((state) => state.auth);
-  const citizenInfo = authState.citizenInfo;
-  const citizenName = citizenInfo
-    ? `${citizenInfo?.full_name}`.split(" ")[0]
-    : citizenInfo.national_id;
+  const { citizenInfo } = useCitizenInfo();
+  const citizenName = citizenInfo?.full_name
+    ? `${citizenInfo.full_name}`.split(" ")[0]
+    : citizenInfo?.national_id;
 
   const avatarUrl = citizenInfo?.avatar_url || null;
   interface DashboardCardConfig {
@@ -171,7 +170,7 @@ const CitizenDashboard: React.FC = () => {
                   </Typography>
                 </Box>
 
-                <Typography>{citizenInfo.national_id}</Typography>
+                <Typography>{citizenInfo?.national_id}</Typography>
               </Box>
             </Box>
           </Stack>

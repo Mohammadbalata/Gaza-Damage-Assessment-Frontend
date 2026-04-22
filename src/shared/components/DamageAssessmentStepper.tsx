@@ -10,7 +10,7 @@ import {
 import { useMemo } from "react";
 import { useAppSelector } from "../hooks/redux";
 import { useLanguage } from "../../app/providers/LanguageContext";
-import { getCitizenInfo } from "../utils/storage";
+import { useCitizenInfo } from "../../features/profile/hooks/useCitizenInfo";
 
 // =====================
 // Custom Connector
@@ -81,18 +81,16 @@ export default function DamageAssessmentStepper({
 }: DamageAssessmentStepperProps) {
   const { currentLocation } = useAppSelector((state) => state.location);
   const { language, dir } = useLanguage();
-  // Step 4 is complete if currentLocation has values or from storage
+  const { citizenInfo } = useCitizenInfo();
+  // Step 4 is complete if currentLocation has values or the server has a location
   const step4Completed = useMemo(() => {
     const hasLocation =
       currentLocation &&
       (currentLocation.currentLatitude ||
         currentLocation.currentLocationAddress);
     if (hasLocation) return true;
-
-    // Fallback to storage
-    const citizenInfo = getCitizenInfo<any>();
-    return !!citizenInfo.current_location;
-  }, [currentLocation]);
+    return !!citizenInfo?.current_location;
+  }, [currentLocation, citizenInfo]);
 
   const steps = [
     {

@@ -17,7 +17,6 @@ import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/Routes";
 import { useSnackbar } from "notistack";
-import { axiosClient } from "../../../shared/api/api";
 import { useState, useEffect } from "react";
 import AvatarEditOverlay from "../../../shared/components/AvatarEditOverlay";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
@@ -25,11 +24,7 @@ import { Controller } from "react-hook-form";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import {
-  getCitizenInfo,
-  getToken,
-  setCitizenInfo,
-} from "../../../shared/utils/storage";
+import { useCitizenInfo } from "../hooks/useCitizenInfo";
 
 interface EditProfileForm {
   first_name: string;
@@ -53,7 +48,7 @@ const EditProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Avatar state for new image
-  const citizenInfo = getCitizenInfo<any>();
+  const { citizenInfo, save } = useCitizenInfo();
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     citizenInfo?.avatar_url || null,
@@ -117,11 +112,8 @@ const EditProfilePage = () => {
   };
 
   const onSubmit = async (data: EditProfileForm) => {
-    const token = getToken();
     setIsLoading(true);
-    console.log("data", data);
     try {
-      const headers = { Authorization: `Bearer ${token}` };
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
@@ -134,26 +126,22 @@ const EditProfilePage = () => {
       if (newAvatar instanceof File) {
         formData.append("avatar", newAvatar);
       }
+      for (let [key, value] of formData.entries()) {
+  console.log(key, value);
+}
 
-      const res = await axiosClient.post("/me", formData, {
-        headers,
-      });
 
-      if (res) {
-        setIsLoading(false);
-        enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
 
-        const updatedData = res.data.citizen;
-        console.log("res", res);
-        setCitizenInfo(updatedData);
-      }
+      await save(formData);
+      enqueueSnackbar(t("common.savedSuccessfully"), { variant: "success" });
     } catch (err: any) {
-      setIsLoading(false);
       console.error(err);
       enqueueSnackbar(
-        err?.response?.data?.message || t("common.errorOccurred"),
+        err?.response?.data?.message || err?.message || t("common.errorOccurred"),
         { variant: "error" },
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 

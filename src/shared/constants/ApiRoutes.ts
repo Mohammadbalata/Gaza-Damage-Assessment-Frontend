@@ -64,6 +64,7 @@ export const API = {
   },
 
   citizen: {
+    profile: `/me`,
     auth: {
       login: `/auth/login`,
       verifyId: `/auth/verification/national-id`,

@@ -55,7 +55,8 @@ import { useForm } from "react-hook-form";
 // import { locations } from "../constants/locations";
 import { axiosClient } from "../../../shared/api/api";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
-import { getCitizenInfo, getToken } from "../../../shared/utils/storage";
+import { getToken } from "../../../shared/utils/storage";
+import { useCitizenInfo } from "../../profile/hooks/useCitizenInfo";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -82,7 +83,7 @@ const MyApplications = () => {
   const [complaintApp, setComplaintApp] = useState<any>(null);
 
   const theme = useTheme();
-  const citizenInfo = getCitizenInfo<any>();
+  const { citizenInfo } = useCitizenInfo();
 
   // Close Complaint Confirmation State
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
@@ -186,7 +187,7 @@ const MyApplications = () => {
   };
 
   const handleGeneratePdf = () => {
-    generatePDFReceipt(rawData, t, language);
+    generatePDFReceipt(rawData, t, language, citizenInfo);
   };
 
   const handleMenuClose = () => {
@@ -268,7 +269,7 @@ const MyApplications = () => {
   };
 
   const handleDownloadAppPdf = (app: any) => {
-    generateApplicationPDF(app, t, language);
+    generateApplicationPDF(app, t, language, citizenInfo);
   };
 
   const handleOpenComplaint = (app: any) => {

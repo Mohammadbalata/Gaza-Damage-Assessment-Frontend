@@ -30,7 +30,8 @@ import classNames from "classnames";
 import { ROUTES } from "../../../../app/router/Routes";
 import { useNavigate } from "react-router-dom";
 import { axiosClient } from "../../../../shared/api/api";
-import { getCitizenInfo, getToken } from "../../../../shared/utils/storage";
+import { getToken } from "../../../../shared/utils/storage";
+import { useCitizenInfo } from "../../../profile/hooks/useCitizenInfo";
 import { Login as LoginIcon, ArrowBack } from "@mui/icons-material";
 import { API } from "../../../../shared/constants/ApiRoutes";
 import { useSnackbar } from "notistack";
@@ -60,12 +61,12 @@ const DamageAssessmentForm = ({
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
-  const citizenInfo = getCitizenInfo<any>();
+  const { citizenInfo } = useCitizenInfo();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
   const [isCurrentLocation] = useState<boolean>(
-    citizenInfo.current_location !== null,
+    !!citizenInfo?.current_location,
   );
   const { enqueueSnackbar } = useSnackbar();
   const isRTL = language === "ar";

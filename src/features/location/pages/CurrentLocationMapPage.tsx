@@ -4,10 +4,7 @@ import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
 import { updateCurrentLocation } from "../../../app/store/slices/locationSlice";
-import {
-  getCitizenInfo,
-  setCitizenInfo,
-} from "../../../shared/utils/storage";
+import { useCitizenInfo } from "../../profile/hooks/useCitizenInfo";
 import { ROUTES } from "../../../app/router/Routes";
 import { usePut } from "../../../shared/hooks/api/useApi";
 import {
@@ -43,8 +40,8 @@ const CurrentLocationMapPage = () => {
   const { t, language } = useLanguage();
   const { currentLocation } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
-  const storedCitizenInfo = getCitizenInfo<any>();
-  const initialLoc = storedCitizenInfo?.current_location;
+  const { citizenInfo, setCitizenInfo } = useCitizenInfo();
+  const initialLoc = citizenInfo?.current_location;
 
   const [position, setPosition] = useState<[number, number] | null>(() => {
     if (currentLocation.currentLatitude && currentLocation.currentLongitude) {
@@ -582,9 +579,8 @@ const CurrentLocationMapPage = () => {
     onSuccess: (data: any) => {
       // Update local storage and redux state with the new location info
       console.log("data", data);
-      const currentCitizenInfo = getCitizenInfo<any>();
       const updatedCitizenInfo = {
-        ...currentCitizenInfo,
+        ...(citizenInfo || {}),
         current_location: data.citizen.current_location || {
           latitude: position?.[0],
           longitude: position?.[1],
