@@ -211,18 +211,19 @@ const VerificationQuestionsPage = () => {
               ) : (
                 <TextField
                   key={question.key}
-                  type={"text"}
+                  type="text"
                   fullWidth
                   slotProps={{
-                    inputLabel: {
-                      shrink: true,
-                    },
+                    inputLabel: { shrink: true },
                   }}
                   error={!!errors[question.key]}
                   helperText={errors[question.key]?.message as string}
                   {...register(question.key, {
                     required: t("common.required"),
                   })}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                  }}
                   placeholder={
                     language === "ar" ? "أدخل الإجابة" : "Enter your answer"
                   }

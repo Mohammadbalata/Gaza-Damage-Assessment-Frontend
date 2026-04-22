@@ -15,7 +15,6 @@ import { useSnackbar } from "notistack";
 import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 
-
 // type OtpMethod = "sms" | "whatsapp" | "email";
 
 interface OtpDialogProps {
