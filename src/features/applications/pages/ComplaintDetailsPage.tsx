@@ -22,6 +22,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { axiosClient } from "../../../shared/api/api";
+import { getToken } from "../../../shared/utils/storage";
 import { API } from "../../../shared/constants/ApiRoutes";
 import BackButton from "../../../shared/components/BackButton";
 import { useSnackbar } from "notistack";
@@ -41,7 +42,7 @@ const ComplaintDetailsPage = () => {
     axiosClient
       .get(API.citizen.complaints.details(id!), {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       })
       .then((res: any) => {
@@ -69,7 +70,7 @@ const ComplaintDetailsPage = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${getToken()}`,
           },
         },
       );
@@ -82,7 +83,7 @@ const ComplaintDetailsPage = () => {
       // Refresh details
       const res = await axiosClient.get(API.citizen.complaints.details(id!), {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       });
       setComplaint(

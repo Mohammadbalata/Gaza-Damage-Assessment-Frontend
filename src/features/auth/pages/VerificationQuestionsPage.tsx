@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux"; //
 import { ROUTES } from "../../../app/router/Routes";
 import { signUp } from "../../../app/store/slices/authSlice";
 import { axiosClient } from "../../../shared/api/api";
+import { setCitizenName } from "../../../shared/utils/storage";
 import AuthComp from "./AuthComp";
 import dayjs from "dayjs";
 
@@ -112,7 +113,7 @@ const VerificationQuestionsPage = () => {
       );
       setLoadingInput(false);
       navigate(`${ROUTES.PASSWORD_DISPLAY}?id=${id}`);
-      localStorage.setItem("citizenName", JSON.stringify(res?.data?.citizen));
+      setCitizenName(res?.data?.citizen);
     } catch (error: any) {
       setLoadingInput(false);
       setError(error.response?.data?.message || "Something went wrong");

@@ -30,6 +30,7 @@ import classNames from "classnames";
 import { ROUTES } from "../../../../app/router/Routes";
 import { useNavigate } from "react-router-dom";
 import { axiosClient } from "../../../../shared/api/api";
+import { getCitizenInfo, getToken } from "../../../../shared/utils/storage";
 import { Login as LoginIcon, ArrowBack } from "@mui/icons-material";
 import { API } from "../../../../shared/constants/ApiRoutes";
 import { useSnackbar } from "notistack";
@@ -59,7 +60,7 @@ const DamageAssessmentForm = ({
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const damageAssessmentInfo = useAppSelector((state) => state.damage);
-  const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
+  const citizenInfo = getCitizenInfo<any>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const [isChangeToReviewPage, setIsChangeToReviewPage] = useState(readOnly);
@@ -406,7 +407,7 @@ const DamageAssessmentForm = ({
       };
 
       const application = buildApplication(reBuildDataMap);
-      const token = localStorage.getItem("token");
+      const token = getToken();
       const formData = createApplicationFormData(application);
 
       if (initialData?.id) {

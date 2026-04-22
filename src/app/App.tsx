@@ -7,12 +7,12 @@ import { LanguageProvider } from "./providers/LanguageContext";
 import { AdminAuthProvider } from "./providers/AdminAuthContext";
 import AppRoutes from "./router/AppRoutes";
 import theme from "./theme/muiTheme";
+import { getUser } from "../shared/utils/storage";
 
 function App() {
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const userObj = JSON.parse(user);
+    const userObj = getUser<any>();
+    if (userObj) {
       const a = [
         ROUTES.LAYOUT,
         ROUTES.SIGNIN,

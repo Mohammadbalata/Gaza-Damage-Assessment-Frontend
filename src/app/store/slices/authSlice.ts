@@ -2,35 +2,20 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "../../../shared/types/store/IAuthState";
 import { axiosClient } from "../../../shared/api/api";
 import { API } from "../../../shared/constants/ApiRoutes";
-
-const getStoredUser = () => {
-  try {
-    const storedUser = localStorage.getItem("citizen_user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  } catch (error) {
-    return null;
-  }
-};
-
-const storedUser = getStoredUser();
+import {
+  clearCitizenSession,
+  getLanguage,
+  setCitizenInfo as setCitizenInfoStorage,
+  setToken,
+} from "../../../shared/utils/storage";
 
 const initialState: IAuthState = {
-  national_id: storedUser?.national_id || "",
-  password: storedUser?.password || "",
-  user: storedUser || null,
-  isAuthenticated: !!storedUser,
+  user: null,
+  isAuthenticated: false,
   loading: false,
   error: null,
   messageSuccess: "",
   verificationQuestion: [],
-  firstName: "",
-  fatherName: "",
-  grandfatherName: "",
-  familyName: "",
-  phoneNumber: "",
-  email: "",
-  whatsappNumber: "",
-  citizenInfo: JSON.parse(localStorage.getItem("citizenInfo") || "{}"),
   trackingNumber: "",
 };
 
@@ -41,39 +26,10 @@ export const authSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
-    setNationalId: (state, action) => {
-      state.national_id = action.payload;
-    },
-    setFirstName: (state, action) => {
-      state.firstName = action.payload;
-    },
-    setFatherName: (state, action) => {
-      state.fatherName = action.payload;
-    },
-    setGrandfatherName: (state, action) => {
-      state.grandfatherName = action.payload;
-    },
-    setFamilyName: (state, action) => {
-      state.familyName = action.payload;
-    },
-    setEmail: (state, action) => {
-      state.email = action.payload;
-    },
-    setPhoneNumber: (state, action) => {
-      state.phoneNumber = action.payload;
-    },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      state.national_id = "";
-      state.password = "";
-      state.citizenInfo = {};
-      localStorage.removeItem("citizen_user");
-      localStorage.removeItem("token");
-      localStorage.removeItem("citizenInfo");
-    },
-    setCitizenInfo: (state, action) => {
-      state.citizenInfo = action.payload;
+      clearCitizenSession();
     },
     setTrackingNumber: (state, action) => {
       state.trackingNumber = action.payload;
@@ -89,9 +45,6 @@ export const authSlice = createSlice({
       state.loading = false;
       state.user = action.payload;
       state.isAuthenticated = true;
-      state.national_id = action.payload.national_id;
-      state.password = action.payload.password;
-      state.citizenInfo = action.payload.citizenInfo;
     });
     builder.addCase(signIn.rejected, (state, action) => {
       state.loading = false;
@@ -105,16 +58,10 @@ export const authSlice = createSlice({
     });
     builder.addCase(signUp.fulfilled, (state, action) => {
       state.loading = false;
-      state.national_id = action.payload.payload.national_id;
-      state.password = action.payload.payload.password;
       state.isAuthenticated = action.payload.data.success;
       state.messageSuccess = action.payload.data.message;
       state.verificationQuestion = action.payload.data.questions;
       state.familyMembersNumber = action.payload.data.familyMembersNumber;
-      // If signup returns user info, update it
-      if (action.payload.citizenInfo) {
-        state.citizenInfo = action.payload.citizenInfo;
-      }
     });
     builder.addCase(signUp.rejected, (state, action) => {
       state.loading = false;
@@ -125,7 +72,6 @@ export const authSlice = createSlice({
 });
 
 //--- sign in dispatch ---//
-// test
 export const signIn = createAsyncThunk(
   "auth/signIn",
   async (
@@ -137,41 +83,30 @@ export const signIn = createAsyncThunk(
         national_id: payload.national_id,
         password: payload.password,
       });
-      console.log("citizen", res.data.citizen);
-      // console.log("API Response:", res.data.data.user.application.damage_details);
-      // const damage_details = res.data?.user?.application?.damage_details;
-      // const locations = res.data.user.application?.locations;
-      const token = res.data?.token;
 
-      // Extract and save citizenInfo
+      const token = res.data?.token;
       const citizenInfo = res.data.citizen;
 
       if (token) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("citizenInfo", JSON.stringify(citizenInfo));
+        setToken(token);
+        setCitizenInfoStorage(citizenInfo);
       }
 
       if (payload.password.length < 3) {
         throw new Error("Invalid credentials");
       }
 
-      const userProfile = {
+      // Non-sensitive profile data only — no password, no national_id.
+      return {
         citizenData: res?.data,
-        national_id: payload.national_id,
-        password: payload.password,
         name: res.data?.data?.name || "User",
         first_name: res.data?.data?.user?.first_name || "User",
         father_name: res.data?.data?.user?.father_name || "User",
         family_name: res.data?.data?.user?.family_name || "User",
-        citizenInfo: citizenInfo, // Include in payload for reducer
       };
-
-      // localStorage.setItem("citizen_user", JSON.stringify(userProfile));
-
-      return userProfile;
     } catch (error: any) {
       console.log(error);
-      const lang = localStorage.getItem("language") || "ar";
+      const lang = getLanguage() || "ar";
       if (error.response?.data?.message === "Invalid credentials") {
         if (lang == "ar") {
           return rejectWithValue("كلمة المرور غير صحيحة");
@@ -187,7 +122,6 @@ export const signIn = createAsyncThunk(
 );
 
 //---sign up dispatch ---//
-
 export const signUp = createAsyncThunk(
   "auth/signUp",
   async (payload: IAuthState, { rejectWithValue }) => {
@@ -199,15 +133,11 @@ export const signUp = createAsyncThunk(
         );
         const token = res.data?.token;
 
-        // Try to extract citizenInfo from response if available
-        let citizenInfo = null;
         if (res.data?.citizen) {
-          citizenInfo = res.data.citizen;
-          localStorage.setItem("citizenInfo", JSON?.stringify(citizenInfo));
+          setCitizenInfoStorage(res.data.citizen);
         }
 
-        // console.log(res.data);
-        return { payload, data: res.data, token, citizenInfo };
+        return { payload, data: res.data, token };
       } catch (err: any) {
         console.log("err", err);
         return rejectWithValue(
@@ -220,7 +150,6 @@ export const signUp = createAsyncThunk(
       try {
         const requestBody: any = { national_id: payload.national_id };
 
-        // Only include other fields if they are actually present (for real registration)
         if (payload.password) requestBody.password = payload.password;
         if (payload.firstName) requestBody.firstName = payload.firstName;
         if (payload.fatherName) requestBody.fatherName = payload.fatherName;
@@ -239,7 +168,6 @@ export const signUp = createAsyncThunk(
           requestBody,
         );
         const token = res.data?.token;
-        console.log(res.data);
         return { payload, data: res.data, token };
       } catch (err: any) {
         console.log("err", err);
@@ -248,17 +176,6 @@ export const signUp = createAsyncThunk(
     }
   },
 );
-// 41003193
-export const {
-  setError,
-  setNationalId,
-  setFirstName,
-  setFatherName,
-  setGrandfatherName,
-  setFamilyName,
-  setEmail,
-  setPhoneNumber,
-  setCitizenInfo,
-  setTrackingNumber,
-} = authSlice.actions;
+
+export const { setError, logout, setTrackingNumber } = authSlice.actions;
 export default authSlice.reducer;

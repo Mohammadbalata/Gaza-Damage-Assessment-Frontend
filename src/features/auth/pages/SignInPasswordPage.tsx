@@ -45,8 +45,8 @@ const SignInPasswordPage = () => {
   const onSubmit = (data: FormDataCustom) => {
     dispatch(signIn({ national_id: national_id, password: data.password }))
       .unwrap()
-      .then((data: any) => {
-        localStorage.setItem("citizenInfo", JSON.stringify(data.citizenInfo));
+      .then(() => {
+        // citizenInfo is persisted inside the signIn thunk via storage util
         navigate(ROUTES.HOME);
       })
       .catch((error: any) => {

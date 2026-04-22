@@ -25,8 +25,11 @@ import { Controller } from "react-hook-form";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
-import { setCitizenInfo } from "../../../app/store/slices/authSlice";
+import {
+  getCitizenInfo,
+  getToken,
+  setCitizenInfo,
+} from "../../../shared/utils/storage";
 
 interface EditProfileForm {
   first_name: string;
@@ -50,12 +53,11 @@ const EditProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Avatar state for new image
-  const citizenInfo = useAppSelector((state) => state.auth.citizenInfo);
+  const citizenInfo = getCitizenInfo<any>();
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     citizenInfo?.avatar_url || null,
   );
-  const dispatch = useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -115,7 +117,7 @@ const EditProfilePage = () => {
   };
 
   const onSubmit = async (data: EditProfileForm) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     setIsLoading(true);
     console.log("data", data);
     try {
@@ -143,8 +145,7 @@ const EditProfilePage = () => {
 
         const updatedData = res.data.citizen;
         console.log("res", res);
-        dispatch(setCitizenInfo(updatedData));
-        localStorage.setItem("citizenInfo", JSON.stringify(updatedData));
+        setCitizenInfo(updatedData);
       }
     } catch (err: any) {
       setIsLoading(false);

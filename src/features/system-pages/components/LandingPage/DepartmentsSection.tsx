@@ -12,6 +12,7 @@ import { useLanguage } from "../../../../app/providers/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../../app/router/Routes";
 import DamageAssessmentCard from "./DamageAssessmentCard";
+import { getToken } from "../../../../shared/utils/storage";
 
 export function DepartmentsSection() {
   const { t, language } = useLanguage();
@@ -52,7 +53,7 @@ export function DepartmentsSection() {
   ];
 
   const handleCardClick = (route: string) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
 
     if (!token) {
       navigate(ROUTES.SIGNIN);

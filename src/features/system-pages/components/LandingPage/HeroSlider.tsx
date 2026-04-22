@@ -10,6 +10,10 @@ import { useLanguage } from "../../../../app/providers/LanguageContext";
 import { CheckCircle, Home, Users } from "lucide-react";
 import classNames from "classnames";
 import { setTrackingNumber } from "../../../../app/store/slices/authSlice";
+import {
+  getToken,
+  setTrackingNumber as setTrackingNumberStorage,
+} from "../../../../shared/utils/storage";
 
 const slides = [
   {
@@ -25,7 +29,7 @@ export function HeroSlider() {
   const [currentSlide] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -46,7 +50,7 @@ export function HeroSlider() {
       if (res) {
         const app = res.data.damage_report;
         dispatch(setTrackingNumber(app.report_code));
-        localStorage.setItem("trackingNumber", app.report_code);
+        setTrackingNumberStorage(app.report_code);
         console.log(app);
         navigate(`${ROUTES.TRACK_STATUS}?track=${app.report_code}`); // Navigate to the tracking status page with the tracking number as a query parameter
       }

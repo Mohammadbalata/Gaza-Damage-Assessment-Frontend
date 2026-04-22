@@ -24,6 +24,7 @@ import {
 import { useState, useEffect } from "react";
 import { axiosClient } from "../../api/api";
 import { API } from "../../constants/ApiRoutes";
+import { getToken } from "../../utils/storage";
 
 export const CommentsDialog = ({
   open,
@@ -94,7 +95,7 @@ export const CommentsDialog = ({
         { content: replyText },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${getToken()}`,
           },
         },
       );

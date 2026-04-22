@@ -55,6 +55,7 @@ import { useForm } from "react-hook-form";
 // import { locations } from "../constants/locations";
 import { axiosClient } from "../../../shared/api/api";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";
+import { getCitizenInfo, getToken } from "../../../shared/utils/storage";
 
 const MyApplications = () => {
   const { t, language } = useLanguage();
@@ -81,7 +82,7 @@ const MyApplications = () => {
   const [complaintApp, setComplaintApp] = useState<any>(null);
 
   const theme = useTheme();
-  const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const citizenInfo = getCitizenInfo<any>();
 
   // Close Complaint Confirmation State
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
@@ -100,12 +101,12 @@ const MyApplications = () => {
         const [appsRes, complaintsRes] = await Promise.all([
           axiosClient.get(API.citizen.applications.list, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${getToken()}`,
             },
           }),
           axiosClient.get(API.citizen.complaints.list, {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${getToken()}`,
             },
           }),
         ]);
@@ -294,7 +295,7 @@ const MyApplications = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${getToken()}`,
           },
         },
       );
@@ -309,10 +310,10 @@ const MyApplications = () => {
       // Refresh applications to update status
       const [appsRes, complaintsRes] = await Promise.all([
         axiosClient.get(API.citizen.applications.list, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${getToken()}` },
         }),
         axiosClient.get(API.citizen.complaints.list, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${getToken()}` },
         }),
       ]);
 

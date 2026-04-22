@@ -24,6 +24,7 @@ import {
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { useForm } from "react-hook-form";
 import { axiosClient } from "../../api/api";
+import { getToken } from "../../utils/storage";
 import { API } from "../../constants/ApiRoutes";
 import { useSnackbar } from "notistack";
 
@@ -67,7 +68,7 @@ const ComplaintDialog: React.FC<ComplaintDialogProps> = ({
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${getToken()}`,
           },
         },
       );

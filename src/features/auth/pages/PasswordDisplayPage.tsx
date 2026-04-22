@@ -38,6 +38,7 @@ import { ROUTES } from "../../../app/router/Routes";
 import { signUp } from "../../../app/store/slices/authSlice";
 import { API } from "../../../shared/constants/ApiRoutes";
 import { axiosClient } from "../../../shared/api/api";
+import { getCitizenName, setToken } from "../../../shared/utils/storage";
 import SingleImageInput from "../../damage-assessment/components/ImagesInput/SingleImageInput";
 import FormInput from "../../../shared/ui/FormInput";
 import OtpDialog from "../../../shared/components/dialogs/OtpDialog";
@@ -68,7 +69,7 @@ const PasswordDisplayPage = () => {
   const rules = checkPasswordRules(password);
   const { enqueueSnackbar } = useSnackbar();
 
-  const citizenName = JSON.parse(localStorage.getItem("citizenName") || "{}");
+  const citizenName = getCitizenName<any>();
   const fullName = [
     citizenName?.first_name,
     citizenName?.father_name,
@@ -139,7 +140,7 @@ const PasswordDisplayPage = () => {
             variant: "success",
           });
           navigate(ROUTES.HOME);
-          localStorage.setItem("token", res.token);
+          setToken(res.token);
         }
       } catch (error: any) {
         console.log("error", error);

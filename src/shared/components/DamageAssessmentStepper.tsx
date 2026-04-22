@@ -10,6 +10,7 @@ import {
 import { useMemo } from "react";
 import { useAppSelector } from "../hooks/redux";
 import { useLanguage } from "../../app/providers/LanguageContext";
+import { getCitizenInfo } from "../utils/storage";
 
 // =====================
 // Custom Connector
@@ -89,7 +90,7 @@ export default function DamageAssessmentStepper({
     if (hasLocation) return true;
 
     // Fallback to storage
-    const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+    const citizenInfo = getCitizenInfo<any>();
     return !!citizenInfo.current_location;
   }, [currentLocation]);
 

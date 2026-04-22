@@ -5,17 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 import { useLanguage } from "../../../../app/providers/LanguageContext";
 import { Avatar, Paper, Stack, Typography } from "@mui/material";
-import { useAppSelector } from "../../../../shared/hooks/redux";
 import { Person as PersonIcon } from "@mui/icons-material";
 import { ROUTES } from "../../../../app/router/Routes";
 import classNames from "classnames";
+import {
+  clearCitizenSession,
+  clearUser,
+  getCitizenInfo,
+  getToken,
+} from "../../../../shared/utils/storage";
 export function Header() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const windowPathname = window.location.pathname;
 
-  const authState: any = useAppSelector((state) => state.auth);
-  const citizenInfo = authState.citizenInfo;
+  const citizenInfo = getCitizenInfo<any>();
   const citizenName = citizenInfo
     ? `${citizenInfo?.full_name}`.split(" ")[0]
     : citizenInfo.national_id;
@@ -30,13 +34,10 @@ export function Header() {
       setIsMenuOpen(false);
     }
   };
-  const token = localStorage.getItem("token");
+  const token = getToken();
   const handleLogout = () => {
-    // Clear localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("citizenInfo");
-    localStorage.removeItem("citizen_user");
+    clearCitizenSession();
+    clearUser();
 
     // Navigate to sign in page
     navigate(`/`);

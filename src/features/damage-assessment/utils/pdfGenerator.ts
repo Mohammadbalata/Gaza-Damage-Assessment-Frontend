@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDate } from "../../../shared/utils/helpers";
+import { getCitizenInfo } from "../../../shared/utils/storage";
 // import Logo from "../../src/assets/logo.jpg";
 
 export const generatePDFReceipt = async (
@@ -8,7 +9,7 @@ export const generatePDFReceipt = async (
   t: any,
   language: any,
 ) => {
-  const citizenInfo = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const citizenInfo = getCitizenInfo<any>();
   console.log(citizenInfo);
   const citizen = citizenInfo || {};
   const applications = rawData || [];
@@ -241,7 +242,7 @@ export const generateApplicationPDF = async (
   };
 
   console.log("applicationData", application);
-  const citizen = JSON.parse(localStorage.getItem("citizenInfo") || "{}");
+  const citizen = getCitizenInfo<any>();
 
   const isArabic = language === "ar";
   const direction = isArabic ? "rtl" : "ltr";

@@ -4,7 +4,10 @@ import { RotateCcw, Check } from "lucide-react";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
 import { updateCurrentLocation } from "../../../app/store/slices/locationSlice";
-import { setCitizenInfo } from "../../../app/store/slices/authSlice";
+import {
+  getCitizenInfo,
+  setCitizenInfo,
+} from "../../../shared/utils/storage";
 import { ROUTES } from "../../../app/router/Routes";
 import { usePut } from "../../../shared/hooks/api/useApi";
 import {
@@ -40,13 +43,8 @@ const CurrentLocationMapPage = () => {
   const { t, language } = useLanguage();
   const { currentLocation } = useAppSelector((state) => state.location);
   const dispatch = useAppDispatch();
-  const explorerCitizenInfo = useAppSelector((state) => state.auth.citizenInfo);
-  const storedCitizenInfo = JSON.parse(
-    localStorage.getItem("citizenInfo") || "{}",
-  );
-  const initialLoc =
-    explorerCitizenInfo?.current_location ||
-    storedCitizenInfo?.current_location;
+  const storedCitizenInfo = getCitizenInfo<any>();
+  const initialLoc = storedCitizenInfo?.current_location;
 
   const [position, setPosition] = useState<[number, number] | null>(() => {
     if (currentLocation.currentLatitude && currentLocation.currentLongitude) {
@@ -584,9 +582,7 @@ const CurrentLocationMapPage = () => {
     onSuccess: (data: any) => {
       // Update local storage and redux state with the new location info
       console.log("data", data);
-      const currentCitizenInfo = JSON.parse(
-        localStorage.getItem("citizenInfo") || "{}",
-      );
+      const currentCitizenInfo = getCitizenInfo<any>();
       const updatedCitizenInfo = {
         ...currentCitizenInfo,
         current_location: data.citizen.current_location || {
@@ -596,8 +592,7 @@ const CurrentLocationMapPage = () => {
         },
       };
 
-      localStorage.setItem("citizenInfo", JSON.stringify(updatedCitizenInfo));
-      dispatch(setCitizenInfo(updatedCitizenInfo));
+      setCitizenInfo(updatedCitizenInfo);
 
       navigate(`${ROUTES.CITIZEN_DASHBOARD}`);
     },

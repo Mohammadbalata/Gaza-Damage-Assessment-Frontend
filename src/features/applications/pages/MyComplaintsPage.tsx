@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { axiosClient } from "../../../shared/api/api";
+import { getToken } from "../../../shared/utils/storage";
 import { API } from "../../../shared/constants/ApiRoutes";
 import BackButton from "../../../shared/components/BackButton";
 import { ROUTES } from "../../../app/router/Routes";
@@ -42,7 +43,7 @@ const MyComplaintsPage = () => {
     axiosClient
       .get(API.citizen.complaints.list, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       })
       .then((res: any) => {

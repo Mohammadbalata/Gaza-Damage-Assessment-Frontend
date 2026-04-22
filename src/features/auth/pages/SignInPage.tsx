@@ -21,6 +21,7 @@ import { API } from "../../../shared/constants/ApiRoutes";
 import { useState } from "react";
 import AuthComp from "./AuthComp";
 import { IAuthState } from "../../../shared/types/store/IAuthState";
+import { getToken } from "../../../shared/utils/storage";
 
 export interface FormDataCustom extends IAuthState {}
 
@@ -38,7 +39,7 @@ const LoginPage = () => {
 
   const [checkingId, setCheckingId] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   useEffect(() => {
     if (token) {

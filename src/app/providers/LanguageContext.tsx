@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "../../shared/utils/translations";
+import {
+  getLanguage,
+  setLanguage as setLanguageStorage,
+} from "../../shared/utils/storage";
 
 type Language = "ar" | "en";
 
@@ -18,12 +22,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem("language") as Language;
+    const saved = getLanguage() as Language | null;
     return saved || "ar";
   });
 
   useEffect(() => {
-    localStorage.setItem("language", language);
+    setLanguageStorage(language);
     document.documentElement.setAttribute(
       "dir",
       language === "ar" ? "rtl" : "ltr",

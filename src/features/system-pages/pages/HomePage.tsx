@@ -15,6 +15,7 @@ import { Header } from "../components/LandingPage/Header";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import DamageAssessmentCard from "../components/LandingPage/DamageAssessmentCard";
+import { getToken } from "../../../shared/utils/storage";
 
 // import { useAppSelector } from "../hooks/redux";
 
@@ -124,7 +125,7 @@ const HomePage: React.FC = () => {
   ];
 
   const handleCardClick = (route: string) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
 
     if (!token) {
       navigate(ROUTES.SIGNIN);

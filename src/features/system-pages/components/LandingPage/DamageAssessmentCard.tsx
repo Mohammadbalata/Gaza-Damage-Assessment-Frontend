@@ -5,6 +5,7 @@ import { useLanguage } from "../../../../app/providers/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../../app/router/Routes";
 import classNames from "classnames";
+import { getToken } from "../../../../shared/utils/storage";
 
 const DamageAssessmentCard: React.FC = () => {
   const { t, language } = useLanguage();
@@ -68,7 +69,7 @@ const DamageAssessmentCard: React.FC = () => {
                 id="damage-assessment-btn"
                 variant="contained"
                 onClick={() => {
-                  const token = localStorage.getItem("token");
+                  const token = getToken();
                   if (token) {
                     navigate(ROUTES.CITIZEN_DASHBOARD);
                   } else {

@@ -4,6 +4,7 @@ import { FormDataCustom } from "./SignInPage";
 import FormInput from "../../../shared/ui/FormInput";
 import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux";
 import { setError, signUp } from "../../../app/store/slices/authSlice";
+import { getToken } from "../../../shared/utils/storage";
 import AuthComp from "./AuthComp";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "../../../app/router/Routes";
@@ -27,7 +28,7 @@ const SignUpPage = () => {
   const dispatch = useAppDispatch();
 
   const { error, loading } = useAppSelector((state) => state.auth);
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   useEffect(() => {
     if (token) {

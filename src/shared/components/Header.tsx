@@ -2,11 +2,12 @@ import { useAuth } from "../../app/providers/AdminAuthContext";
 import { useLanguage } from "../../app/providers/LanguageContext";
 import { LogOut } from "lucide-react";
 import Logo from "../../public/logo.jpg";
+import { getToken } from "../utils/storage";
 
 const Header = () => {
   const { t } = useLanguage();
   const { logout, isAuthenticated } = useAuth();
-  const token = localStorage.getItem("token");
+  const token = getToken();
   return (
     <header className="bg-primary text-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">

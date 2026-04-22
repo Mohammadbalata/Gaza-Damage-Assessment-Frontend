@@ -12,6 +12,14 @@ import { ROUTES } from "../router/Routes";
 import { api } from "../../shared/api/api";
 import { AdminUser } from "../../shared/types/entities";
 import { API } from "../../shared/constants/ApiRoutes";
+import {
+  clearToken as clearTokenStorage,
+  clearUser as clearUserStorage,
+  getToken as getTokenStorage,
+  getUser as getUserStorage,
+  setToken as setTokenStorage,
+  setUser as setUserStorage,
+} from "../../shared/utils/storage";
 
 interface AdminAuthContextType {
   user: AdminUser | null;
@@ -32,13 +40,10 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
 export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<AdminUser | null>(() => {
-    const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
-  });
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("token");
-  });
+  const [user, setUser] = useState<AdminUser | null>(() =>
+    getUserStorage<AdminUser>(),
+  );
+  const [token, setToken] = useState<string | null>(() => getTokenStorage());
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -47,8 +52,8 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   const persistAuth = (payload: { user: AdminUser; access_token: string }) => {
     setUser(payload.user);
     setToken(payload.access_token);
-    localStorage.setItem("user", JSON.stringify(payload.user));
-    localStorage.setItem("token", payload.access_token);
+    setUserStorage(payload.user);
+    setTokenStorage(payload.access_token);
   };
 
   const login = async (credentials: {
@@ -105,7 +110,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
       const profile = response.data?.data ?? response.data;
       if (profile) {
         setUser(profile);
-        localStorage.setItem("user", JSON.stringify(profile));
+        setUserStorage(profile);
       }
     } catch (error) {
       console.error("Failed to refresh profile", error);
@@ -113,8 +118,8 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
   }, [token]);
 
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    clearUserStorage();
+    clearTokenStorage();
     setUser(null);
     setToken(null);
     navigate(`${ROUTES.LAYOUT}`);
