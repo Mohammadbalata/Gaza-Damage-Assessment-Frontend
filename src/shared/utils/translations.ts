@@ -52,6 +52,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.filters": "Filters",
     "common.all": "All",
     "common.viewComments": "View Comments",
+    "common.second": "s",
+    "common.after": "after",
 
     "common.single": "single",
     "common.married": "married",
@@ -846,7 +848,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.objectionCode": "Objection Code",
     "complaint.application": "Related Application",
     "complaint.noComplaints": "You have no complaints yet",
-    "complaint.noComplaintsOrObjections": "You have no complaints or objections yet",
+    "complaint.noComplaintsOrObjections":
+      "You have no complaints or objections yet",
     "complaint.status.pending": "Pending",
     "complaint.status.received": "Received",
     "complaint.status.under_review": "Under Review",
@@ -855,7 +858,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.closeComplaint": "Close Complaint",
     "complaint.closeObjection": "Close Objection",
     "complaint.closeConfirm": "Are you sure you want to close this complaint?",
-    "complaint.closeObjectionConfirm": "Are you sure you want to close this objection?",
+    "complaint.closeObjectionConfirm":
+      "Are you sure you want to close this objection?",
     "complaint.closeSuccess": "Complaint closed successfully",
     "complaint.closeObjectionSuccess": "Objection closed successfully",
     "complaint.closeError": "Failed to close complaint",
@@ -866,7 +870,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "complaint.resolvedAt": "Resolved at",
     "complaintType.COMPLAINT": "Complaint",
     "complaintType.OBJECTION": "Objection",
-    "complaint.objectionSuccess" :"Objection submitted successfully",
+    "complaint.objectionSuccess": "Objection submitted successfully",
 
     // Reset Password
     "auth.resetPasswordTitle": "Reset Password",
@@ -961,7 +965,8 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "common.filters": "الفلاتر",
     "common.all": "الكل",
     "common.viewComments": "عرض التعليقات",
-
+    "common.second": "ث",
+    "common.after": "بعد",
     "validation.required": "هذا الحقل مطلوب",
     "validation.passwordMismatch": "كلمة المرور غير متطابقة",
     "common.actions": "الإجراءات",
@@ -1253,8 +1258,7 @@ export const translations: Record<"en" | "ar", Record<string, string>> = {
     "form.before_damage_image": "صور قبل الضرر",
     "form.after_damage_image": "صور بعد الضرر",
     "form.ownership_documents": "مستندات الملكية",
-    "form.titleVerify":
-      "اختر طريقة استلام رمز التحقق : ",
+    "form.titleVerify": "اختر طريقة استلام رمز التحقق : ",
 
     "building_content.habitable_room": "يحتوي على غرفة قابلة للسكن على الأقل",
     "building_content.usable_kitchen":
