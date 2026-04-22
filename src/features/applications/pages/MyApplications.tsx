@@ -433,6 +433,7 @@ const MyApplications = () => {
             <Box>
               <Typography variant="h4" fontWeight="bold" gutterBottom>
                 {t("citizen.myRequests")}
+                <span className="mr-2">({rawData.length})</span>
               </Typography>
               <Typography variant="body1" color="text.secondary">
                 {t("citizen.myRequestsDesc")}
