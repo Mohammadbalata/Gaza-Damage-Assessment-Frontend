@@ -48,11 +48,32 @@ const OtpDialog = ({
   const [method, setMethod] = useState("");
   const [showAnotherWay, setShowAnotherWay] = useState(false);
   const [target, setTarget] = useState("");
+  const [canShowAnotherWay, setCanShowAnotherWay] = useState(false);
+  const [seconds, setSeconds] = useState(60);
+
   useEffect(() => {
     if (open) {
       inputRefs.current[0]?.focus();
     }
-  }, [open]);
+
+    if (isSent) {
+      setCanShowAnotherWay(false);
+      setSeconds(60);
+
+      const interval = setInterval(() => {
+        setSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setCanShowAnotherWay(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [open, isSent]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -247,12 +268,16 @@ const OtpDialog = ({
             </Box>
 
             <Button
+              disabled={!canShowAnotherWay}
               onClick={() => setShowAnotherWay(!showAnotherWay)}
               variant="text"
               sx={{ textDecoration: "underline" }}
             >
-              {t("form.verifySubTitle")}
+              {canShowAnotherWay
+                ? t("form.verifySubTitle")
+                : `${t("form.verifySubTitle")} (${t("common.after")} ${seconds} ${t("common.second")})`}
             </Button>
+
             {showAnotherWay && (
               <ToggleButtonGroup
                 value={method}

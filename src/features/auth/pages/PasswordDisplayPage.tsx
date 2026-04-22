@@ -11,9 +11,6 @@ import {
 
 import { FormDataCustom } from "./SignInPage";
 
-
-
-
 import AuthComp from "./AuthComp";
 import {
   Box,
@@ -45,7 +42,6 @@ import SingleImageInput from "../../damage-assessment/components/ImagesInput/Sin
 import FormInput from "../../../shared/ui/FormInput";
 import OtpDialog from "../../../shared/components/dialogs/OtpDialog";
 import PhoneNumberInput from "../../../shared/ui/PhoneNumberInput";
-
 
 const PasswordDisplayPage = () => {
   const navigate = useNavigate();
