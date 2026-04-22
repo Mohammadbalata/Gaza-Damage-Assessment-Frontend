@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../../app/providers/LanguageContext";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import { API } from "../../../shared/constants/ApiRoutes";
 import BackButton from "../../../shared/components/BackButton";
 import { ROUTES } from "../../../app/router/Routes";

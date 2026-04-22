@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../../shared/hooks/redux"; //
 
 import { ROUTES } from "../../../app/router/Routes";
 import { signUp } from "../../../app/store/slices/authSlice";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import AuthComp from "./AuthComp";
 import dayjs from "dayjs";
 

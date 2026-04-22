@@ -17,7 +17,7 @@ import { ArrowBack, Save as SaveIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/Routes";
 import { useSnackbar } from "notistack";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import { useState, useEffect } from "react";
 import AvatarEditOverlay from "../../../shared/components/AvatarEditOverlay";
 import LanguageToggle from "../../../shared/ui/LanguageToggle";

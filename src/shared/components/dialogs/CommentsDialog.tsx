@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 
 import { useState, useEffect } from "react";
-import { axiosClient } from "../../api/baseUrl";
+import { axiosClient } from "../../api/api";
 import { API } from "../../constants/ApiRoutes";
 
 export const CommentsDialog = ({

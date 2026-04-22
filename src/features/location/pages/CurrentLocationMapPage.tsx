@@ -34,7 +34,6 @@ import BackButton from "../../../shared/components/BackButton";
 
 
 // import { getReviewData } from "../utils/getReviewData";
-// import { axiosClient } from "../api/baseUrl";
 
 const CurrentLocationMapPage = () => {
   const navigate = useNavigate();

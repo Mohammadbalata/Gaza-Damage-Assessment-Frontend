@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { axiosClient } from "../../../../shared/api/baseUrl";
+import { axiosClient } from "../../../../shared/api/api";
 import { ROUTES } from "../../../../app/router/Routes";
 
 import { useAppDispatch } from "../../../../shared/hooks/redux";

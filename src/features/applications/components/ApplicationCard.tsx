@@ -46,7 +46,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { ReportStatus } from "../../../shared/constants/ReportStatus";
 import { CommentsDialog } from "../../../shared/components/dialogs/CommentsDialog";
 import StepperRTL from "./StepperRTL";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 
 export interface ApplicationCardProps {
   application: any;

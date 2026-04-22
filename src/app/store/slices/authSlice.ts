@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAuthState } from "../../../shared/types/store/IAuthState";
-import { axiosClient } from "../../../shared/api/baseUrl";
+import { axiosClient } from "../../../shared/api/api";
 import { API } from "../../../shared/constants/ApiRoutes";
 
 const getStoredUser = () => {

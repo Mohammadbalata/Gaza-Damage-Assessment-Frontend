@@ -23,7 +23,7 @@ import {
 } from "@mui/icons-material";
 import { useLanguage } from "../../../app/providers/LanguageContext";
 import { useForm } from "react-hook-form";
-import { axiosClient } from "../../api/baseUrl";
+import { axiosClient } from "../../api/api";
 import { API } from "../../constants/ApiRoutes";
 import { useSnackbar } from "notistack";
 
