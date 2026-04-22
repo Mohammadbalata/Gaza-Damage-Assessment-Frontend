@@ -165,3 +165,108 @@ Manual smoke tests (browser) — **pending operator verification**:
 | Providers + App shell | 3 |
 | PDF util | 1 |
 | **Total** | **26** |
+
+---
+
+# Addendum — `useCitizenInfo()` hook (Phase-2 follow-up)
+
+Execution date: 2026-04-22 (same day, later)
+
+The Phase 2 plan above left `citizenInfo` living in localStorage with components calling `getCitizenInfo()` directly on every render. That was a deliberate tradeoff at the time ("introduce a context/store later if cross-component reactivity becomes needed"). Two issues surfaced immediately and the decision was revisited:
+
+1. Stale data — localStorage is only ever updated on sign-in/sign-up/edit-profile; users never saw server-side profile updates without signing out.
+2. [CitizenDashboard.tsx](src/features/profile/pages/CitizenDashboard.tsx) and [EditProfilePage.tsx](src/features/profile/pages/EditProfilePage.tsx) both ad-hoc-fetched `/me` with their own `useEffect` + `useState` pair — duplicated request, uncoordinated cache.
+
+The follow-up introduces a single shared hook that fetches `/me` once per session, caches via Redux, and write-through-syncs to localStorage so initial paint after reload is still instant.
+
+## New files
+
+### `src/app/store/slices/citizenSlice.ts`
+
+Redux slice with two thunks and two sync reducers.
+
+- `fetchCitizenInfo` — `GET /me`, returns `res.data.citizen`.
+- `saveCitizenInfo(formData)` — `POST /me` with `Content-Type: multipart/form-data` (required because the shared axios client defaults to `application/json` — see **Avatar upload fix** below).
+- `setCitizenInfo(info)` — sync reducer; used by `authSlice.signIn/signUp` to seed on login.
+- `clearCitizenInfo()` — sync reducer; wipes Redux + localStorage.
+- `addMatcher` on action type `"auth/logout"` — wipes citizen state when the existing `authSlice.logout` action fires. No circular import (matches by string).
+
+Initial state hydrates from `getCitizenInfo()` so a hard reload paints immediately from the localStorage cache; the hook then kicks off a background refresh.
+
+### `src/features/profile/hooks/useCitizenInfo.ts`
+
+The single public surface consumers use:
+
+```ts
+const { citizenInfo, loading, error, loaded, refetch, save, setCitizenInfo } = useCitizenInfo();
+```
+
+- Auto-fires `fetchCitizenInfo` on first mount when `!loaded && !loading && getToken()` — guard prevents duplicate inflight requests across concurrent mounts.
+- `save(formData)` wraps the `saveCitizenInfo` thunk with `.unwrap()` so callers get a thrown error for try/catch.
+- `setCitizenInfo(info)` is a thin wrapper over the sync reducer — used by consumers that mutate citizen data locally (e.g. CurrentLocationMapPage after a successful location PUT).
+
+## Modified files
+
+- [src/shared/constants/ApiRoutes.ts](src/shared/constants/ApiRoutes.ts) — added `API.citizen.profile = "/me"`. Removed the two previously hardcoded `"/me"` strings.
+- [src/app/store/store.ts](src/app/store/store.ts) — registered `citizen: citizenReducer`.
+- [src/app/store/slices/authSlice.ts](src/app/store/slices/authSlice.ts) — `signIn` and `signUp` thunks now `dispatch(setCitizenInfoAction(...))` alongside the storage-util write, so the slice is hot right after login (no extra `/me` roundtrip needed on dashboard entry).
+
+## Consumer migrations (9 files)
+
+All of these dropped their direct `getCitizenInfo()` (and any ad-hoc `/me` fetch) in favour of `const { citizenInfo } = useCitizenInfo();`:
+
+| File | What changed |
+|---|---|
+| [src/features/profile/pages/CitizenDashboard.tsx](src/features/profile/pages/CitizenDashboard.tsx) | Dropped local `useState` for citizenInfo + loading, dropped the inline `axiosClient.get("/me")` useEffect, dropped `axiosClient` import. |
+| [src/features/profile/pages/EditProfilePage.tsx](src/features/profile/pages/EditProfilePage.tsx) | Submit handler now calls `await save(formData)`; the slice updates the cache — no more manual header/token/post/setCitizenInfo plumbing. Dropped `axiosClient`, `getToken`, `setCitizenInfo` imports. |
+| [src/features/profile/pages/ServiceCenterPage.tsx](src/features/profile/pages/ServiceCenterPage.tsx) | Replaced `useAppSelector((s) => s.auth.citizenInfo)` with the hook. |
+| [src/features/system-pages/components/LandingPage/Header.tsx](src/features/system-pages/components/LandingPage/Header.tsx) | Hook for read; also defensive-chained `citizenName`. |
+| [src/features/damage-assessment/components/building-forms/DamageAssessmentForm.tsx](src/features/damage-assessment/components/building-forms/DamageAssessmentForm.tsx) | Hook for read; `isCurrentLocation` init guarded with `!!citizenInfo?.current_location`. |
+| [src/features/location/pages/CurrentLocationMapPage.tsx](src/features/location/pages/CurrentLocationMapPage.tsx) | Hook for read *and* for the write-back after a successful location PUT — `setCitizenInfo(updated)` now updates the slice so every other consumer re-renders. |
+| [src/features/applications/pages/MyApplications.tsx](src/features/applications/pages/MyApplications.tsx) | Hook for read. Also passes `citizenInfo` into the two PDF generator functions. |
+| [src/shared/components/DamageAssessmentStepper.tsx](src/shared/components/DamageAssessmentStepper.tsx) | Hook read; dependency in `useMemo` now reactive to citizenInfo changes. |
+| [src/features/damage-assessment/utils/pdfGenerator.ts](src/features/damage-assessment/utils/pdfGenerator.ts) | Pure util; now accepts `citizenInfo` as an optional argument (default `null`). Callers in MyApplications pass it down from the hook. |
+
+## Defensive fixes landed alongside
+
+- [CitizenDashboard.tsx:264](src/features/profile/pages/CitizenDashboard.tsx) and [ServiceCenterPage.tsx](src/features/profile/pages/ServiceCenterPage.tsx) — bare `{citizenInfo.national_id}` in JSX replaced with `{citizenInfo?.national_id}` so the page doesn't crash if the cache is temporarily empty.
+- [CitizenDashboard.tsx line 103](src/features/profile/pages/CitizenDashboard.tsx) — `citizenName` ternary now guards on `citizenInfo?.full_name` instead of truthiness of the whole object.
+
+## Avatar upload fix
+
+Symptom: after the migration, avatar upload on edit-profile returned a 422 with `"The avatar field must be an image."`.
+
+Root cause: the shared axios client ([src/shared/api/api.ts](src/shared/api/api.ts)) defaults to `Content-Type: application/json`. When `axiosClient.post(url, formData)` runs without a per-request header override, axios keeps the default — so the multipart body goes out *without* a boundary and Laravel can't parse the file.
+
+Fix: [src/app/store/slices/citizenSlice.ts](src/app/store/slices/citizenSlice.ts) — `saveCitizenInfo` passes `{ headers: { "Content-Type": "multipart/form-data" } }` explicitly. Axios 1.x auto-appends the generated boundary at send time when it sees this header + a FormData payload. Rejection payload also widened to include `err.response.data.errors` so future 422 field errors surface instead of collapsing to a generic message.
+
+## Verification
+
+1. `npm run build` — clean, 8.28s (last run).
+2. Grep: `rg "getCitizenInfo\\(" src` → 0 matches in components/pages (only `storage.ts` and `citizenSlice.ts` remain, which is correct — they're the plumbing).
+3. Grep: `rg '"/me"|\\'/me\\'' src` → 0 matches. Endpoint lives only in `ApiRoutes.ts`.
+4. Manual smoke tests — **pending operator verification**:
+   - Sign in → dashboard: one `GET /me` in the Network tab, reused by every component that mounts.
+   - Edit profile → save (with and without an avatar change): success snackbar; dashboard/header reflect updates immediately.
+   - Avatar upload specifically: image renders in the new avatar preview; backend persists the file (re-login shows it from `/me`).
+   - Hard reload while logged in: page paints from cache, then a single `GET /me` refreshes the slice.
+   - Logout → re-login: fresh fetch; no stale cache bleed-through.
+   - Redux DevTools: `citizen` slice transitions `pending → fulfilled` on first hook mount; the `auth/logout` action also wipes `citizen` state via the matcher.
+
+## Behavioral changes relative to the main Phase 2 section above
+
+- Section 4 of the main document ("Consumer migrations — `state.auth.citizenInfo` → `getCitizenInfo()`") is superseded: those same consumers now use `useCitizenInfo()`, not `getCitizenInfo()`.
+- Section 4 of "Notable behavioral changes" (`citizenInfo` single-sourced in localStorage) is superseded: it's now single-sourced in the `citizen` Redux slice, with localStorage acting as a write-through cache for initial hydration only.
+- The storage util's `getCitizenInfo` / `setCitizenInfo` / `clearCitizenInfo` helpers stay — they're now internal plumbing used only by the slice.
+
+## Diff summary (addendum)
+
+| Area | Files |
+|---|---:|
+| New slice | 1 |
+| New hook | 1 |
+| store.ts + ApiRoutes.ts + authSlice.ts | 3 |
+| Consumers migrated | 9 |
+| Defensive `?.` fixes | 2 (subset of the 9) |
+| Avatar upload fix (in citizenSlice) | — |
+| **New + modified total** | **14** |
