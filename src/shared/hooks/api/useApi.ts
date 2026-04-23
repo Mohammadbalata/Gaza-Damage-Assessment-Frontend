@@ -24,7 +24,22 @@ export interface UseApiReturn<T> {
 }
 
 /**
- * Generic hook for API calls with axios
+ * Generic hook for any axios-based API call.
+ *
+ * Handles the `data / loading / error` triplet so callers don't repeat
+ * `useState` + `useEffect` + try/catch on every screen. Errors are routed
+ * through `ApiErrorHandler` so the returned `error` is always a string.
+ *
+ * Most consumers should reach for the verb-specific helpers below
+ * (`useGet`, `usePost`, etc.) rather than calling `useApi` directly.
+ *
+ * @param apiCall  Function returning a Promise — typically `() => api.get(url)`.
+ *                 The hook awaits it and stores `response.data` on `data`.
+ * @param options  `immediate` runs the call once on mount; `onSuccess`/`onError`
+ *                 fire after each invocation.
+ * @returns        `{ data, loading, error, execute, reset, setData }`. Call
+ *                 `execute(...)` to fire the request manually; awaited value is
+ *                 the response data on success or `undefined` on failure.
  */
 export function useApi<T = any>(
   apiCall: (...args: any[]) => Promise<any>,
@@ -76,35 +91,42 @@ export function useApi<T = any>(
 }
 
 /**
- * Hook for GET requests
+ * GET against `url`. Pass `{ immediate: true }` to fire on mount.
+ *
+ * @example
+ *   const { data, loading } = useGet<User[]>("/users", { immediate: true });
  */
 export function useGet<T = any>(url: string, options: UseApiOptions = {}) {
   return useApi<T>(() => api.get(url), options);
 }
 
 /**
- * Hook for POST requests
+ * POST to `url`. Call `execute(payload)` to fire the request.
+ *
+ * @example
+ *   const { execute, loading } = usePost<LoginPayload>("/auth/login");
+ *   await execute({ email, password });
  */
 export function usePost<T = any>(url: string, options: UseApiOptions = {}) {
   return useApi<T>((payload: any) => api.post(url, payload), options);
 }
 
 /**
- * Hook for PUT requests
+ * PUT to `url`. Call `execute(payload)` to fire the request.
  */
 export function usePut<T = any>(url: string, options: UseApiOptions = {}) {
   return useApi<T>((payload: any) => api.put(url, payload), options);
 }
 
 /**
- * Hook for DELETE requests
+ * DELETE against `url`. Call `execute()` to fire the request.
  */
 export function useDelete<T = any>(url: string, options: UseApiOptions = {}) {
   return useApi<T>(() => api.delete(url), options);
 }
 
 /**
- * Hook for PATCH requests
+ * PATCH to `url`. Call `execute(payload)` to fire the request.
  */
 export function usePatch<T = any>(url: string, options: UseApiOptions = {}) {
   return useApi<T>((payload: any) => api.patch(url, payload), options);
